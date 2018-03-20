@@ -1,4 +1,4 @@
-package provaGr;
+package projectIngSoft;
 
 /**
  * Hello world!
