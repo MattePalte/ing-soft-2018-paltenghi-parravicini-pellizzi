@@ -1,11 +1,10 @@
 package projectIngSoft;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 
-/**
- * Hello world!
- *
- */
+
 public class App 
 {
     public static void main( String[] args )
@@ -14,10 +13,11 @@ public class App
         System.out.println( "Hello World!" );
         Die myDie = new Die(0, Colour.RED);
         ArrayList<Die> diceBag = new ArrayList<Die>();
-        for (Colour c : Colour.values()){
-            for(int i = 1; i <= 6; i++){
-                Die newDie = new Die(i, c);
-                diceBag.add(newDie);
+        for (Colour c : Colour.validColours()){
+            Die newDie = new Die(c);
+            for(int i = 1; i <= 18; i++){
+
+                diceBag.add(newDie.rollDie());
             }
         }
 
