@@ -12,6 +12,8 @@ public class App
 
         System.out.println( "Hello World!" );
         Die myDie = new Die(0, Colour.RED);
+        System.out.println(myDie);
+
         ArrayList<Die> diceBag = new ArrayList<Die>();
         for (Colour c : Colour.validColours()){
             Die newDie = new Die(c);
@@ -21,7 +23,7 @@ public class App
             }
         }
 
-        System.out.println(myDie);
+
 
         System.out.println(diceBag);
     }

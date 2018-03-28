@@ -5,8 +5,7 @@ public abstract class ObjectiveCard extends Card{
     protected int points;
 
     public ObjectiveCard(String title, String description, int points){
-        super(title);
-        this.description = description;
+        super(title, description);
         this.points = points;
     }
 
