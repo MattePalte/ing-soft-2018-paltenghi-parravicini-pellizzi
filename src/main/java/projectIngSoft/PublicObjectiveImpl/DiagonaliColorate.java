@@ -3,10 +3,10 @@ package projectIngSoft.PublicObjectiveImpl;
 import projectIngSoft.PublicObjective;
 import projectIngSoft.WindowPattern;
 
-public class ColoriDiversiColonna extends PublicObjective {
+public class DiagonaliColorate extends PublicObjective {
 
-    public ColoriDiversiColonna(){
-        super("Colori Diversi - Colonna", "Hai formato colonne senza ripetere piu volte lo stesso colore", 5);
+    public DiagonaliColorate(){
+        super("Diagonali Colorate", "Conta il numero di dadi dello stesso colore posizionati diagonalmente l'uno rispetto all'altro", 1);
     }
 
     public void countPoints() {

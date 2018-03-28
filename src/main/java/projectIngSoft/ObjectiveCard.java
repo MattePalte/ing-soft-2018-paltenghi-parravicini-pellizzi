@@ -16,4 +16,6 @@ public abstract class ObjectiveCard extends Card{
 
     public abstract void countPoints();
 
+    public abstract int checkCondition(WindowPattern window);
+
 }

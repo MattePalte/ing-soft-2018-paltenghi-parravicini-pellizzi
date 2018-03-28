@@ -1,6 +1,7 @@
 package projectIngSoft.PublicObjectiveImpl;
 
 import projectIngSoft.PublicObjective;
+import projectIngSoft.WindowPattern;
 
 public class ColoriDiversiRiga extends PublicObjective {
 
@@ -10,5 +11,9 @@ public class ColoriDiversiRiga extends PublicObjective {
 
     public void countPoints() {
 
+    }
+
+    public int checkCondition(WindowPattern window) {
+        return 0;
     }
 }

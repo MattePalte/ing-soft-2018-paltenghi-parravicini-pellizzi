@@ -3,10 +3,10 @@ package projectIngSoft.PublicObjectiveImpl;
 import projectIngSoft.PublicObjective;
 import projectIngSoft.WindowPattern;
 
-public class ColoriDiversiColonna extends PublicObjective {
+public class SfumatureDiverse extends PublicObjective {
 
-    public ColoriDiversiColonna(){
-        super("Colori Diversi - Colonna", "Hai formato colonne senza ripetere piu volte lo stesso colore", 5);
+    public SfumatureDiverse(){
+        super("Sfumature Diverse", "Conta quanti set di sfumature (1,2,3,4,5,6) sei riuscito a comporre sulla tua vetrata", 5);
     }
 
     public void countPoints() {

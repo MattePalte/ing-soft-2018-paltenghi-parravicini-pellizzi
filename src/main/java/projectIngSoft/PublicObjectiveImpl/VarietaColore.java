@@ -3,10 +3,10 @@ package projectIngSoft.PublicObjectiveImpl;
 import projectIngSoft.PublicObjective;
 import projectIngSoft.WindowPattern;
 
-public class ColoriDiversiColonna extends PublicObjective {
+public class VarietaColore extends PublicObjective {
 
-    public ColoriDiversiColonna(){
-        super("Colori Diversi - Colonna", "Hai formato colonne senza ripetere piu volte lo stesso colore", 5);
+    public VarietaColore(){
+        super("Varieta Colore", "Conta quanti set di dadi con 5 colori differenti hai composto sulla tua vetrata", 4);
     }
 
     public void countPoints() {
