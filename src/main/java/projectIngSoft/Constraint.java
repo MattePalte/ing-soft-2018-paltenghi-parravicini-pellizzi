@@ -18,16 +18,16 @@ public class Constraint {
         this(0,Colour.BLANK);
     }
 
-    public boolean checkAll(Dice aDice){
-        return checkColour(aDice) && checkValue(aDice);
+    public boolean checkAll(Die aDie){
+        return checkColour(aDie) && checkValue(aDie);
     }
 
-    public boolean checkColour(Dice aDice){
-        return this.colour == Colour.BLANK || aDice.getColour() == this.colour;
+    public boolean checkColour(Die aDie){
+        return this.colour == Colour.BLANK || aDie.getColour() == this.colour;
     }
 
-    public boolean checkValue(Dice aDice){
-        return this.value == 0 || aDice.getColour() == this.colour;
+    public boolean checkValue(Die aDie){
+        return this.value == 0 || aDie.getColour() == this.colour;
     }
 
     public int getValue() {

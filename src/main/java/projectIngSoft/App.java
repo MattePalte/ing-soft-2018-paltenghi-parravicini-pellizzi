@@ -12,16 +12,16 @@ public class App
     {
 
         System.out.println( "Hello World!" );
-        Dice myDice = new Dice(1, Colour.RED);
-        ArrayList<Dice> diceBag = new ArrayList<Dice>();
+        Die myDie = new Die(0, Colour.RED);
+        ArrayList<Die> diceBag = new ArrayList<Die>();
         for (Colour c : Colour.values()){
             for(int i = 1; i <= 6; i++){
-                Dice newDice = new Dice(i, c);
-                diceBag.add(newDice);
+                Die newDie = new Die(i, c);
+                diceBag.add(newDie);
             }
         }
 
-        System.out.println(myDice);
+        System.out.println(myDie);
 
         System.out.println(diceBag);
     }
