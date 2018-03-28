@@ -1,7 +1,7 @@
 package projectIngSoft.PublicObjectiveImpl;
 
 import projectIngSoft.PublicObjective;
-import projectIngSoft.WindowPattern;
+import projectIngSoft.WindowFrame;
 
 public class SfumatureDiverseRiga extends PublicObjective {
 
@@ -13,7 +13,7 @@ public class SfumatureDiverseRiga extends PublicObjective {
 
     }
 
-    public int checkCondition(WindowPattern window) {
+    public int checkCondition(WindowFrame window) {
         return 0;
     }
 }

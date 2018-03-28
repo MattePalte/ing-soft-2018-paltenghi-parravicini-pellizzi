@@ -1,7 +1,7 @@
 package projectIngSoft.PrivateObjectiveImpl;
 
 import projectIngSoft.PrivateObjective;
-import projectIngSoft.WindowPattern;
+import projectIngSoft.WindowFrame;
 
 public class SfumatureVerdi extends PrivateObjective {
 
@@ -13,7 +13,8 @@ public class SfumatureVerdi extends PrivateObjective {
 
     }
 
-    public int checkCondition(WindowPattern window) {
+    public int checkCondition(WindowFrame window) {
+
         return 0;
     }
 }
