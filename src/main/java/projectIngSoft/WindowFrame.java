@@ -4,8 +4,8 @@ public class WindowFrame {
     private final WindowPattern pattern;
     private Die[][] placedDice;
 
-    public WindowFrame(WindowPattern pattern, int width, int height) {
+    public WindowFrame(WindowPattern pattern) {
         this.pattern = pattern;
-        placedDice = new Die[width][height];
+        placedDice = new Die[pattern.getWidth()][pattern.getHeight()];
     }
 }

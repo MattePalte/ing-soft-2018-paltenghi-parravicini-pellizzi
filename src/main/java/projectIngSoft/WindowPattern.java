@@ -11,4 +11,12 @@ public class WindowPattern {
         constraintsMatrix = new Constraint[width][height];
 
     }
+
+    public int getWidth(){
+        return width;
+    }
+
+    public int getHeight(){
+        return height;
+    }
 }

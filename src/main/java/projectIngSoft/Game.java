@@ -5,12 +5,18 @@ import java.util.List;
 
 public class Game {
 
-    private int numPlayers;
-    private ArrayList<Die> diceBag = new ArrayList<Die>();
-    private List<Die> draftsPool = new ArrayList<Die>();
-    private RoundTracker rounds = RoundTracker.getInstance();
+    private final int numPlayers;
+    private final ArrayList<Die> diceBag;
+    private final ArrayList<Die> draftPool;
+    private final RoundTracker rounds;
+    private final ArrayList<Card> publicObjectives;
 
-    public Game() {
+    public Game(int players) {
+        numPlayers = players;
+        diceBag = new ArrayList<Die>();
+        draftPool = new ArrayList<Die>();
+        rounds = new RoundTracker();
+        publicObjectives = new ArrayList<Card>();
         // populate Die Bag
         for (Colour c : Colour.values()){
             for(int i = 1; i <= 18; i++){
