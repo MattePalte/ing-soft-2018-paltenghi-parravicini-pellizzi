@@ -13,7 +13,7 @@ public enum Colour {
     GREEN ("\u001B[32m", "\u001B[42m"),
     BLUE  ("\u001B[34m", "\u001B[44m"),
     VIOLET("\u001B[35m", "\u001B[45m"),
-    BLANK ("\u001B[37m", "\u001B[47m");
+    WHITE("\u001B[37m", "\u001B[47m");
 
     private static final String ANSI_RESET = "\u001B[0m";
 
@@ -60,8 +60,21 @@ public enum Colour {
 
     public static List<Colour> validColours(){
         List<Colour> aList = new ArrayList(Arrays.asList(values()));
-        aList.remove(BLANK);
+        aList.remove(WHITE);
         return aList;
+    }
+
+    public static Colour valueOf( char aChar) throws ColorNotFoundException{
+       for (Colour c: values())
+           if (c.name().charAt(0) == aChar )
+               return c;
+       throw new ColorNotFoundException("Color not found for abbreviation "+ aChar);
+    }
+
+    static class ColorNotFoundException extends Exception{
+        public ColorNotFoundException(String aString){
+            super(aString);
+        }
     }
 
 }

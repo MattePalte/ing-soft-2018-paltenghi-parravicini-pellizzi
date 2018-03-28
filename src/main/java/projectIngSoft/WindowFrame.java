@@ -3,9 +3,11 @@ package projectIngSoft;
 public class WindowFrame {
     private final WindowPattern pattern;
     private Die[][] placedDice;
+    private boolean isWindowPatternFlipped;
 
-    public WindowFrame(WindowPattern pattern) {
+    public WindowFrame(WindowPattern pattern, boolean isWindowPatternFlipped ) {
         this.pattern = pattern;
+        this.isWindowPatternFlipped = isWindowPatternFlipped;
         placedDice = new Die[pattern.getWidth()][pattern.getHeight()];
 
     }
