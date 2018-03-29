@@ -10,10 +10,6 @@ public class ColoriDiversiRiga extends PublicObjective {
         super("Colori Diversi - Riga", "Hai formato righe senza ripetere piu volte lo stesso colore", 6);
     }
 
-    public void countPoints() {
-
-    }
-
     public int checkCondition(WindowFrame window) {
         ArrayList<Colour> diffColours = new ArrayList<Colour>();
         WindowPattern pattern = window.getPattern();

@@ -10,10 +10,6 @@ public class SfumatureDiverseRiga extends PublicObjective {
         super("Sfumature Diverse - Riga", "Hai formato righe senza ripetere piu volte lo stesso grado di sfumatura", 5);
     }
 
-    public void countPoints() {
-
-    }
-
     public int checkCondition(WindowFrame window) {
         ArrayList<Integer> diffValues = new ArrayList<Integer>();
         WindowPattern pattern = window.getPattern();

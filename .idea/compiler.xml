@@ -11,7 +11,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="ing-soft-2018-paltenghi-parravicini-pellizzi" target="1.5" />
+      <module name="ing-soft-2018-paltenghi-parravicini-pellizzi" target="1.8" />
       <module name="provaId" target="1.5" />
     </bytecodeTargetLevel>
   </component>
