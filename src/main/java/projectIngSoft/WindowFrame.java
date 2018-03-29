@@ -16,4 +16,7 @@ public class WindowFrame {
         return placedDice.clone();
     }
 
+    public WindowPattern getPattern(){
+        return pattern;
+    }
 }
