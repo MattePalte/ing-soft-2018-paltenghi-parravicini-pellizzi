@@ -1,7 +1,8 @@
 package projectIngSoft.PublicObjectiveImpl;
 
-import projectIngSoft.PublicObjective;
-import projectIngSoft.WindowFrame;
+import projectIngSoft.*;
+
+import java.util.ArrayList;
 
 public class SfumatureDiverseColonna extends PublicObjective {
 
@@ -14,6 +15,22 @@ public class SfumatureDiverseColonna extends PublicObjective {
     }
 
     public int checkCondition(WindowFrame window) {
-        return 0;
+        ArrayList<Integer> diffValues = new ArrayList<Integer>();
+        WindowPattern pattern = window.getPattern();
+        Die[][] placedDice = window.getPlacedDice();
+        int col = 0;
+        int row = 0;
+        int ret = 0;
+
+
+        for(col = 0; col < pattern.getWidth();col++) {
+            for (row = 0; row < pattern.getHeight(); row++) {
+                if (!diffValues.contains(placedDice[row][col].getValue()))
+                    diffValues.add(placedDice[row][col].getValue());
+            }
+            if(diffValues.size() == pattern.getHeight())
+                ret++;
+        }
+        return ret;
     }
 }

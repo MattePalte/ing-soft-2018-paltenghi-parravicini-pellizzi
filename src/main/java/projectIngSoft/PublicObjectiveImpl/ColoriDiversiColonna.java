@@ -25,7 +25,7 @@ public class ColoriDiversiColonna extends PublicObjective {
 
         for(col = 0; col < pattern.getWidth();col++) {
             for (row = 0; row < pattern.getHeight(); row++) {
-                if (!diffColours.contains(placedDice[row][col]))
+                if (!diffColours.contains(placedDice[row][col].getColour()))
                     diffColours.add(placedDice[row][col].getColour());
             }
             if(diffColours.size() == pattern.getHeight())
