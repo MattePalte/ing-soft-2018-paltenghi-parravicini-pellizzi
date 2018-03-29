@@ -14,7 +14,6 @@ public class App
     public static void main( String[] args ) throws FileNotFoundException, Colour.ColorNotFoundException {
 
         File file = new File("C:\\Users\\danie\\OneDrive - Politecnico di Milano\\IngInf_Mio\\Progetto - SWengi\\ing-soft-2018-paltenghi-parravicini-pellizzi\\src\\main\\test.txt");
-
         WindowPattern window = new WindowPattern(new Scanner(file));
 
         System.out.println(window);
