@@ -3,29 +3,36 @@ package projectIngSoft.PublicObjectiveImpl;
 import projectIngSoft.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ColoriDiversiColonna extends PublicObjective {
 
     public ColoriDiversiColonna(){
-        super("Colori Diversi - Colonna", "Hai formato colonne senza ripetere piu volte lo stesso colore", 5);
+        super("Colori Diversi - Colonna", "Hai formato colonne senza ripetere più volte lo stesso colore", 5);
     }
 
     public int checkCondition(WindowFrame window) {
-        ArrayList<Colour> diffColours = new ArrayList<Colour>();
-        WindowPattern pattern = window.getPattern();
         Die[][] placedDice = window.getPlacedDice();
-        int col = 0;
-        int row = 0;
-        int ret = 0;
 
+        int ret = 0, row, col;
+        int[] counter = new int[Colour.validColours().size()];
 
-        for(col = 0; col < pattern.getWidth();col++) {
-            for (row = 0; row < pattern.getHeight(); row++) {
-                if (!diffColours.contains(placedDice[row][col].getColour()))
-                    diffColours.add(placedDice[row][col].getColour());
+        for(col = 0; col < placedDice[0].length ;col++) {
+            ret += 1;
+            for (row = 0; row < placedDice.length; row++) {
+                if (placedDice[row][col] == null)
+                    continue;
+
+                if( counter[placedDice[row][col].getColour().ordinal()] == 0) {
+                    counter[placedDice[row][col].getColour().ordinal()] = 1;
+                }else {
+                    ret -= 1;
+                    break;
+                }
             }
-            if(diffColours.size() == pattern.getHeight())
-                ret++;
+            Arrays.fill(counter, 0);
         }
         return ret;
     }

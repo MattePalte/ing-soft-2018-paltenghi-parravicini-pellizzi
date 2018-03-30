@@ -16,13 +16,15 @@ public class SfumatureDiverse extends PublicObjective {
         Die[][] placedDice = window.getPlacedDice();
         int[] values = new int[6];
 
-        for(int index = 0; index < 6; index++)
-            values[index] = 0;
-        for(Die[] row : placedDice)
-            for(Die d : row){
-                values[d.getValue() - 1]++;
+        for (Die[] row : placedDice){
+            for (Die d : row) {
+                if (d != null) {
+                    values[d.getValue() - 1]++;
+                }
             }
-        Arrays.sort(values);
-        return values[0];
+        }
+
+        return Arrays.stream(values).min().orElse(0);
+
     }
 }

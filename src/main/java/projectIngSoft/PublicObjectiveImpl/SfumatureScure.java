@@ -17,12 +17,16 @@ public class SfumatureScure extends PublicObjective {
 
         values[0] = 0;
         values[1] = 0;
-        for(Die[] row : placedDice)
-            for(Die d : row){
-                actualValue = d.getValue();
-                if(actualValue == 5 || actualValue == 6)
-                    values[actualValue - 5]++;
+        for(Die[] row : placedDice) {
+            for (Die d : row) {
+                if (d != null) {
+                    actualValue = d.getValue();
+                    if (actualValue == 5 || actualValue == 6)
+                        values[actualValue - 5]++;
+                }
             }
+        }
+
         return Integer.min(values[0],values[1]);
     }
 }

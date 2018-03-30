@@ -11,7 +11,7 @@ public class DiagonaliColorate extends PublicObjective {
         super("Diagonali Colorate", "Conta il numero di dadi dello stesso colore posizionati diagonalmente l'uno rispetto all'altro", 1);
     }
 
-
+//TODO: avoid null dice
     public int checkCondition(WindowFrame window) {
         WindowPattern pattern = window.getPattern();
         Die[][] placedDice = window.getPlacedDice();

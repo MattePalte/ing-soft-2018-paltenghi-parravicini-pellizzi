@@ -3,6 +3,7 @@ package projectIngSoft.PublicObjectiveImpl;
 import projectIngSoft.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class SfumatureDiverseRiga extends PublicObjective {
 
@@ -11,21 +12,25 @@ public class SfumatureDiverseRiga extends PublicObjective {
     }
 
     public int checkCondition(WindowFrame window) {
-        ArrayList<Integer> diffValues = new ArrayList<Integer>();
-        WindowPattern pattern = window.getPattern();
         Die[][] placedDice = window.getPlacedDice();
-        int col = 0;
-        int row = 0;
-        int ret = 0;
+        int ret = 0, col, row;
+        int[] counter = new int [6];
 
 
-        for(row = 0; row < pattern.getHeight(); row++) {
-            for (col = 0; col < pattern.getWidth(); col++) {
-                if (!diffValues.contains(placedDice[row][col].getValue()))
-                    diffValues.add(placedDice[row][col].getValue());
+        for (row = 0; row < placedDice[0].length ; row++) {
+            ret+=1;
+            for(col = 0; col < placedDice.length ;col++) {
+                if(placedDice[row][col] == null)
+                    continue;
+
+                if(counter[placedDice[row][col].getValue() -1 ] == 0) {
+                    counter[placedDice[row][col].getValue() - 1] = 1;
+                }else{
+                    ret -= 1;
+                }
             }
-            if(diffValues.size() == pattern.getWidth())
-                ret++;
+
+            Arrays.fill(counter, 0);
         }
         return ret;
     }

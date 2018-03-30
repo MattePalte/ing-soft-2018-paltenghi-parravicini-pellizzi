@@ -12,7 +12,9 @@ public class WindowFrame {
 
     }
 
+    //@ensure true; -> objects in placedDie could be Null!
     public Die[][] getPlacedDice(){
+
         return placedDice.clone();
     }
 

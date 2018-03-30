@@ -15,7 +15,7 @@ public class PrivateObjective extends ObjectiveCard {
 
         for(Die[] row : placedDice)
             for(Die d : row)
-                if(d.getColour() == colour)
+                if(d!= null && d.getColour() == this.colour)
                     counter++;
         return counter;
    }

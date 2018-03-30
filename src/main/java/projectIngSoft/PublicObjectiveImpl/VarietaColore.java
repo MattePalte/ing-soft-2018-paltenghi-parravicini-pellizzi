@@ -15,23 +15,19 @@ public class VarietaColore extends PublicObjective {
 
     public int checkCondition(WindowFrame window) {
         Die[][] placedDice = window.getPlacedDice();
-        Map<Colour, Integer> colorQty = new HashMap<>();
 
-        //Initializing local variable "values" to <[Colour],0> for each valid Colour
-        Colour.validColours().forEach( colour -> colorQty.put(colour,0));
+        int row, col;
+        int[] counter = new int[Colour.validColours().size()];
 
-        for(Die[] row : placedDice)
-            for(Die d : row){
-                colorQty.put(d.getColour(), colorQty.get(d.getColour()) + 1);
+        for(col = 0; col < placedDice[0].length ;col++) {
+            for (row = 0; row < placedDice.length; row++) {
+                if (placedDice[row][col] != null) {
+                    counter[placedDice[row][col].getColour().ordinal()] += 1;
+                }
             }
-        ArrayList<Integer> values = new ArrayList<Integer>(colorQty.values());
-        values.sort((fst,snd) -> {
-            if(fst <= snd)
-                return fst;
-            else
-                return snd;
+        }
 
-        });
-        return values.get(0);
+
+        return Arrays.stream(counter).min().orElse(0);
     }
 }

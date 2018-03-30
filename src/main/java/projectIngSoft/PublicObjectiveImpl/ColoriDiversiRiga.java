@@ -3,6 +3,7 @@ package projectIngSoft.PublicObjectiveImpl;
 import projectIngSoft.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ColoriDiversiRiga extends PublicObjective {
 
@@ -11,21 +12,25 @@ public class ColoriDiversiRiga extends PublicObjective {
     }
 
     public int checkCondition(WindowFrame window) {
-        ArrayList<Colour> diffColours = new ArrayList<Colour>();
-        WindowPattern pattern = window.getPattern();
         Die[][] placedDice = window.getPlacedDice();
-        int col = 0;
-        int row = 0;
-        int ret = 0;
 
+        int ret = 0, row, col;
+        int[] counter = new int[Colour.validColours().size()];
 
-        for(row = 0; row < pattern.getHeight(); row++) {
-            for (col = 0; col < pattern.getWidth(); col++) {
-                if (!diffColours.contains(placedDice[row][col].getColour()))
-                    diffColours.add(placedDice[row][col].getColour());
+        for (row = 0; row < placedDice.length; row++) {
+            ret += 1;
+            for(col = 0; col < placedDice[0].length ;col++) {
+                if (placedDice[row][col] == null)
+                    continue;
+
+                if( counter[placedDice[row][col].getColour().ordinal()] == 0) {
+                    counter[placedDice[row][col].getColour().ordinal()] = 1;
+                }else {
+                    ret -= 1;
+                    break;
+                }
             }
-            if(diffColours.size() == pattern.getWidth())
-                ret++;
+            Arrays.fill(counter, 0);
         }
         return ret;
     }
