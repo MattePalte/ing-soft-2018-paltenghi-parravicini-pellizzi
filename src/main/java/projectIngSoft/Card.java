@@ -15,7 +15,16 @@ public abstract class Card {
         return title;
     }
 
+    public String getImgPath() {
+        return imgPath;
+    }
+
     public String getDescription() {
         return description;
+    }
+
+    @Override
+    public String toString(){
+        return getTitle() +": " +getDescription();
     }
 }

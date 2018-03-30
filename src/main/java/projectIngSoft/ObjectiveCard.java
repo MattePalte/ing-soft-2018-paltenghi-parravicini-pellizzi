@@ -1,7 +1,7 @@
 package projectIngSoft;
 
 public abstract class ObjectiveCard extends Card{
-    private String description;
+
     private int points;
 
     public ObjectiveCard(String title, String description, int points){
@@ -9,9 +9,7 @@ public abstract class ObjectiveCard extends Card{
         this.points = points;
     }
 
-    public String getDescription(){
-        return description;
-    }
+
 
     public int getPoints(){
         return points;
