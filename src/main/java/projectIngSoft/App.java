@@ -1,13 +1,8 @@
 package projectIngSoft;
 
-import projectIngSoft.PrivateObjectiveImpl.SfumatureBlu;
+import projectIngSoft.Cards.Objectives.Privates.SfumatureBlu;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -16,7 +11,6 @@ public class App
 {
     public static void main( String[] args ) throws FileNotFoundException, Colour.ColorNotFoundException {
 
-        //TODO Capire come mai il privateObjective non riesce a leggere la sua descrizione (ritorna null) problemi con classe astratta e metodi ereditati??
         System.out.print("descrtiption -> " + new SfumatureBlu().getDescription() + "\n");
 
         Scanner scanner = new Scanner(System.in);
@@ -39,26 +33,8 @@ public class App
             System.out.print("Invalid Game created... \n");
         }
 
-        /*
-        // OLD CODE
-        File file = new File("src/main/test.txt");
-        WindowPattern window = new WindowPattern(new Scanner(file));
 
-        System.out.println(window);
 
-        Die myDie = new Die(0, Colour.RED);
-        //System.out.println(myDie);
-
-        ArrayList<Die> diceBag = new ArrayList<Die>();
-        for (Colour c : Colour.validColours()){
-            Die newDie = new Die(c);
-            for(int i = 1; i <= 18; i++){
-
-                diceBag.add(newDie.rollDie());
-            }
-        }
-        System.out.println(diceBag);
-        */
     }
 
     public static Game defaultGame(){

@@ -71,7 +71,7 @@ public enum Colour {
        throw new ColorNotFoundException("Color not found for abbreviation "+ aChar);
     }
 
-    static class ColorNotFoundException extends Exception{
+    public static class ColorNotFoundException extends Exception{
         public ColorNotFoundException(String aString){
             super(aString);
         }

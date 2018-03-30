@@ -1,5 +1,7 @@
 package projectIngSoft;
 
+import projectIngSoft.Cards.Objectives.Privates.PrivateObjective;
+
 public class Player {
     private final String myName;
     private WindowFrame myFrame;
