@@ -5,10 +5,7 @@ import projectIngSoft.PublicObjectiveImpl.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Game {
@@ -64,8 +61,7 @@ public class Game {
         publicObjectives.add(new SfumatureScure());
         publicObjectives.add(new VarietaColore());
         // initialize window pattern cards
-        windowPatterns = new ArrayList<WindowPattern>();
-        createPatternCards(windowPatterns);
+        windowPatterns = createPatternCards();
 
         // Shuffle everything
         Collections.shuffle(diceBag);
@@ -104,24 +100,29 @@ public class Game {
         for (Player p : players) {
             PrivateObjective randomPrivateObjective = (PrivateObjective) privateObjectives.remove(0);
             p.setMyPrivateObjective(randomPrivateObjective);
-            p.setFrame(new WindowFrame(windowPatterns.remove(0), false));
+            p.setFrame(new WindowFrame(windowPatterns.remove(0), new Random().nextInt() % 2 == 0));
 
             System.out.println("To " + p.getName() + " has been given : " + p.getMyPrivateObjective());
             System.out.println("He chose this pattern: \n");
-            if(p.getFrame().getFlippedFlag())
-                p.getFrame().getPattern().printRear();
-            else
-                p.getFrame().getPattern().printFront();
+            if(p.getFrame().getFlippedFlag()) {
+                System.out.println("Retro: ");
+                System.out.println(p.getFrame().getPattern().printRear());
+            }
+            else {
+                System.out.println("Fronte: ");
+                System.out.println(p.getFrame().getPattern().printFront());
+            }
 
         }
 
     }
 
-    private void createPatternCards(ArrayList<WindowPattern> patterns) throws FileNotFoundException, Colour.ColorNotFoundException {
+    private ArrayList<WindowPattern> createPatternCards() throws FileNotFoundException, Colour.ColorNotFoundException {
         File file = new File("src/main/patterns.txt");
         Scanner input = new Scanner(file);
         String cardRepr;
         Scanner PatternBuilder;
+        ArrayList<WindowPattern> patterns = new ArrayList<WindowPattern>();
 
         /*for(int i = 0; i < 4; i++) {
             cardRepr.append(input.nextLine());
@@ -138,6 +139,7 @@ public class Game {
             WindowPattern window = new WindowPattern(PatternBuilder);
             patterns.add(window);
         }
+        return patterns;
     }
 
 

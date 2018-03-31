@@ -25,5 +25,5 @@ public class WindowFrame {
     public boolean getFlippedFlag(){
         return isWindowPatternFlipped;
     }
-    
+
 }
