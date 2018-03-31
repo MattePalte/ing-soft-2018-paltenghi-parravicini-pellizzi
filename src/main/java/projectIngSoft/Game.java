@@ -3,9 +3,12 @@ package projectIngSoft;
 import projectIngSoft.PrivateObjectiveImpl.*;
 import projectIngSoft.PublicObjectiveImpl.*;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class Game {
@@ -24,7 +27,7 @@ public class Game {
     @ensures
         (* everything is initialized *)
     */
-    public Game(int theNumOfPlayer) {
+    public Game(int theNumOfPlayer) throws FileNotFoundException, Colour.ColorNotFoundException {
         // set required number of players for this game
         numPlayers = theNumOfPlayer;
         // initialize emplty list of player
@@ -62,10 +65,13 @@ public class Game {
         publicObjectives.add(new VarietaColore());
         // initialize window pattern cards
         windowPatterns = new ArrayList<WindowPattern>();
+        createPatternCards(windowPatterns);
+
         // Shuffle everything
         Collections.shuffle(diceBag);
         Collections.shuffle(publicObjectives);
         Collections.shuffle(privateObjectives);
+        Collections.shuffle(windowPatterns);
         // remove cards and leave only 3 publicObjective card for the game
         publicObjectives = publicObjectives.stream().limit(3).collect(Collectors.toCollection(ArrayList::new));
     }
@@ -78,7 +84,7 @@ public class Game {
     public void add(Player newPlayer) {
         if (players.size() < numPlayers) {
             players.add(newPlayer);
-            System.out.println("New player added: " + newPlayer.getName());
+            System.out.println("New player added: " + newPlayer.getName() + "\n");
         }
     }
 
@@ -98,11 +104,40 @@ public class Game {
         for (Player p : players) {
             PrivateObjective randomPrivateObjective = (PrivateObjective) privateObjectives.remove(0);
             p.setMyPrivateObjective(randomPrivateObjective);
+            p.setFrame(new WindowFrame(windowPatterns.remove(0), false));
 
             System.out.println("To " + p.getName() + " has been given : " + p.getMyPrivateObjective());
+            System.out.println("He chose this pattern: \n");
+            if(p.getFrame().getFlippedFlag())
+                p.getFrame().getPattern().printRear();
+            else
+                p.getFrame().getPattern().printFront();
 
         }
 
+    }
+
+    private void createPatternCards(ArrayList<WindowPattern> patterns) throws FileNotFoundException, Colour.ColorNotFoundException {
+        File file = new File("src/main/patterns.txt");
+        Scanner input = new Scanner(file);
+        String cardRepr;
+        Scanner PatternBuilder;
+
+        /*for(int i = 0; i < 4; i++) {
+            cardRepr.append(input.nextLine());
+            cardRepr.append("\n");
+        }*/
+
+
+        for(int i = 0; i < 12; i++) {
+            cardRepr = "";
+            for(int line = 0; line < 4; line++)
+                cardRepr = cardRepr + input.nextLine() + "\n";
+
+            PatternBuilder = new Scanner(cardRepr);
+            WindowPattern window = new WindowPattern(PatternBuilder);
+            patterns.add(window);
+        }
     }
 
 
