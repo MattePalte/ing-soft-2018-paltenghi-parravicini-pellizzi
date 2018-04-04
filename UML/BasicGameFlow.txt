@@ -1,0 +1,41 @@
+title Basic Game Flow
+
+Main->*Game:
+loop For each player
+Main->*Player1:
+Game->Player1: Aggiungi(Player1)
+end
+
+Main->*Referee: Referee(Game)
+Referee->*SubscribedPlayer: add
+note over SubscribedPlayer:SetUp of Observer Pattern
+note over SubscribedPlayer: each player will be notified of 
+note over SubscribedPlayer: a change in the model (GameStatus)
+group Setup Phase - for each Player
+Referee->Player1: give(PrivObjectives)
+Referee->Player1: give(WindowPatterns)
+Player1->Referee: select(WindowPattern)
+end
+
+loop for each round
+loop for each player
+Referee->Player1: takeYourTurn(GameStatus)
+opt
+Player1->Referee: playToolCard(ToolCard)
+box over Referee:check
+Referee->SubscribedPlayer: update(GameStatus)
+end
+opt
+Player1->Referee: placeDie(Die)
+box over Referee:check
+Referee->SubscribedPlayer: update(GameStatus)
+end
+end
+end
+
+group Ending Phase
+loop for each player
+Referee->Player1: countPoint()
+end
+box over Referee:printFinalScore()
+end
