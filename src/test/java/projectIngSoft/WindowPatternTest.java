@@ -1,6 +1,6 @@
 package projectIngSoft;
 
-import org.junit.jupiter.api.Test;
+import org.junit.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
