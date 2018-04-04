@@ -1,9 +1,9 @@
-package projectIngSoft;
+/*package projectIngSoft;
 
-import org.junit.jupiter.api.Test;
+
+import org.junit.*;
 
 import java.util.ArrayList;
-
 
 public class DiceTest {
     @Test
@@ -25,4 +25,4 @@ public class DiceTest {
         System.out.println(diceBag);
     }
 
-}
+}*/

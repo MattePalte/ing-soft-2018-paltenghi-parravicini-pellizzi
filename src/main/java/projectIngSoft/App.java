@@ -37,7 +37,7 @@ public class App
 
     }
 
-    public static Game defaultGame(){
+    public static Game defaultGame() throws FileNotFoundException, Colour.ColorNotFoundException {
         Game theGame = new Game(3);
         theGame.add(new Player("Matteo"));
         theGame.add(new Player("Daniele"));
@@ -45,7 +45,7 @@ public class App
         return theGame;
     }
 
-    public static Game createGame() throws InputMismatchException{
+    public static Game createGame() throws InputMismatchException, FileNotFoundException, Colour.ColorNotFoundException {
         // create a scanner so we can read the command-line input
         Scanner scanner = new Scanner(System.in);
         //  prompt for the number of players
