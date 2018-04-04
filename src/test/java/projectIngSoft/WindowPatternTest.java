@@ -1,4 +1,4 @@
-/*package projectIngSoft;
+package projectIngSoft;
 
 
 import org.junit.*;
@@ -13,10 +13,10 @@ public class WindowPatternTest {
     public void CreationTest() throws Colour.ColorNotFoundException, FileNotFoundException {
         File file = new File("src/main/patterns.txt");
         Scanner input = new Scanner(file);
-        String cardRepr = new String("");
+        String cardRepr ;
         Scanner PatternBuilder;
 
-       
+
 
 
         for(int i = 0; i < 12; i++) {
@@ -31,4 +31,3 @@ public class WindowPatternTest {
     }
 
 }
-*/
