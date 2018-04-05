@@ -10,5 +10,5 @@ public interface RefereeController {
     List<ToolCard> getToolCardAvailable();
     List<Die> getDraftPool();
     Player getCurrentPlayer();
-    void startGame();
+    void startGame() throws Exception;
 }

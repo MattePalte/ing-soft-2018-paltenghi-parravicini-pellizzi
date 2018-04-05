@@ -10,7 +10,7 @@ public class ColoriDiversiColonna extends PublicObjective {
         super("Colori Diversi - Colonna", "Hai formato colonne senza ripetere più volte lo stesso colore", 5);
     }
 
-    public int checkCondition(WindowFrame window) {
+    public int checkCondition(Player window) {
         Die[][] placedDice = window.getPlacedDice();
 
         int ret = 0, row, col;

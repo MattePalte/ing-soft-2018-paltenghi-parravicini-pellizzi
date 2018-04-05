@@ -1,8 +1,7 @@
 package projectIngSoft.Cards.ToolCards;
 
 import projectIngSoft.Colour;
-import projectIngSoft.Cards.ToolCards.ToolCard;
-import projectIngSoft.WindowFrame;
+import projectIngSoft.Player;
 
 public class PennelloPerEglomise extends ToolCard {
     public PennelloPerEglomise() {
@@ -10,7 +9,8 @@ public class PennelloPerEglomise extends ToolCard {
                 "Devi rispettare tutte le altre restrizioni di piazzamento", Colour.BLUE);
     }
 
-    public void applyEffect(WindowFrame window) {
+    @Override
+    public void applyEffect(Player p) {
 
     }
 }

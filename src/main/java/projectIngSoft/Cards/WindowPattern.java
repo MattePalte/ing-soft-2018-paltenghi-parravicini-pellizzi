@@ -14,30 +14,14 @@ public class WindowPattern {
     private final String Title;
     private final int Difficulty;
 
-
-    public WindowPattern(Scanner in) throws Colour.ColorNotFoundException {
-        String constraintRepr;
-        String title;
-        int difficulty;
-        Constraint[][] constraints;
-
-
-        this.Title = in.nextLine();
-        this.Difficulty = in.nextInt();
-        this.height = in.nextInt();
-        this.width = in.nextInt();
-        ConstraintsMatrix = new Constraint[this.height][this.width];
-
-        for (int row = 0; row < height; row++) {
-            for (int col = 0; col < width; col++) {
-                constraintRepr = in.findInLine("[0-6][RYGBVW]");
-                ConstraintsMatrix[row][col] = new Constraint((int) constraintRepr.charAt(0) - (int) '0',
-
-                        Colour.valueOf(constraintRepr.charAt(1)));
-            }
-        }
-        in.nextLine();
+    private WindowPattern(int width, int height, Constraint[][] constraintsMatrix, String title, int difficulty) {
+        this.width = width;
+        this.height = height;
+        ConstraintsMatrix = constraintsMatrix;
+        Title = title;
+        Difficulty = difficulty;
     }
+
 
     public String getTitle() {
         return Title;
@@ -72,6 +56,32 @@ public class WindowPattern {
         }
         return new String(aBuilder);
     }
+
+    public static WindowPattern loadFromScanner(Scanner in) throws Colour.ColorNotFoundException {
+        String constraintRepr;
+        String title;
+        int difficulty, height, width;
+        Constraint[][] constraints;
+
+
+        title = in.nextLine();
+        difficulty = in.nextInt();
+        height = in.nextInt();
+        width = in.nextInt();
+        constraints = new Constraint[height][width];
+
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                constraintRepr = in.findInLine("[0-6][RYGBVW]");
+                constraints[row][col] = new Constraint((int) constraintRepr.charAt(0) - (int) '0',
+                        Colour.valueOf(constraintRepr.charAt(1)));
+            }
+        }
+        return new WindowPattern(width, height, constraints, title, difficulty);
+
+
+    }
+
 }
 
 

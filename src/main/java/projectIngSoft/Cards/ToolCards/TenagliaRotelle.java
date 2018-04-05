@@ -1,8 +1,7 @@
 package projectIngSoft.Cards.ToolCards;
 
 import projectIngSoft.Colour;
-import projectIngSoft.Cards.ToolCards.ToolCard;
-import projectIngSoft.WindowFrame;
+import projectIngSoft.Player;
 
 public class TenagliaRotelle extends ToolCard {
     public TenagliaRotelle() {
@@ -10,8 +9,8 @@ public class TenagliaRotelle extends ToolCard {
                 "Salta il tuo secondo turno in questo round", Colour.RED);
     }
 
-    public void applyEffect(WindowFrame window) {
-
+    @Override
+    public void applyEffect(Player p) {
 
     }
 }

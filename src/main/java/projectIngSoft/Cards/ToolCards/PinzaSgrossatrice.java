@@ -1,8 +1,7 @@
 package projectIngSoft.Cards.ToolCards;
 
 import projectIngSoft.Colour;
-import projectIngSoft.Cards.ToolCards.ToolCard;
-import projectIngSoft.WindowFrame;
+import projectIngSoft.Player;
 
 public class PinzaSgrossatrice extends ToolCard {
 
@@ -12,9 +11,8 @@ public class PinzaSgrossatrice extends ToolCard {
                 "Non puoi cambiare un 6 in 1 o un 1 in 6" , Colour.VIOLET );
     }
 
-    public void applyEffect(WindowFrame window) {
+    @Override
+    public void applyEffect(Player p) {
 
     }
-
-
 }

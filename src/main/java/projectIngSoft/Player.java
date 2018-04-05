@@ -4,33 +4,39 @@ import projectIngSoft.Cards.Objectives.Privates.PrivateObjective;
 import projectIngSoft.Cards.WindowPattern;
 
 public class Player {
-    private final String myName;
-    private WindowPattern myPattern;
-    private PrivateObjective myPrivateObjective;
+    private final String     name;
+    private WindowPattern    pattern;
+    private PrivateObjective privateObjective;
+    private Die[][]          placedDice;
 
     public Player(String name) {
-        this.myName = name;
+        this.name = name;
     }
 
     public String getName() {
-        return myName;
+        return name;
     }
 
-    public void setMyPattern(WindowPattern myPattern) {
-        this.myPattern = myPattern;
+    public void setPattern(WindowPattern pattern) {
+        this.pattern = pattern;
     }
 
-    public WindowPattern getMyPattern() {
+    public WindowPattern getPattern() {
 
-        return myPattern;
+        return pattern;
     }
 
-    public PrivateObjective getMyPrivateObjective() {
-        return myPrivateObjective;
+    public void setPrivateObjective(PrivateObjective privateObjective) {
+        this.privateObjective = privateObjective;
     }
 
-    public void setMyPrivateObjective(PrivateObjective myPrivateObjective) {
-        this.myPrivateObjective = myPrivateObjective;
+    public PrivateObjective getPrivateObjective() {
+        return privateObjective;
+    }
+
+
+    public Die[][] getPlacedDice(){
+        return placedDice;
     }
 
 }

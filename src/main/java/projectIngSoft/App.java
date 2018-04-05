@@ -1,6 +1,8 @@
 package projectIngSoft;
 
 import projectIngSoft.Cards.Objectives.Privates.SfumatureBlu;
+import projectIngSoft.Referee.RefereeController;
+import projectIngSoft.Referee.RefereeControllerMultiplayer;
 
 import java.io.FileNotFoundException;
 import java.util.InputMismatchException;
@@ -9,7 +11,7 @@ import java.util.Scanner;
 
 public class App 
 {
-    public static void main( String[] args ) throws FileNotFoundException, Colour.ColorNotFoundException {
+    public static void main( String[] args ) throws Exception {
 
         System.out.print("descrtiption -> " + new SfumatureBlu().getDescription() + "\n");
 
@@ -28,7 +30,8 @@ public class App
             }
         }
         if (theGame.isValid()) {
-            theGame.setupPhase();
+            RefereeController referee = new RefereeControllerMultiplayer(theGame);
+            referee.startGame();
         } else {
             System.out.print("Invalid Game created... \n");
         }

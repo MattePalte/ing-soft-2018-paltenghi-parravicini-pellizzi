@@ -1,8 +1,7 @@
 package projectIngSoft.Cards.ToolCards;
 
 import projectIngSoft.Colour;
-import projectIngSoft.Cards.ToolCards.ToolCard;
-import projectIngSoft.WindowFrame;
+import projectIngSoft.Player;
 
 public class TaglierinaCircolare extends ToolCard {
     public TaglierinaCircolare() {
@@ -10,7 +9,8 @@ public class TaglierinaCircolare extends ToolCard {
                 "scambia quel dado con un dado sul Tracciato dei Round", Colour.GREEN);
     }
 
-    public void applyEffect(WindowFrame window) {
+    @Override
+    public void applyEffect(Player p) {
 
     }
 }

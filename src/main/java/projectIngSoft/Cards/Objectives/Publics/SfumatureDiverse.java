@@ -1,7 +1,7 @@
 package projectIngSoft.Cards.Objectives.Publics;
 
 import projectIngSoft.Die;
-import projectIngSoft.WindowFrame;
+import projectIngSoft.Player;
 
 import java.util.Arrays;
 
@@ -11,7 +11,7 @@ public class SfumatureDiverse extends PublicObjective {
         super("Sfumature Diverse", "Conta quanti set di sfumature (1,2,3,4,5,6) sei riuscito a comporre sulla tua vetrata", 5);
     }
 
-    public int checkCondition(WindowFrame window) {
+    public int checkCondition(Player window) {
         Die[][] placedDice = window.getPlacedDice();
         int[] values = new int[6];
 

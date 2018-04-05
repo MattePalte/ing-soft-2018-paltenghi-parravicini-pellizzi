@@ -24,11 +24,13 @@ public class Game {
     private final int numPlayers;
     private ArrayList<Player> players;
 
+
     /*
-    @requires theNumOfPlayer > 0
-    @ensures
-        (* everything is initialized *)
-    */
+        @requires theNumOfPlayer > 0
+        @ensures
+
+            (* everything is initialized *)
+        */
     public Game(int theNumOfPlayer) throws FileNotFoundException, Colour.ColorNotFoundException {
         // set required number of players for this game
         numPlayers = theNumOfPlayer;
@@ -55,6 +57,11 @@ public class Game {
     public int getNumberOfPlayers(){
         return players.size();
     }
+
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
+
 
     public boolean isValid() {
         return players.size() == numPlayers;

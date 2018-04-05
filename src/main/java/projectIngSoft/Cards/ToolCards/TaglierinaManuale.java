@@ -1,8 +1,7 @@
 package projectIngSoft.Cards.ToolCards;
 
 import projectIngSoft.Colour;
-import projectIngSoft.Cards.ToolCards.ToolCard;
-import projectIngSoft.WindowFrame;
+import projectIngSoft.Player;
 
 public class TaglierinaManuale extends ToolCard {
     public TaglierinaManuale() {
@@ -11,7 +10,8 @@ public class TaglierinaManuale extends ToolCard {
                 "Devi rispettare tutte le restrizioni di piazzamento", Colour.BLUE);
     }
 
-    public void applyEffect(WindowFrame window) {
+    @Override
+    public void applyEffect(Player p) {
 
     }
 }

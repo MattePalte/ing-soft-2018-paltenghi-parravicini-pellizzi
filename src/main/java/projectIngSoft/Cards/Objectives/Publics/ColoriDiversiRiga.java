@@ -10,7 +10,7 @@ public class ColoriDiversiRiga extends PublicObjective {
         super("Colori Diversi - Riga", "Hai formato righe senza ripetere piu volte lo stesso colore", 6);
     }
 
-    public int checkCondition(WindowFrame window) {
+    public int checkCondition(Player window) {
         Die[][] placedDice = window.getPlacedDice();
 
         int ret = 0, row, col;
