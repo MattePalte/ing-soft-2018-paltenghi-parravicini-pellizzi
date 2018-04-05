@@ -3,7 +3,7 @@ package projectIngSoft.Cards.Objectives.Privates;
 import projectIngSoft.Cards.Objectives.ObjectiveCard;
 import projectIngSoft.Colour;
 import projectIngSoft.Die;
-import projectIngSoft.WindowFrame;
+import projectIngSoft.Player;
 
 public class PrivateObjective extends ObjectiveCard {
 
@@ -14,9 +14,9 @@ public class PrivateObjective extends ObjectiveCard {
         this.colour = colour;
     }
 
-    public int checkCondition(WindowFrame window){
+    public int checkCondition(Player p){
         int counter = 0;
-        Die[][] placedDice = window.getPlacedDice();
+        Die[][] placedDice = p.getPlacedDice();
 
         for(Die[] row : placedDice)
             for(Die d : row)

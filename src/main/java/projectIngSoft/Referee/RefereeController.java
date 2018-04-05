@@ -8,7 +8,12 @@ import java.util.List;
 
 public interface RefereeController {
     List<ToolCard> getToolCardAvailable();
-    List<Die> getDraftPool();
-    Player getCurrentPlayer();
-    void startGame();
+    List<Die>      getDraftPool();
+    Player         getCurrentPlayer();
+
+    public void setupPhase()        throws Exception;
+    public void watchTheGame()      throws Exception;
+    public void attributePoints()   throws Exception;
+    public Player getWinner()       throws Exception;
+
 }

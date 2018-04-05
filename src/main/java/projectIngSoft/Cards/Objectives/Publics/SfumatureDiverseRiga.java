@@ -10,7 +10,7 @@ public class SfumatureDiverseRiga extends PublicObjective {
         super("Sfumature Diverse - Riga", "Hai formato righe senza ripetere piu volte lo stesso grado di sfumatura", 5);
     }
 
-    public int checkCondition(WindowFrame window) {
+    public int checkCondition(Player window) {
         Die[][] placedDice = window.getPlacedDice();
         int ret = 0, col, row;
         int[] counter = new int [6];

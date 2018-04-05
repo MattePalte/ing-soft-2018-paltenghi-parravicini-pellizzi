@@ -1,8 +1,7 @@
 package projectIngSoft.Cards.ToolCards;
 
 import projectIngSoft.Colour;
-import projectIngSoft.Cards.ToolCards.ToolCard;
-import projectIngSoft.WindowFrame;
+import projectIngSoft.Player;
 
 public class Lathekin extends ToolCard {
     public Lathekin() {
@@ -10,7 +9,8 @@ public class Lathekin extends ToolCard {
                 "rispettando tutte le restrizioni di piazzamento", Colour.YELLOW);
     }
 
-    public void applyEffect(WindowFrame window) {
+    @Override
+    public void applyEffect(Player p) {
 
     }
 }

@@ -2,7 +2,7 @@ package projectIngSoft.Cards.Objectives.Publics;
 
 import projectIngSoft.Colour;
 import projectIngSoft.Die;
-import projectIngSoft.WindowFrame;
+import projectIngSoft.Player;
 
 import java.util.*;
 
@@ -12,7 +12,7 @@ public class VarietaColore extends PublicObjective {
         super("Varieta Colore", "Conta quanti set di dadi con 5 colori differenti hai composto sulla tua vetrata", 4);
     }
 
-    public int checkCondition(WindowFrame window) {
+    public int checkCondition(Player window) {
         Die[][] placedDice = window.getPlacedDice();
 
         int row, col;

@@ -1,8 +1,7 @@
 package projectIngSoft.Cards.ToolCards;
 
 import projectIngSoft.Colour;
-import projectIngSoft.Cards.ToolCards.ToolCard;
-import projectIngSoft.WindowFrame;
+import projectIngSoft.Player;
 
 public class PennelloPastaSalda extends ToolCard {
     public PennelloPastaSalda() {
@@ -10,7 +9,9 @@ public class PennelloPastaSalda extends ToolCard {
                 "Se non puoi piazzarlo, riponilo nella Riserva", Colour.VIOLET);
     }
 
-    public void applyEffect(WindowFrame window) {
+
+    @Override
+    public void applyEffect(Player p) {
 
     }
 }

@@ -16,7 +16,12 @@ public enum Colour {
     WHITE("\u001B[37m", "\u001B[47m");
 
     private static final String ANSI_RESET = "\u001B[0m";
-
+    private static List<Colour> validColours;
+    //https://stackoverflow.com/questions/2420389/static-initialization-blocks
+    static{
+        validColours = new ArrayList(Arrays.asList(values()));
+        validColours.remove(WHITE);
+    }
     /*
     https://en.wikipedia.org/wiki/ANSI_escape_code
     public static final String ANSI_BLACK="\u001B[30m";
@@ -59,9 +64,7 @@ public enum Colour {
     }
 
     public static List<Colour> validColours(){
-        List<Colour> aList = new ArrayList(Arrays.asList(values()));
-        aList.remove(WHITE);
-        return aList;
+        return validColours;
     }
 
     public static Colour valueOf( char aChar) throws ColorNotFoundException{

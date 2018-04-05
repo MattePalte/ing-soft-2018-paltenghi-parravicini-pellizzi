@@ -1,8 +1,7 @@
 package projectIngSoft.Cards.ToolCards;
 
 import projectIngSoft.Colour;
-import projectIngSoft.Cards.ToolCards.ToolCard;
-import projectIngSoft.WindowFrame;
+import projectIngSoft.Player;
 
 public class AlesatoreLaminaRame extends ToolCard {
     public AlesatoreLaminaRame() {
@@ -10,7 +9,7 @@ public class AlesatoreLaminaRame extends ToolCard {
                 "Devi rispettare tutte le altre restrizioni di piazzamento", Colour.RED);
     }
 
-    public void applyEffect(WindowFrame window) {
+    public void applyEffect(Player p) {
 
     }
 }

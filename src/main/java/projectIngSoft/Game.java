@@ -1,32 +1,20 @@
 package projectIngSoft;
 
 
-
-
-import projectIngSoft.Cards.Card;
-import projectIngSoft.Cards.Objectives.Privates.PrivateObjective;
-import projectIngSoft.Cards.Objectives.Privates.*;
-import projectIngSoft.Cards.Objectives.Publics.*;
-import projectIngSoft.Cards.WindowPatternCard;
-
-
-
-
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
-import java.util.stream.Collectors;
 
-import static java.lang.Boolean.TRUE;
 
 public class Game {
 
     private final int numPlayers;
     private ArrayList<Player> players;
 
+
     /*
     @requires theNumOfPlayer > 0
     @ensures
+
         (* everything is initialized *)
     */
     public Game(int theNumOfPlayer) throws FileNotFoundException, Colour.ColorNotFoundException {
@@ -55,6 +43,11 @@ public class Game {
     public int getNumberOfPlayers(){
         return players.size();
     }
+
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
+
 
     public boolean isValid() {
         return players.size() == numPlayers;

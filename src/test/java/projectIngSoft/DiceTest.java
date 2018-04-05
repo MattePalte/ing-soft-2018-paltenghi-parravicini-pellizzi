@@ -1,4 +1,4 @@
-/*package projectIngSoft;
+package projectIngSoft;
 
 
 import org.junit.*;
@@ -25,4 +25,4 @@ public class DiceTest {
         System.out.println(diceBag);
     }
 
-}*/
+}

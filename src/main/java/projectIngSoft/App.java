@@ -1,6 +1,8 @@
 package projectIngSoft;
 
 import projectIngSoft.Cards.Objectives.Privates.SfumatureBlu;
+import projectIngSoft.Referee.RefereeController;
+import projectIngSoft.Referee.RefereeControllerMultiplayer;
 
 import java.io.FileNotFoundException;
 import java.util.InputMismatchException;
@@ -9,26 +11,18 @@ import java.util.Scanner;
 
 public class App 
 {
-    public static void main( String[] args ) throws FileNotFoundException, Colour.ColorNotFoundException {
-
-        System.out.print("descrtiption -> " + new SfumatureBlu().getDescription() + "\n");
+    public static void main( String[] args ) throws Exception {
 
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Use default configuration? y/n ");
-        String answer = scanner.next();
-        Game theGame;
-        if (answer.equals("y")) {
-            theGame = defaultGame();
-        } else {
-            try {
-                theGame = createGame();
-            } catch (InputMismatchException e) {
-                System.out.print("Mismatch Input... \n");
-                return;
-            }
-        }
+        Game theGame = createGame();
+
         if (theGame.isValid()) {
-            theGame.setupPhase();
+            RefereeController referee = new RefereeControllerMultiplayer(theGame);
+            referee.setupPhase();
+            referee.watchTheGame();
+            referee.attributePoints();
+            Player p = referee.getWinner();
+            System.out.println("Player "+ p +" wins!");
         } else {
             System.out.print("Invalid Game created... \n");
         }
@@ -37,13 +31,6 @@ public class App
 
     }
 
-    public static Game defaultGame() throws FileNotFoundException, Colour.ColorNotFoundException {
-        Game theGame = new Game(3);
-        theGame.add(new Player("Matteo"));
-        theGame.add(new Player("Daniele"));
-        theGame.add(new Player("Kris"));
-        return theGame;
-    }
 
     public static Game createGame() throws InputMismatchException, FileNotFoundException, Colour.ColorNotFoundException {
         // create a scanner so we can read the command-line input

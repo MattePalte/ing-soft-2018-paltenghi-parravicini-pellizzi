@@ -2,10 +2,11 @@ package projectIngSoft.Cards.ToolCards;
 
 import projectIngSoft.Cards.Card;
 import projectIngSoft.Colour;
-import projectIngSoft.WindowFrame;
+import projectIngSoft.Player;
 
 public abstract class ToolCard extends Card {
     protected Colour colour;
+    //TODO: we have to implement ToolCards!
 
     public ToolCard(String aTitle,String description, Colour aColour){
         super(aTitle, description);
@@ -15,5 +16,5 @@ public abstract class ToolCard extends Card {
     public Colour getColour(){
         return this.colour;
     }
-    public abstract void applyEffect(WindowFrame window);
+    public abstract void applyEffect(Player p);
 }

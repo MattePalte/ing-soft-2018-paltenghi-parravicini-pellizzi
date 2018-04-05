@@ -1,8 +1,7 @@
 package projectIngSoft.Cards.ToolCards;
 
 import projectIngSoft.Colour;
-import projectIngSoft.Cards.ToolCards.ToolCard;
-import projectIngSoft.WindowFrame;
+import projectIngSoft.Player;
 
 public class TamponeDiamantato extends ToolCard {
     public TamponeDiamantato() {
@@ -10,7 +9,8 @@ public class TamponeDiamantato extends ToolCard {
                 "6 diventa 1, 5 diventa 2, 4 diventa 3 ecc.", Colour.GREEN);
     }
 
-    public void applyEffect(WindowFrame window) {
+    @Override
+    public void applyEffect(Player p) {
 
     }
 }

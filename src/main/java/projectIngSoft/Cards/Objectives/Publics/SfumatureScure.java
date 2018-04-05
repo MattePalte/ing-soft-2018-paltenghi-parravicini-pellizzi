@@ -1,7 +1,7 @@
 package projectIngSoft.Cards.Objectives.Publics;
 
 import projectIngSoft.Die;
-import projectIngSoft.WindowFrame;
+import projectIngSoft.Player;
 
 public class SfumatureScure extends PublicObjective {
 
@@ -9,7 +9,8 @@ public class SfumatureScure extends PublicObjective {
         super("Sfumature Scure", "Conta il numero di coppie di dadi (5,6) presenti sulla tua vetrata", 2);
     }
 
-    public int checkCondition(WindowFrame window) {
+    @Override
+    public int checkCondition(Player window) {
         Die[][] placedDice = window.getPlacedDice();
         int[] values = new int[2];
         int actualValue;

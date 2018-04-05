@@ -1,8 +1,7 @@
 package projectIngSoft.Cards.ToolCards;
 
 import projectIngSoft.Colour;
-import projectIngSoft.Cards.ToolCards.ToolCard;
-import projectIngSoft.WindowFrame;
+import projectIngSoft.Player;
 
 public class StripCutter extends ToolCard {
 
@@ -12,7 +11,8 @@ public class StripCutter extends ToolCard {
                 "Deve essere usato prima del Round 7", Colour.WHITE);
     }
 
-    public void applyEffect(WindowFrame window) {
+    @Override
+    public void applyEffect(Player p) {
 
     }
 }

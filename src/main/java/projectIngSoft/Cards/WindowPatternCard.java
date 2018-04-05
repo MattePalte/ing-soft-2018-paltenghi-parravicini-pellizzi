@@ -1,7 +1,6 @@
 package projectIngSoft.Cards;
 
 import projectIngSoft.Colour;
-import projectIngSoft.Cards.WindowPattern;
 
 import java.util.Scanner;
 
@@ -34,9 +33,9 @@ public class WindowPatternCard extends Card {
 
     public static WindowPatternCard loadFromScanner(Scanner aScanner) throws Colour.ColorNotFoundException {
 
-        WindowPattern f = new WindowPattern(aScanner);
-        WindowPattern r = new WindowPattern(aScanner);
-
+        WindowPattern f = WindowPattern.loadFromScanner(aScanner);
+        aScanner.nextLine();
+        WindowPattern r = WindowPattern.loadFromScanner(aScanner);
         return new WindowPatternCard(f.getTitle() + " - " + r.getTitle(),"",f, r );
     }
 }
