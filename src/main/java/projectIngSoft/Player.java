@@ -1,10 +1,11 @@
 package projectIngSoft;
 
 import projectIngSoft.Cards.Objectives.Privates.PrivateObjective;
+import projectIngSoft.Cards.WindowPattern;
 
 public class Player {
     private final String myName;
-    private WindowFrame myFrame;
+    private WindowPattern myPattern;
     private PrivateObjective myPrivateObjective;
 
     public Player(String name) {
@@ -15,12 +16,13 @@ public class Player {
         return myName;
     }
 
-    public WindowFrame getFrame() {
-        return myFrame;
+    public void setMyPattern(WindowPattern myPattern) {
+        this.myPattern = myPattern;
     }
 
-    public void setFrame(WindowFrame frame) {
-        this.myFrame = frame;
+    public WindowPattern getMyPattern() {
+
+        return myPattern;
     }
 
     public PrivateObjective getMyPrivateObjective() {

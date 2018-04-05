@@ -1,12 +1,23 @@
 package projectIngSoft;
 
+
+
+
 import projectIngSoft.Cards.Card;
+import projectIngSoft.Cards.Objectives.Privates.PrivateObjective;
 import projectIngSoft.Cards.Objectives.Privates.*;
 import projectIngSoft.Cards.Objectives.Publics.*;
+import projectIngSoft.Cards.WindowPatternCard;
 
-import java.util.ArrayList;
-import java.util.Collections;
+
+
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.lang.Boolean.TRUE;
 
 public class Game {
 
@@ -17,14 +28,14 @@ public class Game {
     private final RoundTracker rounds;
     private ArrayList<Card> privateObjectives;
     private ArrayList<Card> publicObjectives;
-    private ArrayList<WindowPattern> windowPatterns;
+    private ArrayList<WindowPatternCard> windowPatterns;
 
     /*
     @requires theNumOfPlayer > 0
     @ensures
         (* everything is initialized *)
     */
-    public Game(int theNumOfPlayer) {
+    public Game(int theNumOfPlayer) throws FileNotFoundException, Colour.ColorNotFoundException {
         // set required number of players for this game
         numPlayers = theNumOfPlayer;
         // initialize emplty list of player
@@ -61,11 +72,13 @@ public class Game {
         publicObjectives.add(new SfumatureScure());
         publicObjectives.add(new VarietaColore());
         // initialize window pattern cards
-        windowPatterns = new ArrayList<WindowPattern>();
+        windowPatterns = createPatternCards();
+
         // Shuffle everything
         Collections.shuffle(diceBag);
         Collections.shuffle(publicObjectives);
         Collections.shuffle(privateObjectives);
+        Collections.shuffle(windowPatterns);
         // remove cards and leave only 3 publicObjective card for the game
         publicObjectives = publicObjectives.stream().limit(3).collect(Collectors.toCollection(ArrayList::new));
     }
@@ -78,7 +91,7 @@ public class Game {
     public void add(Player newPlayer) {
         if (players.size() < numPlayers) {
             players.add(newPlayer);
-            System.out.println("New player added: " + newPlayer.getName());
+            System.out.println("New player added: " + newPlayer.getName() + "\n");
         }
     }
 
@@ -96,13 +109,34 @@ public class Game {
 
     public void setupPhase(){
         for (Player p : players) {
-            PrivateObjective randomPrivateObjective = (PrivateObjective) privateObjectives.remove(0);
-            p.setMyPrivateObjective(randomPrivateObjective);
 
-            System.out.println("To " + p.getName() + " has been given : " + p.getMyPrivateObjective());
+            PrivateObjective randomPrivateObjective = (PrivateObjective) privateObjectives.remove(0);
+
+            p.setMyPrivateObjective(randomPrivateObjective);
+            WindowPatternCard aPatternCard = windowPatterns.remove(0);
+            if(new Random().nextBoolean() == TRUE)
+                aPatternCard.flip();
+            p.setMyPattern(aPatternCard.getCurrentPattern());
+
+            System.out.println("To " + p.getName() + " has been given : " + p.getMyPrivateObjective()+
+                               "He chose this pattern: \n"+ p.getMyPattern().toString());
 
         }
 
+    }
+
+    private ArrayList<WindowPatternCard> createPatternCards() throws FileNotFoundException, Colour.ColorNotFoundException {
+        File file = new File("src/main/patterns.txt");
+        Scanner input = new Scanner(file);
+
+        ArrayList<WindowPatternCard> patterns = new ArrayList<WindowPatternCard>();
+
+
+
+        for(int i = 0; i < 12; i++) {
+            patterns.add(WindowPatternCard.loadFromScanner(input));
+        }
+        return patterns;
     }
 
 

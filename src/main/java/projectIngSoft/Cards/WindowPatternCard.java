@@ -1,7 +1,7 @@
 package projectIngSoft.Cards;
 
 import projectIngSoft.Colour;
-import projectIngSoft.WindowPattern;
+import projectIngSoft.Cards.WindowPattern;
 
 import java.util.Scanner;
 
@@ -21,6 +21,10 @@ public class WindowPatternCard extends Card {
     // ensure [! /old(toString()).equals(toString()) ]
     public void flip(){
         isFlipped = !isFlipped;
+    }
+
+    public WindowPattern getCurrentPattern() {
+        return isFlipped ? rearPattern : frontPattern;
     }
 
     @Override

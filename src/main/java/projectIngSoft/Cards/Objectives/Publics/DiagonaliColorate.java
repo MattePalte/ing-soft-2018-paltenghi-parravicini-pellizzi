@@ -1,6 +1,7 @@
 package projectIngSoft.Cards.Objectives.Publics;
 
 import projectIngSoft.*;
+import projectIngSoft.Cards.WindowPattern;
 
 import java.util.HashMap;
 import java.util.Map;

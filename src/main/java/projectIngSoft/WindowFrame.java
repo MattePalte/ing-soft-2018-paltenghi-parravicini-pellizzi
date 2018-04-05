@@ -1,5 +1,7 @@
 package projectIngSoft;
 
+import projectIngSoft.Cards.WindowPattern;
+
 public class WindowFrame {
     private final WindowPattern pattern;
     private Die[][] placedDice;
