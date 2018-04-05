@@ -1,0 +1,43 @@
+title Single Player Flow
+
+Main->*Game:
+Main->*Player1:
+Main->Game: setNrPlayer(1)
+Game->Player1: Aggiungi(Player1)
+Player1->Game: selectDifficulty(level)
+
+Main->*Referee: Referee(Game)
+Referee->*SubscribedPlayer: add
+note over SubscribedPlayer:SetUp of Observer Pattern
+note over SubscribedPlayer: each player will be notified of 
+note over SubscribedPlayer: a change in the model (GameStatus)
+group Setup Phase
+Referee->Player1: give2(PrivObjectives)
+Referee->Player1: give2(WindowPatternCards)
+Player1->Referee: select(WindowPattern)
+end
+
+loop for each round (10 times)
+Referee->Player1: takeYourTurn(GameStatus)
+loop two times
+opt
+Player1->Referee: playToolCard(ToolCard)
+box over Referee:check regularity of the action
+box over Referee:drop card
+Referee->SubscribedPlayer: update(GameStatus)
+end
+opt
+Player1->Referee: placeDie(Die)
+box over Referee:check constraints
+Referee->SubscribedPlayer: update(GameStatus)
+end
+end
+end
+
+group Ending Phase
+Player1->Referee: countTrgetScore() 
+Player1->Referee: select(PrivateObjective)
+Referee->Player1: countPoint()
+
+box over Referee:printFinalScore()
+end
