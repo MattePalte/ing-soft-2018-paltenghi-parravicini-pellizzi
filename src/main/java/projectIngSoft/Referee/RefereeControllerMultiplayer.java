@@ -26,28 +26,34 @@ public class RefereeControllerMultiplayer implements RefereeController {
     private ArrayList<Card> publicObjectives;
     private ArrayList<Card> windowPatterns;
     private ArrayList<Card> toolCards;
+    private ArrayList<Player> currentTurn;
 
     //@ Signals Exception aGame.isValid() || aGame.numOfPlayers() <= 0 or aGame.numOfPlayers()> 4;
     public RefereeControllerMultiplayer(Game aGame) throws Exception {
+
         if (!aGame.isValid())
             throw  new Exception("Game is not valid!");
-        //TODO clone object and avoid using the same reference
-        currentGame = aGame;
+        currentGame = new Game(aGame);
+        currentTurn = getTurn();
+    }
+
+    public List<Player> getRoundTurns(){
+        return new ArrayList<>(currentTurn);
     }
 
     @Override
     public List<ToolCard> getToolCardAvailable() {
-        return null;
+        return toolCards.stream().map(card -> (ToolCard)card).collect(Collectors.toList());
     }
 
     @Override
     public List<Die> getDraftPool() {
-        return null;
+        return new ArrayList<>(draftPool);
     }
 
     @Override
     public Player getCurrentPlayer() {
-        return null;
+        return currentTurn.get(0);
     }
 
     @Override
@@ -88,7 +94,7 @@ public class RefereeControllerMultiplayer implements RefereeController {
         //distribute PrivateObjectiveCards
         for (Player p : currentGame.getPlayers()) {
 
-            PrivateObjective randomPrivateObjective = (projectIngSoft.Cards.Objectives.Privates.PrivateObjective )privateObjectives.remove(0);
+            PrivateObjective randomPrivateObjective = (PrivateObjective)privateObjectives.remove(0);
 
             p.setPrivateObjective(randomPrivateObjective);
             WindowPatternCard aPatternCard = (WindowPatternCard) windowPatterns.remove(0);
@@ -98,9 +104,6 @@ public class RefereeControllerMultiplayer implements RefereeController {
 
         }
     }
-
-
-
 
     @Override
     public void watchTheGame() throws Exception {
@@ -115,6 +118,25 @@ public class RefereeControllerMultiplayer implements RefereeController {
     @Override
     public Player getWinner() throws Exception {
         return null;
+    }
+
+    @Override
+    public List<Card> getObjectives() throws Exception {
+        return new ArrayList<>(publicObjectives);
+    }
+
+    private ArrayList<Player> getTurn(){
+        ArrayList<Player> players = currentGame.getPlayers();
+
+        ArrayList<Player> turn = new ArrayList<>(players);
+        turn.addAll(players.stream().sorted((p1, p2) -> players.indexOf(p1) >= players.indexOf(p2) ? 1 : -1).collect(Collectors.toList()));
+        return turn;
+    }
+
+    private void drawDice(){
+        ArrayList<Die> dice = new ArrayList<>(diceBag.subList(0, (2 * currentGame.getNumberOfPlayers()) + 1));
+        draftPool.addAll(dice);
+        diceBag.removeAll(dice);
     }
 
     private ArrayList<Die> createDice() {

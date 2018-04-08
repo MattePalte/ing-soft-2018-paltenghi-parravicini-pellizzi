@@ -1,5 +1,6 @@
 package projectIngSoft.Referee;
 
+import projectIngSoft.Cards.Card;
 import projectIngSoft.Cards.ToolCards.ToolCard;
 import projectIngSoft.Die;
 import projectIngSoft.Player;
@@ -15,5 +16,5 @@ public interface RefereeController {
     public void watchTheGame()      throws Exception;
     public void attributePoints()   throws Exception;
     public Player getWinner()       throws Exception;
-
+    public List<Card> getObjectives()     throws Exception;
 }

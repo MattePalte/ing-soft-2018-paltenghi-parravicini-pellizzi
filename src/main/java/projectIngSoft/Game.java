@@ -24,6 +24,11 @@ public class Game {
         players = new ArrayList<Player>();
     }
 
+    public Game(Game aGame){
+        numPlayers = aGame.numPlayers;
+        players = new ArrayList<Player>(aGame.players);
+    }
+
     /*
     @ensures
         getNumberOfPlayers() == old(getNumberOfPlayers()) + 1  &&
