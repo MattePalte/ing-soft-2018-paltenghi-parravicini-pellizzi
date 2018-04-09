@@ -35,7 +35,7 @@ public class GameTest {
         RefereeController referee = new RefereeControllerMultiplayer(aMultiplePlayerGame);
         referee.setupPhase();
         referee.watchTheGame();
-        referee.attributePoints();
+        referee.countPlayersPoints();
         Player p = referee.getWinner();
         Assert.assertTrue(p.equals(new Player("Kris")));
         System.out.println("Player "+ p +" wins!");
@@ -46,7 +46,7 @@ public class GameTest {
         RefereeController referee = new RefereeControllerSinglePlayer(aSinglePlayerGame);
         referee.setupPhase();
         referee.watchTheGame();
-        referee.attributePoints();
+        referee.countPlayersPoints();
         Player p = referee.getWinner();
         Assert.assertTrue(p.equals(new Player("Kris")));
         System.out.println("Player "+ p +" wins!");

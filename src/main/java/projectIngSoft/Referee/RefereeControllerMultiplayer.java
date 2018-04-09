@@ -36,9 +36,10 @@ public class RefereeControllerMultiplayer implements RefereeController {
             throw  new Exception("Game is not valid!");
         currentGame = new Game(aGame);
         currentTurn = getTurn();
+        //TODO favours whould be distributed after setup phase, otherwise players don't own any pattern
         favours = new HashMap<>();
         for(Player player : currentGame.getPlayers())
-            favours.put(player, player.getPattern().getDifficulty());
+            favours.put(player, player.getVisiblePattern().getDifficulty());
     }
 
     public List<Player> getRoundTurns(){
@@ -113,7 +114,7 @@ public class RefereeControllerMultiplayer implements RefereeController {
             WindowPatternCard aPatternCard = (WindowPatternCard) windowPatterns.remove(0);
             if(new Random().nextBoolean())
                 aPatternCard.flip();
-            p.setPattern(aPatternCard.getCurrentPattern());
+            p.setPatternCard(aPatternCard);
 
         }
     }

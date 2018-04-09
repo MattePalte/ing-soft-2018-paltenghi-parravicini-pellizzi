@@ -20,7 +20,7 @@ public class App
             RefereeController referee = new RefereeControllerMultiplayer(theGame);
             referee.setupPhase();
             referee.watchTheGame();
-            referee.attributePoints();
+            referee.countPlayersPoints();
             Player p = referee.getWinner();
             System.out.println("Player "+ p +" wins!");
         } else {

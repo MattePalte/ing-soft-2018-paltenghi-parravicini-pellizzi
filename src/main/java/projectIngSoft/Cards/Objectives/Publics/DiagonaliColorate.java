@@ -14,7 +14,7 @@ public class DiagonaliColorate extends PublicObjective {
 
 //TODO: avoid null dice
     public int checkCondition(Player window) {
-        WindowPattern pattern = window.getPattern();
+        WindowPattern pattern = window.getVisiblePattern();
         Die[][] placedDice = window.getPlacedDice();
         Integer[][] countedDice = new Integer[pattern.getWidth()][pattern.getHeight()];
         Map<Colour, Integer> colorQty = new HashMap<>();
@@ -79,7 +79,7 @@ public class DiagonaliColorate extends PublicObjective {
 
     // Function used by checkCondition method which returns the number of dice of the same colour on a diagonal from bottomleft to topright
     private int checkDiagonalsBL2TR(int initRow, int initCol, Player window, Integer[][] countedDice){
-        WindowPattern pattern = window.getPattern();
+        WindowPattern pattern = window.getVisiblePattern();
         Die[][] placedDice = window.getPlacedDice();
         int row = initRow - 1;
         int col = initCol + 1;
@@ -97,7 +97,7 @@ public class DiagonaliColorate extends PublicObjective {
 
     // Function used by checkCondition method which returns the number of dice of the same colour on a diagonal from topleft to bottomright
     private int checkDiagonalsTL2BR(int initRow, int initCol, Player window, Integer[][] countedDice){
-        WindowPattern pattern = window.getPattern();
+        WindowPattern pattern = window.getVisiblePattern();
         Die[][] placedDice = window.getPlacedDice();
         int row = initRow + 1;
         int col = initCol + 1;
