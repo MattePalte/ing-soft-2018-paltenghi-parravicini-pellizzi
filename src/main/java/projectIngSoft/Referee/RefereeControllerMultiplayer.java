@@ -27,6 +27,7 @@ public class RefereeControllerMultiplayer implements RefereeController {
     private ArrayList<Card> windowPatterns;
     private ArrayList<Card> toolCards;
     private ArrayList<Player> currentTurn;
+    private Map<Player, Integer> favours;
 
     //@ Signals Exception aGame.isValid() || aGame.numOfPlayers() <= 0 or aGame.numOfPlayers()> 4;
     public RefereeControllerMultiplayer(Game aGame) throws Exception {
@@ -35,6 +36,9 @@ public class RefereeControllerMultiplayer implements RefereeController {
             throw  new Exception("Game is not valid!");
         currentGame = new Game(aGame);
         currentTurn = getTurn();
+        favours = new HashMap<>();
+        for(Player player : currentGame.getPlayers())
+            favours.put(player, player.getPattern().getDifficulty());
     }
 
     public List<Player> getRoundTurns(){
@@ -65,18 +69,24 @@ public class RefereeControllerMultiplayer implements RefereeController {
 
         // initialize empty draft pool
         draftPool = new ArrayList<Die>();
+
         // initialize Round Tracker obj
         rounds = new RoundTracker();
         //TODO: move inizialization into a static method, where just copying pre-initialized elements.
         //TODO: get class contained in projectIngSoft.Cards.Objectives.public.* instead of using a method in every referee. in order to use something like Cards.max4Players.deckOfPublicObjectives .
+
         // create dies and populate Die Bag
         diceBag = createDice();
+
         // initialize private Objective cards
         privateObjectives = createPrivateObjectives();
+
         // initialize public Objective cards
         publicObjectives =  createPublicObjectives();
+
         // initialize window pattern cards
         windowPatterns = createPatternCards();
+
         //initialize toolcards
         toolCards = createToolCards();
 
@@ -87,11 +97,14 @@ public class RefereeControllerMultiplayer implements RefereeController {
         Collections.shuffle(privateObjectives);
         Collections.shuffle(windowPatterns);
         Collections.shuffle(toolCards);
+
         // extract in a random fashion 3 toolCard
         toolCards = toolCards.stream().limit(3).collect(Collectors.toCollection(ArrayList::new));
+
         // remove cards and leave only 3 publicObjective card for the game
         publicObjectives = publicObjectives.stream().limit(3).collect(Collectors.toCollection(ArrayList::new));
-        //distribute PrivateObjectiveCards
+
+        //randomly distribute PrivateObjectiveCards
         for (Player p : currentGame.getPlayers()) {
 
             PrivateObjective randomPrivateObjective = (PrivateObjective)privateObjectives.remove(0);
@@ -107,11 +120,19 @@ public class RefereeControllerMultiplayer implements RefereeController {
 
     @Override
     public void watchTheGame() throws Exception {
+        Scanner userInput = new Scanner(System.in);
+        String input;
+        for(Player player : currentTurn){
+            String playerName = getCurrentPlayer().getName();
+
+
+        }
+
 
     }
 
     @Override
-    public void attributePoints() throws Exception {
+    public void countPlayersPoints() throws Exception {
 
     }
 
@@ -123,6 +144,28 @@ public class RefereeControllerMultiplayer implements RefereeController {
     @Override
     public List<Card> getObjectives() throws Exception {
         return new ArrayList<>(publicObjectives);
+    }
+
+    @Override
+    public void playToolCard(ToolCard aToolCard) throws Exception {
+
+    }
+
+    @Override
+    public void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception {
+
+    }
+
+    private Map<Player, Integer> getFavours(){
+        return new HashMap<>(favours);
+    }
+
+    private List<Player> turnLeftShift(ArrayList<Player> actualTurn){
+        List<Player> ret = new ArrayList<>();
+        for(int i = 0; i < actualTurn.size(); i++){
+            ret.add((i) % 3, actualTurn.get((i + 1) % 3));
+        }
+        return ret;
     }
 
     private ArrayList<Player> getTurn(){

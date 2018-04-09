@@ -14,7 +14,9 @@ public interface RefereeController {
 
     public void setupPhase()        throws Exception;
     public void watchTheGame()      throws Exception;
-    public void attributePoints()   throws Exception;
+    public void countPlayersPoints()   throws Exception;
     public Player getWinner()       throws Exception;
     public List<Card> getObjectives()     throws Exception;
+    public void playToolCard(ToolCard aToolCard)      throws Exception;
+    public void placeDie(Die aDie, int rowIndex, int colIndex)          throws Exception;
 }
