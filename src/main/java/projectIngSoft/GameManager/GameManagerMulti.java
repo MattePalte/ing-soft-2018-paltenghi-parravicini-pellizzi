@@ -1,4 +1,4 @@
-package projectIngSoft.Referee;
+package projectIngSoft.GameManager;
 
 
 import projectIngSoft.Cards.Card;
@@ -14,7 +14,7 @@ import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class RefereeControllerMultiplayer implements RefereeController {
+public class GameManagerMulti implements IGameManager {
 
 
     private Game currentGame ;
@@ -30,7 +30,7 @@ public class RefereeControllerMultiplayer implements RefereeController {
     private Map<Player, Integer> favours;
 
     //@ Signals Exception aGame.isValid() || aGame.numOfPlayers() <= 0 or aGame.numOfPlayers()> 4;
-    public RefereeControllerMultiplayer(Game aGame) throws Exception {
+    public GameManagerMulti(Game aGame) throws Exception {
 
         if (!aGame.isValid())
             throw  new Exception("Game is not valid!");
@@ -47,7 +47,12 @@ public class RefereeControllerMultiplayer implements RefereeController {
     }
 
     @Override
-    public List<ToolCard> getToolCardAvailable() {
+    public List<Player> getPlayerList() {
+        return null;
+    }
+
+    @Override
+    public List<ToolCard> getToolCards() {
         return toolCards.stream().map(card -> (ToolCard)card).collect(Collectors.toList());
     }
 
@@ -57,8 +62,23 @@ public class RefereeControllerMultiplayer implements RefereeController {
     }
 
     @Override
+    public Game getGameInfo() {
+        return null;
+    }
+
+    @Override
     public Player getCurrentPlayer() {
         return currentTurn.get(0);
+    }
+
+    @Override
+    public List<PublicObjective> getPublicObjective() {
+        return null;
+    }
+
+    @Override
+    public List<Die> getDiceBag() {
+        return null;
     }
 
     @Override
@@ -113,23 +133,10 @@ public class RefereeControllerMultiplayer implements RefereeController {
             p.setPrivateObjective(randomPrivateObjective);
             WindowPatternCard aPatternCard = (WindowPatternCard) windowPatterns.remove(0);
             if(new Random().nextBoolean())
-                aPatternCard.flip();
+                p.flip();
             p.setPatternCard(aPatternCard);
 
         }
-    }
-
-    @Override
-    public void watchTheGame() throws Exception {
-        Scanner userInput = new Scanner(System.in);
-        String input;
-        for(Player player : currentTurn){
-            String playerName = getCurrentPlayer().getName();
-
-
-        }
-
-
     }
 
     @Override
@@ -138,13 +145,13 @@ public class RefereeControllerMultiplayer implements RefereeController {
     }
 
     @Override
-    public Player getWinner() throws Exception {
-        return null;
+    public void deliverNewStatus(IGameManager newStatus) {
+
     }
 
     @Override
-    public List<Card> getObjectives() throws Exception {
-        return new ArrayList<>(publicObjectives);
+    public Player getWinner() throws Exception {
+        return null;
     }
 
     @Override
@@ -157,8 +164,23 @@ public class RefereeControllerMultiplayer implements RefereeController {
 
     }
 
-    private Map<Player, Integer> getFavours(){
+    @Override
+    public List<PrivateObjective> getPrivateObjective() {
+        return null;
+    }
+
+    @Override
+    public void endTurn() {
+
+    }
+    @Override
+    public Map<Player, Integer> getFavours(){
         return new HashMap<>(favours);
+    }
+
+    @Override
+    public RoundTracker getRoundTracker() {
+        return null;
     }
 
     private List<Player> turnLeftShift(ArrayList<Player> actualTurn){

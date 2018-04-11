@@ -1,14 +1,14 @@
 package projectIngSoft;
 
 
-import projectIngSoft.Referee.RefereeController;
-import projectIngSoft.Referee.RefereeControllerMultiplayer;
+import projectIngSoft.GameManager.IGameManager;
+import projectIngSoft.GameManager.GameManagerMulti;
 
 import java.io.FileNotFoundException;
 
 
 import org.junit.*;
-import projectIngSoft.Referee.RefereeControllerSinglePlayer;
+import projectIngSoft.GameManager.GameManagerSingle;
 
 public class GameTest {
 
@@ -32,9 +32,8 @@ public class GameTest {
 
     @Test
     public void testMultiplayer() throws Exception {
-        RefereeController referee = new RefereeControllerMultiplayer(aMultiplePlayerGame);
+        IGameManager referee = new GameManagerMulti(aMultiplePlayerGame);
         referee.setupPhase();
-        referee.watchTheGame();
         referee.countPlayersPoints();
         Player p = referee.getWinner();
         Assert.assertTrue(p.equals(new Player("Kris")));
@@ -43,9 +42,8 @@ public class GameTest {
 
     @Test
     public void testSinglePlayer() throws Exception {
-        RefereeController referee = new RefereeControllerSinglePlayer(aSinglePlayerGame);
+        IGameManager referee = new GameManagerSingle(aSinglePlayerGame);
         referee.setupPhase();
-        referee.watchTheGame();
         referee.countPlayersPoints();
         Player p = referee.getWinner();
         Assert.assertTrue(p.equals(new Player("Kris")));

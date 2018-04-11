@@ -7,7 +7,6 @@ import java.util.Scanner;
 public class WindowPatternCard extends Card {
     private WindowPattern frontPattern;
     private WindowPattern rearPattern;
-    private Boolean isFlipped = false;
 
     // requires title != null && description != null && frontPattern != null && rearPattern != null &&
     //          rearPattern != frontPattern && rearPattern.toString() != frontPattern.toString()
@@ -17,18 +16,20 @@ public class WindowPatternCard extends Card {
         this.rearPattern = rearPattern;
     }
 
-    // ensure [! /old(toString()).equals(toString()) ]
-    public void flip(){
-        isFlipped = !isFlipped;
+    public WindowPattern getFrontPattern(){
+        return frontPattern;
     }
 
-    public WindowPattern getCurrentPattern() {
-        return isFlipped ? rearPattern : frontPattern;
+    public WindowPattern getRearPattern(){
+        return rearPattern;
     }
 
-    @Override
-    public String toString() {
-        return isFlipped ? rearPattern.toString() : frontPattern.toString();
+    public String printFrontPattern() {
+        return frontPattern.toString();
+    }
+
+    public String printRearPattern(){
+        return rearPattern.toString();
     }
 
     public static WindowPatternCard loadFromScanner(Scanner aScanner) throws Colour.ColorNotFoundException {

@@ -13,6 +13,7 @@ public class Player {
     private WindowPatternCard myWindowPatternCard;
     private PrivateObjective myPrivateObjective;
     private Die[][]          placedDice;
+    private boolean isPatternFlipped;
 
     //Constructor
     public Player(String name) {
@@ -28,7 +29,7 @@ public class Player {
     //@assignable nothing
     public WindowPattern getVisiblePattern() {
         //TODO getVisiblePattern - class WindowPattern should be final?
-        return myWindowPatternCard.getCurrentPattern();
+        return getPattern();
     }
 
     //@assignable nothing
@@ -46,6 +47,14 @@ public class Player {
     //@assignable nothing
     public Die[][] getPlacedDice(){
         return cloneArray(placedDice);
+    }
+
+    public void flip(){
+        isPatternFlipped = !isPatternFlipped;
+    }
+
+    public WindowPattern getPattern(){
+        return isPatternFlipped ? myWindowPatternCard.getFrontPattern() : myWindowPatternCard.getRearPattern();
     }
 
     /**
@@ -77,18 +86,14 @@ public class Player {
 
     public void setPatternCard(WindowPatternCard aPatternCard) {
         this.myWindowPatternCard = aPatternCard;
-        int width =  aPatternCard.getCurrentPattern().getWidth();
-        int height =  aPatternCard.getCurrentPattern().getHeight();
+        int width =  getPattern().getWidth();
+        int height =  getPattern().getHeight();
         this.placedDice = new Die[height][width];
     }
 
     public void setPrivateObjective(PrivateObjective myPrivateObjective) {
         this.myPrivateObjective = myPrivateObjective;
 
-    }
-
-    public void flipCard(){
-        this.myWindowPatternCard.flip();
     }
 
     public boolean placeDie(Die aDie, int row, int col) {
@@ -106,14 +111,6 @@ public class Player {
     }
 
     //---------------------- NOT YET IMPLEMENTED METHODS - TO DISCUSS -------------------------
-
-    public int getFavoursLeft(){
-        return 0;
-    }
-
-    public Socket getPlayerSocket(){
-        return null;
-    }
 
     public String getPlayerSecurityCode(){
         return new String("Codice");

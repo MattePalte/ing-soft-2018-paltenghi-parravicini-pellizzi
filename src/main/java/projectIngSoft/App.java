@@ -1,8 +1,7 @@
 package projectIngSoft;
 
-import projectIngSoft.Cards.Objectives.Privates.SfumatureBlu;
-import projectIngSoft.Referee.RefereeController;
-import projectIngSoft.Referee.RefereeControllerMultiplayer;
+import projectIngSoft.GameManager.IGameManager;
+import projectIngSoft.GameManager.GameManagerMulti;
 
 import java.io.FileNotFoundException;
 import java.util.InputMismatchException;
@@ -17,9 +16,8 @@ public class App
         Game theGame = createGame();
 
         if (theGame.isValid()) {
-            RefereeController referee = new RefereeControllerMultiplayer(theGame);
+            IGameManager referee = new GameManagerMulti(theGame);
             referee.setupPhase();
-            referee.watchTheGame();
             referee.countPlayersPoints();
             Player p = referee.getWinner();
             System.out.println("Player "+ p +" wins!");
