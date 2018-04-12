@@ -5,6 +5,7 @@ import projectIngSoft.Cards.Objectives.Privates.PrivateObjective;
 import projectIngSoft.Cards.ToolCards.ToolCard;
 import projectIngSoft.Cards.WindowPattern;
 import projectIngSoft.Cards.WindowPatternCard;
+import projectIngSoft.View.IView;
 
 public class Player {
     private final String     name;
@@ -12,12 +13,14 @@ public class Player {
     private PrivateObjective myPrivateObjective;
     private Die[][]          placedDice;
     private boolean isPatternFlipped;
+    private IView myView;
 
     //Constructor
-    public Player(String name) {
+    public Player(String name, IView aView) {
         this.name = new String(name);
         //altrimenti errore
         this.placedDice = new Die[1][1];
+        this.myView = aView;
     }
 
     //---------------------- OBSERVERS -------------------------
@@ -129,11 +132,14 @@ public class Player {
         return true;
     }
 
+    public void takeTurn() {
+        myView.takeTurn();
+    }
+
     //---------------------- NOT YET IMPLEMENTED METHODS - TO DISCUSS -------------------------
 
     public String getPlayerSecurityCode(){
         return new String("Codice");
     }
-
 
 }

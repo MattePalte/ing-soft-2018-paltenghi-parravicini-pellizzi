@@ -42,6 +42,7 @@ public class WindowPattern {
         return ConstraintsMatrix;
     }
 
+
     @Override
     public String toString() {
         StringBuilder aBuilder = new StringBuilder();

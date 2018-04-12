@@ -2,6 +2,7 @@ package projectIngSoft;
 
 import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.GameManager.GameManagerMulti;
+import projectIngSoft.View.LocalViewCli;
 
 import java.io.FileNotFoundException;
 import java.util.InputMismatchException;
@@ -17,7 +18,7 @@ public class App
 
         if (theGame.isValid()) {
             IGameManager referee = new GameManagerMulti(theGame);
-            referee.setupPhase();
+
             referee.countPlayersPoints();
             Player p = referee.getWinner();
             System.out.println("Player "+ p +" wins!");
@@ -47,7 +48,7 @@ public class App
             //  prompt for the player name
             System.out.println(String.format("Name for player nr %d : ", i));
             String newName = scanner.next();
-            Player newPlayer = new Player(newName);
+            Player newPlayer = new Player(newName, new LocalViewCli());
             theGame.add(newPlayer);
         }
         return theGame;

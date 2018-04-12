@@ -4,6 +4,7 @@ package projectIngSoft;
 import org.junit.*;
 import projectIngSoft.Cards.Objectives.Privates.SfumatureBlu;
 import projectIngSoft.Cards.WindowPatternCard;
+import projectIngSoft.View.LocalViewCli;
 
 import java.awt.*;
 import java.io.File;
@@ -18,7 +19,7 @@ public class PlayerTest {
 
     @Before
     public void playerCreation() {
-        this.testPlayer = new Player("Matteo");
+        this.testPlayer = new Player("Matteo", new LocalViewCli());
         // set private objective
         testPlayer.setPrivateObjective(new SfumatureBlu());
         // set WindowPatternCard from file
@@ -35,7 +36,7 @@ public class PlayerTest {
 
     @Test
     public void testTotring(){
-        this.testPlayer = new Player("Matteo");
+        this.testPlayer = new Player("Matteo", new LocalViewCli());
         // set private objective
         testPlayer.setPrivateObjective(new SfumatureBlu());
         // set WindowPatternCard from file

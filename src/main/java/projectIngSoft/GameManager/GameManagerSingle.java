@@ -8,6 +8,7 @@ import projectIngSoft.Die;
 import projectIngSoft.Game;
 import projectIngSoft.Player;
 import projectIngSoft.RoundTracker;
+import projectIngSoft.View.LocalViewCli;
 
 import java.util.List;
 import java.util.Map;
@@ -98,12 +99,16 @@ public class GameManagerSingle implements IGameManager {
     }
 
     @Override
-    public void setupPhase() throws Exception {
+    public void start() {
+
+    }
+
+    private void setupPhase() throws Exception {
 
     }
 
     @Override
     public Player getWinner() throws Exception {
-        return new Player("Kris");
+        return new Player("Kris", new LocalViewCli());
     }
 }

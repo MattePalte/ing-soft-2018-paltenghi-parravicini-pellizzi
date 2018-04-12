@@ -9,6 +9,8 @@ import java.io.FileNotFoundException;
 
 import org.junit.*;
 import projectIngSoft.GameManager.GameManagerSingle;
+import projectIngSoft.View.ClientViewCLI;
+import projectIngSoft.View.LocalViewCli;
 
 public class GameTest {
 
@@ -18,35 +20,34 @@ public class GameTest {
     @Before
     public void CreateGameAndAddPlayers() throws FileNotFoundException, Colour.ColorNotFoundException {
         aMultiplePlayerGame = new Game(3);
-        aMultiplePlayerGame.add(new Player("Matteo"));
-        aMultiplePlayerGame.add(new Player("Daniele"));
-        aMultiplePlayerGame.add(new Player("Kris"));
+        aMultiplePlayerGame.add(new Player("Matteo", new LocalViewCli()));
+        aMultiplePlayerGame.add(new Player("Daniele", new LocalViewCli()));
+        aMultiplePlayerGame.add(new Player("Kris", new LocalViewCli()));
     }
 
     @Before
     public void CreateGameAndAddPlayer() throws FileNotFoundException, Colour.ColorNotFoundException {
         aSinglePlayerGame = new Game(1);
-        aSinglePlayerGame.add(new Player("Matteo"));
+        aSinglePlayerGame.add(new Player("Matteo",new LocalViewCli()));
     }
 
 
     @Test
     public void testMultiplayer() throws Exception {
-        IGameManager referee = new GameManagerMulti(aMultiplePlayerGame);
-        referee.setupPhase();
-        referee.countPlayersPoints();
-        Player p = referee.getWinner();
-        Assert.assertTrue(p.equals(new Player("Kris")));
+        IGameManager myModel = new GameManagerMulti(aMultiplePlayerGame);
+
+        myModel.countPlayersPoints();
+        Player p = myModel.getWinner();
+        Assert.assertTrue(p.equals(new Player("Kris", new LocalViewCli())));
         System.out.println("Player "+ p +" wins!");
     }
 
     @Test
     public void testSinglePlayer() throws Exception {
         IGameManager referee = new GameManagerSingle(aSinglePlayerGame);
-        referee.setupPhase();
         referee.countPlayersPoints();
         Player p = referee.getWinner();
-        Assert.assertTrue(p.equals(new Player("Kris")));
+        Assert.assertTrue(p.equals(new Player("Kris", new LocalViewCli())));
         System.out.println("Player "+ p +" wins!");
     }
 }

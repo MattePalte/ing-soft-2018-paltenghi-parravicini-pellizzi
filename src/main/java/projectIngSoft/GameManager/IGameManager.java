@@ -28,8 +28,8 @@ public interface IGameManager {
     public void playToolCard(ToolCard aToolCard)      throws Exception;
     public void placeDie(Die aDie, int rowIndex, int colIndex)          throws Exception;
     public List<PrivateObjective> getPrivateObjective();
+    public void start();
     public void endTurn();
-    public void setupPhase()        throws Exception;
     public void countPlayersPoints()   throws Exception;
     public void deliverNewStatus(IGameManager newStatus);
 }

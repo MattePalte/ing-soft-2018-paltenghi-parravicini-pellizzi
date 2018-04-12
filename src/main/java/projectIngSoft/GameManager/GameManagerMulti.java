@@ -26,24 +26,21 @@ public class GameManagerMulti implements IGameManager {
     private ArrayList<Card> publicObjectives;
     private ArrayList<Card> windowPatterns;
     private ArrayList<Card> toolCards;
-    private ArrayList<Player> currentTurn;
+    private ArrayList<Player> currentTurnList;
     private Map<Player, Integer> favours;
 
-    //@ Signals Exception aGame.isValid() || aGame.numOfPlayers() <= 0 or aGame.numOfPlayers()> 4;
+    //@ Signals Exception aGame.isValid() || aGame.numOfPlayers() <= 1 or aGame.numOfPlayers()> 4;
     public GameManagerMulti(Game aGame) throws Exception {
 
-        if (!aGame.isValid())
+        if (!aGame.isValid() || aGame.getNumberOfPlayers() <= 1  || aGame.getNumberOfPlayers() > 4  )
             throw  new Exception("Game is not valid!");
         currentGame = new Game(aGame);
-        currentTurn = getTurn();
-        //TODO favours whould be distributed after setup phase, otherwise players don't own any pattern
-        favours = new HashMap<>();
-        for(Player player : currentGame.getPlayers())
-            favours.put(player, player.getVisiblePattern().getDifficulty());
-    }
+        setupPhase();
+        currentTurnList = createTurns();
+        }
 
     public List<Player> getRoundTurns(){
-        return new ArrayList<>(currentTurn);
+        return new ArrayList<>(currentTurnList);
     }
 
     @Override
@@ -68,7 +65,7 @@ public class GameManagerMulti implements IGameManager {
 
     @Override
     public Player getCurrentPlayer() {
-        return currentTurn.get(0);
+        return currentTurnList.get(0);
     }
 
     @Override
@@ -82,7 +79,15 @@ public class GameManagerMulti implements IGameManager {
     }
 
     @Override
-    public void setupPhase() throws FileNotFoundException, Colour.ColorNotFoundException  {
+    public void start() {
+        for (int i = 0; i<10; i++){
+            for (Player p: currentTurnList) {
+                p.takeTurn();
+            }
+        }
+    }
+
+    private void setupPhase() throws FileNotFoundException, Colour.ColorNotFoundException  {
 
 
 
@@ -111,6 +116,8 @@ public class GameManagerMulti implements IGameManager {
         //initialize toolcards
         toolCards = createToolCards();
 
+        //initialize hashMap favours
+        favours = new HashMap<>();
 
         // Shuffle everything
         Collections.shuffle(diceBag);
@@ -125,18 +132,22 @@ public class GameManagerMulti implements IGameManager {
         // remove cards and leave only 3 publicObjective card for the game
         publicObjectives = publicObjectives.stream().limit(3).collect(Collectors.toCollection(ArrayList::new));
 
-        //randomly distribute PrivateObjectiveCards
+        //randomly distribute PrivateObjectiveCards and set favours according to WindowPattern difficulty
         for (Player p : currentGame.getPlayers()) {
 
             PrivateObjective randomPrivateObjective = (PrivateObjective)privateObjectives.remove(0);
 
             p.setPrivateObjective(randomPrivateObjective);
             WindowPatternCard aPatternCard = (WindowPatternCard) windowPatterns.remove(0);
+            //TODO : request to the view. e.g. view.askForSomething()
             if(new Random().nextBoolean())
                 p.flip();
             p.setPatternCard(aPatternCard);
-
+            // keep track of each players' favours
+            favours.put(p, p.getVisiblePattern().getDifficulty());
         }
+
+
     }
 
     @Override
@@ -191,12 +202,15 @@ public class GameManagerMulti implements IGameManager {
         return ret;
     }
 
-    private ArrayList<Player> getTurn(){
+    private ArrayList<Player> createTurns(){
         ArrayList<Player> players = currentGame.getPlayers();
-
+        // create p1 p2 p3
         ArrayList<Player> turn = new ArrayList<>(players);
-        turn.addAll(players.stream().sorted((p1, p2) -> players.indexOf(p1) >= players.indexOf(p2) ? 1 : -1).collect(Collectors.toList()));
-        return turn;
+        // add p3 p2 p1
+        Collections.reverse(players);
+        turn.addAll(new ArrayList<>(players));
+        //turn.addAll(players.stream().sorted((p1, p2) -> players.indexOf(p1) >= players.indexOf(p2) ? 1 : -1).collect(Collectors.toList()));
+        return turn; // result: p1 p2 p3 p3 p2 p1
     }
 
     private void drawDice(){
