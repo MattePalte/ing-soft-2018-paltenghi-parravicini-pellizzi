@@ -9,11 +9,11 @@ public enum Colour {
 
 
     RED   ("\u001B[31m","\u001B[41m"),
-    YELLOW("\u001B[33m", "\u001B[47m"),
-    GREEN ("\u001B[38m", "\u001B[42m"),
+    YELLOW("\u001B[33m", "\u001B[43m"),
+    GREEN ("\u001B[32m", "\u001B[42m"),
     BLUE  ("\u001B[34m", "\u001B[44m"),
     VIOLET("\u001B[35m", "\u001B[45m"),
-    WHITE("\u001B[30m", "\u001B[107m");
+    WHITE("\u001B[37m", "\u001B[0m");
 
     private static final String ANSI_RESET = "\u001B[0m";
     private static List<Colour> validColours;
