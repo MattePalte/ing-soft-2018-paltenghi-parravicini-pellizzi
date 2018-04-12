@@ -5,7 +5,10 @@ import org.junit.*;
 import projectIngSoft.Cards.Objectives.Privates.SfumatureBlu;
 import projectIngSoft.Cards.WindowPatternCard;
 
+import java.awt.*;
 import java.io.File;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -29,6 +32,41 @@ public class PlayerTest {
             e.printStackTrace();
         }
     }
+
+    @Test
+    public void testTotring(){
+        this.testPlayer = new Player("Matteo");
+        // set private objective
+        testPlayer.setPrivateObjective(new SfumatureBlu());
+        // set WindowPatternCard from file
+        File file = new File("src/main/patterns.txt");
+        try {
+            Scanner input = new Scanner(file);
+            WindowPatternCard window = WindowPatternCard.loadFromScanner(input);
+            input.nextLine();
+            testPlayer.setPatternCard(window);
+            System.out.println(testPlayer);
+            testPlayer.placeDie(new Die(3, Colour.RED),1,1);
+            System.out.println(testPlayer);
+            testPlayer.placeDie(new Die(3, Colour.GREEN),1,1);
+            System.out.println(testPlayer);
+            testPlayer.placeDie(new Die(3, Colour.BLUE),1,1);
+            System.out.println(testPlayer);
+            testPlayer.placeDie(new Die(3, Colour.VIOLET),1,1);
+            System.out.println(testPlayer);
+            testPlayer.placeDie(new Die(3, Colour.YELLOW),1,1);
+            System.out.println(testPlayer);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testColor() throws UnsupportedEncodingException {
+
+        System.out.println("\033[32;1mgreen\033[0m");
+    }
+
 
     @Test
     // to test the privacy of the rep

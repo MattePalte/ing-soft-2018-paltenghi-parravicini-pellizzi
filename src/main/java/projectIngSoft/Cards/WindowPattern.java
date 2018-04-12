@@ -1,7 +1,6 @@
 package projectIngSoft.Cards;
 
 import projectIngSoft.Colour;
-import projectIngSoft.Constraint;
 
 import java.util.Scanner;
 
@@ -39,6 +38,9 @@ public class WindowPattern {
         return height;
     }
 
+    public Constraint[][] getConstraintsMatrix() {
+        return ConstraintsMatrix;
+    }
 
     @Override
     public String toString() {

@@ -63,6 +63,7 @@ public class Die implements Cloneable{
             encoding = new String("\uD83C\uDFB2");
         else
             encoding = new String(Character.toChars(9855 + value));
+
         return colour.ColourForeground( encoding );
     }
 

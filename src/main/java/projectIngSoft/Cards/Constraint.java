@@ -1,4 +1,7 @@
-package projectIngSoft;
+package projectIngSoft.Cards;
+
+import projectIngSoft.Colour;
+import projectIngSoft.Die;
 
 public class Constraint {
     private final int value; // 0 if no value constraint is applied

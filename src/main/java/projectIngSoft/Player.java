@@ -1,12 +1,10 @@
 package projectIngSoft;
 
+import projectIngSoft.Cards.Constraint;
 import projectIngSoft.Cards.Objectives.Privates.PrivateObjective;
 import projectIngSoft.Cards.ToolCards.ToolCard;
 import projectIngSoft.Cards.WindowPattern;
 import projectIngSoft.Cards.WindowPatternCard;
-
-import java.net.Socket;
-import java.util.Arrays;
 
 public class Player {
     private final String     name;
@@ -18,6 +16,8 @@ public class Player {
     //Constructor
     public Player(String name) {
         this.name = new String(name);
+        //altrimenti errore
+        this.placedDice = new Die[1][1];
     }
 
     //---------------------- OBSERVERS -------------------------
@@ -46,7 +46,7 @@ public class Player {
 
     //@assignable nothing
     public Die[][] getPlacedDice(){
-        return cloneArray(placedDice);
+        return  cloneArray(placedDice);
     }
 
     public void flip(){
@@ -74,12 +74,31 @@ public class Player {
 
     @Override
     public String toString() {
-        return "Player{" +
+        StringBuilder aBuilder =  new StringBuilder("Player{" +
                 "\nname -> " + name +
                 "\nmyWindowPatternCard ->\n" + myWindowPatternCard +
-                "\nmyPrivateObjective ->\n" + myPrivateObjective.getTitle() +
-                "\nplacedDice ->\n" + Arrays.deepToString(placedDice) +
-                "\n}";
+                "\nmyPrivateObjective ->\n" + myPrivateObjective.getTitle()+"\n");
+        String tmp;
+        Constraint[][] repOfPattern = getPattern().getConstraintsMatrix();
+
+        for (int r = 0; r < repOfPattern.length ; r++) {
+            for (int c = 0; c < repOfPattern[0].length; c++) {
+                //if die was placed
+                if(placedDice[r][c] != null){
+                    tmp = placedDice[r][c].toString();
+                }else if( repOfPattern[r][c].getValue() > 0){
+                    tmp = new Die(repOfPattern[r][c].getValue() , Colour.WHITE).toString();
+                }else {
+                    tmp = " ";
+                }
+
+                aBuilder.append(repOfPattern[r][c].getColour().ColourBackground(tmp));
+
+            }
+            aBuilder.append("\n");
+
+        }
+        return aBuilder.toString();
     }
 
     //---------------------- MODIFIERS -------------------------
