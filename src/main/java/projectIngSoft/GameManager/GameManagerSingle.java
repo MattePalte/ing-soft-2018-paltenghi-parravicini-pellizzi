@@ -44,6 +44,24 @@ public class GameManagerSingle implements IGameManager {
 
     }
 
+    @Override
+    public GameManagerSingle clone(){
+        return new GameManagerSingle(this);
+    }
+
+    private GameManagerSingle(GameManagerSingle gameManagerSingle){
+        this.currentGame = new Game(gameManagerSingle.getGameInfo());
+        this.diceBag = new ArrayList<>(gameManagerSingle.diceBag);
+        this.draftPool = new ArrayList<>(gameManagerSingle.draftPool);
+        this.rounds = new RoundTracker(rounds);
+        this.privateObjectives = new ArrayList<>(gameManagerSingle.privateObjectives);
+        this.publicObjectives = new ArrayList<>(gameManagerSingle.publicObjectives);
+        this.windowPatterns = new ArrayList<>(gameManagerSingle.windowPatterns);
+        this.toolCards = new ArrayList<>(gameManagerSingle.toolCards);
+        this.currentTurn = new ArrayList<>(gameManagerSingle.currentTurn);
+        this.difficulty = gameManagerSingle.difficulty;
+    }
+
 
     //ensures /result.equals(List.of( game.getPlayers().get(0), game.getPlayers().get(0)))
     public List<Player> getRoundTurns(){
@@ -70,7 +88,7 @@ public class GameManagerSingle implements IGameManager {
 
     @Override
     public Game getGameInfo() {
-        return null;
+        return new Game(currentGame);
     }
 
     @Override
@@ -132,7 +150,7 @@ public class GameManagerSingle implements IGameManager {
     }
 
     @Override
-    public void endTurn() {
+    public void endTurn() throws Exception{
 
     }
 

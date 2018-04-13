@@ -20,12 +20,12 @@ public class LocalViewCli implements IView{
     }
 
     @Override
-    public void endTurn() {
+    public void endTurn() throws Exception {
         controller.endTurn();
     }
 
     @Override
-    public void takeTurn() {
+    public void takeTurn() throws Exception {
         int cmd;
 
         do {

@@ -14,17 +14,17 @@ public class ControllerRMI implements IController {
     }
 
     @Override
-    public void placeDie(Die aDie, int rowIndex, int colIndex) {
+    public void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception{
 
     }
 
     @Override
-    public void playToolCard(ToolCard aToolCard) {
+    public void playToolCard(ToolCard aToolCard) throws Exception{
 
     }
 
     @Override
-    public void endTurn() {
+    public void endTurn() throws Exception{
 
     }
 }

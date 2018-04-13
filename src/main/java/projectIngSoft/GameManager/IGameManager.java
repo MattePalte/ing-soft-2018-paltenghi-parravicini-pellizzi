@@ -39,14 +39,17 @@ public interface IGameManager {
     Player getWinner()       throws Exception;
 
 
-    void start();
+    void start() throws Exception;
     void playToolCard(ToolCard aToolCard)      throws Exception;
     void placeDie(Die aDie, int rowIndex, int colIndex)          throws Exception;
-    void endTurn();
+    void endTurn() throws Exception;
     void countPlayersPoints()   throws Exception;
     // | what?
     // v
     void requestUpdate();
     void deliverNewStatus(IGameManager newStatus);
+
+    // Can't call it clone because it clashes with Object.clone()
+    IGameManager clone();
 
 }

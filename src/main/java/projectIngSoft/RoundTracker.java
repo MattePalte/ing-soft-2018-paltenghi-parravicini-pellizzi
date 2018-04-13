@@ -10,6 +10,12 @@ public class RoundTracker {
         diceLeftFromRound = new ArrayList<Die>();
     }
 
+    public RoundTracker(RoundTracker aRoundTracker){
+        this.currentRound = aRoundTracker.currentRound;
+        this.diceLeftFromRound = new ArrayList<>(aRoundTracker.diceLeftFromRound);
+
+    }
+
     public int getCurrentRound() {
         return currentRound;
     }

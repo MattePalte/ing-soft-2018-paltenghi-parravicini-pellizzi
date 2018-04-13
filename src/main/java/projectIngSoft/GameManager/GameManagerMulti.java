@@ -36,8 +36,24 @@ public class GameManagerMulti implements IGameManager {
             throw  new Exception("Game is not valid!");
         currentGame = new Game(aGame);
         setupPhase();
-        currentTurnList = createTurns();
+        currentTurnList = createTurns(getPlayerList());
         }
+
+    public GameManagerMulti clone() {
+        return new GameManagerMulti(this);
+    }
+
+    private GameManagerMulti(GameManagerMulti gameManagerMulti){
+        this.currentGame = new Game(gameManagerMulti.getGameInfo());
+        this.diceBag = new ArrayList<>(gameManagerMulti.diceBag);
+        this.draftPool = new ArrayList<>(gameManagerMulti.draftPool);
+        this.rounds = new RoundTracker(rounds);
+        this.privateObjectives = new ArrayList<>(gameManagerMulti.privateObjectives);
+        this.publicObjectives = new ArrayList<>(gameManagerMulti.publicObjectives);
+        this.windowPatterns = new ArrayList<>(gameManagerMulti.windowPatterns);
+        this.toolCards = new ArrayList<>(gameManagerMulti.toolCards);
+        this.currentTurnList = new ArrayList<>(gameManagerMulti.currentTurnList);
+    }
 
     public List<Player> getRoundTurns(){
         return new ArrayList<>(currentTurnList);
@@ -45,7 +61,7 @@ public class GameManagerMulti implements IGameManager {
 
     @Override
     public List<Player> getPlayerList() {
-        return null;
+        return getGameInfo().getPlayers();
     }
 
     @Override
@@ -60,7 +76,7 @@ public class GameManagerMulti implements IGameManager {
 
     @Override
     public Game getGameInfo() {
-        return null;
+        return new Game(currentGame);
     }
 
     @Override
@@ -70,16 +86,16 @@ public class GameManagerMulti implements IGameManager {
 
     @Override
     public List<PublicObjective> getPublicObjective() {
-        return null;
+        return new ArrayList<PublicObjective>(publicObjectives.stream().map(card -> (PublicObjective)card).collect(Collectors.toList()));
     }
 
     @Override
     public List<Die> getDiceBag() {
-        return null;
+        return new ArrayList(diceBag);
     }
 
     @Override
-    public void start() {
+    public void start() throws Exception {
         for (int i = 0; i<10; i++){
             for (Player p: currentTurnList) {
                 p.takeTurn();
@@ -182,17 +198,22 @@ public class GameManagerMulti implements IGameManager {
 
     @Override
     public List<PrivateObjective> getPrivateObjective() {
-        return null;
+        return new ArrayList<PrivateObjective>(privateObjectives.stream().map(obj -> (PrivateObjective)obj).collect(Collectors.toList()));
     }
 
     @Override
     public List<Card> getPublicCards() {
-        return null;
+        return new ArrayList<>(publicObjectives);
     }
 
     @Override
-    public void endTurn() {
-
+    public void endTurn() throws Exception {
+        currentTurnList.remove(0);
+        if(currentTurnList.size() == 0){
+            getGameInfo().leftShiftPlayers();
+            currentTurnList = createTurns(getPlayerList());
+        }
+        getCurrentPlayer().takeTurn();
     }
     @Override
     public Map<Player, Integer> getFavours(){
@@ -201,21 +222,20 @@ public class GameManagerMulti implements IGameManager {
 
     @Override
     public RoundTracker getRoundTracker() {
-        return null;
+        return new RoundTracker(rounds);
     }
 
 
     //TODO: check if we can do this in another way
-    private List<Player> turnLeftShift(ArrayList<Player> actualTurn){
+    /*private List<Player> nextRoundTurn(ArrayList<Player> actualTurn){
         List<Player> ret = new ArrayList<>();
         for(int i = 0; i < actualTurn.size(); i++){
-            ret.add((i) % actualTurn.size(), actualTurn.get((i + 1) % actualTurn.size()));
+            ret.add(i, actualTurn.get((i + 1) % actualTurn.size()));
         }
         return ret;
-    }
+    }*/
 
-    private ArrayList<Player> createTurns(){
-        ArrayList<Player> players = currentGame.getPlayers();
+    private ArrayList<Player> createTurns(List<Player> players){
         // create p1 p2 p3
         ArrayList<Player> turn = new ArrayList<>(players);
         // add p3 p2 p1

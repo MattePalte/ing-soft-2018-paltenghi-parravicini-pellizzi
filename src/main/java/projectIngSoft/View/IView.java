@@ -11,8 +11,8 @@ import java.util.List;
 
 public interface IView {
     void update(IGameManager newModel);
-    void endTurn();
-    void takeTurn();
+    void endTurn() throws Exception;
+    void takeTurn() throws Exception;
 
     Pair<WindowPatternCard, Boolean> choose(WindowPatternCard card1, WindowPatternCard card2);
     Die choose(Die[] diceList);

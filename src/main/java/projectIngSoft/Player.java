@@ -128,7 +128,7 @@ public class Player {
         return true;
     }
 
-    public void takeTurn() {
+    public void takeTurn() throws Exception {
         myView.takeTurn();
     }
 

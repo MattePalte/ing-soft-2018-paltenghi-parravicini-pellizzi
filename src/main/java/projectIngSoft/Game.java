@@ -58,5 +58,12 @@ public class Game {
         return players.size() == numPlayers;
     }
 
+    public void leftShiftPlayers(){
+        ArrayList<Player> shiftedList = new ArrayList<>();
+        for(int i = 0; i < players.size(); i++){
+            shiftedList.add(i, players.get((i + 1) % players.size()));
+        }
+        players = shiftedList;
+    }
 
 }
