@@ -204,10 +204,12 @@ public class GameManagerMulti implements IGameManager {
         return null;
     }
 
+
+    //TODO: check if we can do this in another way
     private List<Player> turnLeftShift(ArrayList<Player> actualTurn){
         List<Player> ret = new ArrayList<>();
         for(int i = 0; i < actualTurn.size(); i++){
-            ret.add((i) % 3, actualTurn.get((i + 1) % 3));
+            ret.add((i) % actualTurn.size(), actualTurn.get((i + 1) % actualTurn.size()));
         }
         return ret;
     }
