@@ -82,24 +82,20 @@ public class Player {
                 "\nmyWindowPatternCard ->\n" + myWindowPatternCard +
                 "\nmyPrivateObjective ->\n" + myPrivateObjective.getTitle()+"\n");
         String tmp;
-        Constraint[][] repOfPattern = getPattern().getConstraintsMatrix();
+        Constraint[][] constraintsMatrix = getPattern().getConstraintsMatrix();
 
-        for (int r = 0; r < repOfPattern.length ; r++) {
-            for (int c = 0; c < repOfPattern[0].length; c++) {
+        for (int r = 0; r < constraintsMatrix.length ; r++) {
+            for (int c = 0; c < constraintsMatrix[0].length; c++) {
                 //if die was placed
                 if(placedDice[r][c] != null){
                     tmp = placedDice[r][c].toString();
-                }else if( repOfPattern[r][c].getValue() > 0){
-                    tmp = new Die(repOfPattern[r][c].getValue() , Colour.WHITE).toString();
-                }else {
-                    tmp = " ";
+                }else{
+                    //else take the constrain representation intself
+                    tmp = constraintsMatrix[r][c].toString();
                 }
-
-                aBuilder.append(repOfPattern[r][c].getColour().ColourBackground(tmp));
-
+                aBuilder.append(constraintsMatrix[r][c].getColour().ColourBackground(tmp));
             }
             aBuilder.append("\n");
-
         }
         return aBuilder.toString();
     }

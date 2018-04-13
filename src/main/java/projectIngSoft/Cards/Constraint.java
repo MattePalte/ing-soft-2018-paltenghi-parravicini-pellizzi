@@ -40,4 +40,20 @@ public class Constraint {
     public Colour getColour() {
         return colour;
     }
+
+    @Override
+    public String toString() {
+        String encoding;
+        if(value == 0){
+            //encoding = "\u3000";
+            //encoding = "\u2007";
+            //encoding = "\u2001";
+            //good "\u2000\u2004";
+            encoding = "\u2000\u2005";
+        }else{
+            encoding = (new Die( value , Colour.WHITE)).toString();
+        }
+
+        return encoding;
+    }
 }

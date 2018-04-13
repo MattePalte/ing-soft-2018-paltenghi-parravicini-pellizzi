@@ -1,6 +1,7 @@
 package projectIngSoft.Cards;
 
 import projectIngSoft.Colour;
+import projectIngSoft.Die;
 
 import java.util.Scanner;
 
@@ -46,13 +47,15 @@ public class WindowPattern {
     @Override
     public String toString() {
         StringBuilder aBuilder = new StringBuilder();
+        String tmp;
 
-        aBuilder.append(this.Title + " " + new String(new char[this.Difficulty]).replace("\0", "‧") + "\n");
+        aBuilder.append(this.Title + " " + new String(new char[this.Difficulty]).replace("\0", "*") + "\n");
 
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                aBuilder.append(ConstraintsMatrix[i][j].getColour().ColourBackground(ConstraintsMatrix[i][j].getValue() + ""));
-
+        for (int r = 0; r < height; r++) {
+            for (int c = 0; c < width; c++) {
+                //if die was placed
+                tmp = ConstraintsMatrix[r][c].toString();
+                aBuilder.append(ConstraintsMatrix[r][c].getColour().ColourBackground(tmp));
 
             }
             aBuilder.append("\n");
@@ -75,6 +78,7 @@ public class WindowPattern {
 
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
+                //TODO: contraint factroy from string of 2 chars
                 constraintRepr = in.findInLine("[0-6][RYGBVW]");
                 constraints[row][col] = new Constraint((int) constraintRepr.charAt(0) - (int) '0',
                         Colour.valueOf(constraintRepr.charAt(1)));
