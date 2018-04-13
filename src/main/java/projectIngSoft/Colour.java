@@ -7,6 +7,16 @@ import java.util.List;
 
 public enum Colour {
     //w.r.t https://en.wikipedia.org/wiki/ANSI_escape_code
+    //To avoid problems related to width of different character
+    //Sun's Glory ******
+    //        ⚀   ⚃|
+    //        ⚅    |
+    //        ⚄⚂   |
+    //        ⚄⚃⚁⚀ |
+    //https://en.wikipedia.org/wiki/Halfwidth_and_fullwidth_forms
+    //https://en.wikipedia.org/wiki/Whitespace_character
+    //http://jkorpela.fi/chars/spaces.html
+    // Because ⚄ is an irregular width character -> 1+1/3 em
 
     RED   ("\u001B[91m","\u001B[41m"),
     YELLOW("\u001B[93m", "\u001B[43m"),
