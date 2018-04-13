@@ -13,23 +13,40 @@ import java.util.List;
 import java.util.Map;
 
 public interface IGameManager {
+    Game           getGameInfo();
+    // | redundant problem of visibility : players do not have to see other's private objective. During serialization these must be accomplished
+    // v
+    List<Player>   getPlayerList();
+    Player         getCurrentPlayer();
+    // | remove x2
+    // v
+    List<ToolCard> getToolCards();
+    List<PublicObjective> getPublicObjective();
+    List<PrivateObjective> getPrivateObjective();
 
-    public List<Player> getPlayerList();
-    public List<ToolCard> getToolCards();
-    public List<Die> getDraftPool();
-    public Game getGameInfo();
-    public Player getCurrentPlayer();
-    public List<PublicObjective> getPublicObjective();
-    public List<Die> getDiceBag();
-    public Map<Player, Integer> getFavours();
-    public RoundTracker getRoundTracker();
-    public List<Player> getRoundTurns();
-    public Player getWinner()       throws Exception;
-    public void playToolCard(ToolCard aToolCard)      throws Exception;
-    public void placeDie(Die aDie, int rowIndex, int colIndex)          throws Exception;
-    public List<PrivateObjective> getPrivateObjective();
-    public void start();
-    public void endTurn();
-    public void countPlayersPoints()   throws Exception;
-    public void deliverNewStatus(IGameManager newStatus);
+    List<Card>     getPublicCards();
+    List<Die>      getDraftPool();
+
+    // | remove : problem of security
+    // v
+    List<Die> getDiceBag();
+
+    Map<Player, Integer> getFavours();
+
+    RoundTracker    getRoundTracker();
+    List<Player>    getRoundTurns();
+
+    Player getWinner()       throws Exception;
+
+
+    void start();
+    void playToolCard(ToolCard aToolCard)      throws Exception;
+    void placeDie(Die aDie, int rowIndex, int colIndex)          throws Exception;
+    void endTurn();
+    void countPlayersPoints()   throws Exception;
+    // | what?
+    // v
+    void requestUpdate();
+    void deliverNewStatus(IGameManager newStatus);
+
 }

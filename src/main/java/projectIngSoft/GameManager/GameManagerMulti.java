@@ -156,6 +156,11 @@ public class GameManagerMulti implements IGameManager {
     }
 
     @Override
+    public void requestUpdate() {
+
+    }
+
+    @Override
     public void deliverNewStatus(IGameManager newStatus) {
 
     }
@@ -177,6 +182,11 @@ public class GameManagerMulti implements IGameManager {
 
     @Override
     public List<PrivateObjective> getPrivateObjective() {
+        return null;
+    }
+
+    @Override
+    public List<Card> getPublicCards() {
         return null;
     }
 

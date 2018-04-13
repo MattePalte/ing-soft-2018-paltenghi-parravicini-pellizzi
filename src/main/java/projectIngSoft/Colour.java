@@ -6,14 +6,15 @@ import java.util.Arrays;
 import java.util.List;
 
 public enum Colour {
+    //w.r.t https://en.wikipedia.org/wiki/ANSI_escape_code
 
-
-    RED   ("\u001B[31m","\u001B[41m"),
-    YELLOW("\u001B[33m", "\u001B[43m"),
-    GREEN ("\u001B[32m", "\u001B[42m"),
-    BLUE  ("\u001B[34m", "\u001B[44m"),
-    VIOLET("\u001B[35m", "\u001B[45m"),
-    WHITE("\u001B[37m", "\u001B[0m");
+    RED   ("\u001B[91m","\u001B[41m"),
+    YELLOW("\u001B[93m", "\u001B[43m"),
+    GREEN ("\u001B[92m", "\u001B[42m"),
+    BLUE  ("\u001B[96m", "\u001B[44m"),
+    VIOLET("\u001B[95m", "\u001B[45m"),
+    WHITE("\u001B[97m", "\u001B[47m");
+            //37, 0;
 
     private static final String ANSI_RESET = "\u001B[0m";
     private static List<Colour> validColours;
