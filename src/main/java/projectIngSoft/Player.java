@@ -57,7 +57,7 @@ public class Player {
     }
 
     public WindowPattern getPattern(){
-        return isPatternFlipped ? myWindowPatternCard.getFrontPattern() : myWindowPatternCard.getRearPattern();
+        return !isPatternFlipped ? myWindowPatternCard.getFrontPattern() : myWindowPatternCard.getRearPattern();
     }
 
     /**

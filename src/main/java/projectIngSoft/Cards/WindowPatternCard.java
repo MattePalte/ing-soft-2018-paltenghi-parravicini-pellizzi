@@ -24,12 +24,8 @@ public class WindowPatternCard extends Card {
         return rearPattern;
     }
 
-    public String printFrontPattern() {
-        return frontPattern.toString();
-    }
-
-    public String printRearPattern(){
-        return rearPattern.toString();
+    public String toString(){
+        return new String(frontPattern + "\n" + rearPattern);
     }
 
     public static WindowPatternCard loadFromScanner(Scanner aScanner) throws Colour.ColorNotFoundException {
