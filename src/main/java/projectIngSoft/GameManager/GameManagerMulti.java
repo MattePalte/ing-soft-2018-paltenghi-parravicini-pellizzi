@@ -33,6 +33,7 @@ public class GameManagerMulti implements IGameManager {
     public GameManagerMulti(Game aGame) throws Exception {
 
         if (!aGame.isValid() || aGame.getNumberOfPlayers() <= 1  || aGame.getNumberOfPlayers() > 4  )
+            //TODO: create a more specific Exception
             throw  new Exception("Game is not valid!");
         currentGame = new Game(aGame);
         setupPhase();
@@ -96,11 +97,14 @@ public class GameManagerMulti implements IGameManager {
 
     @Override
     public void start() throws Exception {
-        for (int i = 0; i<10; i++){
+        drawDice();
+        deliverNewStatus(this);
+        getCurrentPlayer().takeTurn();
+        /*for (int i = 0; i<10; i++){
             for (Player p: currentTurnList) {
                 p.takeTurn();
             }
-        }
+        }*/
     }
 
     private void setupPhase() throws FileNotFoundException, Colour.ColorNotFoundException  {
@@ -148,18 +152,17 @@ public class GameManagerMulti implements IGameManager {
         // remove cards and leave only 3 publicObjective card for the game
         publicObjectives = publicObjectives.stream().limit(3).collect(Collectors.toCollection(ArrayList::new));
 
-        //randomly distribute PrivateObjectiveCards and set favours according to WindowPattern difficulty
+        // do 1, 2 operation for each player
         for (Player p : currentGame.getPlayers()) {
-
+            // 1 - randomly distribute PrivateObjectiveCards
             PrivateObjective randomPrivateObjective = (PrivateObjective)privateObjectives.remove(0);
-
             p.setPrivateObjective(randomPrivateObjective);
             WindowPatternCard aPatternCard = (WindowPatternCard) windowPatterns.remove(0);
             //TODO : request to the view. e.g. view.askForSomething()
             if(new Random().nextBoolean())
                 p.flip();
             p.setPatternCard(aPatternCard);
-            // keep track of each players' favours
+            // 2 - set favours according to WindowPattern difficulty
             favours.put(p, p.getVisiblePattern().getDifficulty());
         }
 
@@ -178,7 +181,9 @@ public class GameManagerMulti implements IGameManager {
 
     @Override
     public void deliverNewStatus(IGameManager newStatus) {
-
+        for (Player p : currentGame.getPlayers()) {
+            p.updateView(this);
+        }
     }
 
     @Override
@@ -193,7 +198,7 @@ public class GameManagerMulti implements IGameManager {
 
     @Override
     public void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception {
-
+        getCurrentPlayer().placeDie(aDie,rowIndex,colIndex);
     }
 
     @Override
@@ -212,7 +217,9 @@ public class GameManagerMulti implements IGameManager {
         if(currentTurnList.size() == 0){
             getGameInfo().leftShiftPlayers();
             currentTurnList = createTurns(getPlayerList());
+            drawDice();
         }
+        deliverNewStatus(this);
         getCurrentPlayer().takeTurn();
     }
     @Override
@@ -253,10 +260,20 @@ public class GameManagerMulti implements IGameManager {
 
     private ArrayList<Die> createDice() {
         ArrayList tmp = new ArrayList<Die>();
-        for (Colour c : Colour.values()) {
-            for (int i = 1; i <= 18; i++) {
-                Die newDie = new Die(c);
-                tmp.add(newDie);
+        ArrayList<Colour> diceColoursAvailable = new ArrayList<>();
+        diceColoursAvailable.add(Colour.BLUE);
+        diceColoursAvailable.add(Colour.YELLOW);
+        diceColoursAvailable.add(Colour.RED);
+        diceColoursAvailable.add(Colour.GREEN);
+        diceColoursAvailable.add(Colour.VIOLET);
+        for (Colour c : diceColoursAvailable) {
+            // 3 times
+            for (int i = 1; i <= 3; i++) {
+                // 6 times: for each value
+                for (int j = 1; j<= 6; j++){
+                    Die newDie = new Die(j, c);
+                    tmp.add(newDie);
+                }
             }
         }
         return tmp;

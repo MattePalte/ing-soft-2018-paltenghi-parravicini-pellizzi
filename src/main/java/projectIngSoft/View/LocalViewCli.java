@@ -4,19 +4,50 @@ import javafx.util.Pair;
 import projectIngSoft.Cards.ToolCards.ToolCard;
 import projectIngSoft.Cards.WindowPatternCard;
 import projectIngSoft.Controller.Controller;
+import projectIngSoft.Controller.IController;
 import projectIngSoft.Die;
 import projectIngSoft.GameManager.IGameManager;
+import projectIngSoft.Player;
 
+import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class LocalViewCli implements IView{
     IGameManager gameStatus;
-    Controller controller;
+    IController controller;
+    String ownerNameOfTheView;
+
+    public LocalViewCli(String ownerNameOfTheView) {
+        // TODO: come fa una view a sapere chi è il suo "padrone" (player)?
+        // getCurrentPlayer da solo il giocatore di turno non il giocatore della view
+        this.ownerNameOfTheView = ownerNameOfTheView;
+    }
+
+    public LocalViewCli() {
+        // inutile, presente solo per retrocompatibilità con test che usavano LocalView senza parametri
+    }
+
+    @Override
+    public void attachController(IController aController){
+        // TODO: come fa la view a sapere a che controller deve parlare?
+        this.controller = aController;
+    }
 
     @Override
     public void update(IGameManager newModel) {
         gameStatus = newModel;
+        // TODO: abilitare stampa di tutti i giocatori su tutti i client con il codice sotto
+        /*for (Player p : gameStatus.getPlayerList()) {
+            System.out.println(p);
+        }*/
+        // Stampa solo situazione attuale del giocatore attuale
+        for (Player p : gameStatus.getPlayerList()) {
+            if (p.getName().equals(ownerNameOfTheView)) {
+                System.out.println(p);
+            }
+        }
+        System.out.println("Draft pool : "+gameStatus.getDraftPool());
     }
 
     @Override
@@ -29,22 +60,21 @@ public class LocalViewCli implements IView{
         int cmd;
 
         do {
-            System.out.println("Take your turn:");
+            System.out.println("Take your turn " + gameStatus.getCurrentPlayer().getName());
             System.out.println("1 - Place a die");
             System.out.println("2 - Play a toolcard");
             System.out.println("3 - End your turn");
             cmd = waitForUserInput(1,3);
 
             if (cmd == 1) {
-                // Select row index
-
-                System.out.println(gameStatus.getCurrentPlayer().getPlacedDice());
                 System.out.println("Enter where you want to place your die ");
                 System.out.println("Row Index [0 - 3]");
                 int rowIndex =  waitForUserInput(0,3);
                 System.out.println("Col Index [0 - 4]");
                 int colIndex = waitForUserInput(0,4);
-                controller.placeDie(choose(gameStatus.getDraftPool().toArray(new Die[gameStatus.getDraftPool().size()])), rowIndex, colIndex);
+                Die choseDie = choose(gameStatus.getDraftPool().toArray(new Die[gameStatus.getDraftPool().size()]));
+                System.out.println(choseDie);
+                controller.placeDie(choseDie, rowIndex, colIndex);
 
             }
             else if (cmd == 2) {

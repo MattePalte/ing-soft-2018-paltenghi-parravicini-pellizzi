@@ -65,9 +65,12 @@ public class GameManagerSingle implements IGameManager {
 
     //ensures /result.equals(List.of( game.getPlayers().get(0), game.getPlayers().get(0)))
     public List<Player> getRoundTurns(){
+        // return list with two times the same player
         Player p =currentGame.getPlayers().get(0);
-
-        return List.of(p,p);
+        ArrayList<Player> resultList = new ArrayList<>();
+        resultList.add(p);
+        resultList.add(p);
+        return resultList;
     }
 
     //nsures /result.equals(List.of( game.getPlayers().get(0))

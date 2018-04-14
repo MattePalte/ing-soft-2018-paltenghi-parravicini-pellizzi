@@ -9,6 +9,10 @@ import projectIngSoft.GameManager.IGameManager;
 public class Controller implements IController {
     IGameManager gameManager;
 
+    public Controller(IGameManager gameManager) {
+        this.gameManager = gameManager;
+    }
+
     @Override
     public IGameManager getUpdate() {
         return gameManager.clone();

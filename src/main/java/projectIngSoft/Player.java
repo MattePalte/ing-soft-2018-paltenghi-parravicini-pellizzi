@@ -5,6 +5,8 @@ import projectIngSoft.Cards.Objectives.Privates.PrivateObjective;
 import projectIngSoft.Cards.ToolCards.ToolCard;
 import projectIngSoft.Cards.WindowPattern;
 import projectIngSoft.Cards.WindowPatternCard;
+import projectIngSoft.Controller.IController;
+import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.View.IView;
 
 public class Player {
@@ -77,10 +79,11 @@ public class Player {
 
     @Override
     public String toString() {
-        StringBuilder aBuilder =  new StringBuilder("Player{" +
-                "\nname -> " + name +
-                "\nmyWindowPatternCard ->\n" + myWindowPatternCard +
-                "\nmyPrivateObjective ->\n" + myPrivateObjective.getTitle()+"\n");
+        StringBuilder aBuilder =  new StringBuilder(
+                "---------------------\n" +
+                name + "'s situation ..."+
+                //"\nmyWindowPatternCard ->\n" + myWindowPatternCard +
+                "\nPrivObj : " + myPrivateObjective.getTitle()+"\n");
         String tmp;
         Constraint[][] constraintsMatrix = getPattern().getConstraintsMatrix();
 
@@ -97,6 +100,7 @@ public class Player {
             }
             aBuilder.append("\n");
         }
+        aBuilder.append("---------------------");
         return aBuilder.toString();
     }
 
@@ -130,6 +134,16 @@ public class Player {
 
     public void takeTurn() throws Exception {
         myView.takeTurn();
+    }
+
+    public void updateView(IGameManager updatedModel) {
+        //TODO: warning to rep exposition -> implement model Clone of Model
+        myView.update(updatedModel);
+    }
+
+    public void giveControllerToTheView(IController aController) {
+        //TODO: warning to rep exposition -> implement model Clone of Controller
+        myView.attachController(aController);
     }
 
     //---------------------- NOT YET IMPLEMENTED METHODS - TO DISCUSS -------------------------
