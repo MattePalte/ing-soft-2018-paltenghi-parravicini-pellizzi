@@ -37,7 +37,7 @@ public class GameManagerMulti implements IGameManager {
             throw  new Exception("Game is not valid!");
         currentGame = new Game(aGame);
         setupPhase();
-        currentTurnList = createTurns(getPlayerList());
+        currentTurnList = createTurns(currentGame.getPlayers());
         }
 
     public GameManagerMulti clone() {
@@ -62,7 +62,7 @@ public class GameManagerMulti implements IGameManager {
 
     @Override
     public List<Player> getPlayerList() {
-        return getGameInfo().getPlayers();
+        return currentGame.getPlayers().stream().sorted((p1,p2) -> p1.getName().compareTo(p2.getName())).collect(Collectors.toCollection(ArrayList :: new));
     }
 
     @Override
@@ -198,7 +198,10 @@ public class GameManagerMulti implements IGameManager {
 
     @Override
     public void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception {
-        getCurrentPlayer().placeDie(aDie,rowIndex,colIndex);
+        if(getCurrentPlayer().placeDie(aDie,rowIndex,colIndex)) {
+            draftPool.remove(aDie);
+
+        }
     }
 
     @Override
@@ -215,8 +218,15 @@ public class GameManagerMulti implements IGameManager {
     public void endTurn() throws Exception {
         currentTurnList.remove(0);
         if(currentTurnList.size() == 0){
-            getGameInfo().leftShiftPlayers();
-            currentTurnList = createTurns(getPlayerList());
+            System.out.println("End of round " + rounds.getCurrentRound());
+            if(rounds.getCurrentRound() == 10)
+                return;
+            currentGame.leftShiftPlayers();
+            currentTurnList = createTurns(currentGame.getPlayers());
+            rounds.addDiceLeft(draftPool);
+            rounds.nextRound();
+            draftPool.removeAll(draftPool);
+            System.out.println("Round " + rounds.getCurrentRound() + " is beginning");
             drawDice();
         }
         deliverNewStatus(this);
@@ -255,7 +265,10 @@ public class GameManagerMulti implements IGameManager {
     private void drawDice(){
         ArrayList<Die> dice = new ArrayList<>(diceBag.subList(0, (2 * currentGame.getNumberOfPlayers()) + 1));
         draftPool.addAll(dice);
-        diceBag.removeAll(dice);
+        //diceBag.removeAll(dice);
+        for(int i = 0; i < 2 * currentGame.getNumberOfPlayers() + 1; i++){
+            diceBag.remove(i);
+        }
     }
 
     private ArrayList<Die> createDice() {
@@ -266,14 +279,12 @@ public class GameManagerMulti implements IGameManager {
         diceColoursAvailable.add(Colour.RED);
         diceColoursAvailable.add(Colour.GREEN);
         diceColoursAvailable.add(Colour.VIOLET);
+        Random rndGen = new Random();
         for (Colour c : diceColoursAvailable) {
             // 3 times
-            for (int i = 1; i <= 3; i++) {
-                // 6 times: for each value
-                for (int j = 1; j<= 6; j++){
-                    Die newDie = new Die(j, c);
-                    tmp.add(newDie);
-                }
+            for(int i = 0; i < 18; i++){
+                Die aDie = new Die(rndGen.nextInt(6) + 1, c);
+                tmp.add(aDie);
             }
         }
         return tmp;

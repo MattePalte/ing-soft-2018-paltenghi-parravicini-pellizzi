@@ -29,6 +29,7 @@ public class Server
             p.giveControllerToTheView(fantasticController);
         // Start
         myModel.start();
+        System.out.println("This is the end of the game. Hope you enjoyed");
 
     }
 }

@@ -8,6 +8,8 @@ import projectIngSoft.Cards.WindowPatternCard;
 import projectIngSoft.Controller.IController;
 import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.View.IView;
+import projectIngSoft.exceptions.AlreadyPlacedADieException;
+import projectIngSoft.exceptions.PositionOccupiedException;
 
 public class Player {
     private final String     name;
@@ -16,6 +18,7 @@ public class Player {
     private Die[][]          placedDice;
     private boolean isPatternFlipped;
     private IView myView;
+    private boolean alreadyPlacedADie;
 
     //Constructor
     public Player(String name, IView aView) {
@@ -23,6 +26,7 @@ public class Player {
         //altrimenti errore
         this.placedDice = new Die[1][1];
         this.myView = aView;
+        this.alreadyPlacedADie = false;
     }
 
     //---------------------- OBSERVERS -------------------------
@@ -60,6 +64,10 @@ public class Player {
 
     public WindowPattern getPattern(){
         return !isPatternFlipped ? myWindowPatternCard.getFrontPattern() : myWindowPatternCard.getRearPattern();
+    }
+
+    public boolean getAlreadyPlacedADie(){
+        return alreadyPlacedADie;
     }
 
     /**
@@ -122,6 +130,7 @@ public class Player {
         //TODO placeDie - tenere conto se la posizione è già occupata, decidere politica di errore bolean vs Exception (chi le gestirà?)
         try {
             placedDice[row][col] = (Die) aDie.clone();
+            alreadyPlacedADie = true;
             return true;
         } catch (IndexOutOfBoundsException | CloneNotSupportedException e) {
             return false;
@@ -133,6 +142,7 @@ public class Player {
     }
 
     public void takeTurn() throws Exception {
+        alreadyPlacedADie = false;
         myView.takeTurn();
     }
 

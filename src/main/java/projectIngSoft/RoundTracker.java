@@ -8,6 +8,7 @@ public class RoundTracker {
 
     public RoundTracker(){
         diceLeftFromRound = new ArrayList<Die>();
+        currentRound = 1;
     }
 
     public RoundTracker(RoundTracker aRoundTracker){
@@ -31,6 +32,10 @@ public class RoundTracker {
 
     public void addDiceLeft(ArrayList<Die> list){
         diceLeftFromRound.addAll(list);
+    }
+
+    public void nextRound(){
+        currentRound++;
     }
 
 }

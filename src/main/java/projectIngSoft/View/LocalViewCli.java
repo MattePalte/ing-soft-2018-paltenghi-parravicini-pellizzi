@@ -1,14 +1,20 @@
 package projectIngSoft.View;
 
 import javafx.util.Pair;
+import projectIngSoft.Cards.Constraint;
 import projectIngSoft.Cards.ToolCards.ToolCard;
 import projectIngSoft.Cards.WindowPatternCard;
+import projectIngSoft.Colour;
 import projectIngSoft.Controller.Controller;
 import projectIngSoft.Controller.IController;
 import projectIngSoft.Die;
 import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.Player;
+import projectIngSoft.exceptions.AlreadyPlacedADieException;
+import projectIngSoft.exceptions.ConstraintViolatedException;
+import projectIngSoft.exceptions.PositionOccupiedException;
 
+import javax.swing.text.Position;
 import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -67,14 +73,30 @@ public class LocalViewCli implements IView{
             cmd = waitForUserInput(1,3);
 
             if (cmd == 1) {
-                System.out.println("Enter where you want to place your die ");
-                System.out.println("Row Index [0 - 3]");
-                int rowIndex =  waitForUserInput(0,3);
-                System.out.println("Col Index [0 - 4]");
-                int colIndex = waitForUserInput(0,4);
-                Die choseDie = choose(gameStatus.getDraftPool().toArray(new Die[gameStatus.getDraftPool().size()]));
-                System.out.println(choseDie);
-                controller.placeDie(choseDie, rowIndex, colIndex);
+                try {
+                    if (gameStatus.getCurrentPlayer().getAlreadyPlacedADie())
+                        throw new AlreadyPlacedADieException("You already placed a die");
+                    System.out.println("Enter where you want to place your die ");
+                    System.out.println("Row Index [0 - 3]");
+                    int rowIndex = waitForUserInput(0, 3);
+                    System.out.println("Col Index [0 - 4]");
+                    int colIndex = waitForUserInput(0, 4);
+                    if(gameStatus.getCurrentPlayer().getPlacedDice()[rowIndex][colIndex] != null)
+                        throw new PositionOccupiedException("A die has already been placed here");
+                    Die choseDie = choose(gameStatus.getDraftPool().toArray(new Die[gameStatus.getDraftPool().size()]));
+                    System.out.println(choseDie);
+                    checkConstaints(rowIndex, colIndex, choseDie);
+                    controller.placeDie(choseDie, rowIndex, colIndex);
+                }
+                catch(AlreadyPlacedADieException e){
+                    System.out.println(e.getMessage());
+                }
+                catch(PositionOccupiedException e){
+                    System.out.println(e.getMessage());
+                }
+                catch(ConstraintViolatedException e){
+                    System.out.println(e.getMessage());
+                }
 
             }
             else if (cmd == 2) {
@@ -89,6 +111,12 @@ public class LocalViewCli implements IView{
         while(cmd != 3);
     }
 
+    private void checkConstaints(int rowIndex, int colIndex, Die aDie) throws ConstraintViolatedException {
+        Constraint actualConstraint = gameStatus.getCurrentPlayer().getPattern().getConstraintsMatrix()[rowIndex][colIndex];
+        if((!actualConstraint.getColour().equals(aDie.getColour()) && !actualConstraint.getColour().equals(Colour.WHITE))|| (actualConstraint.getValue()!=aDie.getValue() && actualConstraint.getValue() != 0))
+            throw new ConstraintViolatedException("Ehi, you cheater! You are violating a constraint on your pattern! Try again, and play fairly!");
+    }
+
     private int waitForUserInput(int lowerBound, int upperBound){
         int ret = 0;
         Scanner input = new Scanner(System.in);
@@ -98,8 +126,9 @@ public class LocalViewCli implements IView{
                 ret = input.nextInt();
             }
             catch(InputMismatchException e){
-                System.out.println(e.getStackTrace());
+                System.out.println("Hai inserito un valore errato");
                 ret = upperBound + 1;
+                input.next();
             }
         }
         while(ret < lowerBound || ret > upperBound);
