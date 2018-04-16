@@ -11,7 +11,6 @@ public class Controller implements IController {
 
     public Controller(IGameManager gameManager) {
         this.gameManager = gameManager;
-        gameManager.setController(this);
     }
 
     @Override
