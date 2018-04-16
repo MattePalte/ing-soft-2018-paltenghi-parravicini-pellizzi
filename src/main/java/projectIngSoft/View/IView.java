@@ -3,6 +3,7 @@ package projectIngSoft.View;
 import javafx.util.Pair;
 import projectIngSoft.Cards.Card;
 import projectIngSoft.Cards.ToolCards.ToolCard;
+import projectIngSoft.Cards.WindowPattern;
 import projectIngSoft.Cards.WindowPatternCard;
 import projectIngSoft.Controller.IController;
 import projectIngSoft.Die;
@@ -15,6 +16,7 @@ public interface IView {
     void attachController(IController gameController);
     void endTurn() throws Exception;
     void takeTurn() throws Exception;
+    Pair<WindowPatternCard, Boolean> choosePattern(List<WindowPatternCard> patternCards);
 
     Pair<WindowPatternCard, Boolean> choose(WindowPatternCard card1, WindowPatternCard card2);
     Die choose(Die[] diceList);

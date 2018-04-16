@@ -1,5 +1,6 @@
 package projectIngSoft;
 
+import javafx.util.Pair;
 import projectIngSoft.Cards.Constraint;
 import projectIngSoft.Cards.Objectives.Privates.PrivateObjective;
 import projectIngSoft.Cards.ToolCards.ToolCard;
@@ -10,6 +11,8 @@ import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.View.IView;
 import projectIngSoft.exceptions.AlreadyPlacedADieException;
 import projectIngSoft.exceptions.PositionOccupiedException;
+
+import java.util.List;
 
 public class Player {
     private final String     name;
@@ -31,6 +34,15 @@ public class Player {
 
     //---------------------- OBSERVERS -------------------------
     //@assignable nothing
+    public void choosePattern(List<WindowPatternCard> patternCards){
+        Pair<WindowPatternCard, Boolean> chosenPattern = myView.choosePattern(patternCards);
+        myWindowPatternCard = chosenPattern.getKey();
+        isPatternFlipped = chosenPattern.getValue();
+        placedDice = new Die[getPattern().getHeight()][getPattern().getWidth()];
+    }
+
+
+
     public String getName() {
         return new String(name);
     }

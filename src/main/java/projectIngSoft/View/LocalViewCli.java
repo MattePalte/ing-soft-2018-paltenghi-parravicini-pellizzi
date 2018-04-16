@@ -3,6 +3,7 @@ package projectIngSoft.View;
 import javafx.util.Pair;
 import projectIngSoft.Cards.Constraint;
 import projectIngSoft.Cards.ToolCards.ToolCard;
+import projectIngSoft.Cards.WindowPattern;
 import projectIngSoft.Cards.WindowPatternCard;
 import projectIngSoft.Colour;
 import projectIngSoft.Controller.Controller;
@@ -55,6 +56,26 @@ public class LocalViewCli implements IView{
     @Override
     public void endTurn() throws Exception {
         controller.endTurn();
+    }
+
+    public Pair<WindowPatternCard, Boolean> choosePattern(List<WindowPatternCard> patternCards){
+        int userInput;
+        WindowPatternCard chosenPatternCard;
+        Boolean isFlipped;
+
+        System.out.println(ownerNameOfTheView + ", choose a pattern card: ");
+        System.out.println("1 -\n" + patternCards.get(0));
+        System.out.println("2 - \n" + patternCards.get(1));
+        userInput = waitForUserInput(1,2);
+        if(userInput == 1){
+            chosenPatternCard = patternCards.get(0);
+            isFlipped = chooseFace(chosenPatternCard);
+        }
+        else {
+            chosenPatternCard = patternCards.get(1);
+            isFlipped = chooseFace(chosenPatternCard);
+        }
+        return new Pair<WindowPatternCard, Boolean>(chosenPatternCard, isFlipped);
     }
 
     @Override
@@ -114,6 +135,20 @@ public class LocalViewCli implements IView{
             }
         }
         while(cmd != 3);
+    }
+
+    private boolean chooseFace(WindowPatternCard patternCard){
+        int userInput;
+
+        System.out.println(ownerNameOfTheView + ", now choose your pattern: ");
+        System.out.println("1 -\n" + patternCard.getFrontPattern());
+        System.out.println("2 -\n" + patternCard.getRearPattern());
+        userInput = waitForUserInput(1,2);
+        if(userInput == 1)
+            return false;
+        return true;
+
+
     }
 
     private void checkAdjacentConstraints(List<Constraint> adjacentConstraints, Die choseDie) throws IncompatibleMoveException {

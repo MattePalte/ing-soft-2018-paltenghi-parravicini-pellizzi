@@ -4,6 +4,7 @@ import projectIngSoft.Cards.Card;
 import projectIngSoft.Cards.Objectives.Privates.PrivateObjective;
 import projectIngSoft.Cards.Objectives.Publics.PublicObjective;
 import projectIngSoft.Cards.ToolCards.ToolCard;
+import projectIngSoft.Controller.IController;
 import projectIngSoft.Die;
 import projectIngSoft.Game;
 import projectIngSoft.Player;
@@ -48,7 +49,6 @@ public interface IGameManager {
     // v
     void requestUpdate();
     void deliverNewStatus(IGameManager newStatus);
-
     // Can't call it clone because it clashes with Object.clone()
     IGameManager clone();
 

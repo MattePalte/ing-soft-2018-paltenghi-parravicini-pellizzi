@@ -8,6 +8,7 @@ import projectIngSoft.Cards.Objectives.Privates.*;
 import projectIngSoft.Cards.WindowPatternCard;
 
 import projectIngSoft.*;
+import projectIngSoft.Controller.IController;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -157,11 +158,19 @@ public class GameManagerMulti implements IGameManager {
             // 1 - randomly distribute PrivateObjectiveCards
             PrivateObjective randomPrivateObjective = (PrivateObjective)privateObjectives.remove(0);
             p.setPrivateObjective(randomPrivateObjective);
-            WindowPatternCard aPatternCard = (WindowPatternCard) windowPatterns.remove(0);
+
+            ArrayList<WindowPatternCard> selectedPatternCards = new ArrayList<>();
+            for(int i = 0; i < 2; i++){
+                selectedPatternCards.add((WindowPatternCard)windowPatterns.remove(0));
+            }
+            // TODO: se una pattern card è data tra le possibili scelte ad un giocatore ma non viene selezionata, va reinserita nelle possibilita?
+            p.choosePattern(new ArrayList<WindowPatternCard>(selectedPatternCards));
+
+            /*WindowPatternCard aPatternCard = (WindowPatternCard) windowPatterns.remove(0);
             //TODO : request to the view. e.g. view.askForSomething()
             if(new Random().nextBoolean())
                 p.flip();
-            p.setPatternCard(aPatternCard);
+            p.setPatternCard(aPatternCard);*/
             // 2 - set favours according to WindowPattern difficulty
             favours.put(p, p.getPattern().getDifficulty());
         }

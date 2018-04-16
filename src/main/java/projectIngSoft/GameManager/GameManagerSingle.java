@@ -7,6 +7,7 @@ import projectIngSoft.Cards.Objectives.Privates.*;
 import projectIngSoft.Cards.Objectives.Publics.*;
 import projectIngSoft.Cards.ToolCards.*;
 import projectIngSoft.Cards.WindowPatternCard;
+import projectIngSoft.Controller.IController;
 
 import java.io.File;
 import java.io.FileNotFoundException;
