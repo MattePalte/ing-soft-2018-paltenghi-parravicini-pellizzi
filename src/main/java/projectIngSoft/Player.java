@@ -36,12 +36,6 @@ public class Player {
     }
 
     //@assignable nothing
-    public WindowPattern getVisiblePattern() {
-        //TODO getVisiblePattern - class WindowPattern should be final?
-        return getPattern();
-    }
-
-    //@assignable nothing
     public WindowPatternCard getPatternCard() {
         //TODO getPatternCard - should pass a clone?
         return myWindowPatternCard;

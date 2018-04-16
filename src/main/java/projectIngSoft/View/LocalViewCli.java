@@ -10,14 +10,10 @@ import projectIngSoft.Controller.IController;
 import projectIngSoft.Die;
 import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.Player;
-import projectIngSoft.exceptions.AlreadyPlacedADieException;
-import projectIngSoft.exceptions.ConstraintViolatedException;
-import projectIngSoft.exceptions.PositionOccupiedException;
+import projectIngSoft.exceptions.*;
 
 import javax.swing.text.Position;
-import java.util.Arrays;
-import java.util.InputMismatchException;
-import java.util.Scanner;
+import java.util.*;
 
 public class LocalViewCli implements IView{
     IGameManager gameStatus;
@@ -76,6 +72,7 @@ public class LocalViewCli implements IView{
                 try {
                     if (gameStatus.getCurrentPlayer().getAlreadyPlacedADie())
                         throw new AlreadyPlacedADieException("You already placed a die");
+                    System.out.println(gameStatus.getCurrentPlayer());
                     System.out.println("Enter where you want to place your die ");
                     System.out.println("Row Index [0 - 3]");
                     int rowIndex = waitForUserInput(0, 3);
@@ -86,6 +83,8 @@ public class LocalViewCli implements IView{
                     Die choseDie = choose(gameStatus.getDraftPool().toArray(new Die[gameStatus.getDraftPool().size()]));
                     System.out.println(choseDie);
                     checkConstaints(rowIndex, colIndex, choseDie);
+                    checkAdjacents(getAdjacents(gameStatus.getCurrentPlayer().getPlacedDice(), rowIndex, colIndex), choseDie);
+                    checkAdjacentConstraints(getAdjacentConstraints(gameStatus.getCurrentPlayer().getPattern().getConstraintsMatrix(), rowIndex, colIndex), choseDie);
                     controller.placeDie(choseDie, rowIndex, colIndex);
                 }
                 catch(AlreadyPlacedADieException e){
@@ -95,6 +94,12 @@ public class LocalViewCli implements IView{
                     System.out.println(e.getMessage());
                 }
                 catch(ConstraintViolatedException e){
+                    System.out.println(e.getMessage());
+                }
+                catch(RuleViolatedException e){
+                    System.out.println(e.getMessage());
+                }
+                catch(IncompatibleMoveException e){
                     System.out.println(e.getMessage());
                 }
 
@@ -109,6 +114,51 @@ public class LocalViewCli implements IView{
             }
         }
         while(cmd != 3);
+    }
+
+    private void checkAdjacentConstraints(List<Constraint> adjacentConstraints, Die choseDie) throws IncompatibleMoveException {
+        for (int i = 0; i < adjacentConstraints.size(); i++) {
+            if (adjacentConstraints.get(i).getValue() == choseDie.getValue() || adjacentConstraints.get(i).getColour().equals(choseDie.getColour()))
+                throw new IncompatibleMoveException("You can't place this die here: it's incompatible with adjacent constraints");
+        }
+    }
+
+    private ArrayList<Constraint> getAdjacentConstraints(Constraint[][] constraints, int row, int col){
+        ArrayList<Constraint> ret = new ArrayList<>();
+
+        if(col + 1 < constraints[row].length)
+            ret.add(constraints[row][col+1]);
+        if(col > 0)
+            ret.add(constraints[row][col-1]);
+        if(row + 1 < constraints.length)
+            ret.add(constraints[row+1][col]);
+        if(row > 0)
+            ret.add(constraints[row-1][col]);
+        return ret;
+    }
+
+    private void checkAdjacents(List<Die> adjacents, Die choseDie) throws RuleViolatedException {
+        for(int i = 0; i < adjacents.size(); i++){
+            Die placedDie = adjacents.get(i);
+            if(placedDie != null && (placedDie.getValue() == choseDie.getValue() || placedDie.getColour().equals(choseDie.getColour()))) {
+                throw new RuleViolatedException("Ehi! You are trying to place a die with the same colour or the same value than an adjacent die. You can't do whatever you want! You must follow the rules");
+            }
+        }
+    }
+
+    private ArrayList<Die> getAdjacents(Die[][] placedDice, int row, int col){
+        ArrayList<Die> ret = new ArrayList<>();
+
+        if(col + 1 < placedDice[row].length)
+            ret.add(placedDice[row][col+1]);
+        if(col > 0)
+            ret.add(placedDice[row][col-1]);
+        if(row + 1 < placedDice.length)
+            ret.add(placedDice[row+1][col]);
+        if(row > 0)
+            ret.add(placedDice[row-1][col]);
+
+        return ret;
     }
 
     private void checkConstaints(int rowIndex, int colIndex, Die aDie) throws ConstraintViolatedException {

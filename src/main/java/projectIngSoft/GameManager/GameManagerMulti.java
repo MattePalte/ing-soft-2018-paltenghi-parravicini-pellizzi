@@ -163,7 +163,7 @@ public class GameManagerMulti implements IGameManager {
                 p.flip();
             p.setPatternCard(aPatternCard);
             // 2 - set favours according to WindowPattern difficulty
-            favours.put(p, p.getVisiblePattern().getDifficulty());
+            favours.put(p, p.getPattern().getDifficulty());
         }
 
 

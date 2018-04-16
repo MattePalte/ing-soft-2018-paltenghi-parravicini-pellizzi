@@ -5,7 +5,7 @@ import projectIngSoft.Player;
 
 public abstract class ObjectiveCard extends Card {
 
-    private int points;
+    protected int points;
 
     public ObjectiveCard(String title, String description, int points){
         super(title, description);

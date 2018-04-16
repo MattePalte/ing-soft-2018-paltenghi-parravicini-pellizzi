@@ -97,8 +97,8 @@ public class PlayerTest {
 
         Die[][] finalMatrix = testPlayer.getPlacedDice();
         // check that only that die has changed
-        int nrRow = testPlayer.getVisiblePattern().getHeight();
-        int nrCol = testPlayer.getVisiblePattern().getWidth();
+        int nrRow = testPlayer.getPattern().getHeight();
+        int nrCol = testPlayer.getPattern().getWidth();
         for (int i = 0 ; i < nrRow; i++){
             for (int j = 0 ; j < nrCol; j++){
                 if (!(i == modifiedCol && j == modifiedRow)) {
