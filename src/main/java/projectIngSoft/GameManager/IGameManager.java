@@ -1,14 +1,16 @@
 package projectIngSoft.GameManager;
 
+import javafx.util.Pair;
 import projectIngSoft.Cards.Card;
 import projectIngSoft.Cards.Objectives.Privates.PrivateObjective;
 import projectIngSoft.Cards.Objectives.Publics.PublicObjective;
 import projectIngSoft.Cards.ToolCards.ToolCard;
-import projectIngSoft.Controller.IController;
+import projectIngSoft.Cards.WindowPatternCard;
 import projectIngSoft.Die;
 import projectIngSoft.Game;
 import projectIngSoft.Player;
 import projectIngSoft.RoundTracker;
+import projectIngSoft.events.Event;
 
 import java.util.List;
 import java.util.Map;
@@ -41,14 +43,16 @@ public interface IGameManager {
 
 
     void start() throws Exception;
-    void playToolCard(ToolCard aToolCard)      throws Exception;
-    void placeDie(Die aDie, int rowIndex, int colIndex)          throws Exception;
+    void setupPhase() throws Exception;
+    void playToolCard(ToolCard aToolCard) throws Exception;
+    void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception;
+    void bindPatternAndPlayer(String nickname, Pair<WindowPatternCard, Boolean> chosenPattern) throws Exception;
     void endTurn() throws Exception;
     void countPlayersPoints()   throws Exception;
     // | what?
     // v
     void requestUpdate();
-    void deliverNewStatus(IGameManager newStatus);
+    void deliverNewStatus(IGameManager newStatus, Event event);
     // Can't call it clone because it clashes with Object.clone()
     IGameManager clone();
 

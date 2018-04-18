@@ -14,7 +14,7 @@ import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class GameManagerSingle implements IGameManager {
+public class GameManagerSingle {
     private Game currentGame ;
 
     private ArrayList<Die> diceBag;
@@ -75,37 +75,37 @@ public class GameManagerSingle implements IGameManager {
     }
 
     //nsures /result.equals(List.of( game.getPlayers().get(0))
-    @Override
+
     public List<Player> getPlayerList() {
         return new ArrayList<>(currentGame.getPlayers());
     }
 
-    @Override
+
     public List<ToolCard> getToolCards() {
         return toolCards.stream().map(card -> (ToolCard)card).collect(Collectors.toList());
     }
 
-    @Override
+
     public List<Die> getDraftPool() {
         return new ArrayList<>(draftPool);
     }
 
-    @Override
+
     public Game getGameInfo() {
         return new Game(currentGame);
     }
 
-    @Override
+
     public Player getCurrentPlayer() {
         return currentTurn.get(0);
     }
 
-    @Override
+
     public List<PublicObjective> getPublicObjective() {
         return null;
     }
 
-    @Override
+
     public List<Die> getDiceBag() {
         //TODO: get rid of the method!
         return null;
@@ -113,52 +113,52 @@ public class GameManagerSingle implements IGameManager {
 
 
 
-    @Override
+
     public void countPlayersPoints() throws Exception {
 
     }
 
-    @Override
+
     public void requestUpdate() {
 
     }
 
-    @Override
+
     public void deliverNewStatus(IGameManager newStatus) {
 
     }
 
-    @Override
+
     public Player getWinner() throws Exception {
         return null;
     }
 
-    @Override
+
     public void playToolCard(ToolCard aToolCard) throws Exception {
 
     }
 
-    @Override
+
     public void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception {
 
     }
 
-    @Override
+
     public List<PrivateObjective> getPrivateObjective() {
         return null;
     }
 
-    @Override
+
     public List<Card> getPublicCards() {
         return null;
     }
 
-    @Override
+
     public void endTurn() throws Exception{
 
     }
 
-    @Override
+
     public void start() {
 
     }
@@ -202,12 +202,12 @@ public class GameManagerSingle implements IGameManager {
 
 
 
-    @Override
+
     public Map<Player, Integer> getFavours(){
         return new HashMap<>();
     }
 
-    @Override
+
     public RoundTracker getRoundTracker() {
         return null;
     }

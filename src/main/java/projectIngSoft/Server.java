@@ -27,8 +27,9 @@ public class Server
         // player.giveControllerToTheView(x) - call -> view.attachController(x)
         for (Player p : myModel.getPlayerList())
             p.giveControllerToTheView(fantasticController);
-        // Start
-        myModel.start();
+
+        myModel.setupPhase();
+
         System.out.println("This is the end of the game. Hope you enjoyed");
 
     }

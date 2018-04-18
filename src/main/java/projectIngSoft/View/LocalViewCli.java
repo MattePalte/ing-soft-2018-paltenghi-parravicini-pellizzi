@@ -3,23 +3,68 @@ package projectIngSoft.View;
 import javafx.util.Pair;
 import projectIngSoft.Cards.Constraint;
 import projectIngSoft.Cards.ToolCards.ToolCard;
-import projectIngSoft.Cards.WindowPattern;
 import projectIngSoft.Cards.WindowPatternCard;
 import projectIngSoft.Colour;
-import projectIngSoft.Controller.Controller;
 import projectIngSoft.Controller.IController;
 import projectIngSoft.Die;
 import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.Player;
+import projectIngSoft.events.*;
 import projectIngSoft.exceptions.*;
 
-import javax.swing.text.Position;
 import java.util.*;
 
-public class LocalViewCli implements IView{
+public class LocalViewCli implements IView, IEventHandler {
     IGameManager gameStatus;
     IController controller;
     String ownerNameOfTheView;
+
+    @Override
+    public void respondTo(CurrentPlayerChangedEvent event) {
+        System.out.println("Evento ricevuto da " + ownerNameOfTheView + " : Giocatore Cambiato");
+        if (gameStatus.getCurrentPlayer().getName().equals(ownerNameOfTheView)){
+            displayMySituation();
+            try {
+                takeTurn();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void respondTo(FinishedSetupEvent event) {
+        System.out.println("Evento ricevuto da " + ownerNameOfTheView + " : Setup finito");
+        if (gameStatus.getCurrentPlayer().getName().equals(ownerNameOfTheView)){
+            displayMySituation();
+            try {
+                takeTurn();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void respondTo(GameFinishedEvent event) {
+        System.out.println("Evento ricevuto da " + ownerNameOfTheView + " : Game Terminato");
+        displayMySituation();
+    }
+
+    @Override
+    public void respondTo(PatternCardDistributedEvent event) {
+        System.out.println("Evento ricevuto da " + ownerNameOfTheView + " : Carte distribuite");
+        for (Player p : gameStatus.getPlayerList()) {
+            if (p.getName().equals(ownerNameOfTheView)) {
+                Pair<WindowPatternCard, Boolean> chosenCouple = choosePattern(p.getPossiblePatternCard());
+                try {
+                    controller.choosePattern(ownerNameOfTheView, chosenCouple);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
     public LocalViewCli(String ownerNameOfTheView) {
         // TODO: come fa una view a sapere chi è il suo "padrone" (player)?
@@ -38,12 +83,12 @@ public class LocalViewCli implements IView{
     }
 
     @Override
-    public void update(IGameManager newModel) {
+    public void update(IGameManager newModel, Event event) {
         gameStatus = newModel;
-        // TODO: abilitare stampa di tutti i giocatori su tutti i client con il codice sotto
-        /*for (Player p : gameStatus.getPlayerList()) {
-            System.out.println(p);
-        }*/
+        event.accept(this);
+    }
+
+    private void displayMySituation(){
         // Stampa solo situazione attuale del giocatore attuale
         for (Player p : gameStatus.getPlayerList()) {
             if (p.getName().equals(ownerNameOfTheView)) {
@@ -53,8 +98,15 @@ public class LocalViewCli implements IView{
         System.out.println("Draft pool : "+gameStatus.getDraftPool());
     }
 
-    @Override
-    public void endTurn() throws Exception {
+    private void displayEntireGameBoard(){
+        // TODO: abilitare stampa di tutti i giocatori su tutti i client con il codice sotto
+        /*for (Player p : gameStatus.getPlayerList()) {
+            System.out.println(p);
+        }*/
+        System.out.println("Draft pool : "+gameStatus.getDraftPool());
+    }
+
+    private void endTurn() throws Exception {
         controller.endTurn();
     }
 
@@ -78,8 +130,7 @@ public class LocalViewCli implements IView{
         return new Pair<WindowPatternCard, Boolean>(chosenPatternCard, isFlipped);
     }
 
-    @Override
-    public void takeTurn() throws Exception {
+    private void takeTurn() throws Exception {
         int cmd;
 
         do {
@@ -106,7 +157,7 @@ public class LocalViewCli implements IView{
                     checkConstaints(rowIndex, colIndex, choseDie);
                     checkAdjacents(getAdjacents(gameStatus.getCurrentPlayer().getPlacedDice(), rowIndex, colIndex), choseDie);
                     checkAdjacentConstraints(getAdjacentConstraints(gameStatus.getCurrentPlayer().getPattern().getConstraintsMatrix(), rowIndex, colIndex), choseDie);
-                    controller.placeDie(choseDie, rowIndex, colIndex);
+                    controller.placeDie(ownerNameOfTheView, choseDie, rowIndex, colIndex);
                 }
                 catch(AlreadyPlacedADieException e){
                     System.out.println(e.getMessage());
@@ -127,7 +178,7 @@ public class LocalViewCli implements IView{
             }
             else if (cmd == 2) {
                 System.out.println("Choose a toolcard: ");
-                controller.playToolCard(choose(gameStatus.getToolCards().toArray(new ToolCard[gameStatus.getToolCards().size()])));
+                controller.playToolCard(ownerNameOfTheView, choose(gameStatus.getToolCards().toArray(new ToolCard[gameStatus.getToolCards().size()])));
 
             }
             else {

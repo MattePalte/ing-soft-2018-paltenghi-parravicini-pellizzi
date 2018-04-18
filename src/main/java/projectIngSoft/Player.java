@@ -9,9 +9,9 @@ import projectIngSoft.Cards.WindowPatternCard;
 import projectIngSoft.Controller.IController;
 import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.View.IView;
-import projectIngSoft.exceptions.AlreadyPlacedADieException;
-import projectIngSoft.exceptions.PositionOccupiedException;
+import projectIngSoft.events.Event;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Player {
@@ -22,6 +22,7 @@ public class Player {
     private boolean isPatternFlipped;
     private IView myView;
     private boolean alreadyPlacedADie;
+    private List<WindowPatternCard> possiblePatternCards;
 
     //Constructor
     public Player(String name, IView aView) {
@@ -32,16 +33,21 @@ public class Player {
         this.alreadyPlacedADie = false;
     }
 
-    //---------------------- OBSERVERS -------------------------
-    //@assignable nothing
-    public void choosePattern(List<WindowPatternCard> patternCards){
-        Pair<WindowPatternCard, Boolean> chosenPattern = myView.choosePattern(patternCards);
-        myWindowPatternCard = chosenPattern.getKey();
-        isPatternFlipped = chosenPattern.getValue();
-        placedDice = new Die[getPattern().getHeight()][getPattern().getWidth()];
+    public void givePossiblePatternCard(List<WindowPatternCard> givenPatternCards) {
+        possiblePatternCards = new ArrayList<>();
+        possiblePatternCards.addAll(givenPatternCards);
     }
 
+    //---------------------- OBSERVERS -------------------------
+    //@assignable nothing
 
+    public void setPatternFlipped(boolean patternFlipped) {
+        isPatternFlipped = patternFlipped;
+    }
+
+    public List<WindowPatternCard> getPossiblePatternCard(){
+        return new ArrayList<>(possiblePatternCards);
+    }
 
     public String getName() {
         return new String(name);
@@ -147,14 +153,12 @@ public class Player {
         return true;
     }
 
-    public void takeTurn() throws Exception {
+    public void prepareDieFlag() throws Exception {
         alreadyPlacedADie = false;
-        myView.takeTurn();
     }
 
-    public void updateView(IGameManager updatedModel) {
-        //TODO: warning to rep exposition -> implement model Clone of Model
-        myView.update(updatedModel);
+    public void update(IGameManager updatedModel, Event event) {
+        myView.update(updatedModel, event);
     }
 
     public void giveControllerToTheView(IController aController) {

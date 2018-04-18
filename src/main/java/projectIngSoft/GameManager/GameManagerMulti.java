@@ -1,6 +1,7 @@
 package projectIngSoft.GameManager;
 
 
+import javafx.util.Pair;
 import projectIngSoft.Cards.Card;
 import projectIngSoft.Cards.ToolCards.*;
 import projectIngSoft.Cards.Objectives.Publics.*;
@@ -8,7 +9,7 @@ import projectIngSoft.Cards.Objectives.Privates.*;
 import projectIngSoft.Cards.WindowPatternCard;
 
 import projectIngSoft.*;
-import projectIngSoft.Controller.IController;
+import projectIngSoft.events.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -37,8 +38,6 @@ public class GameManagerMulti implements IGameManager {
             //TODO: create a more specific Exception
             throw  new Exception("Game is not valid!");
         currentGame = new Game(aGame);
-        setupPhase();
-        currentTurnList = createTurns(currentGame.getPlayers());
         }
 
     public GameManagerMulti clone() {
@@ -49,7 +48,7 @@ public class GameManagerMulti implements IGameManager {
         this.currentGame = new Game(gameManagerMulti.getGameInfo());
         this.diceBag = new ArrayList<>(gameManagerMulti.diceBag);
         this.draftPool = new ArrayList<>(gameManagerMulti.draftPool);
-        this.rounds = new RoundTracker(rounds);
+        this.rounds = new RoundTracker(gameManagerMulti.rounds); //TODO: why before it was -> new RoundTracker(rounds)
         this.privateObjectives = new ArrayList<>(gameManagerMulti.privateObjectives);
         this.publicObjectives = new ArrayList<>(gameManagerMulti.publicObjectives);
         this.windowPatterns = new ArrayList<>(gameManagerMulti.windowPatterns);
@@ -99,16 +98,11 @@ public class GameManagerMulti implements IGameManager {
     @Override
     public void start() throws Exception {
         drawDice();
-        deliverNewStatus(this);
-        getCurrentPlayer().takeTurn();
-        /*for (int i = 0; i<10; i++){
-            for (Player p: currentTurnList) {
-                p.takeTurn();
-            }
-        }*/
+        getCurrentPlayer().prepareDieFlag();
+        deliverNewStatus(this, new FinishedSetupEvent());
     }
 
-    private void setupPhase() throws FileNotFoundException, Colour.ColorNotFoundException  {
+    public void setupPhase() throws FileNotFoundException, Colour.ColorNotFoundException  {
 
 
 
@@ -163,19 +157,37 @@ public class GameManagerMulti implements IGameManager {
             for(int i = 0; i < 2; i++){
                 selectedPatternCards.add((WindowPatternCard)windowPatterns.remove(0));
             }
-            // TODO: se una pattern card è data tra le possibili scelte ad un giocatore ma non viene selezionata, va reinserita nelle possibilita?
-            p.choosePattern(new ArrayList<WindowPatternCard>(selectedPatternCards));
 
-            /*WindowPatternCard aPatternCard = (WindowPatternCard) windowPatterns.remove(0);
-            //TODO : request to the view. e.g. view.askForSomething()
-            if(new Random().nextBoolean())
-                p.flip();
-            p.setPatternCard(aPatternCard);*/
-            // 2 - set favours according to WindowPattern difficulty
-            favours.put(p, p.getPattern().getDifficulty());
+            // TODO: se una pattern card è data tra le possibili scelte ad un giocatore ma non viene selezionata, va reinserita nelle possibilita?
+            p.givePossiblePatternCard(new ArrayList<>(selectedPatternCards));
         }
 
+        currentTurnList = createTurns(currentGame.getPlayers());
 
+        deliverNewStatus(this, new PatternCardDistributedEvent());
+
+
+    }
+
+    @Override
+    public void bindPatternAndPlayer(String nickname, Pair<WindowPatternCard, Boolean> chosenPattern){
+        for (Player p : getPlayerList()){
+            if (p.getName().equals(nickname)){
+                p.setPatternCard(chosenPattern.getKey());
+                p.setPatternFlipped(chosenPattern.getValue());
+                favours.put(p, p.getPattern().getDifficulty());
+            }
+        }
+        // check if all players have chosen their card
+        for (Player p : getPlayerList()) {
+            if (p.getPatternCard() == null) return;
+        }
+        // if all have chosen their card start the match
+        try {
+            start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -189,9 +201,9 @@ public class GameManagerMulti implements IGameManager {
     }
 
     @Override
-    public void deliverNewStatus(IGameManager newStatus) {
-        for (Player p : currentGame.getPlayers()) {
-            p.updateView(this);
+    public void deliverNewStatus(IGameManager newStatus, Event event) {
+        for (Player subscriber : currentGame.getPlayers()) {
+            subscriber.update(this.clone(), event);
         }
     }
 
@@ -238,8 +250,12 @@ public class GameManagerMulti implements IGameManager {
             System.out.println("Round " + rounds.getCurrentRound() + " is beginning");
             drawDice();
         }
-        deliverNewStatus(this);
-        getCurrentPlayer().takeTurn();
+        getCurrentPlayer().prepareDieFlag();
+        if (currentTurnList.size() > 0 ) {
+            deliverNewStatus(this, new CurrentPlayerChangedEvent());
+        } else {
+            deliverNewStatus(this, new GameFinishedEvent());
+        }
     }
     @Override
     public Map<Player, Integer> getFavours(){
