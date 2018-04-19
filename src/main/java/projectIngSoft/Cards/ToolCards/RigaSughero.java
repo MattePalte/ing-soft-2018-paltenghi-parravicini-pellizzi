@@ -1,6 +1,7 @@
 package projectIngSoft.Cards.ToolCards;
 
 import projectIngSoft.Colour;
+import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.Player;
 
 public class RigaSughero extends ToolCard {
@@ -11,7 +12,12 @@ public class RigaSughero extends ToolCard {
     }
 
     @Override
-    public void applyEffect(Player p) {
+    public void applyEffect(Player p, IGameManager m) throws Exception {
 
+    }
+
+    @Override
+    public void fill(IToolCardFiller visitor) {
+        visitor.fill(this);
     }
 }

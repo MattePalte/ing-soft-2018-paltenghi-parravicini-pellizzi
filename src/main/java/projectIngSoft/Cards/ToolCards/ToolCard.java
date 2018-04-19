@@ -2,6 +2,7 @@ package projectIngSoft.Cards.ToolCards;
 
 import projectIngSoft.Cards.Card;
 import projectIngSoft.Colour;
+import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.Player;
 
 public abstract class ToolCard extends Card {
@@ -16,5 +17,7 @@ public abstract class ToolCard extends Card {
     public Colour getColour(){
         return this.colour;
     }
-    public abstract void applyEffect(Player p);
+    public abstract void applyEffect(Player p, IGameManager m) throws Exception;
+
+    public abstract void fill(IToolCardFiller visitor);
 }

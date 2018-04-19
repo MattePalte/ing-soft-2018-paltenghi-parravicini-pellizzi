@@ -1,6 +1,5 @@
 package projectIngSoft;
 
-import javafx.util.Pair;
 import projectIngSoft.Cards.Constraint;
 import projectIngSoft.Cards.Objectives.Privates.PrivateObjective;
 import projectIngSoft.Cards.ToolCards.ToolCard;
@@ -10,58 +9,77 @@ import projectIngSoft.Controller.IController;
 import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.View.IView;
 import projectIngSoft.events.Event;
+import projectIngSoft.exceptions.PatternConstraintViolatedException;
+import projectIngSoft.exceptions.PositionOccupiedException;
+import projectIngSoft.exceptions.RuleViolatedException;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Player {
-    private final String     name;
-    private WindowPatternCard myWindowPatternCard;
-    private PrivateObjective myPrivateObjective;
-    private Die[][]          placedDice;
-    private boolean isPatternFlipped;
-    private IView myView;
-    private boolean alreadyPlacedADie;
+    private final String            name;
+
+    private boolean                 isPatternFlipped;
+    private WindowPatternCard       myWindowPatternCard;
     private List<WindowPatternCard> possiblePatternCards;
 
-    //Constructor
+    private PrivateObjective        myPrivateObjective;
+    private Die[][]                 placedDice;
+
+    private IView                   myView;
+    private boolean                 alreadyPlacedADie;
+
+
+    //In order to let the player use patterns with non-predefined dimensions
+    //the player placedDice matrix is created when patternCard is chosen.
     public Player(String name, IView aView) {
-        this.name = new String(name);
-        //altrimenti errore
+        this.name =  name;
         this.placedDice = new Die[1][1];
         this.myView = aView;
         this.alreadyPlacedADie = false;
     }
 
-    public void givePossiblePatternCard(List<WindowPatternCard> givenPatternCards) {
-        possiblePatternCards = new ArrayList<>();
-        possiblePatternCards.addAll(givenPatternCards);
+    public String getName() {
+        return name;
     }
 
-    //---------------------- OBSERVERS -------------------------
-    //@assignable nothing
+    public void setPatternCard(WindowPatternCard aPatternCard) {
+        this.myWindowPatternCard = aPatternCard;
+        int width =  getPattern().getWidth();
+        int height =  getPattern().getHeight();
+        this.placedDice = new Die[height][width];
+    }
+
 
     public void setPatternFlipped(boolean patternFlipped) {
+
         isPatternFlipped = patternFlipped;
     }
 
-    public List<WindowPatternCard> getPossiblePatternCard(){
-        return new ArrayList<>(possiblePatternCards);
-    }
 
-    public String getName() {
-        return new String(name);
+    public void givePossiblePatternCard(List<WindowPatternCard> givenPatternCards) {
+        possiblePatternCards = new ArrayList<>(givenPatternCards);
     }
 
     //@assignable nothing
+    public List<WindowPatternCard> getPossiblePatternCard(){
+
+        return new ArrayList<>(possiblePatternCards);
+    }
+
+
+    //@assignable nothing
     public WindowPatternCard getPatternCard() {
-        //TODO getPatternCard - should pass a clone?
+
         return myWindowPatternCard;
+    }
+
+    public WindowPattern getPattern(){
+        return !isPatternFlipped ? myWindowPatternCard.getFrontPattern() : myWindowPatternCard.getRearPattern();
     }
 
     //@assignable nothing
     public PrivateObjective getPrivateObjective() {
-        //TODO getPrivateObjective - private objective has no modifier, should we clone it before return?
         return myPrivateObjective;
     }
 
@@ -70,22 +88,10 @@ public class Player {
         return  cloneArray(placedDice);
     }
 
-    public void flip(){
-        isPatternFlipped = !isPatternFlipped;
-    }
-
-    public WindowPattern getPattern(){
-        return !isPatternFlipped ? myWindowPatternCard.getFrontPattern() : myWindowPatternCard.getRearPattern();
-    }
-
-    public boolean getAlreadyPlacedADie(){
-        return alreadyPlacedADie;
-    }
-
     /**
      * Clones the provided array
      *
-     * @param matrixOfDice
+     * @param matrixOfDice a matrix to be deepCloned
      * @return a new clone of the provided matrix of die
      */
     private Die[][] cloneArray(Die[][] matrixOfDice) {
@@ -97,13 +103,103 @@ public class Player {
         return target;
     }
 
+    public boolean getAlreadyPlacedADie(){
+        return alreadyPlacedADie;
+    }
+
+
+
+
+
+    public void setPrivateObjective(PrivateObjective myPrivateObjective) {
+        this.myPrivateObjective = myPrivateObjective;
+
+    }
+
+
+    // Exceptions thrown if:
+    //      a die is placed in an occupied position -> PositionOccupiedException
+    //      a die placed doesn't match rules -> RuleViolatedExceptions
+    //      a pattern constraint is violated -> PatternConstraintViolatedException
+    public void placeDie(Die aDie, int row, int col) throws PositionOccupiedException, PatternConstraintViolatedException, RuleViolatedException {
+        if(placedDice[row][col]!= null) {
+            throw new PositionOccupiedException("A die has already been placed here");
+        }
+        checkConstraints(row, col, aDie);
+        checkAdjacents(getAdjacents(getPlacedDice(),row,col),aDie);
+        placeDieWithoutConstraints(aDie, row, col);
+    }
+
+
+    public void placeDieWithoutConstraints(Die aDie, int row, int col){
+        placedDice[row][col] = new Die(aDie);
+        alreadyPlacedADie = true;
+    }
+
+    private void checkConstraints(int rowIndex, int colIndex, Die aDie) throws PatternConstraintViolatedException {
+        Constraint actualConstraint = getPattern().getConstraintsMatrix()[rowIndex][colIndex];
+        if((!actualConstraint.getColour().equals(aDie.getColour()) && !actualConstraint.getColour().equals(Colour.WHITE))|| (actualConstraint.getValue()!=aDie.getValue() && actualConstraint.getValue() != 0))
+            throw new PatternConstraintViolatedException("Ehi, you cheater! You are violating a constraint on your pattern! Try again, and play fairly!");
+    }
+
+
+    private void checkAdjacents(List<Die> adjacents, Die choseDie) throws RuleViolatedException {
+        for(int i = 0; i < adjacents.size(); i++){
+            Die placedDie = adjacents.get(i);
+            if(placedDie != null && (placedDie.getValue() == choseDie.getValue() || placedDie.getColour().equals(choseDie.getColour()))) {
+                throw new RuleViolatedException("Ehi! You are trying to place a die with the same colour or the same value than an adjacent die. You can't do whatever you want! You must follow the rules");
+            }
+        }
+    }
+
+    private ArrayList<Die> getAdjacents(Die[][] placedDice, int row, int col){
+        ArrayList<Die> ret = new ArrayList<>();
+
+        if(col + 1 < placedDice[row].length)
+            ret.add(placedDice[row][col+1]);
+        if(col > 0)
+            ret.add(placedDice[row][col-1]);
+        if(row + 1 < placedDice.length)
+            ret.add(placedDice[row+1][col]);
+        if(row > 0)
+            ret.add(placedDice[row-1][col]);
+
+        return ret;
+    }
+
+
+    public void resetDieFlag() {
+        alreadyPlacedADie = false;
+    }
+
+    public void update(IGameManager updatedModel, Event event) {
+        myView.update( event);
+    }
+
+    public void giveControllerToTheView(IController aController) {
+
+        myView.attachController(aController);
+    }
+
+    public String getPlayerSecurityCode(){
+        //TODO: build a code that identifies my view.
+        return new String("Codice");
+    }
+
+    /**
+     *
+     * @return a string representation of player. The WindowPatternCard is not printed, because it's already integrated in the background
+     */
     @Override
     public String toString() {
-        StringBuilder aBuilder =  new StringBuilder(
-                "---------------------\n" +
-                name + "'s situation ..."+
-                //"\nmyWindowPatternCard ->\n" + myWindowPatternCard +
-                "\nPrivObj : " + myPrivateObjective.getTitle()+"\n");
+        StringBuilder aBuilder =  new StringBuilder();
+        aBuilder.append("---------------------\n");
+        aBuilder.append(name);
+        aBuilder.append("'s situation ...\n");
+        aBuilder.append("PrivObj : ");
+        aBuilder.append(myPrivateObjective.getTitle());
+        aBuilder.append("\n");
+
         String tmp;
         Constraint[][] constraintsMatrix = getPattern().getConstraintsMatrix();
 
@@ -120,56 +216,8 @@ public class Player {
             }
             aBuilder.append("\n");
         }
-        aBuilder.append("---------------------");
+        aBuilder.append("---------------------\n");
         return aBuilder.toString();
-    }
-
-    //---------------------- MODIFIERS -------------------------
-
-    public void setPatternCard(WindowPatternCard aPatternCard) {
-        this.myWindowPatternCard = aPatternCard;
-        int width =  getPattern().getWidth();
-        int height =  getPattern().getHeight();
-        this.placedDice = new Die[height][width];
-    }
-
-    public void setPrivateObjective(PrivateObjective myPrivateObjective) {
-        this.myPrivateObjective = myPrivateObjective;
-
-    }
-
-    public boolean placeDie(Die aDie, int row, int col) {
-        //TODO placeDie - tenere conto se la posizione è già occupata, decidere politica di errore bolean vs Exception (chi le gestirà?)
-        try {
-            placedDice[row][col] = (Die) aDie.clone();
-            alreadyPlacedADie = true;
-            return true;
-        } catch (IndexOutOfBoundsException | CloneNotSupportedException e) {
-            return false;
-        }
-    }
-
-    public boolean playToolCard(ToolCard aToolCard){
-        return true;
-    }
-
-    public void prepareDieFlag() throws Exception {
-        alreadyPlacedADie = false;
-    }
-
-    public void update(IGameManager updatedModel, Event event) {
-        myView.update(updatedModel, event);
-    }
-
-    public void giveControllerToTheView(IController aController) {
-        //TODO: warning to rep exposition -> implement model Clone of Controller
-        myView.attachController(aController);
-    }
-
-    //---------------------- NOT YET IMPLEMENTED METHODS - TO DISCUSS -------------------------
-
-    public String getPlayerSecurityCode(){
-        return new String("Codice");
     }
 
 }

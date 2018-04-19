@@ -8,6 +8,7 @@ import projectIngSoft.Cards.Objectives.Publics.*;
 import projectIngSoft.Cards.ToolCards.*;
 import projectIngSoft.Cards.WindowPatternCard;
 import projectIngSoft.Controller.IController;
+import projectIngSoft.exceptions.GameInvalidException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -213,6 +214,8 @@ public class GameManagerSingle {
     }
 
     private List<Player> turnLeftShift(ArrayList<Player> actualTurn){
+
+
         List<Player> ret = new ArrayList<>();
         for(int i = 0; i < actualTurn.size(); i++){
             ret.add((i) % 3, actualTurn.get((i + 1) % 3));
@@ -294,15 +297,19 @@ public class GameManagerSingle {
         return tmp;
     }
 
-    private static  ArrayList<Card> createPatternCards() throws FileNotFoundException, Colour.ColorNotFoundException {
-        File file = new File("src/main/patterns.txt");
-        Scanner input = new Scanner(file);
+    private static  ArrayList<WindowPatternCard> createPatternCards() throws GameInvalidException {
 
-        ArrayList<Card> patterns = new ArrayList<Card>();
+        ArrayList<WindowPatternCard> patterns = new ArrayList<>();
+        try( Scanner input = new Scanner(new File("src/main/patterns.txt"))) {
+            for (int i = 0; i < 12; i++) {
+                patterns.add(WindowPatternCard.loadFromScanner(input));
+                input.nextLine();
+            }
 
-        for(int i = 0; i < 12; i++) {
-            patterns.add(WindowPatternCard.loadFromScanner(input));
-            input.nextLine();
+        } catch(FileNotFoundException ex){
+            throw new GameInvalidException("Error while loading cards from file. Aborting...");
+        } catch (Colour.ColorNotFoundException ex){
+            throw new GameInvalidException("Error while loading cards from file. color error Aborting...");
         }
 
         return patterns;

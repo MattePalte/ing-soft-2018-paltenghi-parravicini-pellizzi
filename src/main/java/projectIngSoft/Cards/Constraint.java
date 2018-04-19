@@ -45,15 +45,18 @@ public class Constraint {
     public String toString() {
         String encoding;
         if(value == 0){
-            //encoding = "\u3000";
-            //encoding = "\u2007";
-            //encoding = "\u2001";
-            //good "\u2000\u2004";
+            //abbiamo provato 2000+2004, 2001, 3000,2007
+
             encoding = "\u2000\u2005";
         }else{
             encoding = (new Die( value , Colour.WHITE)).toString();
         }
 
         return encoding;
+    }
+
+    public static Constraint fromEncoding(String rep) throws Colour.ColorNotFoundException {
+       return new Constraint((int) rep.charAt(0) - (int) '0',
+                Colour.valueOf(rep.charAt(1)));
     }
 }

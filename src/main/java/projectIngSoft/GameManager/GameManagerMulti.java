@@ -10,53 +10,81 @@ import projectIngSoft.Cards.WindowPatternCard;
 
 import projectIngSoft.*;
 import projectIngSoft.events.*;
+import projectIngSoft.events.Event;
+import projectIngSoft.exceptions.GameInvalidException;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
-public class GameManagerMulti implements IGameManager {
+public class GameManagerMulti implements IGameManager, Cloneable {
 
 
-    private Game currentGame ;
+    private Game                        currentGame ;
 
-    private ArrayList<Die> diceBag;
-    private ArrayList<Die> draftPool;
-    private RoundTracker rounds;
-    private ArrayList<Card> privateObjectives;
-    private ArrayList<Card> publicObjectives;
-    private ArrayList<Card> windowPatterns;
-    private ArrayList<Card> toolCards;
-    private ArrayList<Player> currentTurnList;
-    private Map<Player, Integer> favours;
+    private ArrayList<Die>              diceBag;
+    private ArrayList<Die>              draftPool;
+    private RoundTracker                rounds;
 
-    //@ Signals Exception aGame.isValid() || aGame.numOfPlayers() <= 1 or aGame.numOfPlayers()> 4;
-    public GameManagerMulti(Game aGame) throws Exception {
+    private ArrayList<PublicObjective > publicObjectives;
+
+    private ArrayList<ToolCard>         toolCards;
+    private ArrayList<Player>           currentTurnList;
+    private Map<Player, Integer>        favours;
+
+    //@Signals Exception aGame.isValid() || aGame.numOfPlayers() <= 1 or aGame.numOfPlayers()> 4
+    public GameManagerMulti(Game aGame) throws GameInvalidException {
 
         if (!aGame.isValid() || aGame.getNumberOfPlayers() <= 1  || aGame.getNumberOfPlayers() > 4  )
-            //TODO: create a more specific Exception
-            throw  new Exception("Game is not valid!");
+
+            throw  new GameInvalidException("Game is not valid!");
         currentGame = new Game(aGame);
-        }
+    }
+
+    private GameManagerMulti(GameManagerMulti gameManagerMulti){
+        this.currentGame        = new Game(gameManagerMulti.getGameInfo());
+        this.diceBag            = new ArrayList<> (gameManagerMulti.diceBag);
+        this.draftPool          = new ArrayList<> (gameManagerMulti.draftPool);
+        this.rounds             = new RoundTracker(gameManagerMulti.rounds);
+        this.publicObjectives   = new ArrayList<> (gameManagerMulti.publicObjectives);
+        this.toolCards          = new ArrayList<> (gameManagerMulti.toolCards);
+        this.currentTurnList    = new ArrayList<> (gameManagerMulti.currentTurnList);
+    }
 
     public GameManagerMulti clone() {
         return new GameManagerMulti(this);
     }
 
-    private GameManagerMulti(GameManagerMulti gameManagerMulti){
-        this.currentGame = new Game(gameManagerMulti.getGameInfo());
-        this.diceBag = new ArrayList<>(gameManagerMulti.diceBag);
-        this.draftPool = new ArrayList<>(gameManagerMulti.draftPool);
-        this.rounds = new RoundTracker(gameManagerMulti.rounds); //TODO: why before it was -> new RoundTracker(rounds)
-        this.privateObjectives = new ArrayList<>(gameManagerMulti.privateObjectives);
-        this.publicObjectives = new ArrayList<>(gameManagerMulti.publicObjectives);
-        this.windowPatterns = new ArrayList<>(gameManagerMulti.windowPatterns);
-        this.toolCards = new ArrayList<>(gameManagerMulti.toolCards);
-        this.currentTurnList = new ArrayList<>(gameManagerMulti.currentTurnList);
+
+    @Override
+    public Game getGameInfo()       {
+        return new Game(currentGame);
+    }
+    @Override
+    public List<Die> getDraftPool() {
+        return new ArrayList<>(draftPool);
+    }
+    @Override
+    public List<PublicObjective> getPublicObjective() {
+        return new ArrayList<>(publicObjectives);
+    }
+    @Override
+    public List<ToolCard> getToolCards()     {
+        return new ArrayList<>(toolCards);
     }
 
-    public List<Player> getRoundTurns(){
+    @Override
+    public List<Card> getPublicCards() {
+        ArrayList<Card> ret = new ArrayList<>();
+        ret.addAll(publicObjectives);
+        ret.addAll(toolCards);
+        return ret;
+    }
+
+    public List<Player> getCurrentTurnList(){
         return new ArrayList<>(currentTurnList);
     }
 
@@ -64,69 +92,39 @@ public class GameManagerMulti implements IGameManager {
     public List<Player> getPlayerList() {
         return currentGame.getPlayers().stream().sorted((p1,p2) -> p1.getName().compareTo(p2.getName())).collect(Collectors.toCollection(ArrayList :: new));
     }
-
-    @Override
-    public List<ToolCard> getToolCards() {
-        return toolCards.stream().map(card -> (ToolCard)card).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Die> getDraftPool() {
-        return new ArrayList<>(draftPool);
-    }
-
-    @Override
-    public Game getGameInfo() {
-        return new Game(currentGame);
-    }
-
     @Override
     public Player getCurrentPlayer() {
         return currentTurnList.get(0);
     }
 
     @Override
-    public List<PublicObjective> getPublicObjective() {
-        return new ArrayList<PublicObjective>(publicObjectives.stream().map(card -> (PublicObjective)card).collect(Collectors.toList()));
-    }
-
-    @Override
-    public List<Die> getDiceBag() {
-        return new ArrayList(diceBag);
-    }
-
-    @Override
-    public void start() throws Exception {
+    public void start() throws Exception, GameInvalidException {
         drawDice();
-        getCurrentPlayer().prepareDieFlag();
+        getCurrentPlayer().resetDieFlag();
         deliverNewStatus(this, new FinishedSetupEvent());
     }
 
-    public void setupPhase() throws FileNotFoundException, Colour.ColorNotFoundException  {
-
-
-
-        //Package pk = projectIngSoft.Cards.Objectives Package().getAnnotations();
+    public void setupPhase() throws GameInvalidException {
+        //TODO: move inizialization into a static method, where just copying pre-initialized elements.
+        //TODO: get class contained in projectIngSoft.Cards.Objectives.public.* instead of using a method in every referee. in order to use something like Cards.max4Players.deckOfPublicObjectives .
 
         // initialize empty draft pool
-        draftPool = new ArrayList<Die>();
+        draftPool = new ArrayList<>();
 
         // initialize Round Tracker obj
         rounds = new RoundTracker();
-        //TODO: move inizialization into a static method, where just copying pre-initialized elements.
-        //TODO: get class contained in projectIngSoft.Cards.Objectives.public.* instead of using a method in every referee. in order to use something like Cards.max4Players.deckOfPublicObjectives .
 
         // create dies and populate Die Bag
         diceBag = createDice();
 
         // initialize private Objective cards
-        privateObjectives = createPrivateObjectives();
+        ArrayList<PrivateObjective> privateObjectives = createPrivateObjectives();
 
         // initialize public Objective cards
         publicObjectives =  createPublicObjectives();
 
         // initialize window pattern cards
-        windowPatterns = createPatternCards();
+        ArrayList<WindowPatternCard> windowPatterns = createPatternCards();
 
         //initialize toolcards
         toolCards = createToolCards();
@@ -154,23 +152,23 @@ public class GameManagerMulti implements IGameManager {
             p.setPrivateObjective(randomPrivateObjective);
 
             ArrayList<WindowPatternCard> selectedPatternCards = new ArrayList<>();
+
             for(int i = 0; i < 2; i++){
                 selectedPatternCards.add((WindowPatternCard)windowPatterns.remove(0));
             }
 
-            // TODO: se una pattern card è data tra le possibili scelte ad un giocatore ma non viene selezionata, va reinserita nelle possibilita?
             p.givePossiblePatternCard(new ArrayList<>(selectedPatternCards));
+            p.update(this, new PatternCardDistributedEvent(selectedPatternCards.get(0), selectedPatternCards.get(1)));
         }
 
         currentTurnList = createTurns(currentGame.getPlayers());
 
-        deliverNewStatus(this, new PatternCardDistributedEvent());
 
 
     }
 
     @Override
-    public void bindPatternAndPlayer(String nickname, Pair<WindowPatternCard, Boolean> chosenPattern){
+    public void bindPatternAndPlayer(String nickname, Pair<WindowPatternCard, Boolean> chosenPattern) throws GameInvalidException {
         for (Player p : getPlayerList()){
             if (p.getName().equals(nickname)){
                 p.setPatternCard(chosenPattern.getKey());
@@ -219,43 +217,34 @@ public class GameManagerMulti implements IGameManager {
 
     @Override
     public void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception {
-        if(getCurrentPlayer().placeDie(aDie,rowIndex,colIndex)) {
-            draftPool.remove(aDie);
-
-        }
+        getCurrentPlayer().placeDie(aDie,rowIndex,colIndex);
+        draftPool.remove(aDie);
     }
 
-    @Override
-    public List<PrivateObjective> getPrivateObjective() {
-        return new ArrayList<PrivateObjective>(privateObjectives.stream().map(obj -> (PrivateObjective)obj).collect(Collectors.toList()));
-    }
 
     @Override
-    public List<Card> getPublicCards() {
-        return new ArrayList<>(publicObjectives);
-    }
-
-    @Override
-    public void endTurn() throws Exception {
+    public void endTurn() throws Exception, GameInvalidException {
         currentTurnList.remove(0);
-        if(currentTurnList.size() == 0){
+
+        if(currentTurnList.isEmpty()){
             System.out.println("End of round " + rounds.getCurrentRound());
-            if(rounds.getCurrentRound() == 10)
+
+            if(rounds.getCurrentRound() == 10){
+                deliverNewStatus(this, new GameFinishedEvent());
                 return;
+            }
+
             currentGame.leftShiftPlayers();
             currentTurnList = createTurns(currentGame.getPlayers());
             rounds.addDiceLeft(draftPool);
             rounds.nextRound();
-            draftPool.removeAll(draftPool);
+            draftPool.clear();
             System.out.println("Round " + rounds.getCurrentRound() + " is beginning");
             drawDice();
         }
-        getCurrentPlayer().prepareDieFlag();
-        if (currentTurnList.size() > 0 ) {
-            deliverNewStatus(this, new CurrentPlayerChangedEvent());
-        } else {
-            deliverNewStatus(this, new GameFinishedEvent());
-        }
+        getCurrentPlayer().resetDieFlag();
+
+        deliverNewStatus(this, new CurrentPlayerChangedEvent());
     }
     @Override
     public Map<Player, Integer> getFavours(){
@@ -267,33 +256,23 @@ public class GameManagerMulti implements IGameManager {
         return new RoundTracker(rounds);
     }
 
-
-    //TODO: check if we can do this in another way
-    /*private List<Player> nextRoundTurn(ArrayList<Player> actualTurn){
-        List<Player> ret = new ArrayList<>();
-        for(int i = 0; i < actualTurn.size(); i++){
-            ret.add(i, actualTurn.get((i + 1) % actualTurn.size()));
-        }
-        return ret;
-    }*/
-
     private ArrayList<Player> createTurns(List<Player> players){
         // create p1 p2 p3
         ArrayList<Player> turn = new ArrayList<>(players);
         // add p3 p2 p1
         Collections.reverse(players);
         turn.addAll(new ArrayList<>(players));
-        //turn.addAll(players.stream().sorted((p1, p2) -> players.indexOf(p1) >= players.indexOf(p2) ? 1 : -1).collect(Collectors.toList()));
+
         return turn; // result: p1 p2 p3 p3 p2 p1
     }
 
-    private void drawDice(){
-        ArrayList<Die> dice = new ArrayList<>(diceBag.subList(0, (2 * currentGame.getNumberOfPlayers()) + 1));
-        draftPool.addAll(dice);
-        //diceBag.removeAll(dice);
-        for(int i = 0; i < 2 * currentGame.getNumberOfPlayers() + 1; i++){
-            diceBag.remove(i);
-        }
+    private void drawDice() throws GameInvalidException{
+        if(!draftPool.isEmpty())
+            throw new GameInvalidException("Panic");
+
+        draftPool = (ArrayList<Die>) diceBag.subList(0, (2 * currentGame.getNumberOfPlayers()) + 1);
+        diceBag = (ArrayList<Die>) diceBag.subList((2*currentGame.getNumberOfPlayers()) +1, diceBag.size());
+
     }
 
     private ArrayList<Die> createDice() {
@@ -315,8 +294,8 @@ public class GameManagerMulti implements IGameManager {
         return tmp;
     }
 
-    private ArrayList<Card> createPrivateObjectives() {
-        ArrayList<Card> tmp = new ArrayList<Card>();
+    private ArrayList<PrivateObjective> createPrivateObjectives() {
+        ArrayList<PrivateObjective> tmp = new ArrayList<>();
 
         tmp.add(new SfumatureBlu());
         tmp.add(new SfumatureGialle());
@@ -327,8 +306,8 @@ public class GameManagerMulti implements IGameManager {
         return tmp;
     }
 
-    private ArrayList<Card> createPublicObjectives() {
-        ArrayList<Card> tmp = new ArrayList<Card>();
+    private ArrayList<PublicObjective> createPublicObjectives() {
+        ArrayList<PublicObjective> tmp = new ArrayList<>();
 
         tmp.add(new ColoriDiversiColonna());
         tmp.add(new ColoriDiversiRiga());
@@ -344,8 +323,8 @@ public class GameManagerMulti implements IGameManager {
         return tmp;
     }
 
-    private ArrayList<Card> createToolCards() {
-        ArrayList<Card> tmp = new ArrayList<>();
+    private ArrayList<ToolCard> createToolCards() {
+        ArrayList<ToolCard> tmp = new ArrayList<>();
 
         tmp.add( new AlesatoreLaminaRame());
         tmp.add( new DiluentePastaSalda());
@@ -364,15 +343,19 @@ public class GameManagerMulti implements IGameManager {
         return tmp;
     }
 
-    private static  ArrayList<Card> createPatternCards() throws FileNotFoundException, Colour.ColorNotFoundException {
-        File file = new File("src/main/patterns.txt");
-        Scanner input = new Scanner(file);
+    private static  ArrayList<WindowPatternCard> createPatternCards() throws GameInvalidException{
 
-        ArrayList<Card> patterns = new ArrayList<Card>();
+        ArrayList<WindowPatternCard> patterns = new ArrayList<>();
+        try( Scanner input = new Scanner(new File("src/main/patterns.txt"))) {
+            for (int i = 0; i < 12; i++) {
+                patterns.add(WindowPatternCard.loadFromScanner(input));
+                input.nextLine();
+            }
 
-        for(int i = 0; i < 12; i++) {
-            patterns.add(WindowPatternCard.loadFromScanner(input));
-            input.nextLine();
+        } catch(FileNotFoundException ex){
+            throw new GameInvalidException("Error while loading cards from file. Aborting...");
+        } catch (Colour.ColorNotFoundException ex){
+            throw new GameInvalidException("Error while loading cards from file. color error Aborting...");
         }
 
         return patterns;

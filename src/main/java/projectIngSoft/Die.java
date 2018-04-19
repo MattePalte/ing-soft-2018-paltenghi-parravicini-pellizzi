@@ -1,9 +1,9 @@
 package projectIngSoft;
 
 import java.util.Random;
-import projectIngSoft.Colour;
 
-public class Die implements Cloneable{
+public class Die {
+    private static final int FACES = 6;
     private final int value;
     private final Colour colour;
 
@@ -16,6 +16,11 @@ public class Die implements Cloneable{
         this(0,colour);
     }
 
+    public Die(Die aDie){
+        this.value = aDie.value;
+        this.colour = aDie.colour;
+    }
+
     public int getValue() {
         return value;
     }
@@ -26,17 +31,16 @@ public class Die implements Cloneable{
 
     // The opposite face of a die is given by subtracting the actual face from 7: OppositeFace = 7 - ActualFace
     public Die flipDie(){
-        return new Die(7 - this.value, this.colour);
+        return new Die(FACES + 1 - this.value, this.colour);
+    }
+
+    public Die increment(){
+        return this.value < FACES ? new Die(this.value + 1, this.colour) : this;
     }
 
     public Die rollDie(){
         Random randGen = new Random();
-        return new Die(randGen.nextInt(6) + 1, this.colour);
-    }
-
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return new Die(this.value, this.colour);
+        return new Die(randGen.nextInt(FACES) + 1, this.colour);
     }
 
     @Override
@@ -60,7 +64,7 @@ public class Die implements Cloneable{
     public String toString() {
         String encoding;
         if(this.value == 0)
-            encoding = new String("\uD83C\uDFB2");
+            encoding = "\uD83C\uDFB2";
         else
             encoding = new String(Character.toChars(9855 + value));
 

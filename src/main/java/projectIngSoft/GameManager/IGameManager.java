@@ -11,46 +11,35 @@ import projectIngSoft.Game;
 import projectIngSoft.Player;
 import projectIngSoft.RoundTracker;
 import projectIngSoft.events.Event;
+import projectIngSoft.exceptions.GameInvalidException;
 
 import java.util.List;
 import java.util.Map;
 
 public interface IGameManager {
-    Game           getGameInfo();
-    // | redundant problem of visibility : players do not have to see other's private objective. During serialization these must be accomplished
-    // v
-    List<Player>   getPlayerList();
-    Player         getCurrentPlayer();
-    // | remove x2
-    // v
-    List<ToolCard> getToolCards();
-    List<PublicObjective> getPublicObjective();
-    List<PrivateObjective> getPrivateObjective();
+    Game                    getGameInfo();
 
-    List<Card>     getPublicCards();
-    List<Die>      getDraftPool();
+    List<Player>            getPlayerList();
+    Player                  getCurrentPlayer();
 
-    // | remove : problem of security
-    // v
-    List<Die> getDiceBag();
+    List<ToolCard>          getToolCards();
+    List<PublicObjective>   getPublicObjective();
+    List<Card>              getPublicCards();
+    List<Die>               getDraftPool();
+    Map<Player, Integer>    getFavours();
 
-    Map<Player, Integer> getFavours();
+    RoundTracker            getRoundTracker();
+    List<Player>            getCurrentTurnList();
 
-    RoundTracker    getRoundTracker();
-    List<Player>    getRoundTurns();
-
-    Player getWinner()       throws Exception;
-
-
-    void start() throws Exception;
-    void setupPhase() throws Exception;
-    void playToolCard(ToolCard aToolCard) throws Exception;
+    Player getWinner()                                  throws Exception;
+    void start()                                        throws Exception, GameInvalidException;
+    void setupPhase()                                   throws Exception, GameInvalidException;
+    void playToolCard(ToolCard aToolCard)               throws Exception;
     void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception;
-    void bindPatternAndPlayer(String nickname, Pair<WindowPatternCard, Boolean> chosenPattern) throws Exception;
-    void endTurn() throws Exception;
-    void countPlayersPoints()   throws Exception;
-    // | what?
-    // v
+    void bindPatternAndPlayer(String nickname, Pair<WindowPatternCard, Boolean> chosenPattern) throws Exception, GameInvalidException;
+    void endTurn()                                      throws Exception, GameInvalidException;
+    void countPlayersPoints()                           throws Exception;
+
     void requestUpdate();
     void deliverNewStatus(IGameManager newStatus, Event event);
     // Can't call it clone because it clashes with Object.clone()

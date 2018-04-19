@@ -1,10 +1,8 @@
 package projectIngSoft.View;
 
 import javafx.util.Pair;
-import projectIngSoft.Cards.Constraint;
-import projectIngSoft.Cards.ToolCards.ToolCard;
+import projectIngSoft.Cards.ToolCards.*;
 import projectIngSoft.Cards.WindowPatternCard;
-import projectIngSoft.Colour;
 import projectIngSoft.Controller.IController;
 import projectIngSoft.Die;
 import projectIngSoft.GameManager.IGameManager;
@@ -14,15 +12,30 @@ import projectIngSoft.exceptions.*;
 
 import java.util.*;
 
-public class LocalViewCli implements IView, IEventHandler {
-    IGameManager gameStatus;
-    IController controller;
-    String ownerNameOfTheView;
+public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
+    private IGameManager localCopyOfTheStatus;
+    private IController controller;
+    private String ownerNameOfTheView;
+
+
+    public LocalViewCli(String ownerNameOfTheView) {
+        // TODO: come fa una view a sapere chi è il suo "padrone" (player)?
+        // é necessario che lo sappia?? meglio condividere un codice che attesti semplicemente la'utenticità del client
+        //questo perchè il problema sarebbe l'invocazioni di metodi remoti tramite rmi. non posso identificarlo
+
+        // getCurrentPlayer da solo il giocatore di turno non il giocatore della view
+        this.ownerNameOfTheView = ownerNameOfTheView;
+    }
+
+    public LocalViewCli() {
+        // inutile, presente solo per retrocompatibilità con test che usavano LocalView senza parametri
+    }
+
 
     @Override
     public void respondTo(CurrentPlayerChangedEvent event) {
         System.out.println("Evento ricevuto da " + ownerNameOfTheView + " : Giocatore Cambiato");
-        if (gameStatus.getCurrentPlayer().getName().equals(ownerNameOfTheView)){
+        if (localCopyOfTheStatus.getCurrentPlayer().getName().equals(ownerNameOfTheView)){
             displayMySituation();
             try {
                 takeTurn();
@@ -35,7 +48,7 @@ public class LocalViewCli implements IView, IEventHandler {
     @Override
     public void respondTo(FinishedSetupEvent event) {
         System.out.println("Evento ricevuto da " + ownerNameOfTheView + " : Setup finito");
-        if (gameStatus.getCurrentPlayer().getName().equals(ownerNameOfTheView)){
+        if (localCopyOfTheStatus.getCurrentPlayer().getName().equals(ownerNameOfTheView)){
             displayMySituation();
             try {
                 takeTurn();
@@ -54,7 +67,7 @@ public class LocalViewCli implements IView, IEventHandler {
     @Override
     public void respondTo(PatternCardDistributedEvent event) {
         System.out.println("Evento ricevuto da " + ownerNameOfTheView + " : Carte distribuite");
-        for (Player p : gameStatus.getPlayerList()) {
+        for (Player p : localCopyOfTheStatus.getPlayerList()) {
             if (p.getName().equals(ownerNameOfTheView)) {
                 Pair<WindowPatternCard, Boolean> chosenCouple = choosePattern(p.getPossiblePatternCard());
                 try {
@@ -66,16 +79,6 @@ public class LocalViewCli implements IView, IEventHandler {
         }
     }
 
-    public LocalViewCli(String ownerNameOfTheView) {
-        // TODO: come fa una view a sapere chi è il suo "padrone" (player)?
-        // getCurrentPlayer da solo il giocatore di turno non il giocatore della view
-        this.ownerNameOfTheView = ownerNameOfTheView;
-    }
-
-    public LocalViewCli() {
-        // inutile, presente solo per retrocompatibilità con test che usavano LocalView senza parametri
-    }
-
     @Override
     public void attachController(IController aController){
         // TODO: come fa la view a sapere a che controller deve parlare?
@@ -83,27 +86,27 @@ public class LocalViewCli implements IView, IEventHandler {
     }
 
     @Override
-    public void update(IGameManager newModel, Event event) {
-        gameStatus = newModel;
+    public void update(Event event) {
+
         event.accept(this);
     }
 
     private void displayMySituation(){
         // Stampa solo situazione attuale del giocatore attuale
-        for (Player p : gameStatus.getPlayerList()) {
+        for (Player p : localCopyOfTheStatus.getPlayerList()) {
             if (p.getName().equals(ownerNameOfTheView)) {
                 System.out.println(p);
             }
         }
-        System.out.println("Draft pool : "+gameStatus.getDraftPool());
+        System.out.println("Draft pool : "+ localCopyOfTheStatus.getDraftPool());
     }
 
     private void displayEntireGameBoard(){
         // TODO: abilitare stampa di tutti i giocatori su tutti i client con il codice sotto
-        /*for (Player p : gameStatus.getPlayerList()) {
+        /*for (Player p : localCopyOfTheStatus.getPlayerList()) {
             System.out.println(p);
         }*/
-        System.out.println("Draft pool : "+gameStatus.getDraftPool());
+        System.out.println("Draft pool : "+ localCopyOfTheStatus.getDraftPool());
     }
 
     private void endTurn() throws Exception {
@@ -134,7 +137,7 @@ public class LocalViewCli implements IView, IEventHandler {
         int cmd;
 
         do {
-            System.out.println("Take your turn " + gameStatus.getCurrentPlayer().getName());
+            System.out.println("Take your turn " + localCopyOfTheStatus.getCurrentPlayer().getName());
             System.out.println("1 - Place a die");
             System.out.println("2 - Play a toolcard");
             System.out.println("3 - End your turn");
@@ -142,21 +145,18 @@ public class LocalViewCli implements IView, IEventHandler {
 
             if (cmd == 1) {
                 try {
-                    if (gameStatus.getCurrentPlayer().getAlreadyPlacedADie())
+                    if (localCopyOfTheStatus.getCurrentPlayer().getAlreadyPlacedADie())
                         throw new AlreadyPlacedADieException("You already placed a die");
-                    System.out.println(gameStatus.getCurrentPlayer());
+                    System.out.println(localCopyOfTheStatus.getCurrentPlayer());
                     System.out.println("Enter where you want to place your die ");
                     System.out.println("Row Index [0 - 3]");
                     int rowIndex = waitForUserInput(0, 3);
                     System.out.println("Col Index [0 - 4]");
                     int colIndex = waitForUserInput(0, 4);
-                    if(gameStatus.getCurrentPlayer().getPlacedDice()[rowIndex][colIndex] != null)
+                    if(localCopyOfTheStatus.getCurrentPlayer().getPlacedDice()[rowIndex][colIndex] != null)
                         throw new PositionOccupiedException("A die has already been placed here");
-                    Die choseDie = choose(gameStatus.getDraftPool().toArray(new Die[gameStatus.getDraftPool().size()]));
+                    Die choseDie = choose(localCopyOfTheStatus.getDraftPool().toArray(new Die[localCopyOfTheStatus.getDraftPool().size()]));
                     System.out.println(choseDie);
-                    checkConstaints(rowIndex, colIndex, choseDie);
-                    checkAdjacents(getAdjacents(gameStatus.getCurrentPlayer().getPlacedDice(), rowIndex, colIndex), choseDie);
-                    checkAdjacentConstraints(getAdjacentConstraints(gameStatus.getCurrentPlayer().getPattern().getConstraintsMatrix(), rowIndex, colIndex), choseDie);
                     controller.placeDie(ownerNameOfTheView, choseDie, rowIndex, colIndex);
                 }
                 catch(AlreadyPlacedADieException e){
@@ -165,7 +165,7 @@ public class LocalViewCli implements IView, IEventHandler {
                 catch(PositionOccupiedException e){
                     System.out.println(e.getMessage());
                 }
-                catch(ConstraintViolatedException e){
+                catch(PatternConstraintViolatedException e){
                     System.out.println(e.getMessage());
                 }
                 catch(RuleViolatedException e){
@@ -178,7 +178,7 @@ public class LocalViewCli implements IView, IEventHandler {
             }
             else if (cmd == 2) {
                 System.out.println("Choose a toolcard: ");
-                controller.playToolCard(ownerNameOfTheView, choose(gameStatus.getToolCards().toArray(new ToolCard[gameStatus.getToolCards().size()])));
+                controller.playToolCard(ownerNameOfTheView, choose(localCopyOfTheStatus.getToolCards().toArray(new ToolCard[localCopyOfTheStatus.getToolCards().size()])));
 
             }
             else {
@@ -202,57 +202,6 @@ public class LocalViewCli implements IView, IEventHandler {
 
     }
 
-    private void checkAdjacentConstraints(List<Constraint> adjacentConstraints, Die choseDie) throws IncompatibleMoveException {
-        for (int i = 0; i < adjacentConstraints.size(); i++) {
-            if (adjacentConstraints.get(i).getValue() == choseDie.getValue() || adjacentConstraints.get(i).getColour().equals(choseDie.getColour()))
-                throw new IncompatibleMoveException("You can't place this die here: it's incompatible with adjacent constraints");
-        }
-    }
-
-    private ArrayList<Constraint> getAdjacentConstraints(Constraint[][] constraints, int row, int col){
-        ArrayList<Constraint> ret = new ArrayList<>();
-
-        if(col + 1 < constraints[row].length)
-            ret.add(constraints[row][col+1]);
-        if(col > 0)
-            ret.add(constraints[row][col-1]);
-        if(row + 1 < constraints.length)
-            ret.add(constraints[row+1][col]);
-        if(row > 0)
-            ret.add(constraints[row-1][col]);
-        return ret;
-    }
-
-    private void checkAdjacents(List<Die> adjacents, Die choseDie) throws RuleViolatedException {
-        for(int i = 0; i < adjacents.size(); i++){
-            Die placedDie = adjacents.get(i);
-            if(placedDie != null && (placedDie.getValue() == choseDie.getValue() || placedDie.getColour().equals(choseDie.getColour()))) {
-                throw new RuleViolatedException("Ehi! You are trying to place a die with the same colour or the same value than an adjacent die. You can't do whatever you want! You must follow the rules");
-            }
-        }
-    }
-
-    private ArrayList<Die> getAdjacents(Die[][] placedDice, int row, int col){
-        ArrayList<Die> ret = new ArrayList<>();
-
-        if(col + 1 < placedDice[row].length)
-            ret.add(placedDice[row][col+1]);
-        if(col > 0)
-            ret.add(placedDice[row][col-1]);
-        if(row + 1 < placedDice.length)
-            ret.add(placedDice[row+1][col]);
-        if(row > 0)
-            ret.add(placedDice[row-1][col]);
-
-        return ret;
-    }
-
-    private void checkConstaints(int rowIndex, int colIndex, Die aDie) throws ConstraintViolatedException {
-        Constraint actualConstraint = gameStatus.getCurrentPlayer().getPattern().getConstraintsMatrix()[rowIndex][colIndex];
-        if((!actualConstraint.getColour().equals(aDie.getColour()) && !actualConstraint.getColour().equals(Colour.WHITE))|| (actualConstraint.getValue()!=aDie.getValue() && actualConstraint.getValue() != 0))
-            throw new ConstraintViolatedException("Ehi, you cheater! You are violating a constraint on your pattern! Try again, and play fairly!");
-    }
-
     private int waitForUserInput(int lowerBound, int upperBound){
         int ret = 0;
         Scanner input = new Scanner(System.in);
@@ -271,7 +220,7 @@ public class LocalViewCli implements IView, IEventHandler {
         return ret;
     }
 
-    @Override
+
     public Pair<WindowPatternCard, Boolean> choose(WindowPatternCard card1, WindowPatternCard card2) {
         WindowPatternCard cardChosen;
         Boolean faceChosen;
@@ -294,7 +243,7 @@ public class LocalViewCli implements IView, IEventHandler {
         return new Pair<WindowPatternCard, Boolean>(cardChosen, faceChosen);
     }
 
-    @Override
+
     public Die choose(Die[] diceList) {
         int ret = 0;
 
@@ -307,7 +256,7 @@ public class LocalViewCli implements IView, IEventHandler {
         return diceList[ret];
     }
 
-    @Override
+
     public ToolCard choose(ToolCard[] toolCardList) {
         int ret = 0;
 
@@ -317,5 +266,70 @@ public class LocalViewCli implements IView, IEventHandler {
         }
         ret = waitForUserInput(0,toolCardList.length - 1);
         return toolCardList[ret];
+    }
+
+    @Override
+    public AlesatoreLaminaRame fill(AlesatoreLaminaRame aToolcard) {
+        return null;
+    }
+
+    @Override
+    public DiluentePastaSalda fill(DiluentePastaSalda aToolcard) {
+        return null;
+    }
+
+    @Override
+    public Lathekin fill(Lathekin aToolcard) {
+        return null;
+    }
+
+    @Override
+    public Martelletto fill(Martelletto aToolcard) {
+        return null;
+    }
+
+    @Override
+    public PennelloPastaSalda fill(PennelloPastaSalda aToolcard) {
+        return null;
+    }
+
+    @Override
+    public PennelloPerEglomise fill(PennelloPerEglomise aToolcard) {
+        return null;
+    }
+
+    @Override
+    public PinzaSgrossatrice fill(PinzaSgrossatrice aToolcard) {
+        return null;
+    }
+
+    @Override
+    public RigaSughero fill(RigaSughero aToolcard) {
+        return null;
+    }
+
+    @Override
+    public StripCutter fill(StripCutter aToolcard) {
+        return null;
+    }
+
+    @Override
+    public TaglierinaManuale fill(TaglierinaManuale aToolcard) {
+        return null;
+    }
+
+    @Override
+    public TaglierinaCircolare fill(TaglierinaCircolare aToolcard) {
+        return null;
+    }
+
+    @Override
+    public TamponeDiamantato fill(TamponeDiamantato aToolcard) {
+        return null;
+    }
+
+    @Override
+    public TenagliaRotelle fill(TenagliaRotelle aToolcard) {
+        return null;
     }
 }

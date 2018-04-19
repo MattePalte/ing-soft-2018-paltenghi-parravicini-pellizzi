@@ -1,6 +1,7 @@
 package projectIngSoft.Cards.ToolCards;
 
 import projectIngSoft.Colour;
+import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.Player;
 
 public class Martelletto extends ToolCard {
@@ -9,9 +10,13 @@ public class Martelletto extends ToolCard {
                 "solo durante il tuo secondo turno, prima di scegliere il secondo dado", Colour.BLUE);
     }
 
+    @Override
+    public void applyEffect(Player p, IGameManager m) throws Exception {
+
+    }
 
     @Override
-    public void applyEffect(Player p) {
-
+    public void fill(IToolCardFiller visitor) {
+        visitor.fill(this);
     }
 }

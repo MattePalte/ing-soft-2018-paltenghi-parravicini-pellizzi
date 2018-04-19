@@ -11,16 +11,8 @@ import projectIngSoft.events.Event;
 import java.util.List;
 
 public interface IView {
-    void update(IGameManager newModel, Event event);
+    void update(Event event);
     void attachController(IController gameController);
 
-    Pair<WindowPatternCard, Boolean> choosePattern(List<WindowPatternCard> patternCards);
 
-    Pair<WindowPatternCard, Boolean> choose(WindowPatternCard card1, WindowPatternCard card2);
-    Die choose(Die[] diceList);
-    ToolCard choose(ToolCard[] toolCardList);
-
-
-    //public String askForSomething(String aString);
-    //TODO : overload su askForSOmething per avere più richieste specifiche
 }

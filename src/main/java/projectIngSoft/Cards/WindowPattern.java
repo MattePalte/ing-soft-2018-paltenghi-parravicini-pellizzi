@@ -78,10 +78,9 @@ public class WindowPattern {
 
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
-                //TODO: contraint factroy from string of 2 chars
+
                 constraintRepr = in.findInLine("[0-6][RYGBVW]");
-                constraints[row][col] = new Constraint((int) constraintRepr.charAt(0) - (int) '0',
-                        Colour.valueOf(constraintRepr.charAt(1)));
+                constraints[row][col] = Constraint.fromEncoding(constraintRepr);
             }
         }
         return new WindowPattern(width, height, constraints, title, difficulty);
