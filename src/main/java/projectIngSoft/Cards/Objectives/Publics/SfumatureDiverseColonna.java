@@ -12,25 +12,19 @@ public class SfumatureDiverseColonna extends PublicObjective {
 
     public int checkCondition(Player window) {
         Die[][] placedDice = window.getPlacedDice();
-        int ret = 0, col, row;
+        int col, row;
         int[] counter = new int [6];
 
 
-        for(col = 0; col < placedDice.length ;col++) {
-            ret+=1;
-            for (row = 0; row < placedDice[0].length ; row++) {
+        for(col = 0; col < placedDice[0].length ;col++) {
+            for (row = 0; row < placedDice.length ; row++) {
                 if(placedDice[row][col] == null)
                     continue;
 
-                if(counter[placedDice[row][col].getValue() -1 ] == 0) {
-                    counter[placedDice[row][col].getValue() - 1] = 1;
-                }else{
-                    ret -= 1;
-                }
+                counter[placedDice[row][col].getValue() - 1] ++;
             }
 
-            Arrays.fill(counter, 0);
         }
-        return ret;
+        return Arrays.stream(counter).filter(count -> count > 0).min().orElse(0);
     }
 }
