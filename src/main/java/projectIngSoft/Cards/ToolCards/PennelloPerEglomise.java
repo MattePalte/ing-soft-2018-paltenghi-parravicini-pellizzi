@@ -1,10 +1,23 @@
 package projectIngSoft.Cards.ToolCards;
 
 import projectIngSoft.Colour;
+import projectIngSoft.Coordinate;
 import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.Player;
 
 public class PennelloPerEglomise extends ToolCard {
+
+    private Coordinate startPosition;
+    private Coordinate endPosition;
+
+    public void setStartPosition(Coordinate startPosition) {
+        this.startPosition = new Coordinate(startPosition);
+    }
+
+    public void setEndPosition(Coordinate endPosition) {
+        this.endPosition = new Coordinate(endPosition);
+    }
+
     public PennelloPerEglomise() {
         super("Pennello per Eglomise", "Muovi un qualsiasi dado nella tua vetrata ignorando le restrizioni di colore\n" +
                 "Devi rispettare tutte le altre restrizioni di piazzamento", Colour.BLUE);
@@ -12,7 +25,7 @@ public class PennelloPerEglomise extends ToolCard {
 
     @Override
     public void applyEffect(Player p, IGameManager m) throws Exception {
-
+        p.moveDie(startPosition, endPosition, true, true);
     }
 
     @Override

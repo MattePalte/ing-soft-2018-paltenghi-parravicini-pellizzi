@@ -163,22 +163,35 @@ public class Player {
         hasEverPlacedADie =       true;
     }
 
-    private void checkAdjacentsHaveCompatibleValues(Die aDie, int row, int col) throws RuleViolatedException {
-        ArrayList<Die> orthogonalAdjacents = getAdjacents(getPlacedDice(),row,col);
+    public void moveDie(Coordinate start, Coordinate end, boolean checkColour, boolean checkValue) throws RuleViolatedException {
+        // TODO: throw execption if incorrect moving (no die to move, move to already occupied place)
+        Die dieToMove = placedDice[start.getRow()][start.getCol()];
+        placedDice[end.getRow()][end.getCol()] = dieToMove;
+        placedDice[start.getRow()][start.getCol()] = null;
+        // TODO: differentiate between check value and check colours
+        if (checkColour && checkValue) checkAdjacentsHaveCompatibleValues(dieToMove, end.getRow(), end.getCol());
+    }
+
+
+    private void checkAdjacentsHaveCompatibleValues(Die toBePlacedDie, int row, int col) throws RuleViolatedException {
+        ArrayList<Die> orthogonalAdjacents = getOrthogonalAdjacents(getPlacedDice(),row,col);
 
         for(int i = 0; i < orthogonalAdjacents.size(); i++){
-            Die placedDie = orthogonalAdjacents.get(i);
+            Die alreadyPlacedDie = orthogonalAdjacents.get(i);
 
-            if( placedDie.getValue() == aDie.getValue() || placedDie.getColour().equals(aDie.getColour()) ) {
+            if(alreadyPlacedDie != null && (alreadyPlacedDie.getValue() == toBePlacedDie.getValue() || alreadyPlacedDie.getColour().equals(toBePlacedDie.getColour())) ) {
                 throw new RuleViolatedException("Ehi! You are trying to place a die with the same colour or the same value than an adjacent die. You can't do whatever you want! You must follow the rules");
             }
         }
     }
 
     private void checkPresenceOfAnAdjacentDie( int row, int col) throws RuleViolatedException {
-        for (int deltaRow = -1; deltaRow < 1 ; deltaRow++) {
-            for (int deltaCol = -1; deltaCol < 1; deltaCol++) {
-                if(row+deltaRow >=0 && row+deltaRow < getPattern().getHeight() && col+deltaCol >= 0 && col+deltaCol < getPattern().getWidth() &&  placedDice[row][col] != null)
+        for (int deltaRow = -1; deltaRow <= 1 ; deltaRow++) {
+            for (int deltaCol = -1; deltaCol <= 1; deltaCol++) {
+                if(     row+deltaRow >=0 && row+deltaRow < getPattern().getHeight() &&
+                        col+deltaCol >= 0 && col+deltaCol < getPattern().getWidth() &&
+                        !(deltaCol == 0 && deltaRow == 0) &&
+                        placedDice[row+deltaRow][col+deltaCol] != null)
                    return;
             }
         }
@@ -192,7 +205,7 @@ public class Player {
     }
 
 
-    private ArrayList<Die> getAdjacents(Die[][] placedDice, int row, int col){
+    private ArrayList<Die> getOrthogonalAdjacents(Die[][] placedDice, int row, int col){
         ArrayList<Die> ret = new ArrayList<>();
 
         if(col + 1 < placedDice[row].length)

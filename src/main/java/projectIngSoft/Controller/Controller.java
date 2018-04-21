@@ -5,6 +5,7 @@ import projectIngSoft.Cards.ToolCards.ToolCard;
 import projectIngSoft.Cards.WindowPatternCard;
 import projectIngSoft.Die;
 import projectIngSoft.GameManager.IGameManager;
+import projectIngSoft.Player;
 import projectIngSoft.exceptions.GameInvalidException;
 
 public class Controller implements IController {
@@ -27,6 +28,7 @@ public class Controller implements IController {
 
     @Override
     public void playToolCard(String nickname, ToolCard aToolCard) throws Exception {
+        if (gameManager.getCurrentPlayer().getName().equals(nickname))
         gameManager.playToolCard(aToolCard);
     }
 

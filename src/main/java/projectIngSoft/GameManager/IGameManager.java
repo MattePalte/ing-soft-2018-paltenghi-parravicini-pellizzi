@@ -23,12 +23,15 @@ public interface IGameManager {
     Player                  getCurrentPlayer();
 
     List<ToolCard>          getToolCards();
+    void removeFromDraft(Die aDie);
+    void addToDraft(Die aDie);
     List<PublicObjective>   getPublicObjective();
     List<Card>              getPublicCards();
     List<Die>               getDraftPool();
     Map<Player, Integer>    getFavours();
 
     RoundTracker            getRoundTracker();
+    void swapWithRoundTracker(Die toAdd, Die toRemove);
     List<Player>            getCurrentTurnList();
 
     Player getWinner()                                  throws Exception;

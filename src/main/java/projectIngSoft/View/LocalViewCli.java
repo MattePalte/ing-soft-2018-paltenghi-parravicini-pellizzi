@@ -4,6 +4,7 @@ import javafx.util.Pair;
 import projectIngSoft.Cards.ToolCards.*;
 import projectIngSoft.Cards.WindowPatternCard;
 import projectIngSoft.Controller.IController;
+import projectIngSoft.Coordinate;
 import projectIngSoft.Die;
 import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.Player;
@@ -17,6 +18,7 @@ public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
     private IGameManager localCopyOfTheStatus;
     private IController  controller;
     private String ownerNameOfTheView;
+    private boolean stopResponding = false;
 
 
     public LocalViewCli(String ownerNameOfTheView) {
@@ -32,6 +34,7 @@ public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
     @Override
     public void update(Event aEvent) {
         System.out.println( ownerNameOfTheView + " ha ricevuto un evento :" + aEvent);
+        if (stopResponding == true) return;
         aEvent.accept(this);
     }
 
@@ -59,6 +62,7 @@ public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
     @Override
     public void respondTo(GameFinishedEvent event) {
         System.out.println("Game finished!");
+        stopResponding = true;
 
     }
 
@@ -86,21 +90,17 @@ public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
 
     @Override
     public void respondTo(myTurnStartedEvent event) {
-
         displayMySituation();
         try {
-
             takeTurn();
         } catch (Exception e) {
             displayError(e);
         }
-
     }
 
     @Override
     public void respondTo(ModelChangedEvent event) {
         localCopyOfTheStatus = event.getaGameCopy();
-
     }
 
     private void displayError(Exception ex){
@@ -130,6 +130,7 @@ public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
             }
         }
         System.out.println("Draft pool : "+ localCopyOfTheStatus.getDraftPool());
+        System.out.println("RoundTracker dice left : "+ localCopyOfTheStatus.getRoundTracker().getDiceLeftFromRound());
     }
 
     private void displayEntireGameBoard(){
@@ -146,18 +147,14 @@ public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
 
         do {
             System.out.println("Take your turn " + localCopyOfTheStatus.getCurrentPlayer().getName());
-            cmd = chooseIndexFrom(List.of("Place a die", "Play a toolcard", "End turn"));
+            cmd = chooseIndexFrom(List.of("Place a die", "Play a toolcard", "End turn","Show my situation"));
             try {
                 if (cmd == 0) {
                     System.out.println(localCopyOfTheStatus.getCurrentPlayer());
-                    System.out.println("Enter where you want to place your die ");
-                    System.out.println("Row Index [0 - 3]");
-                    int rowIndex = waitForUserInput(0, 3);
-                    System.out.println("Col Index [0 - 4]");
-                    int colIndex = waitForUserInput(0, 4);
+                    Coordinate placePosition = chooseDieCoordinate("Enter where you want to place your die");
                     Die chosenDie = (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
 
-                    controller.placeDie(ownerNameOfTheView, chosenDie, rowIndex, colIndex);
+                    controller.placeDie(ownerNameOfTheView, chosenDie, placePosition.getRow(), placePosition.getCol());
 
                 }
                 else if (cmd == 1) {
@@ -166,8 +163,10 @@ public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
                     aToolCard.fill(this);
                     controller.playToolCard(ownerNameOfTheView, aToolCard);
                 }
-                else {
+                else if (cmd == 2){
                     controller.endTurn();
+                } else if (cmd == 3){
+                    displayMySituation();
                 }
             }
             catch(InterruptActionException e){
@@ -177,7 +176,7 @@ public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
                 displayError(e);
             }
         }
-        while(cmd != 3);
+        while(cmd != 2);
     }
 
 
@@ -211,6 +210,24 @@ public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
 
         return ret;
     }
+
+    private Coordinate chooseDieCoordinate (String caption) {
+        System.out.println(caption);
+        int row = 0;
+        int col = 0;
+        try {
+            System.out.println("Row Index [0 - 3]");
+            row = waitForUserInput(0, 3);
+            System.out.println("Col Index [0 - 4]");
+            col = waitForUserInput(0, 4);
+        } catch (Exception e){
+            displayError(e);
+            System.out.println("Default positon row: 0 col:0 assumed");
+        }
+        Coordinate myPosition = new Coordinate(row, col);
+        return myPosition;
+    }
+
     private Object chooseFrom(List objs) throws InterruptActionException {
         return objs.get(chooseIndexFrom(objs));
     }
@@ -227,6 +244,9 @@ public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
 
     @Override
     public AlesatoreLaminaRame fill(AlesatoreLaminaRame aToolcard) {
+        System.out.println(aToolcard);
+        aToolcard.setStartPosition(chooseDieCoordinate("Enter which die you want to move"));
+        aToolcard.setEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
         return null;
     }
 
@@ -237,6 +257,11 @@ public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
 
     @Override
     public Lathekin fill(Lathekin aToolcard) {
+        System.out.println(aToolcard);
+        aToolcard.setFirstDieStartPosition(chooseDieCoordinate("Enter which is the first die you want to move"));
+        aToolcard.setFirstDieEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
+        aToolcard.setSecondDieStartPosition(chooseDieCoordinate("Enter which is the second die you want to move"));
+        aToolcard.setSecondDieEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
         return null;
     }
 
@@ -247,16 +272,42 @@ public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
 
     @Override
     public PennelloPastaSalda fill(PennelloPastaSalda aToolcard) {
+        System.out.println(aToolcard);
+        Die chosenDie;
+        try {
+            chosenDie =  (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
+            aToolcard.setToRoll(chosenDie);
+        } catch (InterruptActionException e){
+            displayError(e);
+        } catch (Exception e) {
+            displayError(e);
+        }
         return null;
     }
 
     @Override
     public PennelloPerEglomise fill(PennelloPerEglomise aToolcard) {
+        System.out.println(aToolcard);
+        aToolcard.setStartPosition(chooseDieCoordinate("Enter which die you want to move"));
+        aToolcard.setEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
         return null;
     }
 
     @Override
     public PinzaSgrossatrice fill(PinzaSgrossatrice aToolcard) {
+        System.out.println(aToolcard);
+        Die chosenDie;
+        boolean toBeIncreased;
+        try {
+            chosenDie =  (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
+            aToolcard.setChoosenDie(chosenDie);
+            toBeIncreased = (chooseIndexFrom(List.of("Decrease its value", "Increase its value")) == 1);
+            aToolcard.setToBeIncreased(toBeIncreased);
+        } catch (InterruptActionException e){
+            displayError(e);
+        } catch (Exception e) {
+            displayError(e);
+        }
         return null;
     }
 
@@ -277,6 +328,21 @@ public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
 
     @Override
     public TaglierinaCircolare fill(TaglierinaCircolare aToolcard) {
+        System.out.println(aToolcard);
+        Die chosenDieFromDraft;
+        Die chosenDieFromRoundTracker;
+        try {
+            System.out.println("Chose from Draft:");
+            chosenDieFromDraft =  (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
+            aToolcard.setDieFromDraft(chosenDieFromDraft);
+            System.out.println("Chose from RoundTracker:");
+            chosenDieFromRoundTracker =  (Die) chooseFrom(localCopyOfTheStatus.getRoundTracker().getDiceLeftFromRound());
+            aToolcard.setDieFromRoundTracker(chosenDieFromRoundTracker);
+        } catch (InterruptActionException e){
+            displayError(e);
+        } catch (Exception e) {
+            displayError(e);
+        }
         return null;
     }
 

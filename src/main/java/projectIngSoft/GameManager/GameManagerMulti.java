@@ -34,13 +34,27 @@ public class GameManagerMulti implements IGameManager, Cloneable {
     private ArrayList<Player>           currentTurnList;
     private Map<Player, Integer>        favours;
 
+    private boolean isFinished;
+
     //@Signals Exception aGame.isValid() || aGame.numOfPlayers() <= 1 or aGame.numOfPlayers()> 4
     public GameManagerMulti(Game aGame) throws GameInvalidException {
-
+        isFinished = false;
         if (!aGame.isValid() || aGame.getNumberOfPlayers() <= 1  || aGame.getNumberOfPlayers() > 4  )
 
             throw  new GameInvalidException("Game is not valid!");
         currentGame = new Game(aGame);
+    }
+
+    @Override
+    public void removeFromDraft(Die aDie) {
+        System.out.println("removing a die" + aDie.getColour() + aDie.getValue());
+        draftPool.remove(aDie);
+        System.out.println(draftPool);
+    }
+
+    @Override
+    public void addToDraft(Die aDie) {
+        draftPool.add(new Die(aDie));
     }
 
     private GameManagerMulti(GameManagerMulti gameManagerMulti){
@@ -216,7 +230,8 @@ public class GameManagerMulti implements IGameManager, Cloneable {
 
     @Override
     public void playToolCard(ToolCard aToolCard) throws Exception {
-        //aToolCard.applyEffect(player, this)
+        aToolCard.applyEffect(getCurrentPlayer(), this);
+        getCurrentPlayer().update( new ModelChangedEvent(this));
     }
 
     @Override
@@ -230,12 +245,15 @@ public class GameManagerMulti implements IGameManager, Cloneable {
 
     @Override
     public void endTurn() throws Exception, GameInvalidException {
+        if (isFinished) return;
+
         currentTurnList.remove(0);
 
         if(currentTurnList.isEmpty()){
             System.out.println("End of round " + rounds.getCurrentRound());
 
-            if(rounds.getCurrentRound() == 10){
+            if(rounds.getCurrentRound() == 3){ //TODO: keep 3 round during debugging procedue, switch to 10 only in final version
+                isFinished = true;
                 deliverNewStatus(new GameFinishedEvent());
                 return;
             }
@@ -261,6 +279,11 @@ public class GameManagerMulti implements IGameManager, Cloneable {
     @Override
     public RoundTracker getRoundTracker() {
         return new RoundTracker(rounds);
+    }
+
+    @Override
+    public void swapWithRoundTracker(Die toRemove, Die toAdd) {
+        rounds.swapDie(toRemove, toAdd);
     }
 
     private ArrayList<Player> createTurns(List<Player> players){
@@ -333,19 +356,20 @@ public class GameManagerMulti implements IGameManager, Cloneable {
     private ArrayList<ToolCard> createToolCards() {
         ArrayList<ToolCard> tmp = new ArrayList<>();
 
-        tmp.add( new AlesatoreLaminaRame());
-        tmp.add( new DiluentePastaSalda());
-        tmp.add( new Lathekin());
-        tmp.add( new Martelletto());
-        tmp.add( new PennelloPastaSalda());
-        tmp.add( new PennelloPerEglomise());
         tmp.add( new PinzaSgrossatrice());
+        tmp.add( new PennelloPerEglomise());
+        tmp.add( new AlesatoreLaminaRame());
+        tmp.add( new Lathekin());
+        tmp.add( new TaglierinaCircolare());
+        tmp.add( new PennelloPastaSalda());
+
+        /*tmp.add( new DiluentePastaSalda());
+        tmp.add( new Martelletto());
         tmp.add( new RigaSughero());
         tmp.add( new StripCutter());
-        tmp.add( new TaglierinaCircolare());
         tmp.add( new TaglierinaManuale());
         tmp.add( new TamponeDiamantato());
-        tmp.add( new TenagliaRotelle());
+        tmp.add( new TenagliaRotelle());*/
 
         return tmp;
     }
