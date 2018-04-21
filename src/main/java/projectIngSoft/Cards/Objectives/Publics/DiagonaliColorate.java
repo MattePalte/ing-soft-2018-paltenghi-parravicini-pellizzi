@@ -41,19 +41,25 @@ public class DiagonaliColorate extends PublicObjective {
         return ret;
     }
 
+    // Starting from placedDice[row][col], visits all the cells on the bottom-left to top-right diagonal
+    // It returns the number dice with the same colour placed sequentially on the diagonal
     private int checkBL2TRDiagonal(Die[][] placedDice, int row, int col, int[][] counted) {
         ArrayList<Die> diagonal = new ArrayList<>();
         Colour actualColour = placedDice[row][col].getColour();
         int ret;
 
+        // Visiting diagonal
         for(int j = 0; row - j >= 0; j++){
             if(placedDice[row - j][col + j] != null && placedDice[row - j][col + j].getColour().equals(actualColour)) {
                 diagonal.add(placedDice[row - j][col + j]);
                 counted[row - j][col + j]++;
             }
-            else
+            else // If this die is null or it has a different colour from the actual...
                 break;
         }
+
+        // Counted a die which has no adjacent dice with the same colour --> return 0 and reset
+        // the counter of the die at the previous state
         if(diagonal.size() <= 1){
             ret = 0;
             counted[row][col] -= diagonal.size();
@@ -64,18 +70,25 @@ public class DiagonaliColorate extends PublicObjective {
         return ret;
     }
 
+    // Starting from placedDice[row][col], visits all the cells on the top-left to bottom-right diagonal
+    // It returns the number dice with the same colour placed sequentially on the diagonal
     private int checkTL2BRDiagonal(Die[][] placedDice, int row, int col, int[][] counted){
         ArrayList<Die> diagonal = new ArrayList<>();
         Colour actualColour = placedDice[row][col].getColour();
         int ret;
+
+        // Visiting diagonal
         for(int j = 0; row + j < placedDice.length; j++){
             if(placedDice[row + j][col + j] != null && placedDice[row + j][col + j].getColour().equals(actualColour)) {
                 diagonal.add(placedDice[row + j][col + j]);
                 counted[row + j][col + j]++;
             }
-            else
+            else // If this die is null or it has a different colour from the actual...
                 break;
         }
+
+        // Counted a die which has no adjacent dice with the same colour --> return 0 and reset
+        // the counter of the die at the previous state
         if(diagonal.size() <= 1){
             ret = 0;
             counted[row][col] -= diagonal.size();
