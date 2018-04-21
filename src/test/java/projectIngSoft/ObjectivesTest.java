@@ -17,7 +17,7 @@ public class ObjectivesTest {
 
     @Before
     public void createPlayer() {
-        player = new Player("TestName", new LocalViewCli());
+        player = new Player("TestName", new LocalViewCli("TestName"));
         WindowPatternCard pattern = null;
         try {
             pattern = WindowPatternCard.loadFromScanner(new Scanner(new File("src/main/patterns.txt")));
