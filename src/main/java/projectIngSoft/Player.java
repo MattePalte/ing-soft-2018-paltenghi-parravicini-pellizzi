@@ -2,11 +2,11 @@ package projectIngSoft;
 
 import projectIngSoft.Cards.Constraint;
 import projectIngSoft.Cards.Objectives.Privates.PrivateObjective;
-import projectIngSoft.Cards.ToolCards.ToolCard;
+
 import projectIngSoft.Cards.WindowPattern;
 import projectIngSoft.Cards.WindowPatternCard;
 import projectIngSoft.Controller.IController;
-import projectIngSoft.GameManager.IGameManager;
+
 import projectIngSoft.View.IView;
 import projectIngSoft.events.Event;
 import projectIngSoft.exceptions.PatternConstraintViolatedException;
@@ -27,16 +27,36 @@ public class Player {
     private Die[][]                 placedDice;
 
     private IView                   myView;
-    private boolean                 alreadyPlacedADie;
+    private boolean                 hasPlacedADieInThisTurn;
+    private boolean                 hasEverPlacedADie;
 
 
     //In order to let the player use patterns with non-predefined dimensions
     //the player placedDice matrix is created when patternCard is chosen.
     public Player(String name, IView aView) {
-        this.name =  name;
-        this.placedDice = new Die[1][1];
-        this.myView = aView;
-        this.alreadyPlacedADie = false;
+        this.name                    = name;
+        this.isPatternFlipped        = false;
+        this.myWindowPatternCard     = null;
+        this.possiblePatternCards    = null;
+        this.myPrivateObjective      = null;
+        this.placedDice              = new Die[1][1];
+        this.myView                  = aView;
+        this.hasPlacedADieInThisTurn = false;
+        this.hasEverPlacedADie       = false;
+    }
+
+    // the only field that is actually copied is the placedDie matrix.
+    // that is due to the fact that other fields are immutable objects
+    public Player(Player pToBeCopied) {
+        this.name                    = pToBeCopied.name;
+        this.isPatternFlipped        = pToBeCopied.isPatternFlipped;
+        this.myWindowPatternCard     = pToBeCopied.myWindowPatternCard;
+        this.possiblePatternCards    = possiblePatternCards == null ? null : new ArrayList<>(pToBeCopied.possiblePatternCards);
+        this.myPrivateObjective      = pToBeCopied.myPrivateObjective;
+        this.placedDice              = cloneArray(pToBeCopied.placedDice);
+        this.myView                  = pToBeCopied.myView;
+        this.hasPlacedADieInThisTurn = pToBeCopied.hasPlacedADieInThisTurn;
+        this.hasEverPlacedADie       = pToBeCopied.hasEverPlacedADie;
     }
 
     public String getName() {
@@ -45,9 +65,7 @@ public class Player {
 
     public void setPatternCard(WindowPatternCard aPatternCard) {
         this.myWindowPatternCard = aPatternCard;
-        int width =  getPattern().getWidth();
-        int height =  getPattern().getHeight();
-        this.placedDice = new Die[height][width];
+        this.placedDice = new Die[getPattern().getHeight()][getPattern().getWidth()];
     }
 
 
@@ -103,13 +121,9 @@ public class Player {
         return target;
     }
 
-    public boolean getAlreadyPlacedADie(){
-        return alreadyPlacedADie;
+    public boolean getHasPlacedADieInThisTurn(){
+        return hasPlacedADieInThisTurn;
     }
-
-
-
-
 
     public void setPrivateObjective(PrivateObjective myPrivateObjective) {
         this.myPrivateObjective = myPrivateObjective;
@@ -122,35 +136,61 @@ public class Player {
     //      a die placed doesn't match rules -> RuleViolatedExceptions
     //      a pattern constraint is violated -> PatternConstraintViolatedException
     public void placeDie(Die aDie, int row, int col) throws PositionOccupiedException, PatternConstraintViolatedException, RuleViolatedException {
+        if(hasPlacedADieInThisTurn)
+            throw new RuleViolatedException("Player can't place more than a die at turn.");
+
         if(placedDice[row][col]!= null) {
             throw new PositionOccupiedException("A die has already been placed here");
         }
-        checkConstraints(row, col, aDie);
-        checkAdjacents(getAdjacents(getPlacedDice(),row,col),aDie);
-        placeDieWithoutConstraints(aDie, row, col);
-    }
 
+
+        if(hasEverPlacedADie) {
+            checkPresenceOfAnAdjacentDie(row, col);
+            checkAdjacentsHaveCompatibleValues(aDie, row, col);
+        }else if( row !=0 && row != getPattern().getHeight()-1 && col != 0 && col != getPattern().getWidth()-1){
+            throw new RuleViolatedException("Each player’s first die of the game must be placed on an edge or corner space");
+        }
+
+
+        checkConstraints                  (aDie, row, col);
+        placeDieWithoutConstraints        (aDie, row, col);
+
+    }
 
     public void placeDieWithoutConstraints(Die aDie, int row, int col){
-        placedDice[row][col] = new Die(aDie);
-        alreadyPlacedADie = true;
+        placedDice[row][col] =    new Die(aDie);
+        hasPlacedADieInThisTurn = true;
+        hasEverPlacedADie =       true;
     }
 
-    private void checkConstraints(int rowIndex, int colIndex, Die aDie) throws PatternConstraintViolatedException {
-        Constraint actualConstraint = getPattern().getConstraintsMatrix()[rowIndex][colIndex];
-        if((!actualConstraint.getColour().equals(aDie.getColour()) && !actualConstraint.getColour().equals(Colour.WHITE))|| (actualConstraint.getValue()!=aDie.getValue() && actualConstraint.getValue() != 0))
-            throw new PatternConstraintViolatedException("Ehi, you cheater! You are violating a constraint on your pattern! Try again, and play fairly!");
-    }
+    private void checkAdjacentsHaveCompatibleValues(Die aDie, int row, int col) throws RuleViolatedException {
+        ArrayList<Die> orthogonalAdjacents = getAdjacents(getPlacedDice(),row,col);
 
+        for(int i = 0; i < orthogonalAdjacents.size(); i++){
+            Die placedDie = orthogonalAdjacents.get(i);
 
-    private void checkAdjacents(List<Die> adjacents, Die choseDie) throws RuleViolatedException {
-        for(int i = 0; i < adjacents.size(); i++){
-            Die placedDie = adjacents.get(i);
-            if(placedDie != null && (placedDie.getValue() == choseDie.getValue() || placedDie.getColour().equals(choseDie.getColour()))) {
+            if( placedDie.getValue() == aDie.getValue() || placedDie.getColour().equals(aDie.getColour()) ) {
                 throw new RuleViolatedException("Ehi! You are trying to place a die with the same colour or the same value than an adjacent die. You can't do whatever you want! You must follow the rules");
             }
         }
     }
+
+    private void checkPresenceOfAnAdjacentDie( int row, int col) throws RuleViolatedException {
+        for (int deltaRow = -1; deltaRow < 1 ; deltaRow++) {
+            for (int deltaCol = -1; deltaCol < 1; deltaCol++) {
+                if(row+deltaRow >=0 && row+deltaRow < getPattern().getHeight() && col+deltaCol >= 0 && col+deltaCol < getPattern().getWidth() &&  placedDice[row][col] != null)
+                   return;
+            }
+        }
+        throw new RuleViolatedException("Die must be placed near an already placed die!");
+    }
+
+    private void checkConstraints(Die aDie,int row, int col) throws PatternConstraintViolatedException {
+        Constraint actualConstraint = getPattern().getConstraintsMatrix()[row][col];
+        if(!actualConstraint.compatibleWith(aDie))
+            throw new PatternConstraintViolatedException("Ehi, you cheater! You are violating a constraint on your pattern! Try again, and play fairly!");
+    }
+
 
     private ArrayList<Die> getAdjacents(Die[][] placedDice, int row, int col){
         ArrayList<Die> ret = new ArrayList<>();
@@ -169,10 +209,10 @@ public class Player {
 
 
     public void resetDieFlag() {
-        alreadyPlacedADie = false;
+        hasPlacedADieInThisTurn = false;
     }
 
-    public void update(IGameManager updatedModel, Event event) {
+    public void update(Event event) {
         myView.update( event);
     }
 

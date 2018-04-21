@@ -1,7 +1,6 @@
 package projectIngSoft.events;
 
 import projectIngSoft.Cards.WindowPatternCard;
-import projectIngSoft.View.IEventHandler;
 
 public class PatternCardDistributedEvent implements Event{
     // it means that pattern card have been distributed to the players

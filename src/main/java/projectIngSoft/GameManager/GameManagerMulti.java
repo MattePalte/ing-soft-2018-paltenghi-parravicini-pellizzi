@@ -13,7 +13,6 @@ import projectIngSoft.events.*;
 import projectIngSoft.events.Event;
 import projectIngSoft.exceptions.GameInvalidException;
 
-import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
@@ -98,13 +97,16 @@ public class GameManagerMulti implements IGameManager, Cloneable {
     }
 
     @Override
-    public void start() throws Exception, GameInvalidException {
+    public void start() throws Exception {
         drawDice();
         getCurrentPlayer().resetDieFlag();
-        deliverNewStatus(this, new FinishedSetupEvent());
+        deliverNewStatus(new FinishedSetupEvent());
+        deliverNewStatus(new ModelChangedEvent(this));
+        getCurrentPlayer().update(new myTurnStartedEvent());
+
     }
 
-    public void setupPhase() throws GameInvalidException {
+    public void setupPhase() throws Exception {
         //TODO: move inizialization into a static method, where just copying pre-initialized elements.
         //TODO: get class contained in projectIngSoft.Cards.Objectives.public.* instead of using a method in every referee. in order to use something like Cards.max4Players.deckOfPublicObjectives .
 
@@ -145,23 +147,25 @@ public class GameManagerMulti implements IGameManager, Cloneable {
         // remove cards and leave only 3 publicObjective card for the game
         publicObjectives = publicObjectives.stream().limit(3).collect(Collectors.toCollection(ArrayList::new));
 
+        currentTurnList = createTurns(currentGame.getPlayers());
+
         // do 1, 2 operation for each player
         for (Player p : currentGame.getPlayers()) {
             // 1 - randomly distribute PrivateObjectiveCards
-            PrivateObjective randomPrivateObjective = (PrivateObjective)privateObjectives.remove(0);
+            PrivateObjective randomPrivateObjective = privateObjectives.remove(0);
             p.setPrivateObjective(randomPrivateObjective);
 
             ArrayList<WindowPatternCard> selectedPatternCards = new ArrayList<>();
-
+            //2 -extract windowPatternCard and let them choose according to their will
             for(int i = 0; i < 2; i++){
                 selectedPatternCards.add((WindowPatternCard)windowPatterns.remove(0));
             }
 
             p.givePossiblePatternCard(new ArrayList<>(selectedPatternCards));
-            p.update(this, new PatternCardDistributedEvent(selectedPatternCards.get(0), selectedPatternCards.get(1)));
+            p.update( new PatternCardDistributedEvent(selectedPatternCards.get(0), selectedPatternCards.get(1)));
         }
 
-        currentTurnList = createTurns(currentGame.getPlayers());
+
 
 
 
@@ -199,9 +203,9 @@ public class GameManagerMulti implements IGameManager, Cloneable {
     }
 
     @Override
-    public void deliverNewStatus(IGameManager newStatus, Event event) {
+    public void deliverNewStatus(Event event) {
         for (Player subscriber : currentGame.getPlayers()) {
-            subscriber.update(this.clone(), event);
+            subscriber.update( event);
         }
     }
 
@@ -212,13 +216,15 @@ public class GameManagerMulti implements IGameManager, Cloneable {
 
     @Override
     public void playToolCard(ToolCard aToolCard) throws Exception {
-
+        //aToolCard.applyEffect(player, this)
     }
 
     @Override
     public void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception {
         getCurrentPlayer().placeDie(aDie,rowIndex,colIndex);
         draftPool.remove(aDie);
+
+        getCurrentPlayer().update( new ModelChangedEvent(this));
     }
 
 
@@ -230,7 +236,7 @@ public class GameManagerMulti implements IGameManager, Cloneable {
             System.out.println("End of round " + rounds.getCurrentRound());
 
             if(rounds.getCurrentRound() == 10){
-                deliverNewStatus(this, new GameFinishedEvent());
+                deliverNewStatus(new GameFinishedEvent());
                 return;
             }
 
@@ -243,8 +249,9 @@ public class GameManagerMulti implements IGameManager, Cloneable {
             drawDice();
         }
         getCurrentPlayer().resetDieFlag();
+        deliverNewStatus( new ModelChangedEvent(this));
+        getCurrentPlayer().update(new myTurnStartedEvent());
 
-        deliverNewStatus(this, new CurrentPlayerChangedEvent());
     }
     @Override
     public Map<Player, Integer> getFavours(){
@@ -270,8 +277,8 @@ public class GameManagerMulti implements IGameManager, Cloneable {
         if(!draftPool.isEmpty())
             throw new GameInvalidException("Panic");
 
-        draftPool = (ArrayList<Die>) diceBag.subList(0, (2 * currentGame.getNumberOfPlayers()) + 1);
-        diceBag = (ArrayList<Die>) diceBag.subList((2*currentGame.getNumberOfPlayers()) +1, diceBag.size());
+        draftPool = new ArrayList<Die> (diceBag.subList(0, (2 * currentGame.getNumberOfPlayers()) + 1));
+        diceBag = new ArrayList<Die> (diceBag.subList((2*currentGame.getNumberOfPlayers()) +1, diceBag.size()));
 
     }
 

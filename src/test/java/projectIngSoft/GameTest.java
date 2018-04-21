@@ -20,15 +20,15 @@ public class GameTest {
     @Before
     public void CreateGameAndAddPlayers() throws FileNotFoundException, Colour.ColorNotFoundException {
         aMultiplePlayerGame = new Game(3);
-        aMultiplePlayerGame.add(new Player("Matteo", new LocalViewCli()));
-        aMultiplePlayerGame.add(new Player("Daniele", new LocalViewCli()));
-        aMultiplePlayerGame.add(new Player("Kris", new LocalViewCli()));
+        aMultiplePlayerGame.add(new Player("Matteo", new LocalViewCli("Matteo")));
+        aMultiplePlayerGame.add(new Player("Daniele", new LocalViewCli("Daniele")));
+        aMultiplePlayerGame.add(new Player("Kris", new LocalViewCli("Kris")));
     }
 
     @Before
     public void CreateGameAndAddPlayer() throws FileNotFoundException, Colour.ColorNotFoundException {
         aSinglePlayerGame = new Game(1);
-        aSinglePlayerGame.add(new Player("Matteo",new LocalViewCli()));
+        aSinglePlayerGame.add(new Player("Matteo",new LocalViewCli("Matteo")));
     }
 
 
@@ -38,7 +38,7 @@ public class GameTest {
 
         myModel.countPlayersPoints();
         Player p = myModel.getWinner();
-        Assert.assertTrue(p.equals(new Player("Kris", new LocalViewCli())));
+        Assert.assertTrue(p.equals(new Player("Kris", new LocalViewCli("Kris"))));
         System.out.println("Player "+ p +" wins!");
     }
 

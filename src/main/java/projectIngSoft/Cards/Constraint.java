@@ -21,16 +21,16 @@ public class Constraint {
         this(0,Colour.WHITE);
     }
 
-    public boolean checkAll(Die aDie){
-        return checkColour(aDie) && checkValue(aDie);
+    public boolean compatibleWith(Die aDie){
+        return compatibleWithColour(aDie) && compatibleWithValue(aDie);
     }
 
-    public boolean checkColour(Die aDie){
+    public boolean compatibleWithColour(Die aDie){
         return this.colour == Colour.WHITE || aDie.getColour() == this.colour;
     }
 
-    public boolean checkValue(Die aDie){
-        return this.value == 0 || aDie.getColour() == this.colour;
+    public boolean compatibleWithValue(Die aDie){
+        return this.value == 0 || aDie.getValue() == this.value;
     }
 
     public int getValue() {

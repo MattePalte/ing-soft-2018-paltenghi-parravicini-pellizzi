@@ -13,7 +13,7 @@ import java.util.Scanner;
 
 public class WindowPatternTest {
     @Test
-    public void CreationTest() throws Colour.ColorNotFoundException, FileNotFoundException {
+    public void CreationTest() throws Exception {
         File file = new File("src/main/patterns.txt");
         Scanner input = new Scanner(file);
 
