@@ -186,12 +186,9 @@ public class Player {
     }
 
     private void checkPresenceOfAnAdjacentDie( int row, int col) throws RuleViolatedException {
-        for (int deltaRow = -1; deltaRow <= 1 ; deltaRow++) {
-            for (int deltaCol = -1; deltaCol <= 1; deltaCol++) {
-                if(     row+deltaRow >=0 && row+deltaRow < getPattern().getHeight() &&
-                        col+deltaCol >= 0 && col+deltaCol < getPattern().getWidth() &&
-                        !(deltaCol == 0 && deltaRow == 0) &&
-                        placedDice[row+deltaRow][col+deltaCol] != null)
+        for (int deltaRow = -1; deltaRow < 1 ; deltaRow++) {
+            for (int deltaCol = -1; deltaCol < 1; deltaCol++) {
+                if(row+deltaRow >=0 && row+deltaRow < getPattern().getHeight() && col+deltaCol >= 0 && col+deltaCol < getPattern().getWidth() &&  placedDice[row+deltaRow][col+deltaCol] != null)
                    return;
             }
         }
@@ -208,13 +205,13 @@ public class Player {
     private ArrayList<Die> getOrthogonalAdjacents(Die[][] placedDice, int row, int col){
         ArrayList<Die> ret = new ArrayList<>();
 
-        if(col + 1 < placedDice[row].length)
+        if(col + 1 < placedDice[row].length && placedDice[row][col+1] != null)
             ret.add(placedDice[row][col+1]);
-        if(col > 0)
+        if(col > 0 && placedDice[row][col-1] != null)
             ret.add(placedDice[row][col-1]);
-        if(row + 1 < placedDice.length)
+        if(row + 1 < placedDice.length && placedDice[row+1][col] != null)
             ret.add(placedDice[row+1][col]);
-        if(row > 0)
+        if(row > 0 && placedDice[row-1][col] != null)
             ret.add(placedDice[row-1][col]);
 
         return ret;

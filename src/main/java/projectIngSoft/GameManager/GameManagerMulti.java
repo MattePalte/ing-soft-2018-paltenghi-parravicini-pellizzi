@@ -307,18 +307,15 @@ public class GameManagerMulti implements IGameManager, Cloneable {
 
     private ArrayList<Die> createDice() {
         ArrayList tmp = new ArrayList<Die>();
-        ArrayList<Colour> diceColoursAvailable = new ArrayList<>();
-        diceColoursAvailable.add(Colour.BLUE);
-        diceColoursAvailable.add(Colour.YELLOW);
-        diceColoursAvailable.add(Colour.RED);
-        diceColoursAvailable.add(Colour.GREEN);
-        diceColoursAvailable.add(Colour.VIOLET);
-        Random rndGen = new Random();
-        for (Colour c : diceColoursAvailable) {
+
+        for (Colour c : Colour.validColours()) {
+            //because aDie it's an immutable class.
+            Die aDie = new Die( c);
             // 3 times
             for(int i = 0; i < 18; i++){
-                Die aDie = new Die(rndGen.nextInt(6) + 1, c);
-                tmp.add(aDie);
+
+
+                tmp.add(aDie.rollDie());
             }
         }
         return tmp;
