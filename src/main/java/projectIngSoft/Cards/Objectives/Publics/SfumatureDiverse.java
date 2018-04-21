@@ -23,7 +23,7 @@ public class SfumatureDiverse extends PublicObjective {
             }
         }
 
-        return Arrays.stream(values).filter(count -> count > 0).min().orElse(0);
+        return Arrays.stream(values).min().orElse(0);
 
     }
 }

@@ -12,6 +12,7 @@ public class SfumatureDiverseRiga extends PublicObjective {
 
     public int checkCondition(Player window) {
         Die[][] placedDice = window.getPlacedDice();
+        int ret = 0;
         int col, row;
         int[] counter = new int [6];
 
@@ -24,8 +25,11 @@ public class SfumatureDiverseRiga extends PublicObjective {
                 counter[placedDice[row][col].getValue() - 1] ++;
             }
 
+            if(Arrays.stream(counter).filter(count -> count > 0).toArray().length >= placedDice[0].length)
+                ret++;
+
+            Arrays.fill(counter,0);
         }
-        // Deleting elements eventually remained to 0 and taking the minimum value of the counter array
-        return Arrays.stream(counter).filter(count -> count > 0).min().orElse(0);
+        return ret;
     }
 }

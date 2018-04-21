@@ -14,6 +14,7 @@ public class SfumatureDiverseColonna extends PublicObjective {
         Die[][] placedDice = window.getPlacedDice();
         int col, row;
         int[] counter = new int [6];
+        int ret = 0;
 
 
         for(col = 0; col < placedDice[0].length ;col++) {
@@ -24,7 +25,11 @@ public class SfumatureDiverseColonna extends PublicObjective {
                 counter[placedDice[row][col].getValue() - 1] ++;
             }
 
+            if(Arrays.stream(counter).filter(count -> count > 0).toArray().length >= placedDice.length)
+                ret ++;
+            Arrays.fill(counter, 0);
+
         }
-        return Arrays.stream(counter).filter(count -> count > 0).min().orElse(0);
+        return ret;
     }
 }

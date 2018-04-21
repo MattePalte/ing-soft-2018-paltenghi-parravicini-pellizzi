@@ -19,8 +19,7 @@ public abstract class ObjectiveCard extends Card {
     }
 
     public int countPoints(Player window){
-
-        return getPoints()*checkCondition(window);
+        return points*checkCondition(window);
     }
 
     public abstract int checkCondition(Player window);

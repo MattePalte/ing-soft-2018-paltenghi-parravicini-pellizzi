@@ -12,7 +12,7 @@ public class ColoriDiversiRiga extends PublicObjective {
 
     public int checkCondition(Player window) {
         Die[][] placedDice = window.getPlacedDice();
-
+        int ret = 0;
         int row, col;
         int[] counter = new int[Colour.validColours().size()];
 
@@ -23,7 +23,10 @@ public class ColoriDiversiRiga extends PublicObjective {
 
                 counter[placedDice[row][col].getColour().ordinal()] ++;
             }
+            if(Arrays.stream(counter).filter(count -> count > 0).toArray().length >= placedDice[0].length)
+                ret ++;
+            Arrays.fill(counter, 0);
         }
-        return Arrays.stream(counter).filter(count -> count > 0).min().orElse(0);
+        return ret;
     }
 }
