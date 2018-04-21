@@ -21,7 +21,7 @@ public class VarietaColore extends PublicObjective {
         for(col = 0; col < placedDice[0].length ;col++) {
             for (row = 0; row < placedDice.length; row++) {
                 if (placedDice[row][col] != null) {
-                    counter[placedDice[row][col].getColour().ordinal()] += 1;
+                    counter[placedDice[row][col].getColour().ordinal()] ++;
                 }
             }
         }
