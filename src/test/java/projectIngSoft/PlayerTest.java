@@ -5,6 +5,9 @@ import org.junit.*;
 import projectIngSoft.Cards.Objectives.Privates.SfumatureBlu;
 import projectIngSoft.Cards.WindowPatternCard;
 import projectIngSoft.View.LocalViewCli;
+import projectIngSoft.exceptions.PatternConstraintViolatedException;
+import projectIngSoft.exceptions.PositionOccupiedException;
+import projectIngSoft.exceptions.RuleViolatedException;
 
 import java.awt.*;
 import java.io.File;
@@ -16,27 +19,49 @@ import java.util.Scanner;
 public class PlayerTest {
 
     private Player testPlayer;
+    private Player testPlayerWithWhitePatternCardNoMove;
 
     @Before
     public void playerCreation() {
-        this.testPlayer = new Player("Matteo", new LocalViewCli());
+        testPlayer = new Player("Matteo", new LocalViewCli("Matteo"));
         // set private objective
         testPlayer.setPrivateObjective(new SfumatureBlu());
         // set WindowPatternCard from file
         File file = new File("src/main/patterns.txt");
+        Scanner input = null;
         try {
-            Scanner input = new Scanner(file);
+            input = new Scanner(file);
             WindowPatternCard window = WindowPatternCard.loadFromScanner(input);
-            input.nextLine();
+
             testPlayer.setPatternCard(window);
         } catch (Exception e) {
             e.printStackTrace();
+            if(input != null)
+                input.close();
+
+        }
+
+        testPlayerWithWhitePatternCardNoMove = new Player("Test", new LocalViewCli("Test") );
+        // set private objective
+        testPlayerWithWhitePatternCardNoMove.setPrivateObjective(new SfumatureBlu());
+        // set WindowPatternCard from file
+        file = new File("src/main/empty_pattern.txt");
+        try {
+            input = new Scanner(file);
+            WindowPatternCard window = WindowPatternCard.loadFromScanner(input);
+
+            testPlayerWithWhitePatternCardNoMove.setPatternCard(window);
+        } catch (Exception e) {
+            e.printStackTrace();
+            if(input != null)
+                input.close();
+
         }
     }
 
     @Test
     public void testTotring(){
-        this.testPlayer = new Player("Matteo", new LocalViewCli());
+        this.testPlayer = new Player("Matteo", new LocalViewCli("Matteo"));
         // set private objective
         testPlayer.setPrivateObjective(new SfumatureBlu());
         // set WindowPatternCard from file
@@ -47,15 +72,15 @@ public class PlayerTest {
             input.nextLine();
             testPlayer.setPatternCard(window);
             System.out.println(testPlayer);
-            testPlayer.placeDie(new Die(3, Colour.RED),1,1);
+            testPlayer.placeDieWithoutConstraints(new Die(3, Colour.RED),1,1);
             System.out.println(testPlayer);
-            testPlayer.placeDie(new Die(3, Colour.GREEN),1,1);
+            testPlayer.placeDieWithoutConstraints(new Die(3, Colour.GREEN),1,1);
             System.out.println(testPlayer);
-            testPlayer.placeDie(new Die(3, Colour.BLUE),1,1);
+            testPlayer.placeDieWithoutConstraints(new Die(3, Colour.BLUE),1,1);
             System.out.println(testPlayer);
-            testPlayer.placeDie(new Die(3, Colour.VIOLET),1,1);
+            testPlayer.placeDieWithoutConstraints(new Die(3, Colour.VIOLET),1,1);
             System.out.println(testPlayer);
-            testPlayer.placeDie(new Die(3, Colour.YELLOW),1,1);
+            testPlayer.placeDieWithoutConstraints(new Die(3, Colour.YELLOW),1,1);
             System.out.println(testPlayer);
         } catch (Exception e) {
             e.printStackTrace();
@@ -63,7 +88,7 @@ public class PlayerTest {
     }
 
     @Test
-    public void testColor() throws UnsupportedEncodingException {
+    public void testColor() {
 
         System.out.println("\033[32;1mgreen\033[0m");
     }
@@ -71,7 +96,7 @@ public class PlayerTest {
 
     @Test
     // to test the privacy of the rep
-    // it test primarly cloneArray private method
+    // it test primary cloneArray private method
     public void privacyOfMatrixRep(){
         // retrieve rep
         Die[][] myMatrix = testPlayer.getPlacedDice();
@@ -88,7 +113,7 @@ public class PlayerTest {
 
     @Test
     // test place die
-    public void placeDieTest(){
+    public void placeDieTest() throws Exception {
         Die[][] initialMatrix = testPlayer.getPlacedDice();
         Die aDieToPlace = new Die(5, Colour.BLUE);
         int modifiedRow = 0;
@@ -111,6 +136,31 @@ public class PlayerTest {
             }
         }
         Assert.assertTrue(finalMatrix[modifiedRow][modifiedCol].equals(aDieToPlace));
+
+
+    }
+
+    @Test
+    // test first die must be placed on a corner / edge
+    //during test player is copied in order for placeDie being always the first move of the player
+    public void testFirstPlayerMove(){
+        Player p ;
+        Die aDie = new Die(Colour.BLUE).rollDie();
+        boolean flag ;
+        for (int row = 1; row < testPlayerWithWhitePatternCardNoMove.getPattern().getHeight()-1; row++) {
+            for (int col = 1; col < testPlayerWithWhitePatternCardNoMove.getPattern().getWidth()-1; col++) {
+                p = new Player(testPlayerWithWhitePatternCardNoMove);
+                flag = false;
+                try {
+                    p.placeDie(aDie, row, col);
+                }  catch (RuleViolatedException e) {
+                   flag = true;
+                } catch (Exception e){
+
+                }
+                Assert.assertTrue(flag);
+            }
+        }
 
 
     }

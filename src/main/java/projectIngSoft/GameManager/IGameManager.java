@@ -32,16 +32,16 @@ public interface IGameManager {
     List<Player>            getCurrentTurnList();
 
     Player getWinner()                                  throws Exception;
-    void start()                                        throws Exception, GameInvalidException;
-    void setupPhase()                                   throws Exception, GameInvalidException;
+    void start()                                        throws Exception;
+    void setupPhase()                                   throws Exception;
     void playToolCard(ToolCard aToolCard)               throws Exception;
     void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception;
     void bindPatternAndPlayer(String nickname, Pair<WindowPatternCard, Boolean> chosenPattern) throws Exception, GameInvalidException;
-    void endTurn()                                      throws Exception, GameInvalidException;
+    void endTurn()                                      throws Exception;
     void countPlayersPoints()                           throws Exception;
 
     void requestUpdate();
-    void deliverNewStatus(IGameManager newStatus, Event event);
+    void deliverNewStatus(Event event);
     // Can't call it clone because it clashes with Object.clone()
     IGameManager clone();
 

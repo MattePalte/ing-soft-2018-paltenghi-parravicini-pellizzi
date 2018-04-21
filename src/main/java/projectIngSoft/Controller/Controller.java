@@ -5,10 +5,11 @@ import projectIngSoft.Cards.ToolCards.ToolCard;
 import projectIngSoft.Cards.WindowPatternCard;
 import projectIngSoft.Die;
 import projectIngSoft.GameManager.IGameManager;
+import projectIngSoft.exceptions.GameInvalidException;
 
 public class Controller implements IController {
 
-    IGameManager gameManager;
+    private IGameManager gameManager;
 
     public Controller(IGameManager gameManager) {
         this.gameManager = gameManager;
@@ -30,12 +31,12 @@ public class Controller implements IController {
     }
 
     @Override
-    public void endTurn() throws Exception {
+    public void endTurn() throws Exception, GameInvalidException {
         gameManager.endTurn();
     }
 
     @Override
-    public void choosePattern(String nickname, Pair<WindowPatternCard, Boolean> couple) throws Exception{
+    public void choosePattern(String nickname, Pair<WindowPatternCard, Boolean> couple) throws Exception, GameInvalidException {
         gameManager.bindPatternAndPlayer(nickname, couple);
     }
 }

@@ -1,6 +1,9 @@
 package projectIngSoft.events;
 
-public class FinishedSetupEvent implements Event {
+public class myTurnStartedEvent implements Event {
+    public myTurnStartedEvent() {
+    }
+
     @Override
     public void accept(IEventHandler eventHandler) {
         eventHandler.respondTo(this);

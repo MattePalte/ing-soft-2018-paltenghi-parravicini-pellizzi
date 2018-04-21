@@ -48,7 +48,7 @@ public class App
             //  prompt for the player name
             System.out.println(String.format("Name for player nr %d : ", i));
             String newName = scanner.next();
-            Player newPlayer = new Player(newName, new LocalViewCli());
+            Player newPlayer = new Player(newName, new LocalViewCli(newName));
             theGame.add(newPlayer);
         }
         return theGame;

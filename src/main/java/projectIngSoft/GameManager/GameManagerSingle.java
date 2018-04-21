@@ -21,25 +21,25 @@ public class GameManagerSingle {
     private ArrayList<Die> diceBag;
     private ArrayList<Die> draftPool;
     private RoundTracker rounds;
-    private ArrayList<Card> privateObjectives;
-    private ArrayList<Card> publicObjectives;
-    private ArrayList<Card> windowPatterns;
-    private ArrayList<Card> toolCards;
+    private ArrayList<PrivateObjective> privateObjectives;
+    private ArrayList<PublicObjective> publicObjectives;
+
+    private ArrayList<ToolCard> toolCards;
     private ArrayList<Player> currentTurn;
     private final int difficulty;
 
-    //@ Signals Exception aGame.isValid() || aGame.numOfPlayers() != 1;
-    public GameManagerSingle(Game aSinglePlayerGame) throws Exception {
+    //@ Signals Exception aGame.isValid() || aGame.numOfPlayers() != 1
+    public GameManagerSingle(Game aSinglePlayerGame) throws Exception, GameInvalidException {
 
         if (!aSinglePlayerGame.isValid() || aSinglePlayerGame.getNumberOfPlayers() != 1 )
-            throw  new Exception("Game is not valid!");
+            throw  new GameInvalidException("Game is not valid!");
         //TODO clone object and avoid using the same reference
         currentGame = aSinglePlayerGame;
         //TODO: ask for difficulty
         difficulty = 1;
 
         if( difficulty <= 0 || difficulty > 5)
-            throw  new Exception("Difficulty must be set between 1 and 5");
+            throw  new GameInvalidException("Difficulty must be set between 1 and 5");
 
         setupPhase();
 
@@ -58,7 +58,6 @@ public class GameManagerSingle {
         this.rounds = new RoundTracker(rounds);
         this.privateObjectives = new ArrayList<>(gameManagerSingle.privateObjectives);
         this.publicObjectives = new ArrayList<>(gameManagerSingle.publicObjectives);
-        this.windowPatterns = new ArrayList<>(gameManagerSingle.windowPatterns);
         this.toolCards = new ArrayList<>(gameManagerSingle.toolCards);
         this.currentTurn = new ArrayList<>(gameManagerSingle.currentTurn);
         this.difficulty = gameManagerSingle.difficulty;
@@ -164,7 +163,7 @@ public class GameManagerSingle {
 
     }
 
-    public void setupPhase() throws FileNotFoundException, Colour.ColorNotFoundException  {
+    public void setupPhase() throws GameInvalidException {
 
 
         // initialize empty draft pool
@@ -180,7 +179,7 @@ public class GameManagerSingle {
         // initialize public Objective cards
         publicObjectives =  createPublicObjectives();
         // initialize window pattern cards
-        windowPatterns = createPatternCards();
+        List<WindowPatternCard>windowPatterns = createPatternCards();
         //initialize toolcards
         toolCards = createToolCards();
 
@@ -239,17 +238,25 @@ public class GameManagerSingle {
 
     private ArrayList<Die> createDice() {
         ArrayList tmp = new ArrayList<Die>();
-        for (Colour c : Colour.values()) {
-            for (int i = 1; i <= 18; i++) {
-                Die newDie = new Die(c);
-                tmp.add(newDie);
+        ArrayList<Colour> diceColoursAvailable = new ArrayList<>();
+        diceColoursAvailable.add(Colour.BLUE);
+        diceColoursAvailable.add(Colour.YELLOW);
+        diceColoursAvailable.add(Colour.RED);
+        diceColoursAvailable.add(Colour.GREEN);
+        diceColoursAvailable.add(Colour.VIOLET);
+        Random rndGen = new Random();
+        for (Colour c : diceColoursAvailable) {
+            // 3 times
+            for(int i = 0; i < 18; i++){
+                Die aDie = new Die(rndGen.nextInt(6) + 1, c);
+                tmp.add(aDie);
             }
         }
         return tmp;
     }
 
-    private ArrayList<Card> createPrivateObjectives() {
-        ArrayList<Card> tmp = new ArrayList<Card>();
+    private ArrayList<PrivateObjective> createPrivateObjectives() {
+        ArrayList<PrivateObjective> tmp = new ArrayList<>();
 
         tmp.add(new SfumatureBlu());
         tmp.add(new SfumatureGialle());
@@ -260,8 +267,8 @@ public class GameManagerSingle {
         return tmp;
     }
 
-    private ArrayList<Card> createPublicObjectives() {
-        ArrayList<Card> tmp = new ArrayList<Card>();
+    private ArrayList<PublicObjective> createPublicObjectives() {
+        ArrayList<PublicObjective> tmp = new ArrayList<>();
 
         tmp.add(new ColoriDiversiColonna());
         tmp.add(new ColoriDiversiRiga());
@@ -277,8 +284,8 @@ public class GameManagerSingle {
         return tmp;
     }
 
-    private ArrayList<Card> createToolCards() {
-        ArrayList<Card> tmp = new ArrayList<>();
+    private ArrayList<ToolCard> createToolCards() {
+        ArrayList<ToolCard> tmp = new ArrayList<>();
 
         tmp.add( new AlesatoreLaminaRame());
         tmp.add( new DiluentePastaSalda());
@@ -297,7 +304,7 @@ public class GameManagerSingle {
         return tmp;
     }
 
-    private static  ArrayList<WindowPatternCard> createPatternCards() throws GameInvalidException {
+    private static  ArrayList<WindowPatternCard> createPatternCards() throws GameInvalidException{
 
         ArrayList<WindowPatternCard> patterns = new ArrayList<>();
         try( Scanner input = new Scanner(new File("src/main/patterns.txt"))) {
@@ -314,6 +321,7 @@ public class GameManagerSingle {
 
         return patterns;
     }
+
 
 
 
