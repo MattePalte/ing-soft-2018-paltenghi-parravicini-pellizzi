@@ -91,6 +91,13 @@ public class ObjectivesTest {
 
         Assert.assertEquals(3, tested.checkCondition(player));
 
+        for(int i = 0; i < 3; i++){
+            position = randomIndexes(player.getPlacedDice());
+            player.placeDieWithoutConstraints(new Die(3, Colour.WHITE), position.getKey(), position.getValue());
+        }
+
+        Assert.assertEquals(3, tested.checkCondition(player));
+
     }
 
     @Test
@@ -113,6 +120,14 @@ public class ObjectivesTest {
         player.placeDieWithoutConstraints(new Die( 3, Colour.WHITE), position.getKey(), position.getValue());
 
         Assert.assertEquals(3, tested.checkCondition(player));
+
+        for(int i = 0; i < 3; i++){
+            position = randomIndexes(player.getPlacedDice());
+            player.placeDieWithoutConstraints(new Die(1, Colour.WHITE), position.getKey(), position.getValue());
+        }
+
+        Assert.assertEquals(3, tested.checkCondition(player));
+
     }
 
     @Test
@@ -135,6 +150,14 @@ public class ObjectivesTest {
         player.placeDieWithoutConstraints(new Die( 5, Colour.WHITE), position.getKey(), position.getValue());
 
         Assert.assertEquals(3, tested.checkCondition(player));
+
+        for(int i = 0; i < 3; i++){
+            position = randomIndexes(player.getPlacedDice());
+            player.placeDieWithoutConstraints(new Die(4, Colour.WHITE), position.getKey(), position.getValue());
+        }
+
+        Assert.assertEquals(3, tested.checkCondition(player));
+
     }
 
     @Test
