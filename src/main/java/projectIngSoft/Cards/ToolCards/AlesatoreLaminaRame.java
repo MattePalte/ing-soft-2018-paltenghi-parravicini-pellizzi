@@ -7,6 +7,7 @@ import projectIngSoft.Coordinate;
 import projectIngSoft.Die;
 import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.Player;
+import projectIngSoft.exceptions.MalformedToolCardException;
 
 public class AlesatoreLaminaRame extends ToolCard {
 
@@ -26,8 +27,17 @@ public class AlesatoreLaminaRame extends ToolCard {
                 "Devi rispettare tutte le altre restrizioni di piazzamento", Colour.RED);
     }
 
+    @Override
     public void applyEffect(Player p, IGameManager m) throws Exception {
+        checkParameters(p,m);
         p.moveDie(startPosition, endPosition, true, true);
+    }
+
+    @Override
+    public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
+        //check parameters integrity, otherwise send MalformedToolCardException
+        validateCoordinate(startPosition, p.getPattern().getHeight(), p.getPattern().getHeight());
+        validateCoordinate(endPosition, p.getPattern().getHeight(), p.getPattern().getHeight());
     }
 
     @Override

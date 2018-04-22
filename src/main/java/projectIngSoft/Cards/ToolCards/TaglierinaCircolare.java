@@ -4,6 +4,7 @@ import projectIngSoft.Colour;
 import projectIngSoft.Die;
 import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.Player;
+import projectIngSoft.exceptions.MalformedToolCardException;
 
 public class TaglierinaCircolare extends ToolCard {
 
@@ -25,9 +26,19 @@ public class TaglierinaCircolare extends ToolCard {
 
     @Override
     public void applyEffect(Player p, IGameManager m) throws Exception {
+        checkParameters(p,m);
         m.removeFromDraft(dieFromDraft);
         m.swapWithRoundTracker(dieFromDraft,dieFromRoundTracker);
         m.addToDraft(dieFromRoundTracker);
+    }
+
+    @Override
+    public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
+        //check parameters integrity, otherwise send MalformedToolCardException
+        validateDie(dieFromDraft);
+        validateDie(dieFromRoundTracker);
+        validatePresenceOfDieIn(dieFromDraft, m.getDraftPool());
+        validatePresenceOfDieIn(dieFromRoundTracker, m.getRoundTracker().getDiceLeftFromRound());
     }
 
     @Override

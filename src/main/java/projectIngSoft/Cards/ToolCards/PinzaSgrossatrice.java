@@ -4,6 +4,7 @@ import projectIngSoft.Colour;
 import projectIngSoft.Die;
 import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.Player;
+import projectIngSoft.exceptions.MalformedToolCardException;
 
 public class PinzaSgrossatrice extends ToolCard {
 
@@ -28,11 +29,19 @@ public class PinzaSgrossatrice extends ToolCard {
 
     @Override
     public void applyEffect(Player p, IGameManager m) throws Exception {
+        checkParameters(p, m);
         m.removeFromDraft(choosenDie);
         if ((choosenDie.getValue() == 6 && toBeIncreased )||(choosenDie.getValue() == 1 && !toBeIncreased )) throw new Exception("invalid operation: 6-> 1 or 1->6");
         Die newDie = (toBeIncreased ? new Die(choosenDie.getValue() + 1, choosenDie.getColour()) : new Die(choosenDie.getValue() - 1, choosenDie.getColour()));
         m.addToDraft(newDie);
         //TODO: decide where to save that a toolCard has been used for the first time fav cost: 1 -> 2
+    }
+
+    @Override
+    public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
+        //check parameters integrity, otherwise send MalformedToolCardException
+        validateDie(choosenDie);
+        validatePresenceOfDieIn(choosenDie, m.getDraftPool());
     }
 
     @Override

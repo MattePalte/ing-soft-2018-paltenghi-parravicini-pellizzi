@@ -284,7 +284,6 @@ public class PlayerTest {
         return  null;
     }
 
-
     private ArrayList<Die> buildDiceAccordingTo(Constraint aConstraint){
         ArrayList<Die> ret = new ArrayList<>();
         for(Colour aColour : Colour.validColours()){
@@ -318,6 +317,7 @@ public class PlayerTest {
         }
         return ret;
     }
+
     private ArrayList<Die> AllDice(){
         ArrayList<Die> ret = new ArrayList<>();
         for(Colour aColour : Colour.validColours()){
@@ -327,6 +327,7 @@ public class PlayerTest {
         }
         return ret;
     }
+
     private ArrayList<Die> buildDiceDisappointing(Die aDie){
         ArrayList<Die> ret = AllDice();
         ret.removeAll(buildDiceAccordingTo(aDie));

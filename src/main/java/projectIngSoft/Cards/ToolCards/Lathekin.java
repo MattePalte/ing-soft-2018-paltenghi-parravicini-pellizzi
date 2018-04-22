@@ -4,6 +4,7 @@ import projectIngSoft.Colour;
 import projectIngSoft.Coordinate;
 import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.Player;
+import projectIngSoft.exceptions.MalformedToolCardException;
 
 public class Lathekin extends ToolCard {
 
@@ -35,8 +36,18 @@ public class Lathekin extends ToolCard {
 
     @Override
     public void applyEffect(Player p, IGameManager m) throws Exception {
+        checkParameters(p,m);
         p.moveDie(firstDieStartPosition, firstDieEndPosition, true, true);
         p.moveDie(secondDieStartPosition, secondDieEndPosition, true, true);
+    }
+
+    @Override
+    public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
+        //check parameters integrity, otherwise send MalformedToolCardException
+        validateCoordinate(firstDieStartPosition, p.getPattern().getHeight(), p.getPattern().getHeight());
+        validateCoordinate(firstDieEndPosition, p.getPattern().getHeight(), p.getPattern().getHeight());
+        validateCoordinate(secondDieStartPosition, p.getPattern().getHeight(), p.getPattern().getHeight());
+        validateCoordinate(secondDieEndPosition, p.getPattern().getHeight(), p.getPattern().getHeight());
     }
 
     @Override

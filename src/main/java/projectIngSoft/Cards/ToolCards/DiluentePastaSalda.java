@@ -3,6 +3,7 @@ package projectIngSoft.Cards.ToolCards;
 import projectIngSoft.Colour;
 import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.Player;
+import projectIngSoft.exceptions.MalformedToolCardException;
 
 public class DiluentePastaSalda extends ToolCard {
     public DiluentePastaSalda() {
@@ -16,7 +17,10 @@ public class DiluentePastaSalda extends ToolCard {
 
     }
 
+    @Override
+    public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
 
+    }
 
     @Override
     public void fill(IToolCardFiller visitor) {

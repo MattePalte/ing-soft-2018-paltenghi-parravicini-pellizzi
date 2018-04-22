@@ -164,8 +164,10 @@ public class Player {
     }
 
     public void moveDie(Coordinate start, Coordinate end, boolean checkColour, boolean checkValue) throws RuleViolatedException {
-        // TODO: throw exception if incorrect moving (no die to move, move to already occupied place)
-
+        if (placedDice[end.getRow()][end.getCol()] != null)
+            throw new RuleViolatedException("The destination cell is already occupied");
+        if (placedDice[start.getRow()][start.getCol()] == null)
+            throw new RuleViolatedException("There's no die to move at the specified cell");
         Die dieToMove = placedDice[start.getRow()][start.getCol()];
         placedDice[end.getRow()][end.getCol()] = dieToMove;
         placedDice[start.getRow()][start.getCol()] = null;

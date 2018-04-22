@@ -4,6 +4,7 @@ import projectIngSoft.Colour;
 import projectIngSoft.Die;
 import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.Player;
+import projectIngSoft.exceptions.MalformedToolCardException;
 
 public class PennelloPastaSalda extends ToolCard {
 
@@ -21,8 +22,16 @@ public class PennelloPastaSalda extends ToolCard {
 
     @Override
     public void applyEffect(Player p, IGameManager m) throws Exception {
+        checkParameters(p,m);
         m.removeFromDraft(dieToRoll);
         m.addToDraft(dieToRoll.rollDie());
+    }
+
+    @Override
+    public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
+        //check parameters integrity, otherwise send MalformedToolCardException
+        validateDie(dieToRoll);
+        validatePresenceOfDieIn(dieToRoll, m.getDraftPool());
     }
 
     @Override

@@ -3,6 +3,7 @@ package projectIngSoft.Cards.ToolCards;
 import projectIngSoft.Colour;
 import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.Player;
+import projectIngSoft.exceptions.MalformedToolCardException;
 
 public class TamponeDiamantato extends ToolCard {
     public TamponeDiamantato() {
@@ -12,6 +13,11 @@ public class TamponeDiamantato extends ToolCard {
 
     @Override
     public void applyEffect(Player p, IGameManager m) {
+
+    }
+
+    @Override
+    public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
 
     }
 

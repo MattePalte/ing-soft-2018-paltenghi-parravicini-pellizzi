@@ -3,6 +3,7 @@ package projectIngSoft.Cards.ToolCards;
 import projectIngSoft.Colour;
 import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.Player;
+import projectIngSoft.exceptions.MalformedToolCardException;
 
 public class Martelletto extends ToolCard {
     public Martelletto() {
@@ -12,6 +13,11 @@ public class Martelletto extends ToolCard {
 
     @Override
     public void applyEffect(Player p, IGameManager m) throws Exception {
+
+    }
+
+    @Override
+    public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
 
     }
 
