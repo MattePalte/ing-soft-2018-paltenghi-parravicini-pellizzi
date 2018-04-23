@@ -155,12 +155,14 @@ public class Player {
         checkConstraints                  (aDie, row, col);
         placeDieWithoutConstraints        (aDie, row, col);
 
+        hasPlacedADieInThisTurn = true;
+        hasEverPlacedADie =       true;
+
     }
 
     public void placeDieWithoutConstraints(Die aDie, int row, int col){
         placedDice[row][col] =    new Die(aDie);
-        hasPlacedADieInThisTurn = true;
-        hasEverPlacedADie =       true;
+
     }
 
     public void moveDie(Coordinate start, Coordinate end, boolean checkColour, boolean checkValue) throws RuleViolatedException {
@@ -191,7 +193,8 @@ public class Player {
     private void checkPresenceOfAnAdjacentDie( int row, int col) throws RuleViolatedException {
         for (int deltaRow = -1; deltaRow <= 1 ; deltaRow++) {
             for (int deltaCol = -1; deltaCol <= 1; deltaCol++) {
-                if(row+deltaRow >=0 && row+deltaRow < getPattern().getHeight() && col+deltaCol >= 0 && col+deltaCol < getPattern().getWidth() &&  placedDice[row+deltaRow][col+deltaCol] != null)
+
+                if((deltaCol != 0 ^ deltaRow != 0) &&  row+deltaRow >=0 && row+deltaRow < getPattern().getHeight() && col+deltaCol >= 0 && col+deltaCol < getPattern().getWidth() &&  placedDice[row+deltaRow][col+deltaCol] != null)
                    return;
             }
         }

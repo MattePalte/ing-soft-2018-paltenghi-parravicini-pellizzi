@@ -1,7 +1,7 @@
 package projectIngSoft;
 
 
-import org.junit.*;
+import org.junit.Test;
 
 import java.util.ArrayList;
 
