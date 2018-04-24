@@ -254,17 +254,22 @@ public class ObjectiveUnitTest {
         placedDice[3][3] = new Die(Colour.WHITE);
         placedDice[3][0] = new Die(Colour.WHITE);
 
-        Assert.assertEquals(8, tested.checkCondition(playerStub));
+        Assert.assertEquals(9, tested.checkCondition(playerStub));
 
         // Second test
         placedDice[1][1] = new Die(Colour.RED);
 
-        Assert.assertEquals(6, tested.checkCondition(playerStub));
+        Assert.assertEquals(7, tested.checkCondition(playerStub));
 
         //Third test
         placedDice[0][1] = new Die(Colour.VIOLET);
 
-        Assert.assertEquals(4, tested.checkCondition(playerStub));
+        Assert.assertEquals(5, tested.checkCondition(playerStub));
+
+        //Fourth Test
+        placedDice[0][4] = new Die(Colour.WHITE);
+
+        Assert.assertEquals(6, tested.checkCondition(playerStub));
 
     }
 
