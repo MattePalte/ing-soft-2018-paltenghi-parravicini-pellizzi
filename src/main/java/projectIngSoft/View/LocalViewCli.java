@@ -147,12 +147,13 @@ public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
 
 
     private void takeTurn() throws Exception {
-        int cmd;
+        int cmd = 0;
+        List<String> commands = List.of("Place a die", "Play a toolcard", "End turn","Show my situation", "Show my favours");
 
         do {
             System.out.println("Take your turn " + localCopyOfTheStatus.getCurrentPlayer().getName());
-            cmd = chooseIndexFrom(List.of("Place a die", "Play a toolcard", "End turn","Show my situation"));
             try {
+                cmd = chooseIndexFrom(commands);
                 if (cmd == 0) {
                     System.out.println(localCopyOfTheStatus.getCurrentPlayer());
                     Coordinate placePosition = chooseDieCoordinate("Enter where you want to place your die");
@@ -172,9 +173,12 @@ public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
                 } else if (cmd == 3){
                     displayMySituation();
                 }
+                else if(cmd == 4){
+                    System.out.println("You still have " + localCopyOfTheStatus.getFavours().get(localCopyOfTheStatus.getCurrentPlayer()));
+                }
             }
             catch(InterruptActionException e){
-                System.out.println("Operation was aborted by the user");
+                System.out.println("You can't abort this operation. You must at least end your turn");
             }
             catch(Exception e){
                 displayError(e);
@@ -201,9 +205,10 @@ public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
             err = err || ret < lowerBound || ret > upperBound;
 
             if(err){
-                System.out.println("Hai inserito un valore errato. Enter q to esc");
                 if(input.nextLine().startsWith("q"))
                     throw new InterruptActionException();
+                System.out.println("Hai inserito un valore errato. Enter q to esc");
+
             }
 
 

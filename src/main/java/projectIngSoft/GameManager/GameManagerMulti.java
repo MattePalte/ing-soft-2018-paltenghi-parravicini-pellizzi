@@ -13,6 +13,7 @@ import projectIngSoft.*;
 import projectIngSoft.events.*;
 import projectIngSoft.events.Event;
 import projectIngSoft.exceptions.GameInvalidException;
+import projectIngSoft.exceptions.RuleViolatedException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,6 +36,7 @@ public class GameManagerMulti implements IGameManager, Cloneable {
     private ArrayList<Player>           currentTurnList;
     private Map<Player, Integer>        favours;
     private Map<Player, Integer>        rank;
+    private Map<ToolCard, Integer>      toolCardCost;
 
     private boolean isFinished;
 
@@ -68,6 +70,8 @@ public class GameManagerMulti implements IGameManager, Cloneable {
         this.toolCards          = new ArrayList<> (gameManagerMulti.toolCards);
         this.currentTurnList    = new ArrayList<> (gameManagerMulti.currentTurnList);
         this.rank               = new HashMap<> (gameManagerMulti.rank);
+        this.toolCardCost       = new HashMap<> (gameManagerMulti.toolCardCost);
+        this.favours            = new HashMap<> (gameManagerMulti.favours);
     }
 
     public GameManagerMulti clone() {
@@ -154,6 +158,12 @@ public class GameManagerMulti implements IGameManager, Cloneable {
         //initialize hashMap rank
         rank = new HashMap<>();
 
+        //initialize toolcards cost
+        toolCardCost = new HashMap<>();
+        for(ToolCard card : toolCards){
+            toolCardCost.put(card, 1);
+        }
+
         // Shuffle everything
         Collections.shuffle(diceBag);
         Collections.shuffle(publicObjectives);
@@ -220,9 +230,21 @@ public class GameManagerMulti implements IGameManager, Cloneable {
                 sum += pubObj.countPoints(p);
             }
             sum += p.getPrivateObjective().countPoints(p);
+            sum += favours.get(p);
+            sum -= getEmptyCells(p.getPlacedDice());
             //TODO: add empty cells' penality and favour bonus
             rank.put(p,sum);
         }
+    }
+
+    private int getEmptyCells(Die[][] placedDice){
+        int ret = 0;
+
+        for(Die[] row : placedDice)
+            for(Die die : row)
+                if(die == null)
+                    ret++;
+        return ret;
     }
 
     @Override
@@ -245,6 +267,11 @@ public class GameManagerMulti implements IGameManager, Cloneable {
     @Override
     public void playToolCard(ToolCard aToolCard) throws Exception {
         aToolCard.applyEffect(getCurrentPlayer(), this);
+        if(favours.get(getCurrentPlayer()) < toolCardCost.get(aToolCard))
+            throw new RuleViolatedException("Ehi! You don't have enough favours to do that, poor man!!");
+        int actualFavours = favours.get(getCurrentPlayer());
+        favours.replace(getCurrentPlayer(), actualFavours - toolCardCost.get(aToolCard));
+        toolCardCost.replace(aToolCard, 2);
         getCurrentPlayer().update( new ModelChangedEvent(this));
     }
 
@@ -288,7 +315,7 @@ public class GameManagerMulti implements IGameManager, Cloneable {
     }
     @Override
     public Map<Player, Integer> getFavours(){
-        return new HashMap<>(favours);
+        return favours;
     }
 
     @Override
