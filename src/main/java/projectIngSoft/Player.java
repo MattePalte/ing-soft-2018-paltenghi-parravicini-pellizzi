@@ -177,7 +177,6 @@ public class Player {
         if (checkColour && checkValue) checkAdjacentHaveCompatibleValues(dieToMove, end.getRow(), end.getCol());
     }
 
-
     private void checkAdjacentHaveCompatibleValues(Die toBePlacedDie, int row, int col) throws RuleViolatedException {
         ArrayList<Die> orthogonalAdjacent = getOrthogonalAdjacents(getPlacedDice(),row,col);
 
@@ -194,7 +193,10 @@ public class Player {
         for (int deltaRow = -1; deltaRow <= 1 ; deltaRow++) {
             for (int deltaCol = -1; deltaCol <= 1; deltaCol++) {
 
-                if((deltaCol != 0 ^ deltaRow != 0) &&  row+deltaRow >=0 && row+deltaRow < getPattern().getHeight() && col+deltaCol >= 0 && col+deltaCol < getPattern().getWidth() &&  placedDice[row+deltaRow][col+deltaCol] != null)
+                if(     !(deltaCol == 0 && deltaRow == 0) &&
+                        row+deltaRow >=0 && row+deltaRow < getPattern().getHeight() &&
+                        col+deltaCol >= 0 && col+deltaCol < getPattern().getWidth() &&
+                        placedDice[row+deltaRow][col+deltaCol] != null)
                    return;
             }
         }

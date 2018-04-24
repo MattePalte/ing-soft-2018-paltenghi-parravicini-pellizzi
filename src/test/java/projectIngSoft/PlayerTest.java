@@ -523,30 +523,30 @@ public class PlayerTest {
         boolean err;
 
         Die aDie = new Die(Colour.validColours().get(rnd.nextInt(Colour.validColours().size()))).rollDie();
+        int height = testPlayerWithWhitePatternCardNoMove.getPattern().getHeight();
+        int width = testPlayerWithWhitePatternCardNoMove.getPattern().getWidth();
 
-
-        for (int row = 0; row < testPlayerWithWhitePatternCardNoMove.getPattern().getHeight(); row++) {
-            for (int col = 0; col < testPlayerWithWhitePatternCardNoMove.getPattern().getWidth(); col++) {
-                if(col != 0 && col != testPlayerWithWhitePatternCardNoMove.getPattern().getWidth()-1 &&
-                        row != 0 && row != testPlayerWithWhitePatternCardNoMove.getPattern().getHeight() -1) {
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                if(col != 0 && col != width -1 &&
+                        row != 0 && row != height -1) {
                     continue;
                 }
 
                 p = new Player(testPlayerWithWhitePatternCardNoMove);
                 err = false;
                 try {
-                    p.placeDie(aDie, row, 0);
-                } catch (RuleViolatedException e) {
+                    p.placeDie(aDie, row, col);
+                } catch (Exception e) {
                     err = true;
-                } catch (Exception ignored) {
-
                 }
                 Assert.assertFalse(err);
                 p.resetDieFlag();
 
-                for (int otherRow = 0; otherRow < p.getPattern().getHeight(); otherRow++) {
-                    for (int otherCol = 0; otherCol < p.getPattern().getWidth(); otherCol++) {
-                        if (otherCol != col ^ otherRow != row) {
+                for (int otherRow = 0; otherRow < height; otherRow++) {
+                    for (int otherCol = 0; otherCol < width; otherCol++) {
+                        if (    otherRow > row + 1 && otherRow < row -1 &&
+                                otherCol > col + 1 && otherCol < col -1) {
                             for (Die otherDie : buildDiceAccordingTo(aDie)) {
                                 p1 = new Player(p);
                                 err = false;
@@ -568,8 +568,20 @@ public class PlayerTest {
 
     }
 
-
-
+    @Test
+    // check adiacent placing
+    public void testDieCornerToCorner(){
+        boolean ruleViolated = false;
+        try {
+            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(3, Colour.YELLOW), 3,0);
+            testPlayerWithWhitePatternCardNoMove.resetDieFlag();
+            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(6, Colour.BLUE), 2,1);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ruleViolated = true;
+        }
+        Assert.assertEquals(false, ruleViolated);
+    }
 
 
 }

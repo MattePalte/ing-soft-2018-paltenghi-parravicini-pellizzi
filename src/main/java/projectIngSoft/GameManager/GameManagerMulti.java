@@ -3,6 +3,7 @@ package projectIngSoft.GameManager;
 
 import javafx.util.Pair;
 import projectIngSoft.Cards.Card;
+import projectIngSoft.Cards.Objectives.ObjectiveCard;
 import projectIngSoft.Cards.ToolCards.*;
 import projectIngSoft.Cards.Objectives.Publics.*;
 import projectIngSoft.Cards.Objectives.Privates.*;
@@ -33,6 +34,7 @@ public class GameManagerMulti implements IGameManager, Cloneable {
     private ArrayList<ToolCard>         toolCards;
     private ArrayList<Player>           currentTurnList;
     private Map<Player, Integer>        favours;
+    private Map<Player, Integer>        rank;
 
     private boolean isFinished;
 
@@ -65,6 +67,7 @@ public class GameManagerMulti implements IGameManager, Cloneable {
         this.publicObjectives   = new ArrayList<> (gameManagerMulti.publicObjectives);
         this.toolCards          = new ArrayList<> (gameManagerMulti.toolCards);
         this.currentTurnList    = new ArrayList<> (gameManagerMulti.currentTurnList);
+        this.rank               = new HashMap<> (gameManagerMulti.rank);
     }
 
     public GameManagerMulti clone() {
@@ -148,6 +151,9 @@ public class GameManagerMulti implements IGameManager, Cloneable {
         //initialize hashMap favours
         favours = new HashMap<>();
 
+        //initialize hashMap rank
+        rank = new HashMap<>();
+
         // Shuffle everything
         Collections.shuffle(diceBag);
         Collections.shuffle(publicObjectives);
@@ -208,7 +214,15 @@ public class GameManagerMulti implements IGameManager, Cloneable {
 
     @Override
     public void countPlayersPoints() throws Exception {
-
+        for (Player p : getPlayerList()){
+            int sum = 0;
+            for (ObjectiveCard pubObj : getPublicObjective()){
+                sum += pubObj.countPoints(p);
+            }
+            sum += p.getPrivateObjective().countPoints(p);
+            //TODO: add empty cells' penality and favour bonus
+            rank.put(p,sum);
+        }
     }
 
     @Override
@@ -254,7 +268,8 @@ public class GameManagerMulti implements IGameManager, Cloneable {
 
             if(rounds.getCurrentRound() == 3){ //TODO: keep 3 round during debugging procedue, switch to 10 only in final version
                 isFinished = true;
-                deliverNewStatus(new GameFinishedEvent());
+                countPlayersPoints();
+                deliverNewStatus(new GameFinishedEvent(new HashMap<>(rank)));
                 return;
             }
 

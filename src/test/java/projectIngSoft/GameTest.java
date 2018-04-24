@@ -36,6 +36,7 @@ public class GameTest {
     @Test
     public void testMultiplayer() throws Exception, GameInvalidException {
         IGameManager myModel = new GameManagerMulti(aMultiplePlayerGame);
+        myModel.start();
 
         myModel.countPlayersPoints();
         Player p = myModel.getWinner();

@@ -62,6 +62,10 @@ public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
     @Override
     public void respondTo(GameFinishedEvent event) {
         System.out.println("Game finished!");
+        System.out.println("Final Rank:");
+        for (Player p : localCopyOfTheStatus.getPlayerList()){
+            System.out.println(p.getName() + " => " + event.getRank().get(p));
+        }
         stopResponding = true;
 
     }
