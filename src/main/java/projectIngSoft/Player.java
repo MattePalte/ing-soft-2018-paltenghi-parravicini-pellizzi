@@ -160,7 +160,7 @@ public class Player {
 
     }
 
-    public void placeDieWithoutConstraints(Die aDie, int row, int col){
+    private void placeDieWithoutConstraints(Die aDie, int row, int col){
         placedDice[row][col] =    new Die(aDie);
 
     }

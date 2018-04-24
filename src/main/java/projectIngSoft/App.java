@@ -3,7 +3,6 @@ package projectIngSoft;
 import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.GameManager.GameManagerMulti;
 import projectIngSoft.View.LocalViewCli;
-import projectIngSoft.exceptions.GameInvalidException;
 
 import java.io.FileNotFoundException;
 import java.util.InputMismatchException;
@@ -18,12 +17,7 @@ public class App
         Game theGame = createGame();
 
         if (theGame.isValid()) {
-            IGameManager referee = null;
-            try {
-                referee = new GameManagerMulti(theGame);
-            } catch (GameInvalidException e) {
-                e.printStackTrace();
-            }
+            IGameManager referee = new GameManagerMulti(theGame);
 
             referee.countPlayersPoints();
             Player p = referee.getWinner();
