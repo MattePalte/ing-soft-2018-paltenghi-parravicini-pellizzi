@@ -1,6 +1,7 @@
 package projectIngSoft.View;
 
 import javafx.util.Pair;
+import projectIngSoft.Cards.Objectives.Publics.PublicObjective;
 import projectIngSoft.Cards.ToolCards.*;
 import projectIngSoft.Cards.WindowPatternCard;
 import projectIngSoft.Controller.IController;
@@ -147,13 +148,19 @@ public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
 
 
     private void takeTurn() throws Exception {
-        int cmd = 0;
-        List<String> commands = List.of("Place a die", "Play a toolcard", "End turn","Show my situation", "Show my favours");
+        int cmd = -1;
+        List<String> commands = List.of("Place a die", "Play a toolcard", "Show public objectives","Show my situation", "Show my favours", "End turn");
 
         do {
             System.out.println("Take your turn " + localCopyOfTheStatus.getCurrentPlayer().getName());
+
             try {
                 cmd = chooseIndexFrom(commands);
+            }catch(InterruptActionException ex) {
+                System.out.println("This operation can't be aborted: you must at least end your turn. Please select an action");
+            }
+
+            try{
                 if (cmd == 0) {
                     System.out.println(localCopyOfTheStatus.getCurrentPlayer());
                     Coordinate placePosition = chooseDieCoordinate("Enter where you want to place your die");
@@ -168,7 +175,7 @@ public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
                     aToolCard.fill(this);
                     controller.playToolCard(ownerNameOfTheView, aToolCard);
                 }
-                else if (cmd == 2){
+                else if (cmd == 5){
                     controller.endTurn();
                 } else if (cmd == 3){
                     displayMySituation();
@@ -176,15 +183,20 @@ public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
                 else if(cmd == 4){
                     System.out.println("You still have " + localCopyOfTheStatus.getFavours().get(localCopyOfTheStatus.getCurrentPlayer()));
                 }
+                else if(cmd == 2){
+                    System.out.println("Public objectives: ");
+                    for(PublicObjective card : localCopyOfTheStatus.getPublicObjective())
+                        System.out.println(card);
+                }
             }
             catch(InterruptActionException e){
-                System.out.println("Please select a new action or simply end your turn");
+                System.out.println("Operation aborted. Please select an action");
             }
             catch(Exception e){
                 displayError(e);
             }
         }
-        while(cmd != 2);
+        while(cmd != 5);
     }
 
 
@@ -285,8 +297,6 @@ public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
         try {
             chosenDie =  (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
             aToolcard.setToRoll(chosenDie);
-        } catch (InterruptActionException e){
-            displayError(e);
         } catch (Exception e) {
             displayError(e);
         }
@@ -346,8 +356,6 @@ public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
             System.out.println("Chose from RoundTracker:");
             chosenDieFromRoundTracker =  (Die) chooseFrom(localCopyOfTheStatus.getRoundTracker().getDiceLeftFromRound());
             aToolcard.setDieFromRoundTracker(chosenDieFromRoundTracker);
-        } catch (InterruptActionException e){
-            displayError(e);
         } catch (Exception e) {
             displayError(e);
         }
