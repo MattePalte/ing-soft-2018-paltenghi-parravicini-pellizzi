@@ -178,7 +178,7 @@ public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
                 }
             }
             catch(InterruptActionException e){
-                System.out.println("You can't abort this operation. You must at least end your turn");
+                System.out.println("Please select a new action or simply end your turn");
             }
             catch(Exception e){
                 displayError(e);
@@ -230,7 +230,6 @@ public class LocalViewCli implements IView, IEventHandler, IToolCardFiller {
             System.out.println("Col Index [0 - 4]");
             col = waitForUserInput(0, 4);
         } catch (Exception e){
-            displayError(e);
             System.out.println("Default positon row: 0 col:0 assumed");
         }
         Coordinate myPosition = new Coordinate(row, col);
