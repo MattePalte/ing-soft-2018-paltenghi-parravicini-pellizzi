@@ -204,34 +204,22 @@ public class PlayerTest {
 
             for (int row = 0; row < testPlayer.getPattern().getHeight(); row++) {
                 for (int col = 0; col < testPlayer.getPattern().getWidth(); col++) {
-                    p = new Player(testPlayer);
-                    err = false;
-                    //if there's a color constraint in position row,col
 
-                    //
-                    Constraint aConstraint = p.getPattern().getConstraintsMatrix()[row][col];
-                    if( Colour.validColours().contains(aConstraint.getColour())) {
+
+                    Constraint aConstraint = testPlayer.getPattern().getConstraintsMatrix()[row][col];
+                    for(Die aCompatibleDie: buildDiceAccordingTo(aConstraint)){
+                        p = new Player(testPlayer);
+                        err = false;
                         try {
-                            p.placeDie((new Die(aConstraint.getColour())).rollDie(), row, col);
+                            p.placeDie( aCompatibleDie, row, col);
                         } catch (PatternConstraintViolatedException e) {
                             err = true;
                         } catch (Exception ignored) {
 
                         }
                         Assert.assertFalse(err);
-                    }else if( aConstraint.getValue() > 0){
-                        try {
-                            Colour aRandomColour = Colour.validColours().get( new Random().nextInt(Colour.validColours().size()));
-                            p.placeDie((new Die(aConstraint.getValue(),aRandomColour )), row, col);
-                        } catch (PatternConstraintViolatedException e) {
-                            err = true;
-                        } catch (Exception ignored) {
 
-                        }
-                        Assert.assertFalse(err);
                     }
-
-
 
                 }
             }
@@ -240,53 +228,115 @@ public class PlayerTest {
     }
 
     @Test
+    //Test that force player to raise errors
+    public void testPlaceDieViolatingConstraint(){
+        Player p ;
+        boolean err;
+
+        for (int row = 0; row < testPlayer.getPattern().getHeight(); row++) {
+            for (int col = 0; col < testPlayer.getPattern().getWidth(); col++) {
+                //to simplify test use only edge of the WindowPattern
+                if(col != 0 && col != testPlayerWithWhitePatternCardNoMove.getPattern().getWidth()-1 &&
+                        row != 0 && row != testPlayerWithWhitePatternCardNoMove.getPattern().getHeight() -1) {
+                    continue;
+                }
+
+                Constraint aConstraint = testPlayer.getPattern().getConstraintsMatrix()[row][col];
+                for(Die aCompatibleDie: buildDiceDisappointing(aConstraint)){
+                    p = new Player(testPlayer);
+                    err = false;
+                    try {
+                        p.placeDie( aCompatibleDie, row, col);
+                    } catch (PatternConstraintViolatedException e) {
+                        err = true;
+                    } catch (Exception ignored) {
+
+                    }
+                    Assert.assertTrue(err);
+
+                }
+
+            }
+        }
+
+
+    }
+
+    @Test
     //This test tries with a recursive fashion to complete the windowPattern
     //since the dice are build up from scratch considering constraints limitation the placeDieMethod do not raise a PatternConstraintsViolatedException
     public void tryToCompleteTheWindow(){
-        testPlayer.resetDieFlag();
-        Player res = tryToCompleteTheWindow(testPlayer, 0, 0);
-        System.out.println("Schema completed:"+res);
+
+        for(Die aCompatibleDie : buildDiceAccordingTo(testPlayer.getPattern().getConstraintsMatrix()[testPlayer.getPattern().getHeight()-1 ][testPlayer.getPattern().getWidth()-1 ])){
+            Player p = new Player(testPlayer);
+
+            p.placeDieWithoutConstraints(aCompatibleDie, p.getPattern().getHeight()-1, p.getPattern().getWidth()-1 );
+
+            Player res = tryToCompleteTheWindow(p, 0, 0);
+            System.out.println("Schema completed:"+res);
+        }
+
 
     }
 
     private Player tryToCompleteTheWindow(Player p, int row, int col) {
-        Player localPlayer;
-        Player result;
+        Player localPlayer ;
+        Player result = null;
 
-        Constraint aConstraint = p.getPattern().getConstraintsMatrix()[row][col];
-        ArrayList<Die> compatiblesWithConstraint = buildDiceAccordingTo(aConstraint);
+        if(p.getPlacedDice()[row][col] == null) {
+            Constraint aConstraint = p.getPattern().getConstraintsMatrix()[row][col];
+            ArrayList<Die> compatiblesWithConstraint = buildDiceAccordingTo(aConstraint);
 
-        for( Die aDieCompatibleWithConstraint : compatiblesWithConstraint ) {
-            localPlayer = new Player(p);
+            for (Die aDieCompatibleWithConstraint : compatiblesWithConstraint) {
+                localPlayer = new Player(p);
 
-            try {
-                localPlayer.placeDie(aDieCompatibleWithConstraint, row, col);
-            } catch (PatternConstraintViolatedException e) {
-                Assert.fail(e.getMessage());
-            } catch (Exception ignored) {
-                continue;
+                try {
+                    localPlayer.placeDie(aDieCompatibleWithConstraint, row, col);
+                } catch (PatternConstraintViolatedException e) {
+                    Assert.fail(e.getMessage());
+                } catch (Exception ignored) {
+                    continue;
+                }
+
+                //System.out.println(localPlayer);
+                localPlayer.resetDieFlag();
+
+
+                if (row == localPlayer.getPattern().getHeight() - 1 && col == localPlayer.getPattern().getWidth() - 1)
+                    return localPlayer;
+                else if (col == p.getPattern().getWidth() - 1) {
+                    result = tryToCompleteTheWindow(new Player(localPlayer), row + 1, 0);
+                } else {
+                    result = tryToCompleteTheWindow(new Player(localPlayer), row, col + 1);
+                }
+
+                if(result != null)
+                    return result;
+
             }
+        }else{
+                if (row == p.getPattern().getHeight() - 1 && col == p.getPattern().getWidth() - 1)
+                    return p;
+                else if (col == p.getPattern().getWidth() - 1) {
+                    result = tryToCompleteTheWindow(new Player(p), row + 1, 0);
+                } else {
+                    result = tryToCompleteTheWindow(new Player(p), row, col + 1);
+                }
 
-            localPlayer.resetDieFlag();
-
-
-            if(row == localPlayer.getPattern().getHeight()-1 && col == localPlayer.getPattern().getWidth()-1 )
-                return localPlayer;
-            else if(col == p.getPattern().getWidth()-1 ){
-                result = tryToCompleteTheWindow( new Player(localPlayer), row+1, 0);
-            }else{
-                result = tryToCompleteTheWindow( new Player(localPlayer), row, col+1);
-            }
-
-            if(result != null)
-                return result;
         }
-        return  null;
+
+
+        return result;
+
     }
 
     private ArrayList<Die> buildDiceAccordingTo(Constraint aConstraint){
         ArrayList<Die> ret = new ArrayList<>();
         for(Colour aColour : Colour.validColours()){
+            //Dice that are said to be compatible with a Constraint have
+            //the same color/value shown in the constraint
+            //or if the constraint represent a blankspace aConstraint.getColour() == Colour.WHITE && aConstraint.getValue() == 0
+            //a random die would be fine
             if(aConstraint.getColour() != Colour.WHITE && aColour != aConstraint.getColour())
                 continue;
 
@@ -304,6 +354,7 @@ public class PlayerTest {
     private ArrayList<Die> buildDiceAccordingTo(Die aDie){
         ArrayList<Die> ret = new ArrayList<>();
         for(Colour aColour : Colour.validColours()){
+            //dice are said to be compatible if they have both different colour AND value
             if( aDie.getColour() != Colour.WHITE && aColour != aDie.getColour() )
                 continue;
 
@@ -318,7 +369,7 @@ public class PlayerTest {
         return ret;
     }
 
-    private ArrayList<Die> AllDice(){
+    private ArrayList<Die> allDice(){
         ArrayList<Die> ret = new ArrayList<>();
         for(Colour aColour : Colour.validColours()){
             for (int i = 1; i <= 6 ; i++) {
@@ -329,8 +380,14 @@ public class PlayerTest {
     }
 
     private ArrayList<Die> buildDiceDisappointing(Die aDie){
-        ArrayList<Die> ret = AllDice();
+        ArrayList<Die> ret = allDice();
         ret.removeAll(buildDiceAccordingTo(aDie));
+        return ret;
+    }
+
+    private ArrayList<Die> buildDiceDisappointing(Constraint aContraint){
+        ArrayList<Die> ret = allDice();
+        ret.removeAll(buildDiceAccordingTo(aContraint));
         return ret;
     }
 
@@ -398,6 +455,7 @@ public class PlayerTest {
     }
 
     @Test
+    //Ensures that when 2 dice are put in the same turn an exception is raised
     public void testTwoDieSameTurn(){
         for (int i = 0; i <= 6; i++) {
             ArrayList otherColors = new ArrayList<>(Colour.validColours());
@@ -425,8 +483,8 @@ public class PlayerTest {
 
     }
 
-
     @Test
+    //Test that an exception is raised when 2 dice are put on the same coordinates
     public void testTwoDieSameCoordinate(){
         for (int i = 0; i <= 6; i++) {
             ArrayList otherColors = new ArrayList<>(Colour.validColours());
@@ -453,6 +511,60 @@ public class PlayerTest {
                 Assert.fail(ex.getMessage());
             }
         }
+
+    }
+
+    @Test
+    //Test that an exception is thrown when you're trying to put a die in places that are away from
+    //other previous put dice
+    public void testDistanceControl(){
+        Player p, p1;
+        Random rnd = new Random();
+        boolean err;
+
+        Die aDie = new Die(Colour.validColours().get(rnd.nextInt(Colour.validColours().size()))).rollDie();
+
+
+        for (int row = 0; row < testPlayerWithWhitePatternCardNoMove.getPattern().getHeight(); row++) {
+            for (int col = 0; col < testPlayerWithWhitePatternCardNoMove.getPattern().getWidth(); col++) {
+                if(col != 0 && col != testPlayerWithWhitePatternCardNoMove.getPattern().getWidth()-1 &&
+                        row != 0 && row != testPlayerWithWhitePatternCardNoMove.getPattern().getHeight() -1) {
+                    continue;
+                }
+
+                p = new Player(testPlayerWithWhitePatternCardNoMove);
+                err = false;
+                try {
+                    p.placeDie(aDie, row, 0);
+                } catch (RuleViolatedException e) {
+                    err = true;
+                } catch (Exception ignored) {
+
+                }
+                Assert.assertFalse(err);
+                p.resetDieFlag();
+
+                for (int otherRow = 0; otherRow < p.getPattern().getHeight(); otherRow++) {
+                    for (int otherCol = 0; otherCol < p.getPattern().getWidth(); otherCol++) {
+                        if (otherCol != col ^ otherRow != row) {
+                            for (Die otherDie : buildDiceAccordingTo(aDie)) {
+                                p1 = new Player(p);
+                                err = false;
+                                try {
+                                    p1.placeDie(otherDie, otherRow, otherCol);
+                                } catch (Exception ex) {
+                                    err = true;
+                                }
+                                Assert.assertTrue(err);
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+
+
 
     }
 
