@@ -5,7 +5,6 @@ import org.junit.*;
 
 import projectIngSoft.Cards.Constraint;
 import projectIngSoft.Cards.WindowPatternCard;
-import projectIngSoft.exceptions.GameInvalidException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,12 +19,7 @@ public class WindowPatternTest {
 
 
         for(int i = 0; i < 12; i++) {
-            WindowPatternCard window = null;
-            try {
-                window = WindowPatternCard.loadFromScanner(input);
-            } catch (GameInvalidException e) {
-                e.printStackTrace();
-            }
+            WindowPatternCard window = WindowPatternCard.loadFromScanner(input);
             System.out.println(window.getFrontPattern());
             System.out.println(window.getRearPattern() );
             input.nextLine();

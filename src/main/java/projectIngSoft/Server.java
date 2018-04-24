@@ -5,7 +5,6 @@ import projectIngSoft.Controller.IController;
 import projectIngSoft.GameManager.GameManagerMulti;
 import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.View.LocalViewCli;
-import projectIngSoft.exceptions.GameInvalidException;
 
 import java.io.FileNotFoundException;
 
@@ -21,12 +20,7 @@ public class Server
         aMultiplePlayerGame.add(new Player("Daniele", new LocalViewCli("Daniele")));
         aMultiplePlayerGame.add(new Player("Kris", new LocalViewCli("Kris")));
         // Create related model
-        IGameManager myModel = null;
-        try {
-            myModel = new GameManagerMulti(aMultiplePlayerGame);
-        } catch (GameInvalidException e) {
-            e.printStackTrace();
-        }
+        IGameManager myModel = new GameManagerMulti(aMultiplePlayerGame);
         // Create a unique controller for every player of this match
         IController fantasticController = new Controller(myModel);
         // give a reference of the controller to every view
@@ -34,11 +28,7 @@ public class Server
         for (Player p : myModel.getPlayerList())
             p.giveControllerToTheView(fantasticController);
 
-        try {
-            myModel.setupPhase();
-        } catch (GameInvalidException e) {
-            e.printStackTrace();
-        }
+        myModel.setupPhase();
 
         System.out.println("This is the end of the game. Hope you enjoyed");
 

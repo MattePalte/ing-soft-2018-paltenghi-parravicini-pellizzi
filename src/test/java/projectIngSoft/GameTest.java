@@ -11,7 +11,6 @@ import org.junit.*;
 import projectIngSoft.GameManager.GameManagerSingle;
 import projectIngSoft.View.ClientViewCLI;
 import projectIngSoft.View.LocalViewCli;
-import projectIngSoft.exceptions.GameInvalidException;
 
 public class GameTest {
 
@@ -34,7 +33,7 @@ public class GameTest {
 
 
     @Test
-    public void testMultiplayer() throws Exception, GameInvalidException {
+    public void testMultiplayer() throws Exception {
         IGameManager myModel = new GameManagerMulti(aMultiplePlayerGame);
 
         myModel.countPlayersPoints();
