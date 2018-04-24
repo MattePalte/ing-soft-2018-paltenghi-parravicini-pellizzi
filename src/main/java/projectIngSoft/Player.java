@@ -63,8 +63,10 @@ public class Player {
         return name;
     }
 
-    public void setPatternCard(WindowPatternCard aPatternCard) {
-        this.myWindowPatternCard = aPatternCard;
+    public void setPatternCard(WindowPatternCard aWindowPatternCard) {
+
+
+        this.myWindowPatternCard = (aWindowPatternCard);
         this.placedDice = new Die[getPattern().getHeight()][getPattern().getWidth()];
     }
 
@@ -130,6 +132,12 @@ public class Player {
 
     }
 
+    private void placeDieWithoutConstraints(Die aDie, int row, int col){
+        placedDice[row][col] =    new Die(aDie);
+        hasPlacedADieInThisTurn = true;
+        hasEverPlacedADie =       true;
+
+    }
 
     // Exceptions thrown if:
     //      a die is placed in an occupied position -> PositionOccupiedException
@@ -144,71 +152,52 @@ public class Player {
         }
 
 
-        if(hasEverPlacedADie) {
-            checkPresenceOfAnAdjacentDie(row, col);
-            checkAdjacentHaveCompatibleValues(aDie, row, col);
-        }else if( row !=0 && row != getPattern().getHeight()-1 && col != 0 && col != getPattern().getWidth()-1){
+        if(!hasEverPlacedADie && row !=0 && row != getPattern().getHeight()-1 && col != 0 && col != getPattern().getWidth()-1){
             throw new RuleViolatedException("Each player’s first die of the game must be placed on an edge or corner space");
+
         }
 
 
-        checkConstraints                  (aDie, row, col);
+        checkPlaceDie                     (aDie, row, col, true, true, hasEverPlacedADie);
         placeDieWithoutConstraints        (aDie, row, col);
 
-        hasPlacedADieInThisTurn = true;
-        hasEverPlacedADie =       true;
 
     }
 
-    private void placeDieWithoutConstraints(Die aDie, int row, int col){
-        placedDice[row][col] =    new Die(aDie);
-
-    }
-
-    public void moveDie(Coordinate start, Coordinate end, boolean checkColour, boolean checkValue) throws RuleViolatedException {
+    public void moveDie(Coordinate start, Coordinate end, boolean checkColour, boolean checkValue, boolean checkPresence) throws RuleViolatedException, PatternConstraintViolatedException {
         if (placedDice[end.getRow()][end.getCol()] != null)
             throw new RuleViolatedException("The destination cell is already occupied");
         if (placedDice[start.getRow()][start.getCol()] == null)
             throw new RuleViolatedException("There's no die to move at the specified cell");
         Die dieToMove = placedDice[start.getRow()][start.getCol()];
-        placedDice[end.getRow()][end.getCol()] = dieToMove;
-        placedDice[start.getRow()][start.getCol()] = null;
-        // TODO: differentiate between check value and check colours
-        if (checkColour && checkValue) checkAdjacentHaveCompatibleValues(dieToMove, end.getRow(), end.getCol());
+
+
+        checkPlaceDie(dieToMove, end.getRow(), end.getCol(), checkColour, checkValue, checkPresence);
     }
 
-    private void checkAdjacentHaveCompatibleValues(Die toBePlacedDie, int row, int col) throws RuleViolatedException {
-        ArrayList<Die> orthogonalAdjacent = getOrthogonalAdjacents(getPlacedDice(),row,col);
-
-        for(int i = 0; i < orthogonalAdjacent.size(); i++){
-            Die alreadyPlacedDie = orthogonalAdjacent.get(i);
-
-            if(alreadyPlacedDie != null && (alreadyPlacedDie.getValue() == toBePlacedDie.getValue() || alreadyPlacedDie.getColour().equals(toBePlacedDie.getColour())) ) {
-                throw new RuleViolatedException("Ehi! You are trying to place a die with the same colour or the same value than an adjacent die. You can't do whatever you want! You must follow the rules");
-            }
-        }
-    }
-
-    private void checkPresenceOfAnAdjacentDie( int row, int col) throws RuleViolatedException {
-        for (int deltaRow = -1; deltaRow <= 1 ; deltaRow++) {
-            for (int deltaCol = -1; deltaCol <= 1; deltaCol++) {
-
-                if(     !(deltaCol == 0 && deltaRow == 0) &&
-                        row+deltaRow >=0 && row+deltaRow < getPattern().getHeight() &&
-                        col+deltaCol >= 0 && col+deltaCol < getPattern().getWidth() &&
-                        placedDice[row+deltaRow][col+deltaCol] != null)
-                   return;
-            }
-        }
-        throw new RuleViolatedException("Die must be placed near an already placed die!");
-    }
-
-    private void checkConstraints(Die aDie,int row, int col) throws PatternConstraintViolatedException {
+    private void checkPlaceDie(Die aDie, int row, int col, boolean checkColor, boolean checkValue, boolean checkPresence) throws RuleViolatedException, PatternConstraintViolatedException {
+        //check pattern contraint in row,col
         Constraint actualConstraint = getPattern().getConstraintsMatrix()[row][col];
-        if(!actualConstraint.compatibleWith(aDie))
-            throw new PatternConstraintViolatedException("Ehi, you cheater! You are violating a constraint on your pattern! Try again, and play fairly!");
-    }
 
+        if(checkColor && !actualConstraint.compatibleWithColour(aDie))
+            throw new PatternConstraintViolatedException("Ehi, you cheater! You are violating a Color constraint on your pattern! Try again, and play fairly!");
+        if(checkValue && !actualConstraint.compatibleWithValue(aDie) )
+            throw new PatternConstraintViolatedException("Ehi, you cheater! You are violating a Value constraint on your pattern! Try again, and play fairly!");
+
+
+        for(Die aOrthogonalDie : getOrthogonalAdjacents(getPlacedDice(),row,col)){
+
+
+            if(checkColor && aOrthogonalDie.getColour().equals(aDie.getColour()))
+                throw new RuleViolatedException("Ehi! You are trying to place a die with the same colour. You can't do whatever you want! You must follow the rules");
+            if(checkValue && aOrthogonalDie.getValue() == aDie.getValue())
+                throw new RuleViolatedException("Ehi! You are trying to place the same value than an adjacent die. You can't do whatever you want! You must follow the rules");
+        }
+
+        if(checkPresence && !isThereAnAdjacentDie(row, col)){
+            throw new RuleViolatedException("Die must be placed near an already placed die!");
+        }
+    }
 
     private ArrayList<Die> getOrthogonalAdjacents(Die[][] placedDice, int row, int col){
         ArrayList<Die> ret = new ArrayList<>();
@@ -223,6 +212,20 @@ public class Player {
             ret.add(placedDice[row-1][col]);
 
         return ret;
+    }
+
+    private boolean isThereAnAdjacentDie(int row, int col)  {
+        for (int deltaRow = -1; deltaRow <= 1 ; deltaRow++) {
+            for (int deltaCol = -1; deltaCol <= 1; deltaCol++) {
+
+                if(     !(deltaCol == 0 && deltaRow == 0) &&
+                        row+deltaRow >=0 && row+deltaRow < getPattern().getHeight() &&
+                        col+deltaCol >= 0 && col+deltaCol < getPattern().getWidth() &&
+                        placedDice[row+deltaRow][col+deltaCol] != null)
+                   return true;
+            }
+        }
+        return false;
     }
 
 

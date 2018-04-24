@@ -64,18 +64,28 @@ public class PlayerTest {
         try {
 
             System.out.println(p );
-            p .placeDieWithoutConstraints(new Die(3, Colour.RED),1,1);
+            p .placeDie(new Die(2, Colour.YELLOW),0,0);
+            p.resetDieFlag();
             System.out.println(p );
-            p .placeDieWithoutConstraints(new Die(3, Colour.GREEN),1,1);
+            p .placeDie(new Die(3, Colour.BLUE),0,1);
+            p.resetDieFlag();
             System.out.println(p );
-            p .placeDieWithoutConstraints(new Die(3, Colour.BLUE),1,1);
+            p .placeDie(new Die(4, Colour.RED),0,2);
+            p.resetDieFlag();
             System.out.println(p );
-            p .placeDieWithoutConstraints(new Die(3, Colour.VIOLET),1,1);
+            p .placeDie(new Die(5, Colour.GREEN),0,3);
+            p.resetDieFlag();
             System.out.println(p );
-            p .placeDieWithoutConstraints(new Die(3, Colour.YELLOW),1,1);
+            p .placeDie(new Die(1, Colour.VIOLET),0,4);
+            p.resetDieFlag();
+            System.out.println(p );
+            p .placeDie(new Die(6, Colour.GREEN),1,0);
+            p.resetDieFlag();
+
+
             System.out.println(p );
         } catch (Exception e) {
-            e.printStackTrace();
+           Assert.fail(e.getMessage());
         }
     }
 
@@ -270,7 +280,12 @@ public class PlayerTest {
         for(Die aCompatibleDie : buildDiceAccordingTo(testPlayer.getPattern().getConstraintsMatrix()[testPlayer.getPattern().getHeight()-1 ][testPlayer.getPattern().getWidth()-1 ])){
             Player p = new Player(testPlayer);
 
-            p.placeDieWithoutConstraints(aCompatibleDie, p.getPattern().getHeight()-1, p.getPattern().getWidth()-1 );
+            /*try {
+                p.placeDie(aCompatibleDie, p.getPattern().getHeight()-1, p.getPattern().getWidth()-1 );
+                p.resetDieFlag();
+            } catch (Exception e){
+                Assert.fail("cannot place the first die in the last corner ");
+            }*/
 
             Player res = tryToCompleteTheWindow(p, 0, 0);
             System.out.println("Schema completed:"+res);

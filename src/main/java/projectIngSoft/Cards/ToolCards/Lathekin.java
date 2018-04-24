@@ -37,8 +37,8 @@ public class Lathekin extends ToolCard {
     @Override
     public void applyEffect(Player p, IGameManager m) throws Exception {
         checkParameters(p,m);
-        p.moveDie(firstDieStartPosition, firstDieEndPosition, true, true);
-        p.moveDie(secondDieStartPosition, secondDieEndPosition, true, true);
+        p.moveDie(firstDieStartPosition, firstDieEndPosition, true, true, true);
+        p.moveDie(secondDieStartPosition, secondDieEndPosition, true, true, true);
     }
 
     @Override

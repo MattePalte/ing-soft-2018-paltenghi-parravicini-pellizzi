@@ -34,7 +34,7 @@ public class PinzaSgrossatrice extends ToolCard {
         if ((choosenDie.getValue() == 6 && toBeIncreased )||(choosenDie.getValue() == 1 && !toBeIncreased )) throw new Exception("invalid operation: 6-> 1 or 1->6");
         Die newDie = (toBeIncreased ? new Die(choosenDie.getValue() + 1, choosenDie.getColour()) : new Die(choosenDie.getValue() - 1, choosenDie.getColour()));
         m.addToDraft(newDie);
-        //TODO: decide where to save that a toolCard has been used for the first time fav cost: 1 -> 2
+
     }
 
     @Override

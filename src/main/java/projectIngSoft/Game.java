@@ -17,7 +17,7 @@ public class Game {
 
         (* everything is initialized *)
     */
-    public Game(int theNumOfPlayer) throws FileNotFoundException, Colour.ColorNotFoundException {
+    public Game(int theNumOfPlayer) {
         // set required number of players for this game
         numPlayers = theNumOfPlayer;
         // initialize emplty list of player

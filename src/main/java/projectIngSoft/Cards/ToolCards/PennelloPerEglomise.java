@@ -27,7 +27,7 @@ public class PennelloPerEglomise extends ToolCard {
     @Override
     public void applyEffect(Player p, IGameManager m) throws Exception {
         checkParameters(p,m);
-        p.moveDie(startPosition, endPosition, true, true);
+        p.moveDie(startPosition, endPosition, true, true, true);
     }
 
     @Override
