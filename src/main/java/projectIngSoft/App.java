@@ -16,7 +16,7 @@ public class App
         Scanner scanner = new Scanner(System.in);
         Game theGame = createGame();
 
-        if (theGame.isValid()) {
+        /*if (theGame.isValid()) {
             IGameManager referee = new GameManagerMulti(theGame);
 
             referee.countPlayersPoints();
@@ -25,7 +25,7 @@ public class App
         } else {
             System.out.print("Invalid Game created... \n");
         }
-
+*/
 
 
     }

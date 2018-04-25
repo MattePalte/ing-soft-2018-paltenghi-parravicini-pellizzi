@@ -32,7 +32,7 @@ public interface IGameManager {
 
     Player getWinner()                                  throws Exception;
     void start()                                        throws Exception;
-    void setupPhase()                                   throws Exception;
+    void setupPhase();
     void playToolCard(ToolCard aToolCard)               throws Exception;
     void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception;
     void removeFromDraft(Die aDie);
@@ -44,7 +44,6 @@ public interface IGameManager {
 
     void requestUpdate();
     void deliverNewStatus(Event event);
-    // Can't call it clone because it clashes with Object.clone()
-    IGameManager clone();
+
 
 }

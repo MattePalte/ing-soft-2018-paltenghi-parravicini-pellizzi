@@ -1,6 +1,7 @@
 package projectIngSoft;
 
 
+import projectIngSoft.GameManager.GameManagerFactory;
 import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.GameManager.GameManagerMulti;
 
@@ -34,7 +35,7 @@ public class GameTest {
 
     @Test
     public void testMultiplayer() throws Exception {
-        IGameManager myModel = new GameManagerMulti(aMultiplePlayerGame);
+        IGameManager myModel = GameManagerFactory.factory(aMultiplePlayerGame);
         myModel.start();
 
         myModel.countPlayersPoints();
@@ -45,12 +46,12 @@ public class GameTest {
 
     @Test
     public void testSinglePlayer() throws Exception {
-        /*
-        IGameManager referee = new GameManagerSingle(aSinglePlayerGame);
+
+        IGameManager referee = GameManagerFactory.factory(aSinglePlayerGame);
         referee.countPlayersPoints();
         Player p = referee.getWinner();
-        Assert.assertTrue(p.equals(new Player("Kris", new LocalViewCli())));
+        Assert.assertTrue(p.equals(new Player("Kris", new LocalViewCli("Kris"))));
         System.out.println("Player "+ p +" wins!");
-        */
+
     }
 }

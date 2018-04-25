@@ -92,6 +92,8 @@ public class Player {
     }
 
     public WindowPattern getPattern(){
+        if(myWindowPatternCard == null)
+            return null;
         return !isPatternFlipped ? myWindowPatternCard.getFrontPattern() : myWindowPatternCard.getRearPattern();
     }
 
@@ -268,20 +270,24 @@ public class Player {
         aBuilder.append("\n");
 
         String tmp;
-        Constraint[][] constraintsMatrix = getPattern().getConstraintsMatrix();
+        if(getPattern() == null){
+            aBuilder.append("Not already chosen a pattern card");
+        }else {
+            Constraint[][] constraintsMatrix = getPattern().getConstraintsMatrix();
 
-        for (int r = 0; r < constraintsMatrix.length ; r++) {
-            for (int c = 0; c < constraintsMatrix[0].length; c++) {
-                //if die was placed
-                if(placedDice[r][c] != null){
-                    tmp = placedDice[r][c].toString();
-                }else{
-                    //else take the constrain representation intself
-                    tmp = constraintsMatrix[r][c].toString();
+            for (int r = 0; r < constraintsMatrix.length; r++) {
+                for (int c = 0; c < constraintsMatrix[0].length; c++) {
+                    //if die was placed
+                    if (placedDice[r][c] != null) {
+                        tmp = placedDice[r][c].toString();
+                    } else {
+                        //else take the constrain representation intself
+                        tmp = constraintsMatrix[r][c].toString();
+                    }
+                    aBuilder.append(constraintsMatrix[r][c].getColour().ColourBackground(tmp));
                 }
-                aBuilder.append(constraintsMatrix[r][c].getColour().ColourBackground(tmp));
+                aBuilder.append("\n");
             }
-            aBuilder.append("\n");
         }
         aBuilder.append("---------------------\n");
         return aBuilder.toString();

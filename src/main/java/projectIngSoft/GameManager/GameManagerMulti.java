@@ -42,12 +42,67 @@ public class GameManagerMulti implements IGameManager, Cloneable {
     private boolean isFinished;
 
     //@Signals Exception aGame.isValid() || aGame.numOfPlayers() <= 1 or aGame.numOfPlayers()> 4
-    public GameManagerMulti(Game aGame) throws GameInvalidException {
-        isFinished = false;
-        if (!aGame.isValid() || aGame.getNumberOfPlayers() <= 1  || aGame.getNumberOfPlayers() > 4  )
+    public GameManagerMulti(Game aGame,
+                            List<PublicObjective> availablePublicObjectives,
+                            List<PrivateObjective> availablePrivateObjectives,
+                            List<ToolCard> availableToolCards,
+                            List<WindowPatternCard> availableWindowPatternCards) throws GameInvalidException {
 
-            throw  new GameInvalidException("Game is not valid!");
+        isFinished = false;
+        if (!aGame.isValid() || aGame.getNumberOfPlayers() <= 1  || aGame.getNumberOfPlayers() > 4  ) {
+            throw new GameInvalidException("Game is not valid!");
+
+        }
         currentGame = new Game(aGame);
+        // initialize empty draft pool
+        draftPool = new ArrayList<>();
+        // initialize Round Tracker obj
+        rounds = new RoundTracker();
+        // create dies and populate Die Bag
+        diceBag = createDice();
+        //initialize hashMap favours
+        favours = new HashMap<>();
+        //initialize hashMap rank
+        rank = new ArrayList<>();
+        //initialize toolCards cost
+        toolCardCost = new HashMap<>();
+
+        // Shuffle everything
+        Collections.shuffle(diceBag);
+        Collections.shuffle(availablePublicObjectives);
+        Collections.shuffle(availablePrivateObjectives);
+        Collections.shuffle(availableWindowPatternCards);
+        Collections.shuffle(availableToolCards);
+
+        // extract in a random fashion 3 toolCard
+        this.toolCards = availableToolCards.stream().limit(3).collect(Collectors.toCollection(ArrayList::new));
+        for(ToolCard card : toolCards){
+            toolCardCost.put(card, 1);
+        }
+        // remove cards and leave only 3 publicObjective card for the game
+        this.publicObjectives = availablePublicObjectives.stream().limit(3).collect(Collectors.toCollection(ArrayList::new));
+        // leave privateObjective equals the number of players in the game
+        ArrayList<PrivateObjective> privateObjectives = availablePrivateObjectives.stream().
+                limit(currentGame.getNumberOfPlayers()).collect(Collectors.toCollection(ArrayList::new));
+        // leave windowPatterns equals the 2*number of players in the game
+        ArrayList<WindowPatternCard> windowPatterns   = availableWindowPatternCards.stream().
+                limit(currentGame.getNumberOfPlayers()*2).collect(Collectors.toCollection(ArrayList::new));
+
+        this.currentTurnList = createTurns(currentGame.getPlayers());
+
+        // do 1, 2 operation for each player
+        for (Player p : currentGame.getPlayers()) {
+            // 1 - randomly distribute PrivateObjectiveCards
+            PrivateObjective randomPrivateObjective = privateObjectives.remove(0);
+            p.setPrivateObjective(randomPrivateObjective);
+
+            ArrayList<WindowPatternCard> selectedPatternCards = new ArrayList<>();
+            //2 -extract windowPatternCard and let them choose according to their will
+            for(int i = 0; i < 2; i++){
+                selectedPatternCards.add(windowPatterns.remove(0));
+            }
+            p.givePossiblePatternCard(new ArrayList<>(selectedPatternCards));
+        }
     }
 
     @Override
@@ -76,9 +131,6 @@ public class GameManagerMulti implements IGameManager, Cloneable {
         this.isFinished         = gameManagerMulti.isFinished;
     }
 
-    public GameManagerMulti clone() {
-        return new GameManagerMulti(this);
-    }
 
 
     @Override
@@ -124,83 +176,19 @@ public class GameManagerMulti implements IGameManager, Cloneable {
         drawDice();
         getCurrentPlayer().resetDieFlag();
         deliverNewStatus(new FinishedSetupEvent());
-        deliverNewStatus(new ModelChangedEvent(this));
+        deliverNewStatus(new ModelChangedEvent(new GameManagerMulti(this)));
         getCurrentPlayer().update(new myTurnStartedEvent());
 
     }
 
-    public void setupPhase() throws Exception {
-        //TODO: move inizialization into a static method, where just copying pre-initialized elements.
-        //TODO: get class contained in projectIngSoft.Cards.Objectives.public.* instead of using a method in every referee. in order to use something like Cards.max4Players.deckOfPublicObjectives .
+    @Override
+    public void setupPhase() {
+        //distribute event for selecting a WindowPatternCard
 
-        // initialize empty draft pool
-        draftPool = new ArrayList<>();
-
-        // initialize Round Tracker obj
-        rounds = new RoundTracker();
-
-        // create dies and populate Die Bag
-        diceBag = createDice();
-
-        // initialize private Objective cards
-        ArrayList<PrivateObjective> privateObjectives = createPrivateObjectives();
-
-        // initialize public Objective cards
-        publicObjectives =  createPublicObjectives();
-
-        // initialize window pattern cards
-        ArrayList<WindowPatternCard> windowPatterns = createPatternCards();
-
-        //initialize toolcards
-        toolCards = createToolCards();
-
-        //initialize hashMap favours
-        favours = new HashMap<>();
-
-        //initialize hashMap rank
-        rank = new ArrayList<>();
-
-        //initialize toolcards cost
-        toolCardCost = new HashMap<>();
-        for(ToolCard card : toolCards){
-            toolCardCost.put(card, 1);
+        for(Player p : currentGame.getPlayers()){
+            p.update(new ModelChangedEvent(new GameManagerMulti(this)));
+            p.update(new PatternCardDistributedEvent(p.getPossiblePatternCard().get(0), p.getPossiblePatternCard().get(1) ));
         }
-
-        // Shuffle everything
-        Collections.shuffle(diceBag);
-        Collections.shuffle(publicObjectives);
-        Collections.shuffle(privateObjectives);
-        Collections.shuffle(windowPatterns);
-        Collections.shuffle(toolCards);
-
-        // extract in a random fashion 3 toolCard
-        toolCards = toolCards.stream().limit(3).collect(Collectors.toCollection(ArrayList::new));
-
-        // remove cards and leave only 3 publicObjective card for the game
-        publicObjectives = publicObjectives.stream().limit(3).collect(Collectors.toCollection(ArrayList::new));
-
-        currentTurnList = createTurns(currentGame.getPlayers());
-
-        // do 1, 2 operation for each player
-        for (Player p : currentGame.getPlayers()) {
-            // 1 - randomly distribute PrivateObjectiveCards
-            PrivateObjective randomPrivateObjective = privateObjectives.remove(0);
-            p.setPrivateObjective(randomPrivateObjective);
-
-            ArrayList<WindowPatternCard> selectedPatternCards = new ArrayList<>();
-            //2 -extract windowPatternCard and let them choose according to their will
-            for(int i = 0; i < 2; i++){
-                selectedPatternCards.add((WindowPatternCard)windowPatterns.remove(0));
-            }
-
-            p.givePossiblePatternCard(new ArrayList<>(selectedPatternCards));
-            p.update( new PatternCardDistributedEvent(selectedPatternCards.get(0), selectedPatternCards.get(1)));
-        }
-
-
-
-
-
     }
 
     @Override
@@ -242,7 +230,7 @@ public class GameManagerMulti implements IGameManager, Cloneable {
 
             rank.add( new Pair<>(p, sum));
         }
-        //TODO: comparison when parity on the last order of the round
+
         rank.sort(Comparator
                     .comparingInt((ToIntFunction<Pair<Player, Integer>>) Pair::getValue)
                     .thenComparingInt((Pair<Player, Integer> p)-> p.getKey().countPrivateObjectivesPoints() )
@@ -268,6 +256,8 @@ public class GameManagerMulti implements IGameManager, Cloneable {
     @Override
     public void requestUpdate() {
 
+        deliverNewStatus( new ModelChangedEvent( new GameManagerMulti(this)));
+
     }
 
     @Override
@@ -279,18 +269,22 @@ public class GameManagerMulti implements IGameManager, Cloneable {
 
     @Override
     public Player getWinner() throws Exception {
-        return null;
+        return rank.get(0).getKey();
     }
 
     @Override
     public void playToolCard(ToolCard aToolCard) throws Exception {
-        aToolCard.applyEffect(getCurrentPlayer(), this);
+        //Because apply effect embed some test of the fields passed with the toolcard itself
+
         if(favours.get(getCurrentPlayer()) < toolCardCost.get(aToolCard))
             throw new RuleViolatedException("Ehi! You don't have enough favours to do that, poor man!!");
+
+        aToolCard.applyEffect(getCurrentPlayer(), this);
+
         int actualFavours = favours.get(getCurrentPlayer());
         favours.replace(getCurrentPlayer(), actualFavours - toolCardCost.get(aToolCard));
         toolCardCost.replace(aToolCard, 2);
-        getCurrentPlayer().update( new ModelChangedEvent(this));
+        getCurrentPlayer().update( new ModelChangedEvent(new GameManagerMulti(this)));
     }
 
     @Override
@@ -298,7 +292,7 @@ public class GameManagerMulti implements IGameManager, Cloneable {
         getCurrentPlayer().placeDie(aDie,rowIndex,colIndex);
         draftPool.remove(aDie);
 
-        getCurrentPlayer().update( new ModelChangedEvent(this));
+        getCurrentPlayer().update( new ModelChangedEvent(new GameManagerMulti(this)));
     }
 
 
@@ -326,7 +320,7 @@ public class GameManagerMulti implements IGameManager, Cloneable {
             drawDice();
         }
         getCurrentPlayer().resetDieFlag();
-        deliverNewStatus( new ModelChangedEvent(this));
+        deliverNewStatus( new ModelChangedEvent(new GameManagerMulti(this)));
         getCurrentPlayer().update(new myTurnStartedEvent());
 
     }
@@ -380,73 +374,7 @@ public class GameManagerMulti implements IGameManager, Cloneable {
         return tmp;
     }
 
-    private ArrayList<PrivateObjective> createPrivateObjectives() {
-        ArrayList<PrivateObjective> tmp = new ArrayList<>();
 
-        tmp.add(new SfumatureBlu());
-        tmp.add(new SfumatureGialle());
-        tmp.add(new SfumatureRosse());
-        tmp.add(new SfumatureVerdi());
-        tmp.add(new SfumatureViola());
-
-        return tmp;
-    }
-
-    private ArrayList<PublicObjective> createPublicObjectives() {
-        ArrayList<PublicObjective> tmp = new ArrayList<>();
-
-        tmp.add(new ColoriDiversiColonna());
-        tmp.add(new ColoriDiversiRiga());
-        tmp.add(new DiagonaliColorate());
-        tmp.add(new SfumatureChiare());
-        tmp.add(new SfumatureDiverse());
-        tmp.add(new SfumatureDiverseColonna());
-        tmp.add(new SfumatureDiverseRiga());
-        tmp.add(new SfumatureMedie());
-        tmp.add(new SfumatureScure());
-        tmp.add(new VarietaColore());
-
-        return tmp;
-    }
-
-    private ArrayList<ToolCard> createToolCards() {
-        ArrayList<ToolCard> tmp = new ArrayList<>();
-
-        tmp.add( new PinzaSgrossatrice());
-        tmp.add( new PennelloPerEglomise());
-        tmp.add( new AlesatoreLaminaRame());
-        tmp.add( new Lathekin());
-        tmp.add( new TaglierinaCircolare());
-        tmp.add( new PennelloPastaSalda());
-
-        /*tmp.add( new DiluentePastaSalda());
-        tmp.add( new Martelletto());
-        tmp.add( new RigaSughero());
-        tmp.add( new StripCutter());
-        tmp.add( new TaglierinaManuale());
-        tmp.add( new TamponeDiamantato());
-        tmp.add( new TenagliaRotelle());*/
-
-        return tmp;
-    }
-
-    private static  ArrayList<WindowPatternCard> createPatternCards() throws GameInvalidException{
-
-        ArrayList<WindowPatternCard> patterns = new ArrayList<>();
-        try( Scanner input = new Scanner(new File("src/main/patterns.txt"))) {
-            for (int i = 0; i < 12; i++) {
-                patterns.add(WindowPatternCard.loadFromScanner(input));
-                input.nextLine();
-            }
-
-        } catch(FileNotFoundException ex){
-            throw new GameInvalidException("Error while loading cards from file. Aborting...");
-        } catch (Colour.ColorNotFoundException ex){
-            throw new GameInvalidException("Error while loading cards from file. color error Aborting...");
-        }
-
-        return patterns;
-    }
 
 
 

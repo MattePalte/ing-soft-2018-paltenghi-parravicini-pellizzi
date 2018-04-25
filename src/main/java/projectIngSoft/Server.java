@@ -2,7 +2,8 @@ package projectIngSoft;
 
 import projectIngSoft.Controller.Controller;
 import projectIngSoft.Controller.IController;
-import projectIngSoft.GameManager.GameManagerMulti;
+import projectIngSoft.GameManager.GameManagerFactory;
+
 import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.View.LocalViewCli;
 
@@ -20,7 +21,7 @@ public class Server
         aMultiplePlayerGame.add(new Player("Daniele", new LocalViewCli("Daniele")));
         aMultiplePlayerGame.add(new Player("Kris", new LocalViewCli("Kris")));
         // Create related model
-        IGameManager myModel = new GameManagerMulti(aMultiplePlayerGame);
+        IGameManager myModel = GameManagerFactory.factory(aMultiplePlayerGame);
         // Create a unique controller for every player of this match
         IController fantasticController = new Controller(myModel);
         // give a reference of the controller to every view

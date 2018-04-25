@@ -17,8 +17,8 @@ public class Controller implements IController {
     }
 
     @Override
-    public IGameManager getUpdate() {
-        return gameManager.clone();
+    public void requestUpdate() {
+        gameManager.requestUpdate();
     }
 
     @Override

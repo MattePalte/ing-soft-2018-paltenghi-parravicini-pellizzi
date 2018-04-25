@@ -3,7 +3,11 @@ package projectIngSoft.Cards;
 import projectIngSoft.Colour;
 import projectIngSoft.exceptions.GameInvalidException;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class WindowPatternCard extends Card {
     private WindowPattern frontPattern;
@@ -22,6 +26,8 @@ public class WindowPatternCard extends Card {
         }
     }
 
+
+
     public WindowPattern getFrontPattern(){
         return frontPattern;
     }
@@ -30,8 +36,9 @@ public class WindowPatternCard extends Card {
         return rearPattern;
     }
 
+    @Override
     public String toString(){
-        return new String(frontPattern + "\n" + rearPattern);
+        return frontPattern + "\n" + rearPattern;
     }
 
     public static WindowPatternCard loadFromScanner(Scanner aScanner) throws Colour.ColorNotFoundException, GameInvalidException {
@@ -40,5 +47,21 @@ public class WindowPatternCard extends Card {
         aScanner.nextLine();
         WindowPattern r = WindowPattern.loadFromScanner(aScanner);
         return new WindowPatternCard(f.getTitle() + " - " + r.getTitle(),"",f, r );
+    }
+
+    public static ArrayList<WindowPatternCard> loadFromFile(String pathname) {
+        ArrayList<WindowPatternCard> patterns = new ArrayList<>();
+        try( Scanner input = new Scanner(new File(pathname))) {
+            for (int i = 0; i < 12; i++) {
+                patterns.add(WindowPatternCard.loadFromScanner(input));
+                input.nextLine();
+            }
+
+        } catch(Exception ex){
+            System.out.println("Error while loading window pattern cards from file");
+            patterns = new ArrayList<>();
+        }
+
+        return patterns;
     }
 }

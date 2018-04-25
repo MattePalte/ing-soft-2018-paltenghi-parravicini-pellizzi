@@ -56,7 +56,6 @@ public class Constraint {
     }
 
     public static Constraint fromEncoding(String rep) throws Colour.ColorNotFoundException {
-       return new Constraint((int) rep.charAt(0) - (int) '0',
-                Colour.valueOf(rep.charAt(1)));
+       return new Constraint((int) rep.charAt(0) - (int) '0', Colour.valueOf(rep.charAt(1)));
     }
 }
