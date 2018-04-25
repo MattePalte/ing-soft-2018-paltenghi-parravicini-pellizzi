@@ -14,6 +14,7 @@ import projectIngSoft.exceptions.PositionOccupiedException;
 import projectIngSoft.exceptions.RuleViolatedException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Player {
@@ -64,18 +65,14 @@ public class Player {
     }
 
     public void setPatternCard(WindowPatternCard aWindowPatternCard) {
-
-
         this.myWindowPatternCard = (aWindowPatternCard);
         this.placedDice = new Die[getPattern().getHeight()][getPattern().getWidth()];
     }
-
 
     public void setPatternFlipped(boolean patternFlipped) {
 
         isPatternFlipped = patternFlipped;
     }
-
 
     public void givePossiblePatternCard(List<WindowPatternCard> givenPatternCards) {
         possiblePatternCards = new ArrayList<>(givenPatternCards);
@@ -103,8 +100,13 @@ public class Player {
         return myPrivateObjective;
     }
 
+    public int countPrivateObjectivesPoints(){
+        return myPrivateObjective.countPoints(this);
+    }
+
     //@assignable nothing
     public Die[][] getPlacedDice(){
+
         return  cloneArray(placedDice);
     }
 
@@ -131,6 +133,8 @@ public class Player {
         this.myPrivateObjective = myPrivateObjective;
 
     }
+
+    //region die placement
 
     private void placeDieWithoutConstraints(Die aDie, int row, int col){
         placedDice[row][col] =    new Die(aDie);
@@ -228,10 +232,12 @@ public class Player {
         return false;
     }
 
-
     public void resetDieFlag() {
         hasPlacedADieInThisTurn = false;
     }
+
+    //endregion
+
 
     public void update(Event event) {
         myView.update( event);

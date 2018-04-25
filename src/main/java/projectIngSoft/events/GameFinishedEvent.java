@@ -1,18 +1,20 @@
 package projectIngSoft.events;
 
+import javafx.util.Pair;
 import projectIngSoft.Player;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class GameFinishedEvent  implements Event {
 
-    private HashMap<Player, Integer> rank;
+    private List<Pair<Player, Integer>> rank;
 
-    public GameFinishedEvent(HashMap<Player, Integer> theRank) {
+    public GameFinishedEvent(List<Pair<Player, Integer>> theRank) {
         this.rank = theRank;
     }
 
-    public HashMap<Player, Integer> getRank() {
+    public List<Pair<Player, Integer>> getRank() {
         return rank;
     }
 

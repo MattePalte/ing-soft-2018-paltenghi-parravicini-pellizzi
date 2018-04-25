@@ -549,19 +549,19 @@ public class PlayerTest {
                 }
 
                 p = new Player(testPlayerWithWhitePatternCardNoMove);
-                err = false;
+
                 try {
                     p.placeDie(aDie, row, col);
                 } catch (Exception e) {
-                    err = true;
+                    Assert.fail("Error");
                 }
-                Assert.assertFalse(err);
+
                 p.resetDieFlag();
 
                 for (int otherRow = 0; otherRow < height; otherRow++) {
                     for (int otherCol = 0; otherCol < width; otherCol++) {
-                        if (    otherRow > row + 1 && otherRow < row -1 &&
-                                otherCol > col + 1 && otherCol < col -1) {
+                        if (    otherRow > row + 1 || otherRow < row -1 ||
+                                otherCol > col + 1 || otherCol < col -1) {
                             for (Die otherDie : buildDiceAccordingTo(aDie)) {
                                 p1 = new Player(p);
                                 err = false;
@@ -584,19 +584,24 @@ public class PlayerTest {
     }
 
     @Test
-    // check adiacent placing
+    // check adjacent placing
     public void testDieCornerToCorner(){
-        boolean ruleViolated = false;
+        Player p = new Player(testPlayerWithWhitePatternCardNoMove);
+
         try {
-            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(3, Colour.YELLOW), 3,0);
+            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(3, Colour.YELLOW), 3,3);
             testPlayerWithWhitePatternCardNoMove.resetDieFlag();
-            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(6, Colour.BLUE), 2,1);
+            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(6, Colour.BLUE), 2,4);
+            testPlayerWithWhitePatternCardNoMove.resetDieFlag();
+            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(2, Colour.VIOLET), 2,3);
+
         } catch (Exception e) {
-            e.printStackTrace();
-            ruleViolated = true;
+           Assert.fail();
         }
-        Assert.assertEquals(false, ruleViolated);
+
+
     }
+
 
 
 }

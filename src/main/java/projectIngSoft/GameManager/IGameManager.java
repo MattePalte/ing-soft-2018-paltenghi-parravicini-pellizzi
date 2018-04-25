@@ -13,6 +13,7 @@ import projectIngSoft.RoundTracker;
 import projectIngSoft.events.Event;
 import projectIngSoft.exceptions.GameInvalidException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,17 +22,12 @@ public interface IGameManager {
 
     List<Player>            getPlayerList();
     Player                  getCurrentPlayer();
-
     List<ToolCard>          getToolCards();
-    void removeFromDraft(Die aDie);
-    void addToDraft(Die aDie);
     List<PublicObjective>   getPublicObjective();
     List<Card>              getPublicCards();
     List<Die>               getDraftPool();
     Map<Player, Integer>    getFavours();
-
     RoundTracker            getRoundTracker();
-    void swapWithRoundTracker(Die toAdd, Die toRemove);
     List<Player>            getCurrentTurnList();
 
     Player getWinner()                                  throws Exception;
@@ -39,9 +35,12 @@ public interface IGameManager {
     void setupPhase()                                   throws Exception;
     void playToolCard(ToolCard aToolCard)               throws Exception;
     void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception;
+    void removeFromDraft(Die aDie);
+    void addToDraft(Die aDie);
     void bindPatternAndPlayer(String nickname, Pair<WindowPatternCard, Boolean> chosenPattern) throws Exception, GameInvalidException;
     void endTurn()                                      throws Exception;
-    void countPlayersPoints()                           throws Exception;
+    void swapWithRoundTracker(Die toAdd, Die toRemove);
+    List<Pair<Player, Integer>> countPlayersPoints()    throws Exception;
 
     void requestUpdate();
     void deliverNewStatus(Event event);

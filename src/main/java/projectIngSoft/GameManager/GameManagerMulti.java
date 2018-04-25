@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.List;
+import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 
 public class GameManagerMulti implements IGameManager, Cloneable {
@@ -35,7 +36,7 @@ public class GameManagerMulti implements IGameManager, Cloneable {
     private ArrayList<ToolCard>         toolCards;
     private ArrayList<Player>           currentTurnList;
     private Map<Player, Integer>        favours;
-    private Map<Player, Integer>        rank;
+    private List<Pair<Player, Integer>> rank;
     private Map<ToolCard, Integer>      toolCardCost;
 
     private boolean isFinished;
@@ -51,9 +52,9 @@ public class GameManagerMulti implements IGameManager, Cloneable {
 
     @Override
     public void removeFromDraft(Die aDie) {
-        System.out.println("removing a die" + aDie.getColour() + aDie.getValue());
+
         draftPool.remove(aDie);
-        System.out.println(draftPool);
+
     }
 
     @Override
@@ -69,9 +70,10 @@ public class GameManagerMulti implements IGameManager, Cloneable {
         this.publicObjectives   = new ArrayList<> (gameManagerMulti.publicObjectives);
         this.toolCards          = new ArrayList<> (gameManagerMulti.toolCards);
         this.currentTurnList    = new ArrayList<> (gameManagerMulti.currentTurnList);
-        this.rank               = new HashMap<> (gameManagerMulti.rank);
-        this.toolCardCost       = new HashMap<> (gameManagerMulti.toolCardCost);
-        this.favours            = new HashMap<> (gameManagerMulti.favours);
+        this.rank               = new ArrayList<> (gameManagerMulti.rank);
+        this.toolCardCost       = new HashMap<>   (gameManagerMulti.toolCardCost);
+        this.favours            = new HashMap<>   (gameManagerMulti.favours);
+        this.isFinished         = gameManagerMulti.isFinished;
     }
 
     public GameManagerMulti clone() {
@@ -156,7 +158,7 @@ public class GameManagerMulti implements IGameManager, Cloneable {
         favours = new HashMap<>();
 
         //initialize hashMap rank
-        rank = new HashMap<>();
+        rank = new ArrayList<>();
 
         //initialize toolcards cost
         toolCardCost = new HashMap<>();
@@ -223,19 +225,35 @@ public class GameManagerMulti implements IGameManager, Cloneable {
     }
 
     @Override
-    public void countPlayersPoints() throws Exception {
+    public List<Pair<Player, Integer>> countPlayersPoints() {
+
+
         for (Player p : getPlayerList()){
             int sum = 0;
+            sum += p.countPrivateObjectivesPoints();
+
             for (ObjectiveCard pubObj : getPublicObjective()){
                 sum += pubObj.countPoints(p);
             }
-            sum += p.getPrivateObjective().countPoints(p);
+
             sum += favours.get(p);
             sum -= getEmptyCells(p.getPlacedDice());
-            //TODO: add empty cells' penality and favour bonus
-            rank.put(p,sum);
+
+
+            rank.add( new Pair<>(p, sum));
         }
+        //TODO: comparison when parity on the last order of the round
+        rank.sort(Comparator
+                    .comparingInt((ToIntFunction<Pair<Player, Integer>>) Pair::getValue)
+                    .thenComparingInt((Pair<Player, Integer> p)-> p.getKey().countPrivateObjectivesPoints() )
+                    .thenComparingInt((Pair<Player, Integer> p)-> favours.get(p.getKey()))
+                    .thenComparingInt( (Pair<Player, Integer> p) -> currentGame.getPlayers().indexOf(p.getKey()))
+                );
+
+        return rank;
     }
+
+
 
     private int getEmptyCells(Die[][] placedDice){
         int ret = 0;
@@ -285,20 +303,19 @@ public class GameManagerMulti implements IGameManager, Cloneable {
 
 
     @Override
-    public void endTurn() throws Exception, GameInvalidException {
+    public void endTurn() throws Exception {
         if (isFinished) return;
 
         currentTurnList.remove(0);
 
-        if(currentTurnList.isEmpty()){
+        if(currentTurnList.isEmpty() && rounds.getCurrentRound() == 3) {
+            //TODO: keep 3 round during debugging procedue, switch to 10 only in final version
+            isFinished = true;
+            countPlayersPoints();
+            deliverNewStatus(new GameFinishedEvent(new ArrayList<>(rank)));
+            return;
+        }else if(currentTurnList.isEmpty()){
             System.out.println("End of round " + rounds.getCurrentRound());
-
-            if(rounds.getCurrentRound() == 3){ //TODO: keep 3 round during debugging procedue, switch to 10 only in final version
-                isFinished = true;
-                countPlayersPoints();
-                deliverNewStatus(new GameFinishedEvent(new HashMap<>(rank)));
-                return;
-            }
 
             currentGame.leftShiftPlayers();
             currentTurnList = createTurns(currentGame.getPlayers());
@@ -342,8 +359,8 @@ public class GameManagerMulti implements IGameManager, Cloneable {
         if(!draftPool.isEmpty())
             throw new GameInvalidException("Panic");
 
-        draftPool = new ArrayList<Die> (diceBag.subList(0, (2 * currentGame.getNumberOfPlayers()) + 1));
-        diceBag = new ArrayList<Die> (diceBag.subList((2*currentGame.getNumberOfPlayers()) +1, diceBag.size()));
+        draftPool = new ArrayList<> (diceBag.subList(0, (2 * currentGame.getNumberOfPlayers()) + 1));
+        diceBag = new ArrayList<> (diceBag.subList((2*currentGame.getNumberOfPlayers()) +1, diceBag.size()));
 
     }
 
