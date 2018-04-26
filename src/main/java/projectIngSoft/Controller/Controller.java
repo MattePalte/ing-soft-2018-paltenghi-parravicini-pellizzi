@@ -18,24 +18,40 @@ public class Controller extends UnicastRemoteObject implements IController, Seri
 
     private transient IGameManager gameManager;
     private transient Game theGame;
+    private long startTime;
+    private boolean timeoutExpired = false;
 
     public Controller(int maxNumberOfPlayer) throws RemoteException{
         this.theGame = new Game(maxNumberOfPlayer);
+        this.startTime = System.currentTimeMillis();
+
+        // thread used to provide the controller a timeout. When timeout's expired the game starts with the number of player already added
+        new Thread( () -> {
+            while(!timeoutExpired){
+                if(System.currentTimeMillis() - startTime >= 20000 || theGame.getNumberOfPlayers() == theGame.getMaxNumPlayers()) {
+                    timeoutExpired = true;
+                    this.gameManager = GameManagerFactory.factory(theGame);
+                    System.out.println("Setup starting");
+                    try {
+                        gameManager.setupPhase();
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
     }
 
     @Override
     public void joinTheGame(String plyerName, IView view) throws Exception {
-        if (theGame.getNumberOfPlayers() < theGame.getMaxNumPlayers()) {
+        if (theGame.getNumberOfPlayers() < theGame.getMaxNumPlayers() && !timeoutExpired) {
             theGame.add(new Player(plyerName, view));
+            System.out.println("current start time: " + startTime);
+            startTime = System.currentTimeMillis();
+            System.out.println("new start time: " + startTime);
             System.out.println(plyerName + " added to the match ;)");
         } else {
-            System.out.println(plyerName + " wants to join the game... no space :(");
-        }
-        //TODO: provide a timeout to start the game also with less than the max nr of player
-        if (theGame.getNumberOfPlayers() == theGame.getMaxNumPlayers()) {
-            this.gameManager = GameManagerFactory.factory(theGame);
-            System.out.println("Setup starting");
-            gameManager.setupPhase();
+            System.out.println(plyerName + " wants to join the game, but it's already started :(");
         }
     }
 
@@ -52,7 +68,7 @@ public class Controller extends UnicastRemoteObject implements IController, Seri
     @Override
     public void playToolCard(String nickname, ToolCard aToolCard) throws Exception {
         if (gameManager.getCurrentPlayer().getName().equals(nickname))
-        gameManager.playToolCard(aToolCard);
+            gameManager.playToolCard(aToolCard);
     }
 
     @Override
