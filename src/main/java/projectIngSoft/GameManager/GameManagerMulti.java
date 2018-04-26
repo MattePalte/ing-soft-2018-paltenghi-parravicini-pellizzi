@@ -186,8 +186,15 @@ public class GameManagerMulti implements IGameManager, Serializable {
         //distribute event for selecting a WindowPatternCard
 
         for(Player p : currentGame.getPlayers()){
-            p.update(new ModelChangedEvent(new GameManagerMulti(this)));
-            p.update(new PatternCardDistributedEvent(p.getPossiblePatternCard().get(0), p.getPossiblePatternCard().get(1) ));
+            new Thread(() -> {
+                try {
+                    p.update(new ModelChangedEvent(new GameManagerMulti(this)));
+                    p.update(new PatternCardDistributedEvent(p.getPossiblePatternCard().get(0), p.getPossiblePatternCard().get(1)));
+                } catch(RemoteException e){
+                    e.printStackTrace();
+                }
+            }).start();
+
         }
     }
 
@@ -232,11 +239,11 @@ public class GameManagerMulti implements IGameManager, Serializable {
         }
 
         rank.sort(Comparator
-                    .comparingInt((ToIntFunction<Pair<Player, Integer>>) Pair::getValue)
-                    .thenComparingInt((Pair<Player, Integer> p)-> p.getKey().countPrivateObjectivesPoints() )
-                    .thenComparingInt((Pair<Player, Integer> p)-> favours.get(p.getKey()))
-                    .thenComparingInt( (Pair<Player, Integer> p) -> currentGame.getPlayers().indexOf(p.getKey()))
-                );
+                .comparingInt((ToIntFunction<Pair<Player, Integer>>) Pair::getValue)
+                .thenComparingInt((Pair<Player, Integer> p)-> p.getKey().countPrivateObjectivesPoints() )
+                .thenComparingInt((Pair<Player, Integer> p)-> favours.get(p.getKey()))
+                .thenComparingInt( (Pair<Player, Integer> p) -> currentGame.getPlayers().indexOf(p.getKey()))
+        );
 
         return rank;
     }

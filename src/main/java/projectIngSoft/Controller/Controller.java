@@ -1,6 +1,5 @@
 package projectIngSoft.Controller;
 
-import javafx.util.Pair;
 import projectIngSoft.Cards.ToolCards.ToolCard;
 import projectIngSoft.Cards.WindowPatternCard;
 import projectIngSoft.Die;
@@ -11,7 +10,6 @@ import projectIngSoft.Player;
 import projectIngSoft.View.IView;
 import projectIngSoft.exceptions.GameInvalidException;
 
-import java.awt.desktop.SystemEventListener;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;

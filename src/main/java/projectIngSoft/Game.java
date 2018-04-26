@@ -59,7 +59,7 @@ public class Game implements Serializable{
 
 
     public boolean isValid() {
-        return players.size() == maxNumPlayer;
+        return players.size() <= maxNumPlayer;
     }
 
     public void leftShiftPlayers(){

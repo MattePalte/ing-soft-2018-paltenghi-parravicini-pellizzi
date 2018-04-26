@@ -102,7 +102,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
         localCopyOfTheStatus = event.getaGameCopy();
         System.out.println("Modello aggiornato!");
         if (!localCopyOfTheStatus.getCurrentPlayer().getName().equals(ownerNameOfTheView)) {
-            System.out.println("It's the turn of " + localCopyOfTheStatus.getCurrentPlayer().getName() + ". Wait for yours.");
+            System.out.println("It's " + localCopyOfTheStatus.getCurrentPlayer().getName() + "'s turn. Wait for yours.");
         }
         //displayMySituation();
     }
@@ -148,7 +148,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     @Override
     public void run() throws Exception {
         System.out.println(ownerNameOfTheView + " started ");
-        System.out.println("Waiting for enought players to start the match...");
+        System.out.println("Waiting for enough players to start the match...");
     }
 
     private void takeTurn() throws Exception {
