@@ -15,8 +15,7 @@ import projectIngSoft.events.Event;
 import projectIngSoft.exceptions.GameInvalidException;
 import projectIngSoft.exceptions.RuleViolatedException;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.*;
@@ -24,7 +23,7 @@ import java.util.List;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 
-public class GameManagerMulti implements IGameManager, Cloneable, Serializable {
+public class GameManagerMulti implements IGameManager, Serializable {
 
 
     private Game                        currentGame ;

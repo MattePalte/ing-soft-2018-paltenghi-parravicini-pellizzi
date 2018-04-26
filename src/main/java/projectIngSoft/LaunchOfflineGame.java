@@ -8,11 +8,11 @@ import projectIngSoft.View.LocalViewCli;
 
 import java.io.FileNotFoundException;
 
-public class Server
+public class LaunchOfflineGame
 {
 
 
-    public static void main(String[] args) throws FileNotFoundException, Colour.ColorNotFoundException, Exception {
+    public static void main(String[] args) throws Exception {
 
         // Create the controller which contains the game
         IController fantasticController = new Controller(3);
@@ -27,7 +27,7 @@ public class Server
         viewDaniele.attachController(fantasticController);
         viewKris.attachController(fantasticController);
 
-        // let the view add themself to the game through a method call to the controller
+        // let the view add themselves to the game through a method call to the controller
         fantasticController.joinTheGame("Matteo", viewMatteo);
         fantasticController.joinTheGame("Daniele", viewDaniele);
         fantasticController.joinTheGame("Kris", viewKris);
