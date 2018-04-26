@@ -16,5 +16,5 @@ public interface IController extends Remote{
     public void playToolCard(String nickname, ToolCard aToolCard) throws Exception;
     public void endTurn() throws Exception, GameInvalidException;
     void choosePattern(String nickname, WindowPatternCard windowCard, Boolean side) throws Exception, GameInvalidException;
-    void addPlayer(String player, IView view) throws Exception;
+    void joinTheGame(String playerName, IView view) throws Exception;
 }

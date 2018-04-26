@@ -75,9 +75,9 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                 WindowPatternCard aCard = (WindowPatternCard) chooseFrom(List.of(event.getOne(), event.getTwo()));
                 int isFront = chooseIndexFrom(List.of(aCard.getFrontPattern(), aCard.getRearPattern()));
 
-
-                controller.choosePattern(ownerNameOfTheView, aCard, isFront == 1);
                 System.out.println("Wait for other players to choose ther pattern card.");
+                controller.choosePattern(ownerNameOfTheView, aCard, isFront == 1);
+
                 return;
             } catch (InterruptActionException ex) {
                 System.out.println("The game can't start until you select a window pattern");

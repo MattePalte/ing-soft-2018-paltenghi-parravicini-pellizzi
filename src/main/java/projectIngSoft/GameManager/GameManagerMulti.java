@@ -107,17 +107,6 @@ public class GameManagerMulti implements IGameManager, Cloneable, Serializable {
     }
 
     @Override
-    public void addPlayer(Player player) throws Exception {
-        if (getPlayerList().size() <= 3){
-            this.currentGame.add(player);
-            System.out.println("New player has been added " + player.getName());
-            if (getPlayerList().size() == 3 ) setupPhase();
-        } else  {
-            System.out.println(player.getName() + " wants to join the game... no space :(");
-        }
-    }
-
-    @Override
     public void removeFromDraft(Die aDie) {
 
         draftPool.remove(aDie);

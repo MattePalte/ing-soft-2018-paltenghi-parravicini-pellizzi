@@ -1,14 +1,13 @@
 package projectIngSoft;
 
 
-import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.util.*;
 
 
 public class Game implements Serializable{
 
-    private final int numPlayers;
+    private final int maxNumPlayer;
     private ArrayList<Player> players;
 
 
@@ -18,25 +17,29 @@ public class Game implements Serializable{
 
         (* everything is initialized *)
     */
-    public Game(int theNumOfPlayer) {
+    public Game(int theMaxNumOfPlayer) {
         // set required number of players for this game
-        numPlayers = theNumOfPlayer;
+        maxNumPlayer = theMaxNumOfPlayer;
         // initialize emplty list of player
         players = new ArrayList<Player>();
     }
 
     public Game(Game aGame){
-        numPlayers = aGame.numPlayers;
+        maxNumPlayer = aGame.maxNumPlayer;
         players = new ArrayList<Player>(aGame.players);
     }
 
+    public int getMaxNumPlayers() {
+        return maxNumPlayer;
+    }
+
     /*
-    @ensures
-        getNumberOfPlayers() == old(getNumberOfPlayers()) + 1  &&
-        (* newPlayer has been added to the list of players *)
-    */
+        @ensures
+            getNumberOfPlayers() == old(getNumberOfPlayers()) + 1  &&
+            (* newPlayer has been added to the list of players *)
+        */
     public void add(Player newPlayer) {
-        if (players.size() < numPlayers) {
+        if (players.size() < maxNumPlayer) {
             players.add(newPlayer);
             System.out.println("New player added: " + newPlayer.getName() + "\n");
         }
@@ -56,7 +59,7 @@ public class Game implements Serializable{
 
 
     public boolean isValid() {
-        return players.size() == numPlayers;
+        return players.size() == maxNumPlayer;
     }
 
     public void leftShiftPlayers(){

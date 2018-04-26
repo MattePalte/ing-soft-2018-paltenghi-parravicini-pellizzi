@@ -34,7 +34,6 @@ public interface IGameManager {
     Player getWinner()                                  throws Exception;
     void start()                                        throws Exception;
     void setupPhase()                                   throws RemoteException;
-    void addPlayer(Player player)                       throws Exception;
     void playToolCard(ToolCard aToolCard)               throws Exception;
     void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception;
     void removeFromDraft(Die aDie);

@@ -21,14 +21,20 @@ public class Controller extends UnicastRemoteObject implements IController, Seri
     private transient IGameManager gameManager;
     private transient Game theGame;
 
-    public Controller() throws RemoteException{
-        this.theGame = new Game(2);
+    public Controller(int maxNumberOfPlayer) throws RemoteException{
+        this.theGame = new Game(maxNumberOfPlayer);
     }
 
     @Override
-    public void addPlayer(String player, IView view) throws Exception {
-        theGame.add(new Player(player, view));
-        if (theGame.getPlayers().size() == 2) {
+    public void joinTheGame(String plyerName, IView view) throws Exception {
+        if (theGame.getNumberOfPlayers() < theGame.getMaxNumPlayers()) {
+            theGame.add(new Player(plyerName, view));
+            System.out.println(plyerName + " added to the match ;)");
+        } else {
+            System.out.println(plyerName + " wants to join the game... no space :(");
+        }
+        //TODO: provide a timeout to start the game also with less than the max nr of player
+        if (theGame.getNumberOfPlayers() == theGame.getMaxNumPlayers()) {
             this.gameManager = GameManagerFactory.factory(theGame);
             System.out.println("Setup starting");
             gameManager.setupPhase();

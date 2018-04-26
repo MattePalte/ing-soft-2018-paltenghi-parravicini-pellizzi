@@ -32,7 +32,7 @@ public class LaunchClient {
         myView.attachController(controller);
         myView.run();
 
-        controller.addPlayer(name, myView);
+        controller.joinTheGame(name, myView);
 
 
         while (true) {

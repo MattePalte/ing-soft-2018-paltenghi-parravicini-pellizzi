@@ -16,8 +16,8 @@ public class LaunchServer {
         // start rmiregistry -J-Djava.rmi.server.logCalls=true -J-Djava.rmi.server.useCodebaseOnly=false
         // NB: aggiungi la bin folder di java 9 al path di windows
         // NB: usa la cmd line di windows (no powershell)
-        // il game è sempre da due, perciò lancia due client per far inizare una partita in automatico
-        IController controller = new Controller();
+        // il game è da due, perciò lancia due client per far inizare una partita in automatico
+        IController controller = new Controller(2);
         System.out.println(">>> Controller exported");
 
         Registry registry = LocateRegistry.getRegistry();
