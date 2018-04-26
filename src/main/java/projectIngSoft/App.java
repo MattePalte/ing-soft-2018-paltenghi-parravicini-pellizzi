@@ -5,6 +5,7 @@ import projectIngSoft.GameManager.GameManagerMulti;
 import projectIngSoft.View.LocalViewCli;
 
 import java.io.FileNotFoundException;
+import java.rmi.RemoteException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -31,7 +32,7 @@ public class App
     }
 
 
-    public static Game createGame() throws InputMismatchException, FileNotFoundException, Colour.ColorNotFoundException {
+    public static Game createGame() throws InputMismatchException, FileNotFoundException, Colour.ColorNotFoundException, RemoteException {
         // create a scanner so we can read the command-line input
         Scanner scanner = new Scanner(System.in);
         //  prompt for the number of players

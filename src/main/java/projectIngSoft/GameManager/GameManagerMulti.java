@@ -17,12 +17,14 @@ import projectIngSoft.exceptions.RuleViolatedException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.Serializable;
+import java.rmi.RemoteException;
 import java.util.*;
 import java.util.List;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 
-public class GameManagerMulti implements IGameManager, Cloneable {
+public class GameManagerMulti implements IGameManager, Cloneable, Serializable {
 
 
     private Game                        currentGame ;
@@ -51,7 +53,6 @@ public class GameManagerMulti implements IGameManager, Cloneable {
         isFinished = false;
         if (!aGame.isValid() || aGame.getNumberOfPlayers() <= 1  || aGame.getNumberOfPlayers() > 4  ) {
             throw new GameInvalidException("Game is not valid!");
-
         }
         currentGame = new Game(aGame);
         // initialize empty draft pool
@@ -102,6 +103,17 @@ public class GameManagerMulti implements IGameManager, Cloneable {
                 selectedPatternCards.add(windowPatterns.remove(0));
             }
             p.givePossiblePatternCard(new ArrayList<>(selectedPatternCards));
+        }
+    }
+
+    @Override
+    public void addPlayer(Player player) throws Exception {
+        if (getPlayerList().size() <= 3){
+            this.currentGame.add(player);
+            System.out.println("New player has been added " + player.getName());
+            if (getPlayerList().size() == 3 ) setupPhase();
+        } else  {
+            System.out.println(player.getName() + " wants to join the game... no space :(");
         }
     }
 
@@ -182,7 +194,7 @@ public class GameManagerMulti implements IGameManager, Cloneable {
     }
 
     @Override
-    public void setupPhase() {
+    public void setupPhase() throws RemoteException{
         //distribute event for selecting a WindowPatternCard
 
         for(Player p : currentGame.getPlayers()){
@@ -192,11 +204,11 @@ public class GameManagerMulti implements IGameManager, Cloneable {
     }
 
     @Override
-    public void bindPatternAndPlayer(String nickname, Pair<WindowPatternCard, Boolean> chosenPattern) throws GameInvalidException {
+    public void bindPatternAndPlayer(String nickname, WindowPatternCard windowCard, Boolean side) throws GameInvalidException {
         for (Player p : getPlayerList()){
             if (p.getName().equals(nickname)){
-                p.setPatternCard(chosenPattern.getKey());
-                p.setPatternFlipped(chosenPattern.getValue());
+                p.setPatternCard(windowCard);
+                p.setPatternFlipped(side);
                 favours.put(p, p.getPattern().getDifficulty());
             }
         }
@@ -254,14 +266,14 @@ public class GameManagerMulti implements IGameManager, Cloneable {
     }
 
     @Override
-    public void requestUpdate() {
+    public void requestUpdate() throws RemoteException{
 
         deliverNewStatus( new ModelChangedEvent( new GameManagerMulti(this)));
 
     }
 
     @Override
-    public void deliverNewStatus(Event event) {
+    public void deliverNewStatus(Event event) throws RemoteException{
         for (Player subscriber : currentGame.getPlayers()) {
             subscriber.update( event);
         }

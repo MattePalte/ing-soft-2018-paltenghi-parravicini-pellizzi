@@ -3,9 +3,10 @@ package projectIngSoft.Cards;
 import projectIngSoft.Colour;
 import projectIngSoft.Die;
 
+import java.io.Serializable;
 import java.util.Scanner;
 
-public class WindowPattern {
+public class WindowPattern implements Serializable {
     private final int width;
     private final int height;
 

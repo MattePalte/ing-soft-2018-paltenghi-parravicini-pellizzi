@@ -3,7 +3,9 @@ package projectIngSoft.Cards.Objectives;
 import projectIngSoft.Cards.Card;
 import projectIngSoft.Player;
 
-public abstract class ObjectiveCard extends Card {
+import java.io.Serializable;
+
+public abstract class ObjectiveCard extends Card implements Serializable{
 
     protected int points;
 

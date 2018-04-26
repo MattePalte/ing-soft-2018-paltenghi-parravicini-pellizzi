@@ -1,11 +1,12 @@
 package projectIngSoft;
 
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public enum Colour {
+public enum Colour implements Serializable{
     //w.r.t https://en.wikipedia.org/wiki/ANSI_escape_code
     //To avoid problems related to width of different character
     //Sun's Glory ******

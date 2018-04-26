@@ -2,7 +2,9 @@ package projectIngSoft.events;
 
 import projectIngSoft.Cards.WindowPatternCard;
 
-public class PatternCardDistributedEvent implements Event{
+import java.io.Serializable;
+
+public class PatternCardDistributedEvent implements Event, Serializable {
     // it means that pattern card have been distributed to the players
     // which have to decide which card to use and comunicate their decision
     // to the model through the controller

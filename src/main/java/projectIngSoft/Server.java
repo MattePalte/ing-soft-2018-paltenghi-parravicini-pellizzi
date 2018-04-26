@@ -17,21 +17,15 @@ public class Server
         // Create a game with 3 players
         Game aMultiplePlayerGame;
         aMultiplePlayerGame = new Game(3);
-        aMultiplePlayerGame.add(new Player("Matteo", new LocalViewCli("Matteo")));
-        aMultiplePlayerGame.add(new Player("Daniele", new LocalViewCli("Daniele")));
-        aMultiplePlayerGame.add(new Player("Kris", new LocalViewCli("Kris")));
-        // Create related model
-        IGameManager myModel = GameManagerFactory.factory(aMultiplePlayerGame);
-        // Create a unique controller for every player of this match
-        IController fantasticController = new Controller(myModel);
-        // give a reference of the controller to every view
-        // player.giveControllerToTheView(x) - call -> view.attachController(x)
-        for (Player p : myModel.getPlayerList())
-            p.giveControllerToTheView(fantasticController);
 
-        myModel.setupPhase();
+        /*
+        IController fantasticController = new Controller(GameManagerFactory.factory(new Game(3)));
+        fantasticController.joinAGame("Matteo", new LocalViewCli("Matteo"));
+        fantasticController.joinAGame("Daniele", new LocalViewCli("Daniele"));
+        fantasticController.joinAGame("Kris", new LocalViewCli("Kris"));
 
-        System.out.println("This is the end of the game. Hope you enjoyed");
+        */
+    System.out.println("This is the end of the game. Hope you enjoyed");
 
     }
 }

@@ -1,6 +1,8 @@
 package projectIngSoft.events;
 
-public class CurrentPlayerChangedEvent implements Event {
+import java.io.Serializable;
+
+public class CurrentPlayerChangedEvent implements Event, Serializable {
     @Override
     public void accept(IEventHandler eventHandler) {
         eventHandler.respondTo(this);

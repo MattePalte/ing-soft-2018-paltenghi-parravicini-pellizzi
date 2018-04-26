@@ -5,11 +5,12 @@ import projectIngSoft.exceptions.GameInvalidException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
-public class WindowPatternCard extends Card {
+public class WindowPatternCard extends Card implements Serializable {
     private WindowPattern frontPattern;
     private WindowPattern rearPattern;
 

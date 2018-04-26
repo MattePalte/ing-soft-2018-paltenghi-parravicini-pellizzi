@@ -1,6 +1,8 @@
 package projectIngSoft.events;
 
-public class myTurnStartedEvent implements Event {
+import java.io.Serializable;
+
+public class myTurnStartedEvent implements Event, Serializable {
     public myTurnStartedEvent() {
     }
 

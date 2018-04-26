@@ -11,6 +11,7 @@ import projectIngSoft.exceptions.PositionOccupiedException;
 import projectIngSoft.exceptions.RuleViolatedException;
 
 import java.io.File;
+import java.rmi.RemoteException;
 import java.util.*;
 
 public class PlayerTest {
@@ -19,7 +20,7 @@ public class PlayerTest {
     private Player testPlayerWithWhitePatternCardNoMove;
 
     @Before
-    public void playerCreation() {
+    public void playerCreation() throws RemoteException{
         testPlayer = new Player("giocatore 1", new LocalViewCli("giocatore 1"));
         // set private objective
         testPlayer.setPrivateObjective(new SfumatureBlu());

@@ -1,8 +1,9 @@
 package projectIngSoft;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public class Die {
+public class Die implements Serializable {
     private static final int FACES = 6;
     private final int value;
     private final Colour colour;

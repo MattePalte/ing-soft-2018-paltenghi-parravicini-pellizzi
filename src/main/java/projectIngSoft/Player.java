@@ -13,11 +13,13 @@ import projectIngSoft.exceptions.PatternConstraintViolatedException;
 import projectIngSoft.exceptions.PositionOccupiedException;
 import projectIngSoft.exceptions.RuleViolatedException;
 
+import java.io.Serializable;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Player {
+public class Player implements Serializable{
     private final String            name;
 
     private boolean                 isPatternFlipped;
@@ -52,7 +54,7 @@ public class Player {
         this.name                    = pToBeCopied.name;
         this.isPatternFlipped        = pToBeCopied.isPatternFlipped;
         this.myWindowPatternCard     = pToBeCopied.myWindowPatternCard;
-        this.possiblePatternCards    = possiblePatternCards == null ? null : new ArrayList<>(pToBeCopied.possiblePatternCards);
+        this.possiblePatternCards    = pToBeCopied.possiblePatternCards;
         this.myPrivateObjective      = pToBeCopied.myPrivateObjective;
         this.placedDice              = cloneArray(pToBeCopied.placedDice);
         this.myView                  = pToBeCopied.myView;
@@ -241,11 +243,11 @@ public class Player {
     //endregion
 
 
-    public void update(Event event) {
+    public void update(Event event) throws RemoteException{
         myView.update( event);
     }
 
-    public void giveControllerToTheView(IController aController) {
+    public void giveControllerToTheView(IController aController) throws RemoteException {
 
         myView.attachController(aController);
     }

@@ -3,10 +3,11 @@ package projectIngSoft.events;
 import javafx.util.Pair;
 import projectIngSoft.Player;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 
-public class GameFinishedEvent  implements Event {
+public class GameFinishedEvent  implements Event, Serializable {
 
     private List<Pair<Player, Integer>> rank;
 

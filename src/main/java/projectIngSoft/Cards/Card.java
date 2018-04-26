@@ -1,6 +1,8 @@
 package projectIngSoft.Cards;
 
-public abstract class Card {
+import java.io.Serializable;
+
+public abstract class Card implements Serializable{
     protected String title;
     protected String description;
     protected String imgPath;

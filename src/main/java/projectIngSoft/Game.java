@@ -2,10 +2,11 @@ package projectIngSoft;
 
 
 import java.io.FileNotFoundException;
+import java.io.Serializable;
 import java.util.*;
 
 
-public class Game {
+public class Game implements Serializable{
 
     private final int numPlayers;
     private ArrayList<Player> players;

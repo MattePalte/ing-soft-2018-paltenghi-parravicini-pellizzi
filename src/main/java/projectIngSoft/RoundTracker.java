@@ -1,8 +1,9 @@
 package projectIngSoft;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class RoundTracker {
+public class RoundTracker implements Serializable{
     private int currentRound;
     private ArrayList<Die> diceLeftFromRound;
 

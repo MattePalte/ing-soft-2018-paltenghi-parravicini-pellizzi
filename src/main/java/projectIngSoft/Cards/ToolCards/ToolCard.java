@@ -8,9 +8,10 @@ import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.Player;
 import projectIngSoft.exceptions.MalformedToolCardException;
 
+import java.io.Serializable;
 import java.util.List;
 
-public abstract class ToolCard extends Card {
+public abstract class ToolCard extends Card implements Serializable{
     protected Colour colour;
     //TODO: we have to implement ToolCards!
 

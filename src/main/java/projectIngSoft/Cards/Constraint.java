@@ -3,7 +3,9 @@ package projectIngSoft.Cards;
 import projectIngSoft.Colour;
 import projectIngSoft.Die;
 
-public class Constraint {
+import java.io.Serializable;
+
+public class Constraint implements Serializable {
     private final int value; // 0 if no value constraint is applied
     private final Colour colour; // WHITE if no colour constraint is applied
 

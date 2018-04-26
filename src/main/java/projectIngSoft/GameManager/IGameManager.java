@@ -13,6 +13,7 @@ import projectIngSoft.RoundTracker;
 import projectIngSoft.events.Event;
 import projectIngSoft.exceptions.GameInvalidException;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,18 +33,19 @@ public interface IGameManager {
 
     Player getWinner()                                  throws Exception;
     void start()                                        throws Exception;
-    void setupPhase();
+    void setupPhase()                                   throws RemoteException;
+    void addPlayer(Player player)                       throws Exception;
     void playToolCard(ToolCard aToolCard)               throws Exception;
     void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception;
     void removeFromDraft(Die aDie);
     void addToDraft(Die aDie);
-    void bindPatternAndPlayer(String nickname, Pair<WindowPatternCard, Boolean> chosenPattern) throws Exception, GameInvalidException;
+    void bindPatternAndPlayer(String nickname, WindowPatternCard windowCard, Boolean side) throws Exception, GameInvalidException;
     void endTurn()                                      throws Exception;
     void swapWithRoundTracker(Die toAdd, Die toRemove);
     List<Pair<Player, Integer>> countPlayersPoints()    throws Exception;
 
-    void requestUpdate();
-    void deliverNewStatus(Event event);
+    void requestUpdate()                                throws RemoteException;
+    void deliverNewStatus(Event event)                  throws RemoteException;
 
 
 }

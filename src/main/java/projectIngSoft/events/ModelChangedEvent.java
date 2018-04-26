@@ -2,7 +2,9 @@ package projectIngSoft.events;
 
 import projectIngSoft.GameManager.IGameManager;
 
-public class ModelChangedEvent implements Event {
+import java.io.Serializable;
+
+public class ModelChangedEvent implements Event, Serializable {
     private IGameManager aGameCopy;
 
     public ModelChangedEvent(IGameManager aGameCopy) {
