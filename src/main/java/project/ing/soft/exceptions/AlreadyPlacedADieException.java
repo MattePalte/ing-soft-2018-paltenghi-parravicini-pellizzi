@@ -1,0 +1,8 @@
+package project.ing.soft.exceptions;
+
+public class AlreadyPlacedADieException extends Exception {
+
+    public AlreadyPlacedADieException(String message){
+        super(message);
+    }
+}
