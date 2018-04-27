@@ -205,7 +205,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                         out.println("You still have " + localCopyOfTheStatus.getFavours().get(localCopyOfTheStatus.getCurrentPlayer()));
                         break;
                     case 5:
-                        controller.endTurn();
+                        controller.endTurn(ownerNameOfTheView);
                         break;
                     default:
                         out.println("No operation performed");
