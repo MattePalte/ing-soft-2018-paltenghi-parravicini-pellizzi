@@ -1,7 +1,7 @@
-package projectIngSoft;
+package project.ing.soft;
 
-import projectIngSoft.Controller.Controller;
-import projectIngSoft.Controller.IController;
+import project.ing.soft.controller.Controller;
+import project.ing.soft.controller.IController;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
