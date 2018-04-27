@@ -151,7 +151,7 @@ public class Player implements Serializable{
     //      a die is placed in an occupied position -> PositionOccupiedException
     //      a die placed doesn't match rules -> RuleViolatedExceptions
     //      a pattern constraint is violated -> PatternConstraintViolatedException
-    public void placeDie(Die aDie, int row, int col) throws PositionOccupiedException, PatternConstraintViolatedException, RuleViolatedException {
+    public void placeDie(Die aDie, int row, int col, boolean checkPresence) throws PositionOccupiedException, PatternConstraintViolatedException, RuleViolatedException {
         if(hasPlacedADieInThisTurn)
             throw new RuleViolatedException("Player can't place more than a die at turn.");
 
@@ -166,7 +166,7 @@ public class Player implements Serializable{
         }
 
 
-        checkPlaceDie                     (aDie, row, col, true, true, hasEverPlacedADie);
+        checkPlaceDie                     (aDie, row, col, true, true, hasEverPlacedADie && checkPresence);
         placeDieWithoutConstraints        (aDie, row, col);
 
 
@@ -177,10 +177,16 @@ public class Player implements Serializable{
             throw new RuleViolatedException("The destination cell is already occupied");
         if (placedDice[start.getRow()][start.getCol()] == null)
             throw new RuleViolatedException("There's no die to move at the specified cell");
-        Die dieToMove = placedDice[start.getRow()][start.getCol()];
-
-
+        Die dieToMove = removeDie(start.getRow(), start.getCol());
         checkPlaceDie(dieToMove, end.getRow(), end.getCol(), checkColour, checkValue, checkPresence);
+        placedDice[end.getRow()][end.getCol()] = dieToMove;
+    }
+
+    private Die removeDie(int row, int col){
+        Die ret;
+        ret = placedDice[row][col];
+        placedDice[row][col] = null;
+        return ret;
     }
 
     private void checkPlaceDie(Die aDie, int row, int col, boolean checkColor, boolean checkValue, boolean checkPresence) throws RuleViolatedException, PatternConstraintViolatedException {
@@ -222,7 +228,7 @@ public class Player implements Serializable{
         return ret;
     }
 
-    private boolean isThereAnAdjacentDie(int row, int col)  {
+    public boolean isThereAnAdjacentDie(int row, int col)  {
         for (int deltaRow = -1; deltaRow <= 1 ; deltaRow++) {
             for (int deltaCol = -1; deltaCol <= 1; deltaCol++) {
 

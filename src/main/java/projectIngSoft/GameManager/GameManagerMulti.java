@@ -38,7 +38,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
     private ArrayList<Player>           currentTurnList;
     private Map<Player, Integer>        favours;
     private List<Pair<Player, Integer>> rank;
-    private Map<ToolCard, Integer>      toolCardCost;
+    private Map<String, Integer>      toolCardCost;
 
     private boolean isFinished;
 
@@ -77,7 +77,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
         // extract in a random fashion 3 toolCard
         this.toolCards = availableToolCards.stream().limit(3).collect(Collectors.toCollection(ArrayList::new));
         for(ToolCard card : toolCards){
-            toolCardCost.put(card, 1);
+            toolCardCost.put(card.getTitle(), 1);
         }
         // remove cards and leave only 3 publicObjective card for the game
         this.publicObjectives = availablePublicObjectives.stream().limit(3).collect(Collectors.toCollection(ArrayList::new));
@@ -283,20 +283,20 @@ public class GameManagerMulti implements IGameManager, Serializable {
     public void playToolCard(ToolCard aToolCard) throws Exception {
         //Because apply effect embed some test of the fields passed with the toolcard itself
 
-        if(favours.get(getCurrentPlayer()) < toolCardCost.get(aToolCard))
+        if(favours.get(getCurrentPlayer()) < toolCardCost.get(aToolCard.getTitle()))
             throw new RuleViolatedException("Ehi! You don't have enough favours to do that, poor man!!");
 
         aToolCard.applyEffect(getCurrentPlayer(), this);
 
         int actualFavours = favours.get(getCurrentPlayer());
-        favours.replace(getCurrentPlayer(), actualFavours - toolCardCost.get(aToolCard));
-        toolCardCost.replace(aToolCard, 2);
+        favours.replace(getCurrentPlayer(), actualFavours - toolCardCost.get(aToolCard.getTitle()));
+        toolCardCost.replace(aToolCard.getTitle(), 2);
         getCurrentPlayer().update( new ModelChangedEvent(new GameManagerMulti(this)));
     }
 
     @Override
     public void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception {
-        getCurrentPlayer().placeDie(aDie,rowIndex,colIndex);
+        getCurrentPlayer().placeDie(aDie,rowIndex,colIndex, true);
         draftPool.remove(aDie);
 
         getCurrentPlayer().update( new ModelChangedEvent(new GameManagerMulti(this)));
@@ -344,6 +344,37 @@ public class GameManagerMulti implements IGameManager, Serializable {
     @Override
     public void swapWithRoundTracker(Die toRemove, Die toAdd) {
         rounds.swapDie(toRemove, toAdd);
+    }
+
+    @Override
+    public void rollDraftPool(){
+        for(int i = 0; i < draftPool.size(); i++){
+            draftPool.add(i, draftPool.remove(i).rollDie());
+
+        }
+    }
+
+    @Override
+    public void addToDicebag(Die aDie){
+        diceBag.add(aDie.rollDie());
+        Collections.shuffle(diceBag);
+    }
+
+    @Override
+    public void drawFromDicebag(){
+        addToDraft(diceBag.remove(new Random().nextInt(diceBag.size())));
+    }
+
+    @Override
+    public void samePlayerAgain(){
+        for(int i = currentTurnList.size() - 1; i >= 0; i--){
+            if(currentTurnList.get(i).getName().equals(getCurrentPlayer().getName())) {
+                currentTurnList.remove(i);
+                break;
+            }
+        }
+        currentTurnList.add(1, getCurrentPlayer());
+
     }
 
     private ArrayList<Player> createTurns(List<Player> players){

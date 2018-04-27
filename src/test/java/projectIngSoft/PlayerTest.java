@@ -65,22 +65,22 @@ public class PlayerTest {
         try {
 
             System.out.println(p );
-            p .placeDie(new Die(2, Colour.YELLOW),0,0);
+            p .placeDie(new Die(2, Colour.YELLOW),0,0, true);
             p.resetDieFlag();
             System.out.println(p );
-            p .placeDie(new Die(3, Colour.BLUE),0,1);
+            p .placeDie(new Die(3, Colour.BLUE),0,1, true);
             p.resetDieFlag();
             System.out.println(p );
-            p .placeDie(new Die(4, Colour.RED),0,2);
+            p .placeDie(new Die(4, Colour.RED),0,2, true);
             p.resetDieFlag();
             System.out.println(p );
-            p .placeDie(new Die(5, Colour.GREEN),0,3);
+            p .placeDie(new Die(5, Colour.GREEN),0,3, true);
             p.resetDieFlag();
             System.out.println(p );
-            p .placeDie(new Die(1, Colour.VIOLET),0,4);
+            p .placeDie(new Die(1, Colour.VIOLET),0,4, true);
             p.resetDieFlag();
             System.out.println(p );
-            p .placeDie(new Die(6, Colour.GREEN),1,0);
+            p .placeDie(new Die(6, Colour.GREEN),1,0, true);
             p.resetDieFlag();
 
 
@@ -124,7 +124,7 @@ public class PlayerTest {
         Die aDieToPlace = new Die(5, Colour.YELLOW);
         int modifiedRow = 0;
         int modifiedCol = 0;
-        p.placeDie(aDieToPlace, modifiedRow, modifiedCol);
+        p.placeDie(aDieToPlace, modifiedRow, modifiedCol, true);
 
         Die[][] finalMatrix = p.getPlacedDice();
         // check that only that die has changed
@@ -160,7 +160,7 @@ public class PlayerTest {
                 p = new Player(testPlayerWithWhitePatternCardNoMove);
                 err = false;
                 try {
-                    p.placeDie(aDie, row, col);
+                    p.placeDie(aDie, row, col, true);
                 } catch (RuleViolatedException e) {
                     err = true;
                 } catch (Exception ignored) {
@@ -191,7 +191,7 @@ public class PlayerTest {
                 p = new Player(testPlayerWithWhitePatternCardNoMove);
                 err = false;
                 try {
-                    p.placeDie(aDie, row, 0);
+                    p.placeDie(aDie, row, 0, true);
                 } catch (RuleViolatedException e) {
                     err = true;
                 } catch (Exception ignored) {
@@ -222,7 +222,7 @@ public class PlayerTest {
                         p = new Player(testPlayer);
                         err = false;
                         try {
-                            p.placeDie( aCompatibleDie, row, col);
+                            p.placeDie( aCompatibleDie, row, col, true);
                         } catch (PatternConstraintViolatedException e) {
                             err = true;
                         } catch (Exception ignored) {
@@ -257,7 +257,7 @@ public class PlayerTest {
                     p = new Player(testPlayer);
                     err = false;
                     try {
-                        p.placeDie( aCompatibleDie, row, col);
+                        p.placeDie( aCompatibleDie, row, col, true);
                     } catch (PatternConstraintViolatedException e) {
                         err = true;
                     } catch (Exception ignored) {
@@ -307,7 +307,7 @@ public class PlayerTest {
                 localPlayer = new Player(p);
 
                 try {
-                    localPlayer.placeDie(aDieCompatibleWithConstraint, row, col);
+                    localPlayer.placeDie(aDieCompatibleWithConstraint, row, col, true);
                 } catch (PatternConstraintViolatedException e) {
                     Assert.fail(e.getMessage());
                 } catch (Exception ignored) {
@@ -417,7 +417,7 @@ public class PlayerTest {
             Player p = new Player(testPlayerWithWhitePatternCardNoMove);
             Colour aRandomColour1 = (Colour) otherColors.remove( new Random().nextInt(otherColors.size()));
             try {
-                p.placeDie((new Die(i,aRandomColour1 )), 0,0);
+                p.placeDie((new Die(i,aRandomColour1 )), 0,0, true);
             } catch (Exception ex){
                 Assert.fail(ex.getMessage());
             }
@@ -426,7 +426,7 @@ public class PlayerTest {
 
 
             try {
-                p.placeDie((new Die(i,aRandomColour2 )), 1,0);
+                p.placeDie((new Die(i,aRandomColour2 )), 1,0, true);
                 Assert.fail("A RuleViolatedException should be generated instead");
             } catch(RuleViolatedException ex){
                 System.out.println("ok");
@@ -449,7 +449,7 @@ public class PlayerTest {
             Player p = new Player(testPlayerWithWhitePatternCardNoMove);
             Colour aRandomColour = (Colour) otherColors.remove( new Random().nextInt(otherColors.size()));
             try {
-                p.placeDie((new Die(i,aRandomColour )), 0,0);
+                p.placeDie((new Die(i,aRandomColour )), 0,0, true);
             } catch (Exception ex){
                 Assert.fail(ex.getMessage());
             }
@@ -457,7 +457,7 @@ public class PlayerTest {
 
 
             try {
-                p.placeDie((new Die(i,aRandomColour )), 1,0);
+                p.placeDie((new Die(i,aRandomColour )), 1,0, true);
                 Assert.fail("A RuleViolatedException should be generated instead");
             } catch(RuleViolatedException ex){
                 System.out.println("ok");
@@ -480,7 +480,7 @@ public class PlayerTest {
             Die aDie = new Die(i,aRandomColour1 );
 
             try {
-                p.placeDie( aDie, 0,0);
+                p.placeDie( aDie, 0,0, true);
             } catch (Exception ex){
                 Assert.fail(ex.getMessage());
             }
@@ -488,7 +488,7 @@ public class PlayerTest {
             ArrayList<Die> dice = buildDiceAccordingTo(aDie);
             Collections.shuffle(dice);
             try {
-                p.placeDie(dice.get(0), 1,0);
+                p.placeDie(dice.get(0), 1,0, true);
                 Assert.fail("A RuleViolatedException should be generated instead");
             } catch(RuleViolatedException ex){
                 System.out.println("ok");
@@ -509,7 +509,7 @@ public class PlayerTest {
             Die aDie = new Die(i,aRandomColour1 );
 
             try {
-                p.placeDie( aDie, 0,0);
+                p.placeDie( aDie, 0,0, true);
             } catch (Exception ex){
                 Assert.fail(ex.getMessage());
             }
@@ -519,7 +519,7 @@ public class PlayerTest {
             ArrayList<Die> dice = buildDiceAccordingTo(aDie);
             Collections.shuffle(dice);
             try {
-                p.placeDie(dice.get(0), 0,0);
+                p.placeDie(dice.get(0), 0,0, true);
                 Assert.fail("A PositionOccupiedException should be generated instead");
             } catch(PositionOccupiedException ex){
                 System.out.println("ok");
@@ -552,7 +552,7 @@ public class PlayerTest {
                 p = new Player(testPlayerWithWhitePatternCardNoMove);
 
                 try {
-                    p.placeDie(aDie, row, col);
+                    p.placeDie(aDie, row, col, true);
                 } catch (Exception e) {
                     Assert.fail("Error");
                 }
@@ -567,7 +567,7 @@ public class PlayerTest {
                                 p1 = new Player(p);
                                 err = false;
                                 try {
-                                    p1.placeDie(otherDie, otherRow, otherCol);
+                                    p1.placeDie(otherDie, otherRow, otherCol, true);
                                 } catch (Exception ex) {
                                     err = true;
                                 }
@@ -590,11 +590,11 @@ public class PlayerTest {
         Player p = new Player(testPlayerWithWhitePatternCardNoMove);
 
         try {
-            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(3, Colour.YELLOW), 3,3);
+            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(3, Colour.YELLOW), 3,3, true);
             testPlayerWithWhitePatternCardNoMove.resetDieFlag();
-            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(6, Colour.BLUE), 2,4);
+            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(6, Colour.BLUE), 2,4, true);
             testPlayerWithWhitePatternCardNoMove.resetDieFlag();
-            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(2, Colour.VIOLET), 2,3);
+            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(2, Colour.VIOLET), 2,3, true);
 
         } catch (Exception e) {
            Assert.fail();

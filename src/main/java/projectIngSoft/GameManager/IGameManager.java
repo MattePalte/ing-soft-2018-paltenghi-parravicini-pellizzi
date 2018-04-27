@@ -41,10 +41,15 @@ public interface IGameManager {
     void bindPatternAndPlayer(String nickname, WindowPatternCard windowCard, Boolean side) throws Exception, GameInvalidException;
     void endTurn()                                      throws Exception;
     void swapWithRoundTracker(Die toAdd, Die toRemove);
+    void rollDraftPool();
     List<Pair<Player, Integer>> countPlayersPoints()    throws Exception;
 
     void requestUpdate()                                throws RemoteException;
     void deliverNewStatus(Event event)                  throws RemoteException;
 
+    void addToDicebag(Die aDie);
 
+    void drawFromDicebag();
+
+    void samePlayerAgain();
 }

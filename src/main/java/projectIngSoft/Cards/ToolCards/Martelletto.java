@@ -1,9 +1,13 @@
 package projectIngSoft.Cards.ToolCards;
 
 import projectIngSoft.Colour;
+import projectIngSoft.Die;
 import projectIngSoft.GameManager.IGameManager;
 import projectIngSoft.Player;
 import projectIngSoft.exceptions.MalformedToolCardException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Martelletto extends ToolCard {
     public Martelletto() {
@@ -13,14 +17,17 @@ public class Martelletto extends ToolCard {
 
     @Override
     public void applyEffect(Player p, IGameManager m) throws Exception {
-
+        checkParameters(p,m);
+        m.rollDraftPool();
     }
 
     @Override
     public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
-
+        if(m.getCurrentTurnList().size() > m.getPlayerList().size())
+            throw new MalformedToolCardException("This is not your second turn in this round");
     }
 
+    // Nothing to be filled here
     @Override
     public void fill(IToolCardFiller visitor) {
         visitor.fill(this);

@@ -12,7 +12,6 @@ import projectIngSoft.Player;
 import projectIngSoft.events.*;
 import projectIngSoft.events.Event;
 
-import java.io.PrintStream;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -154,11 +153,11 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     private void takeTurn() throws Exception {
         int cmd = -1;
         List<String> commands = List.of("Place a die",
-                                        "Play a toolcard",
-                                        "Show public objectives",
-                                        "Show my situation",
-                                        "Show my favours",
-                                        "End turn");
+                "Play a toolcard",
+                "Show public objectives",
+                "Show my situation",
+                "Show my favours",
+                "End turn");
 
 
 
@@ -254,19 +253,14 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
         return ret;
     }
 
-    private Coordinate chooseDieCoordinate (String caption) {
+    private Coordinate chooseDieCoordinate (String caption) throws InterruptActionException {
         System.out.println(caption);
         int row = 0;
         int col = 0;
-        try {
-            System.out.println("Row Index [0 - 3]");
-            row = waitForUserInput(0, 3);
-            System.out.println("Col Index [0 - 4]");
-            col = waitForUserInput(0, 4);
-        } catch (Exception e){
-            System.out.println("Default position row: 0 col:0 assumed");
-            row = 0;
-        }
+        System.out.println("Row Index [0 - 3]");
+        row = waitForUserInput(0, 3);
+        System.out.println("Col Index [0 - 4]");
+        col = waitForUserInput(0, 4);
         return new Coordinate(row, col);
 
     }
@@ -288,23 +282,39 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     @Override
     public AlesatoreLaminaRame fill(AlesatoreLaminaRame aToolcard) {
         System.out.println(aToolcard);
-        aToolcard.setStartPosition(chooseDieCoordinate("Enter which die you want to move"));
-        aToolcard.setEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
+        try {
+            aToolcard.setStartPosition(chooseDieCoordinate("Enter which die you want to move"));
+            aToolcard.setEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
+        } catch (InterruptActionException e){
+            return null;
+        }
         return null;
     }
 
     @Override
     public DiluentePastaSalda fill(DiluentePastaSalda aToolcard) {
+        System.out.println(aToolcard);
+        try{
+            System.out.println("Choose a die to take back to the dicebag: ");
+            Die chosenDie = (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
+            aToolcard.setChosenDie(chosenDie);
+        } catch(Exception e){
+            displayError(e);
+        }
         return null;
     }
 
     @Override
     public Lathekin fill(Lathekin aToolcard) {
         System.out.println(aToolcard);
-        aToolcard.setFirstDieStartPosition(chooseDieCoordinate("Enter which is the first die you want to move"));
-        aToolcard.setFirstDieEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
-        aToolcard.setSecondDieStartPosition(chooseDieCoordinate("Enter which is the second die you want to move"));
-        aToolcard.setSecondDieEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
+        try {
+            aToolcard.setFirstDieStartPosition(chooseDieCoordinate("Enter which is the first die you want to move"));
+            aToolcard.setFirstDieEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
+            aToolcard.setSecondDieStartPosition(chooseDieCoordinate("Enter which is the second die you want to move"));
+            aToolcard.setSecondDieEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
+        } catch(InterruptActionException e){
+            return null;
+        }
         return null;
     }
 
@@ -329,8 +339,12 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     @Override
     public PennelloPerEglomise fill(PennelloPerEglomise aToolcard) {
         System.out.println(aToolcard);
-        aToolcard.setStartPosition(chooseDieCoordinate("Enter which die you want to move"));
-        aToolcard.setEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
+        try {
+            aToolcard.setStartPosition(chooseDieCoordinate("Enter which die you want to move"));
+            aToolcard.setEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
+        } catch(InterruptActionException e){
+            return null;
+        }
         return null;
     }
 
@@ -352,6 +366,17 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
     @Override
     public RigaSughero fill(RigaSughero aToolcard) {
+        System.out.println(aToolcard);
+        try {
+            System.out.println("Choose a die from the draftpool: ");
+            Die chosenDie = (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
+            aToolcard.setChosenDie(chosenDie);
+            Coordinate chosenPosition = chooseDieCoordinate("Choose a position away from other dice: ");
+            aToolcard.setPosition(chosenPosition);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return null;
     }
 
@@ -362,6 +387,29 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
     @Override
     public TaglierinaManuale fill(TaglierinaManuale aToolcard) {
+        ArrayList<Coordinate> positions = null;
+        ArrayList<Coordinate> moveTo = null;
+
+        System.out.println(aToolcard);
+        try{
+            System.out.println("Choose a die from the roundtracker: ");
+            Die chosenDie = (Die) chooseFrom(localCopyOfTheStatus.getRoundTracker().getDiceLeftFromRound());
+            aToolcard.setDieFromRoundTracker(chosenDie);
+            positions = new ArrayList<>();
+            moveTo = new ArrayList<>();
+            for(int i = 0; i < 2; i++){
+                positions.add(chooseDieCoordinate("Choose the position of a " + chosenDie.getColour() + " placed die in your pattern"));
+                moveTo.add(chooseDieCoordinate("Choose where you want to move the die you have just chosen"));
+            }
+            aToolcard.setDiceChosen(positions);
+            aToolcard.setMoveTo(moveTo);
+        } catch(InterruptActionException e){
+            aToolcard.setDiceChosen(positions);
+            aToolcard.setMoveTo(moveTo);
+        }
+        catch(Exception e){
+            displayError(e);
+        }
         return null;
     }
 
@@ -385,6 +433,14 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
     @Override
     public TamponeDiamantato fill(TamponeDiamantato aToolcard) {
+        System.out.println(aToolcard);
+        try {
+            System.out.println("Choose a die from the draftpool: ");
+            Die chosenDie = (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
+            aToolcard.setChosenDie(chosenDie);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return null;
     }
 

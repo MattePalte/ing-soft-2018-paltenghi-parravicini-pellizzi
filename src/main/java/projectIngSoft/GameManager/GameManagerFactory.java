@@ -48,22 +48,22 @@ public class GameManagerFactory {
 
     private static ArrayList<ToolCard> getToolCards() {
         if(toolCards == null){
+
             toolCards = new ArrayList<>();
+
             toolCards.add( new PinzaSgrossatrice());
             toolCards.add( new PennelloPerEglomise());
             toolCards.add( new AlesatoreLaminaRame());
             toolCards.add( new Lathekin());
             toolCards.add( new TaglierinaCircolare());
             toolCards.add( new PennelloPastaSalda());
-            /*
             toolCards.add( new DiluentePastaSalda());
             toolCards.add( new Martelletto());
             toolCards.add( new RigaSughero());
-            toolCards.add( new StripCutter());
+            //toolCards.add( new StripCutter());
             toolCards.add( new TaglierinaManuale());
             toolCards.add( new TamponeDiamantato());
             toolCards.add( new TenagliaRotelle());
-            */
         }
         return toolCards;
     }
