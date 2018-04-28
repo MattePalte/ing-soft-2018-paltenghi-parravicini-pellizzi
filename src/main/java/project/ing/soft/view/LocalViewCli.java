@@ -12,7 +12,7 @@ import project.ing.soft.cards.WindowPatternCard;
 import project.ing.soft.controller.IController;
 import project.ing.soft.events.Event;
 
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -24,26 +24,29 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     private IController  controller;
     private String ownerNameOfTheView;
     private boolean stopResponding = false;
-    private transient PrintWriter out;
+    private transient PrintStream out;
 
 
     public LocalViewCli(String ownerNameOfTheView) throws RemoteException {
-        // TODO: come fa una view a sapere chi è il suo "padrone" (player)?
-        // é necessario che lo sappia?? meglio condividere un codice che attesti semplicemente la'utenticità del client
-        //questo perchè il problema sarebbe l'invocazioni di metodi remoti tramite rmi. non posso identificarlo
-
         // getCurrentPlayer da solo il giocatore di turno non il giocatore della view
         this.ownerNameOfTheView = ownerNameOfTheView;
-        this.out = new PrintWriter(System.out);
+        out = new PrintStream(System.out);
+
     }
 
 
     @Override
     public void update(Event aEvent) {
         out.println( ownerNameOfTheView + " ha ricevuto un evento :" + aEvent);
+
         if (!stopResponding) {
             aEvent.accept(this);
         }
+    }
+
+    @Override
+    public void handleException(Exception ex) throws Exception {
+        displayError(ex);
     }
 
     @Override
@@ -81,7 +84,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                 controller.choosePattern(ownerNameOfTheView, aCard, isFront == 1);
 
                 return;
-            } catch (InterruptActionException ex) {
+            } catch (UserInterruptActionException ex) {
                 out.println("The game can't start until you select a window pattern");
             } catch (Exception e) {
                 displayError(e);
@@ -172,7 +175,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                 cmd = chooseIndexFrom(commands);
 
             }
-            catch(InterruptActionException e){
+            catch(UserInterruptActionException e){
                 out.println("If you do not want to perform any action, please end your turn.");
                 cmd = -1;
             }
@@ -213,7 +216,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                 }
 
             }
-            catch(InterruptActionException e){
+            catch(UserInterruptActionException e){
                 out.println("Operation aborted. Please select an action");
             }
             catch(Exception e){
@@ -225,7 +228,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
 
 
-    private int waitForUserInput(int lowerBound , int upperBound) throws InterruptActionException {
+    private int waitForUserInput(int lowerBound , int upperBound) throws UserInterruptActionException {
         int ret = 0;
         boolean err;
         Scanner input = new Scanner(System.in);
@@ -242,7 +245,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
             if(err){
                 if(input.nextLine().startsWith("q"))
-                    throw new InterruptActionException();
+                    throw new UserInterruptActionException();
                 out.println("You entered a value that does not fit into the correct interval. Enter q to interrupt the operation");
 
             }
@@ -256,7 +259,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
         return ret;
     }
 
-    private Coordinate chooseDieCoordinate (String caption) throws InterruptActionException {
+    private Coordinate chooseDieCoordinate (String caption) throws UserInterruptActionException {
         out.println(caption);
         int row = 0;
         int col = 0;
@@ -268,11 +271,11 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
     }
 
-    private Object chooseFrom(List objs) throws InterruptActionException {
+    private Object chooseFrom(List objs) throws UserInterruptActionException {
         return objs.get(chooseIndexFrom(objs));
     }
 
-    private int chooseIndexFrom(List objs) throws InterruptActionException {
+    private int chooseIndexFrom(List objs) throws UserInterruptActionException {
 
         out.println(String.format("Enter a number between 0 and %d to select:", objs.size()-1));
         for (int i = 0; i < objs.size() ; i++) {
@@ -288,7 +291,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
         try {
             aToolcard.setStartPosition(chooseDieCoordinate("Enter which die you want to move"));
             aToolcard.setEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
-        } catch (InterruptActionException e){
+        } catch (UserInterruptActionException e){
             return null;
         }
         return null;
@@ -315,7 +318,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
             aToolcard.setFirstDieEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
             aToolcard.setSecondDieStartPosition(chooseDieCoordinate("Enter which is the second die you want to move"));
             aToolcard.setSecondDieEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
-        } catch(InterruptActionException e){
+        } catch(UserInterruptActionException e){
             return null;
         }
         return null;
@@ -345,7 +348,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
         try {
             aToolcard.setStartPosition(chooseDieCoordinate("Enter which die you want to move"));
             aToolcard.setEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
-        } catch(InterruptActionException e){
+        } catch(UserInterruptActionException e){
             return null;
         }
         return null;
@@ -406,7 +409,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
             }
             aToolcard.setDiceChosen(positions);
             aToolcard.setMoveTo(moveTo);
-        } catch(InterruptActionException e){
+        } catch(UserInterruptActionException e){
             aToolcard.setDiceChosen(positions);
             aToolcard.setMoveTo(moveTo);
         }
@@ -452,6 +455,6 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
         return null;
     }
 
-    private static class InterruptActionException extends Exception {
+    private static class UserInterruptActionException extends Exception {
     }
 }

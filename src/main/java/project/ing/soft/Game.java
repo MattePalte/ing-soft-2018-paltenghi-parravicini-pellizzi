@@ -20,13 +20,16 @@ public class Game implements Serializable{
     public Game(int theMaxNumOfPlayer) {
         // set required number of players for this game
         maxNumPlayer = theMaxNumOfPlayer;
-        // initialize emplty list of player
-        players = new ArrayList<Player>();
+        // initialize empty list of player
+        players = new ArrayList<>();
     }
 
     public Game(Game aGame){
-        maxNumPlayer = aGame.maxNumPlayer;
-        players = new ArrayList<Player>(aGame.players);
+        this.maxNumPlayer = aGame.maxNumPlayer;
+        this.players = new ArrayList<>();
+        for(Player p : aGame.players){
+            this.players.add(new Player(p));
+        }
     }
 
     public int getMaxNumPlayers() {
@@ -41,7 +44,7 @@ public class Game implements Serializable{
     public void add(Player newPlayer) {
         if (players.size() < maxNumPlayer) {
             players.add(newPlayer);
-            System.out.println("New player added: " + newPlayer.getName() + "\n");
+
         }
     }
 
@@ -70,4 +73,18 @@ public class Game implements Serializable{
         players = shiftedList;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        //No because the object could have the same reference but for Objocet serialization something caould have changed if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Game game = (Game) o;
+        return maxNumPlayer == game.maxNumPlayer &&
+                players.equals(game.players);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(maxNumPlayer, players);
+    }
 }

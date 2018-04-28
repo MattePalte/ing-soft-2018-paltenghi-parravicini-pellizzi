@@ -42,6 +42,31 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
     private boolean isFinished;
 
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(currentGame, diceBag, draftPool, rounds, publicObjectives, toolCards, currentTurnList, favours, rank, toolCardCost, isFinished);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GameManagerMulti that = (GameManagerMulti) o;
+        return isFinished == that.isFinished &&
+                currentGame.equals(that.currentGame) &&
+                Objects.equals(diceBag, that.diceBag) &&
+                Objects.equals(draftPool, that.draftPool) &&
+                Objects.equals(rounds, that.rounds) &&
+                Objects.equals(publicObjectives, that.publicObjectives) &&
+                Objects.equals(toolCards, that.toolCards) &&
+                Objects.equals(currentTurnList, that.currentTurnList) &&
+                Objects.equals(favours, that.favours) &&
+                Objects.equals(rank, that.rank) &&
+                Objects.equals(toolCardCost, that.toolCardCost);
+    }
+
+
     //@Signals Exception aGame.isValid() || aGame.numOfPlayers() <= 1 or aGame.numOfPlayers()> 4
     public GameManagerMulti(Game aGame,
                             List<PublicObjective> availablePublicObjectives,
@@ -118,13 +143,17 @@ public class GameManagerMulti implements IGameManager, Serializable {
     }
 
     private GameManagerMulti(GameManagerMulti gameManagerMulti){
-        this.currentGame        = new Game(gameManagerMulti.getGameInfo());
+        this.currentGame        = new Game(gameManagerMulti.currentGame);
         this.diceBag            = new ArrayList<> (gameManagerMulti.diceBag);
         this.draftPool          = new ArrayList<> (gameManagerMulti.draftPool);
         this.rounds             = new RoundTracker(gameManagerMulti.rounds);
         this.publicObjectives   = new ArrayList<> (gameManagerMulti.publicObjectives);
         this.toolCards          = new ArrayList<> (gameManagerMulti.toolCards);
-        this.currentTurnList    = new ArrayList<> (gameManagerMulti.currentTurnList);
+        this.currentTurnList = new ArrayList<>();
+        for(Player p : gameManagerMulti.currentTurnList){
+            this.currentTurnList.add(new Player(p));
+        }
+
         this.rank               = new ArrayList<> (gameManagerMulti.rank);
         this.toolCardCost       = new HashMap<>   (gameManagerMulti.toolCardCost);
         this.favours            = new HashMap<>   (gameManagerMulti.favours);
@@ -182,7 +211,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
     }
 
     @Override
-    public void setupPhase() throws RemoteException{
+    public void setupPhase() throws Exception{
         //distribute event for selecting a WindowPatternCard
 
         for(Player p : currentGame.getPlayers()){
@@ -190,7 +219,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
                 try {
                     p.update(new ModelChangedEvent(new GameManagerMulti(this)));
                     p.update(new PatternCardDistributedEvent(p.getPossiblePatternCard().get(0), p.getPossiblePatternCard().get(1)));
-                } catch(RemoteException e){
+                } catch(Exception e){
                     e.printStackTrace();
                 }
             }).start();
@@ -261,14 +290,14 @@ public class GameManagerMulti implements IGameManager, Serializable {
     }
 
     @Override
-    public void requestUpdate() throws RemoteException{
+    public void requestUpdate() throws Exception{
 
         deliverNewStatus( new ModelChangedEvent( new GameManagerMulti(this)));
 
     }
 
     @Override
-    public void deliverNewStatus(Event event) throws RemoteException{
+    public void deliverNewStatus(Event event) throws Exception{
         for (Player subscriber : currentGame.getPlayers()) {
             subscriber.update( event);
         }

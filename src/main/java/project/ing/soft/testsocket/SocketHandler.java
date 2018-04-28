@@ -35,8 +35,10 @@ public class SocketHandler implements IRequestHandler, Runnable{
 
     public SocketHandler(Socket aSocket,Map<Game, IController> hostedGames) throws IOException {
         this.aSocket    = aSocket;
-        this.fromClient = new ObjectInputStream(aSocket.getInputStream());
+
         this.toClient   = new ObjectOutputStream(aSocket.getOutputStream());
+        this.toClient.flush();
+        this.fromClient = new ObjectInputStream(aSocket.getInputStream());
         this.hostedGames= hostedGames;
         this.log        = Logger.getLogger(aSocket.toString());
         this.log.setUseParentHandlers(false);
@@ -81,6 +83,31 @@ public class SocketHandler implements IRequestHandler, Runnable{
 
     @Override
     public void handle(PlaceDieRequest aRequest) {
+
+    }
+
+    @Override
+    public void handle(UpdateRequest aRequest) {
+
+    }
+
+    @Override
+    public void handle(PlayToolCardRequest aRequest) {
+
+    }
+
+    @Override
+    public void handle(EndTurnRequest aRequest) {
+
+    }
+
+    @Override
+    public void handle(choosePatternRequest aRequest) {
+
+    }
+
+    @Override
+    public void handle(joinTheGameRequest aRequest) {
 
     }
 

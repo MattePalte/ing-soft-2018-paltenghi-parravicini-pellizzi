@@ -1,5 +1,7 @@
 package project.ing.soft.events;
 
-public interface Event {
+import java.io.Serializable;
+
+public interface Event extends Serializable {
     void accept(IEventHandler eventHandler);
 }

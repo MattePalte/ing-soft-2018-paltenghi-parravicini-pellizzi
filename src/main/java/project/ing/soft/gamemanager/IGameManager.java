@@ -12,11 +12,12 @@ import project.ing.soft.cards.WindowPatternCard;
 import project.ing.soft.Player;
 import project.ing.soft.RoundTracker;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Map;
 
-public interface IGameManager {
+public interface IGameManager extends Serializable {
     Game getGameInfo();
 
     List<Player>            getPlayerList();
@@ -31,7 +32,7 @@ public interface IGameManager {
 
     Player getWinner()                                  throws Exception;
     void start()                                        throws Exception;
-    void setupPhase()                                   throws RemoteException;
+    void setupPhase()                                   throws RemoteException, Exception;
     void playToolCard(ToolCard aToolCard)               throws Exception;
     void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception;
     void removeFromDraft(Die aDie);
@@ -42,8 +43,8 @@ public interface IGameManager {
     void rollDraftPool();
     List<Pair<Player, Integer>> countPlayersPoints()    throws Exception;
 
-    void requestUpdate()                                throws RemoteException;
-    void deliverNewStatus(Event event)                  throws RemoteException;
+    void requestUpdate()                                throws RemoteException, Exception;
+    void deliverNewStatus(Event event)                  throws RemoteException, Exception;
 
     void addToDicebag(Die aDie);
 

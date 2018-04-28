@@ -16,7 +16,9 @@ import project.ing.soft.view.IView;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class Player implements Serializable{
     private final String            name;
@@ -28,7 +30,7 @@ public class Player implements Serializable{
     private PrivateObjective        myPrivateObjective;
     private Die[][]                 placedDice;
 
-    private IView                   myView;
+    private transient IView         myView;
     private boolean                 hasPlacedADieInThisTurn;
     private boolean                 hasEverPlacedADie;
 
@@ -248,11 +250,11 @@ public class Player implements Serializable{
     //endregion
 
 
-    public void update(Event event) throws RemoteException{
+    public void update(Event event) throws Exception{
         myView.update( event);
     }
 
-    public void giveControllerToTheView(IController aController) throws RemoteException {
+    public void giveControllerToTheView(IController aController) throws Exception {
 
         myView.attachController(aController);
     }
@@ -260,6 +262,31 @@ public class Player implements Serializable{
     public String getPlayerSecurityCode(){
         //TODO: build a code that identifies my view.
         return new String("Codice");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        //if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Player player = (Player) o;
+        return isPatternFlipped == player.isPatternFlipped &&
+                hasPlacedADieInThisTurn == player.hasPlacedADieInThisTurn &&
+                hasEverPlacedADie == player.hasEverPlacedADie &&
+                Objects.equals(name, player.name) &&
+                Objects.equals(myWindowPatternCard, player.myWindowPatternCard) &&
+                Objects.equals(possiblePatternCards, player.possiblePatternCards) &&
+                Objects.equals(myPrivateObjective, player.myPrivateObjective) &&
+                Arrays.deepEquals(placedDice, player.placedDice) &&
+                Objects.equals(myView, player.myView);
+    }
+
+
+    @Override
+    public int hashCode() {
+
+        int result = Objects.hash(name, isPatternFlipped, myWindowPatternCard, possiblePatternCards, myPrivateObjective, myView, hasPlacedADieInThisTurn, hasEverPlacedADie);
+        result = 31 * result + Arrays.deepHashCode(placedDice);
+        return result;
     }
 
     /**

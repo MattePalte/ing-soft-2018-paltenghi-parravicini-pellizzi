@@ -11,6 +11,9 @@ import project.ing.soft.cards.Constraint;
 import project.ing.soft.cards.objectives.privates.SfumatureBlu;
 
 import java.io.File;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.SequenceInputStream;
 import java.rmi.RemoteException;
 import java.util.*;
 
@@ -603,6 +606,11 @@ public class PlayerTest {
 
     }
 
+    //region serialization
+    public void testSerialization(){
 
+    }
+
+    //endregion
 
 }

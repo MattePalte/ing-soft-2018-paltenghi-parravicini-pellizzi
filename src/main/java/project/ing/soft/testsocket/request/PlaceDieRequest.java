@@ -8,7 +8,7 @@ public class PlaceDieRequest implements IRequest {
     private int colIndex;
     private int rowIndex;
 
-    public PlaceDieRequest(Die aDie, String nickname, int colIndex, int rowIndex) {
+    public PlaceDieRequest( String nickname,Die aDie, int colIndex, int rowIndex) {
         this.aDie = aDie;
         this.nickname = nickname;
         this.colIndex = colIndex;

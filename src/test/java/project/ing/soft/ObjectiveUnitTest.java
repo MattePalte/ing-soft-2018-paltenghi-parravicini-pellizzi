@@ -273,8 +273,8 @@ public class ObjectiveUnitTest {
         tested = new SfumatureBlu();
         int height = playerStub.getPattern().getHeight();
         int width = playerStub.getPattern().getWidth();
-        int row = 0;
-        int col = 0;
+        int row ;
+        int col ;
 
         setPrivateObjTest(playerStub, Colour.BLUE);
 
@@ -304,8 +304,8 @@ public class ObjectiveUnitTest {
         tested = new SfumatureGialle();
         int height = playerStub.getPattern().getHeight();
         int width = playerStub.getPattern().getWidth();
-        int row = 0;
-        int col = 0;
+        int row ;
+        int col ;
 
         setPrivateObjTest(playerStub, Colour.YELLOW);
 
@@ -334,8 +334,8 @@ public class ObjectiveUnitTest {
         tested = new SfumatureRosse();
         int height = playerStub.getPattern().getHeight();
         int width = playerStub.getPattern().getWidth();
-        int row = 0;
-        int col = 0;
+        int row ;
+        int col ;
 
         setPrivateObjTest(playerStub, Colour.RED);
 
@@ -364,8 +364,8 @@ public class ObjectiveUnitTest {
         tested = new SfumatureVerdi();
         int height = playerStub.getPattern().getHeight();
         int width = playerStub.getPattern().getWidth();
-        int row = 0;
-        int col = 0;
+        int row ;
+        int col ;
 
         setPrivateObjTest(playerStub, Colour.GREEN);
 
@@ -394,8 +394,8 @@ public class ObjectiveUnitTest {
         tested = new SfumatureViola();
         int height = playerStub.getPattern().getHeight();
         int width = playerStub.getPattern().getWidth();
-        int row = 0;
-        int col = 0;
+        int row ;
+        int col ;
 
         setPrivateObjTest(playerStub, Colour.VIOLET);
 
@@ -437,8 +437,8 @@ public class ObjectiveUnitTest {
 
     // Returns random row and col indexes of a position not occupied
     private Pair<Integer, Integer> randomIndexes(Die[][] placedDice){
-        int row = 0;
-        int col = 0;
+        int row;
+        int col;
 
         do{
             row = rndGen.nextInt(4);
