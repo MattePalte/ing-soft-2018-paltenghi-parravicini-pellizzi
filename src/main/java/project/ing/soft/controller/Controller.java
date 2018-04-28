@@ -1,5 +1,6 @@
 package project.ing.soft.controller;
 
+import com.oracle.tools.packager.Log;
 import project.ing.soft.Die;
 import project.ing.soft.Game;
 import project.ing.soft.exceptions.GameInvalidException;
@@ -10,6 +11,7 @@ import project.ing.soft.gamemanager.IGameManager;
 import project.ing.soft.Player;
 import project.ing.soft.view.IView;
 
+import java.io.PrintStream;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -21,13 +23,13 @@ public class Controller extends UnicastRemoteObject implements IController, Seri
 
     private transient IGameManager gameManager;
     private transient Game         theGame;
-    private transient Logger       logger;
+    private transient PrintStream  logger;
     private long startTime;
     private boolean timeoutExpired = false;
 
     public Controller(int maxNumberOfPlayer) throws RemoteException{
         this.theGame = new Game(maxNumberOfPlayer);
-        this.logger  = Logger.getLogger("err");
+        this.logger  = new PrintStream(System.out);
         this.startTime = System.currentTimeMillis();
 
         /*new Thread( () -> {
@@ -51,14 +53,14 @@ public class Controller extends UnicastRemoteObject implements IController, Seri
         if (theGame.getNumberOfPlayers() < theGame.getMaxNumPlayers()) {
             theGame.add(new Player(playerName, view));
             startTime = System.currentTimeMillis();
-            logger.log(Level.INFO, "{0} added to the match ;)", playerName);
+            logger.println( playerName +" added to the match ;)");
         } else {
-            logger.log(Level.INFO,  "{0} wants to join the game... no space :(",playerName);
+            logger.println( playerName + " wants to join the game... no space :(");
         }
         //TODO: provide a timeout to start the game also with less than the max nr of player
         if (theGame.getNumberOfPlayers() == theGame.getMaxNumPlayers()) {
             this.gameManager = GameManagerFactory.factory(theGame);
-            logger.log(Level.INFO, "Setup starting");
+           logger.println( "Setup starting");
             gameManager.setupPhase();
         }
     }
