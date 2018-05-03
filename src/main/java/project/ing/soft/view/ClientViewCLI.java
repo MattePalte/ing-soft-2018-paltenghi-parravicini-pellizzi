@@ -84,6 +84,11 @@ public class ClientViewCLI extends Thread implements IView, IEventHandler, ITool
     }
 
     @Override
+    public void respondTo(PlaceThisDieEvent event) {
+
+    }
+
+    @Override
     public void respondTo(CurrentPlayerChangedEvent event) {
         synchronized (events){
             events.remove(0);

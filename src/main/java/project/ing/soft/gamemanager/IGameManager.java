@@ -26,7 +26,7 @@ public interface IGameManager extends Serializable {
     List<PublicObjective>   getPublicObjective();
     List<Card>              getPublicCards();
     List<Die>               getDraftPool();
-    Map<Player, Integer>    getFavours();
+    Map<String, Integer>    getFavours();
     RoundTracker            getRoundTracker();
     List<Player>            getCurrentTurnList();
 
@@ -48,7 +48,7 @@ public interface IGameManager extends Serializable {
 
     void addToDicebag(Die aDie);
 
-    void drawFromDicebag();
+    Die drawFromDicebag();
 
     void samePlayerAgain();
 }

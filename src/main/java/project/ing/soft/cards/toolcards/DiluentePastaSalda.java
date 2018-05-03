@@ -1,10 +1,14 @@
 package project.ing.soft.cards.toolcards;
 
+import project.ing.soft.Coordinate;
 import project.ing.soft.Die;
+import project.ing.soft.events.PlaceThisDieEvent;
 import project.ing.soft.gamemanager.IGameManager;
 import project.ing.soft.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
 import project.ing.soft.Colour;
+
+import java.util.ArrayList;
 
 public class DiluentePastaSalda extends ToolCard {
     private Die chosenDie;
@@ -23,7 +27,11 @@ public class DiluentePastaSalda extends ToolCard {
     public void applyEffect(Player p, IGameManager m) throws Exception {
         // TODO: Make current player place the die drawn from the dicebag, if he can
         m.removeFromDraft(chosenDie);
-        m.drawFromDicebag();
+        Die toBePlaced = m.drawFromDicebag();
+        ArrayList<Coordinate> compatiblePositions = new ArrayList<>(p.getCompatiblePositions(toBePlaced));
+        if(!compatiblePositions.isEmpty()){
+            p.update(new PlaceThisDieEvent(toBePlaced, compatiblePositions));
+        }
     }
 
     @Override

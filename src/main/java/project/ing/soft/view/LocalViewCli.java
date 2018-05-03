@@ -18,6 +18,10 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHandler, IToolCardFiller, Serializable {
     private IGameManager localCopyOfTheStatus;
@@ -25,13 +29,35 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     private String ownerNameOfTheView;
     private boolean stopResponding = false;
     private transient PrintStream out;
-
+    private final transient Queue<Event> eventsReceived;
 
     public LocalViewCli(String ownerNameOfTheView) throws RemoteException {
         // getCurrentPlayer da solo il giocatore di turno non il giocatore della view
         this.ownerNameOfTheView = ownerNameOfTheView;
         out = new PrintStream(System.out);
+        eventsReceived = new LinkedList<>();
 
+        new Thread( () -> {
+            Event toRespond = null;
+
+            while(true) {
+                synchronized (eventsReceived) {
+                    try {
+                        while (eventsReceived.isEmpty())
+                            eventsReceived.wait();
+                        toRespond = eventsReceived.remove();
+                    } catch (InterruptedException e) {
+                        displayError(e);
+                    }
+                }
+                if (toRespond != null)
+                    toRespond.accept(this);
+                toRespond = null;
+                synchronized (eventsReceived) {
+                    eventsReceived.notifyAll();
+                }
+            }
+        }).start();
     }
 
 
@@ -40,7 +66,11 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
         out.println( ownerNameOfTheView + " ha ricevuto un evento :" + aEvent);
 
         if (!stopResponding) {
-            aEvent.accept(this);
+            synchronized (eventsReceived) {
+                eventsReceived.add(aEvent);
+                eventsReceived.notifyAll();
+            }
+            //aEvent.accept(this);
         }
     }
 
@@ -50,13 +80,34 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     }
 
     @Override
-    public void respondTo(CurrentPlayerChangedEvent event) {
+    public void respondTo(PlaceThisDieEvent event){
+        Coordinate chosenPosition = null;
 
+        do {
+            try {
+                out.println("Choose a position where to place this die: " + event.getToBePlaced());
+                chosenPosition = (Coordinate) chooseFrom(event.getCompatiblePositions());
+            } catch (UserInterruptActionException e) {
+                chosenPosition = null;
+                out.println("You must choose where to place this die: " + event.getToBePlaced());
+            }
+        }
+        while(chosenPosition == null);
+        try {
+            controller.placeDie(ownerNameOfTheView, event.getToBePlaced(), chosenPosition.getRow(), chosenPosition.getCol());
+        } catch (Exception e) {
+            displayError(e);
+        }
+    }
+
+    @Override
+    public void respondTo(CurrentPlayerChangedEvent event) {
+        return;
     }
 
     @Override
     public void respondTo(FinishedSetupEvent event) {
-
+        return;
     }
 
     @Override
@@ -95,11 +146,14 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
     @Override
     public void respondTo(MyTurnStartedEvent event) {
-        try {
-            takeTurn();
-        } catch (Exception e) {
-            displayError(e);
-        }
+
+        new Thread(() -> {
+            try {
+                takeTurn();
+            } catch (Exception e) {
+                displayError(e);
+            }
+        }).start();
     }
 
     @Override
@@ -159,15 +213,19 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     private void takeTurn() throws Exception {
         int cmd = -1;
         List<String> commands = List.of("Place a die",
-                                        "Play a toolcard",
-                                        "Show public objectives",
-                                        "Show my situation",
-                                        "Show my favours",
-                                        "End turn");
+                "Play a toolcard",
+                "Show public objectives",
+                "Show my situation",
+                "Show my favours",
+                "End turn");
 
 
 
         do{
+            synchronized (eventsReceived) {
+                while(!eventsReceived.isEmpty())
+                    eventsReceived.wait();
+            }
             displayMySituation();
             out.println("Take your turn " + localCopyOfTheStatus.getCurrentPlayer().getName());
 
@@ -205,7 +263,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                         displayMySituation();
                         break;
                     case 4:
-                        out.println("You still have " + localCopyOfTheStatus.getFavours().get(localCopyOfTheStatus.getCurrentPlayer()));
+                        out.println("You still have " + localCopyOfTheStatus.getFavours().get(localCopyOfTheStatus.getCurrentPlayer().getName()));
                         break;
                     case 5:
                         controller.endTurn(ownerNameOfTheView);
@@ -263,9 +321,9 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
         out.println(caption);
         int row = 0;
         int col = 0;
-        System.out.println("Row Index [0 - 3]");
+        out.println("Row Index [0 - 3]");
         row = waitForUserInput(0, 3);
-        System.out.println("Col Index [0 - 4]");
+        out.println("Col Index [0 - 4]");
         col = waitForUserInput(0, 4);
         return new Coordinate(row, col);
 
@@ -299,9 +357,9 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
     @Override
     public DiluentePastaSalda fill(DiluentePastaSalda aToolcard) {
-        System.out.println(aToolcard);
+        out.println(aToolcard);
         try{
-            System.out.println("Choose a die to take back to the dicebag: ");
+            out.println("Choose a die to take back to the dicebag: ");
             Die chosenDie = (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
             aToolcard.setChosenDie(chosenDie);
         } catch(Exception e){
@@ -372,9 +430,9 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
     @Override
     public RigaSughero fill(RigaSughero aToolcard) {
-        System.out.println(aToolcard);
+        out.println(aToolcard);
         try {
-            System.out.println("Choose a die from the draftpool: ");
+            out.println("Choose a die from the draftpool: ");
             Die chosenDie = (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
             aToolcard.setChosenDie(chosenDie);
             Coordinate chosenPosition = chooseDieCoordinate("Choose a position away from other dice: ");
@@ -396,9 +454,9 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
         ArrayList<Coordinate> positions = null;
         ArrayList<Coordinate> moveTo = null;
 
-        System.out.println(aToolcard);
+        out.println(aToolcard);
         try{
-            System.out.println("Choose a die from the roundtracker: ");
+            out.println("Choose a die from the roundtracker: ");
             Die chosenDie = (Die) chooseFrom(localCopyOfTheStatus.getRoundTracker().getDiceLeftFromRound());
             aToolcard.setDieFromRoundTracker(chosenDie);
             positions = new ArrayList<>();
@@ -439,9 +497,9 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
     @Override
     public TamponeDiamantato fill(TamponeDiamantato aToolcard) {
-        System.out.println(aToolcard);
+        out.println(aToolcard);
         try {
-            System.out.println("Choose a die from the draftpool: ");
+            out.println("Choose a die from the draftpool: ");
             Die chosenDie = (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
             aToolcard.setChosenDie(chosenDie);
         } catch (Exception e) {

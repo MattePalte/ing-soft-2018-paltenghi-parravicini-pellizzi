@@ -36,7 +36,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
     private ArrayList<ToolCard>         toolCards;
     private ArrayList<Player>           currentTurnList;
-    private Map<Player, Integer>        favours;
+    private Map<String, Integer>        favours;
     private List<Pair<Player, Integer>> rank;
     private Map<String, Integer>      toolCardCost;
 
@@ -233,7 +233,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
             if (p.getName().equals(nickname)){
                 p.setPatternCard(windowCard);
                 p.setPatternFlipped(side);
-                favours.put(p, p.getPattern().getDifficulty());
+                favours.put(p.getName(), p.getPattern().getDifficulty());
             }
         }
         // check if all players have chosen their card
@@ -260,7 +260,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
                 sum += pubObj.countPoints(p);
             }
 
-            sum += favours.get(p);
+            sum += favours.get(p.getName());
             sum -= getEmptyCells(p.getPlacedDice());
 
 
@@ -270,8 +270,9 @@ public class GameManagerMulti implements IGameManager, Serializable {
         rank.sort(Comparator
                 .comparingInt((ToIntFunction<Pair<Player, Integer>>) Pair::getValue)
                 .thenComparingInt((Pair<Player, Integer> p)-> p.getKey().countPrivateObjectivesPoints() )
-                .thenComparingInt((Pair<Player, Integer> p)-> favours.get(p.getKey()))
+                .thenComparingInt((Pair<Player, Integer> p)-> favours.get(p.getKey().getName()))
                 .thenComparingInt( (Pair<Player, Integer> p) -> currentGame.getPlayers().indexOf(p.getKey()))
+                .reversed()
         );
 
         return rank;
@@ -312,13 +313,13 @@ public class GameManagerMulti implements IGameManager, Serializable {
     public void playToolCard(ToolCard aToolCard) throws Exception {
         //Because apply effect embed some test of the fields passed with the toolcard itself
 
-        if(favours.get(getCurrentPlayer()) < toolCardCost.get(aToolCard.getTitle()))
+        if(favours.get(getCurrentPlayer().getName()) < toolCardCost.get(aToolCard.getTitle()))
             throw new RuleViolatedException("Ehi! You don't have enough favours to do that, poor man!!");
 
         aToolCard.applyEffect(getCurrentPlayer(), this);
 
-        int actualFavours = favours.get(getCurrentPlayer());
-        favours.replace(getCurrentPlayer(), actualFavours - toolCardCost.get(aToolCard.getTitle()));
+        int actualFavours = favours.get(getCurrentPlayer().getName());
+        favours.replace(getCurrentPlayer().getName(), actualFavours - toolCardCost.get(aToolCard.getTitle()));
         toolCardCost.replace(aToolCard.getTitle(), 2);
         getCurrentPlayer().update( new ModelChangedEvent(new GameManagerMulti(this)));
     }
@@ -361,7 +362,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
     }
     @Override
-    public Map<Player, Integer> getFavours(){
+    public Map<String, Integer> getFavours(){
         return favours;
     }
 
@@ -390,8 +391,12 @@ public class GameManagerMulti implements IGameManager, Serializable {
     }
 
     @Override
-    public void drawFromDicebag(){
-        addToDraft(diceBag.remove(new Random().nextInt(diceBag.size())));
+    public Die drawFromDicebag(){
+        Die ret;
+
+        ret = diceBag.remove(new Random().nextInt(diceBag.size()));
+        addToDraft(ret);
+        return ret;
     }
 
     @Override

@@ -28,7 +28,7 @@ public class LaunchServer {
         // where 192.168.x.x is the internal ip of the machine hosting the registry
         // decomment this -> System.setProperty("java.rmi.server.hostname","192.168.x.x");
 
-        IController controller = new Controller(4);
+        IController controller = new Controller(2);
         System.out.println(">>> Controller exported");
 
         Registry registry = LocateRegistry.getRegistry();

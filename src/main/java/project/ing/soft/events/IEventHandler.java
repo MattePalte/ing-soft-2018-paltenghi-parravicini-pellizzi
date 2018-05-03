@@ -1,6 +1,8 @@
 package project.ing.soft.events;
 
 public interface IEventHandler {
+    void respondTo(PlaceThisDieEvent event);
+
     void respondTo(CurrentPlayerChangedEvent event);
     void respondTo(FinishedSetupEvent event);
     void respondTo(GameFinishedEvent event);

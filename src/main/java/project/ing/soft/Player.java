@@ -190,6 +190,22 @@ public class Player implements Serializable{
         return ret;
     }
 
+    public List<Coordinate> getCompatiblePositions(Die aDie){
+        ArrayList<Coordinate> ret = new ArrayList<>();
+
+        for(int row = 0; row < placedDice.length; row++){
+            for(int col = 0; col < placedDice[0].length; col++){
+                try{
+                    checkPlaceDie(aDie, row, col, true, true, true);
+                    ret.add(new Coordinate(row, col));
+                } catch (Exception e) {
+
+                }
+            }
+        }
+        return ret;
+    }
+
     private void checkPlaceDie(Die aDie, int row, int col, boolean checkColor, boolean checkValue, boolean checkPresence) throws RuleViolatedException, PatternConstraintViolatedException {
         //check pattern contraint in row,col
         Constraint actualConstraint = getPattern().getConstraintsMatrix()[row][col];
