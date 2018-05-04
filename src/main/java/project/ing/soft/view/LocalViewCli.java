@@ -259,7 +259,6 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                         out.println("Choose a toolcard: ");
                         ToolCard aToolCard =  (ToolCard) chooseFrom(localCopyOfTheStatus.getToolCards());
                         aToolCard.fill(this);
-                        controller.playToolCard(ownerNameOfTheView, aToolCard);
                         fut = opExecutor.submit(() -> {
                             controller.playToolCard(ownerNameOfTheView, aToolCard);
                             return true;
