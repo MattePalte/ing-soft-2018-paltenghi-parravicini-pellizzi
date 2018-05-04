@@ -1,11 +1,9 @@
 package project.ing.soft.view;
 
+import project.ing.soft.*;
 import project.ing.soft.cards.objectives.publics.PublicObjective;
 import project.ing.soft.cards.toolcards.*;
-import project.ing.soft.Coordinate;
-import project.ing.soft.Die;
 import project.ing.soft.gamemanager.IGameManager;
-import project.ing.soft.Player;
 import project.ing.soft.events.*;
 import javafx.util.Pair;
 import project.ing.soft.cards.WindowPatternCard;
@@ -14,14 +12,15 @@ import project.ing.soft.events.Event;
 
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHandler, IToolCardFiller, Serializable {
     private IGameManager localCopyOfTheStatus;
@@ -30,12 +29,14 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     private boolean stopResponding = false;
     private transient PrintStream out;
     private final transient Queue<Event> eventsReceived;
+    private transient ExecutorService turnExecutor;
 
     public LocalViewCli(String ownerNameOfTheView) throws RemoteException {
         // getCurrentPlayer da solo il giocatore di turno non il giocatore della view
         this.ownerNameOfTheView = ownerNameOfTheView;
         out = new PrintStream(System.out);
         eventsReceived = new LinkedList<>();
+        turnExecutor = Executors.newSingleThreadExecutor();
 
         new Thread( () -> {
             Event toRespond = null;
@@ -147,13 +148,13 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     @Override
     public void respondTo(MyTurnStartedEvent event) {
 
-        new Thread(() -> {
+        turnExecutor.submit(() -> {
             try {
                 takeTurn();
             } catch (Exception e) {
                 displayError(e);
             }
-        }).start();
+        });
     }
 
     @Override
@@ -212,6 +213,8 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
     private void takeTurn() throws Exception {
         int cmd = -1;
+        ExecutorService opExecutor = Executors.newSingleThreadExecutor();
+
         List<String> commands = List.of("Place a die",
                 "Play a toolcard",
                 "Show public objectives",
@@ -239,20 +242,29 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
             }
 
             try{
+                Future fut;
                 switch(cmd){
                     case 0:
                         out.println(localCopyOfTheStatus.getCurrentPlayer());
                         Coordinate placePosition = chooseDieCoordinate("Enter where you want to place your die");
                         Die chosenDie = (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
 
-                        controller.placeDie(ownerNameOfTheView, chosenDie, placePosition.getRow(), placePosition.getCol());
-
+                        fut = opExecutor.submit(() -> {
+                            controller.placeDie(ownerNameOfTheView, chosenDie, placePosition.getRow(), placePosition.getCol());
+                            return true;
+                        });
+                        fut.get();
                         break;
                     case 1:
                         out.println("Choose a toolcard: ");
                         ToolCard aToolCard =  (ToolCard) chooseFrom(localCopyOfTheStatus.getToolCards());
                         aToolCard.fill(this);
                         controller.playToolCard(ownerNameOfTheView, aToolCard);
+                        fut = opExecutor.submit(() -> {
+                            controller.playToolCard(ownerNameOfTheView, aToolCard);
+                            return true;
+                        });
+                        fut.get();
                         break;
                     case 2:
                         out.println("Public objectives: ");
@@ -513,6 +525,6 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
         return null;
     }
 
-    private static class UserInterruptActionException extends Exception {
+    public static class UserInterruptActionException extends Exception {
     }
 }
