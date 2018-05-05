@@ -253,10 +253,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         }
     }
 
-    @Override
-    public void handleException(Exception ex) throws IOException, Exception {
-
-    }
 
     @Override
     public void attachController(IController gameController) throws RemoteException, Exception {
