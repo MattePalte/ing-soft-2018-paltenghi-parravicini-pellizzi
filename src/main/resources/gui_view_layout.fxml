@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.text.Text?>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="project.ing.soft.gui.GuiView"
+      prefHeight="400.0" prefWidth="600.0" alignment="CENTER">
+    <Text text="Sagrada" styleClass="title"></Text>
+    <Text fx:id="status" ></Text>
+    <TextField fx:id="txtName"></TextField>
+    <Button fx:id="btnGetController" text="Get/Create a proper Controller" onAction="#btnGetControllerOnClick"></Button>
+    <Button fx:id="btnJoin" text="Join the Game" onAction="#btnJoinOnClick" disable="true"></Button>
+    <Button fx:id="btnStartGame" text="Start the Game" onAction="#btnClickStart" disable="true"></Button>
+
+    <GridPane fx:id="matrix" alignment="center" hgap="10" vgap="10" visible="false">
+        <padding><Insets top="25" right="25" bottom="25" left="25"/></padding>
+
+        <Button id="pos00" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+        <Button id="pos01" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+        <Button id="pos02" GridPane.rowIndex="0" GridPane.columnIndex="2" />
+        <Button id="pos03" GridPane.rowIndex="0" GridPane.columnIndex="3" />
+        <Button id="pos04" GridPane.rowIndex="0" GridPane.columnIndex="4" />
+
+        <Button id="pos10" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+        <Button id="pos11" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+        <Button id="pos12" GridPane.rowIndex="1" GridPane.columnIndex="2" />
+        <Button id="pos13" GridPane.rowIndex="1" GridPane.columnIndex="3" />
+        <Button id="pos14" GridPane.rowIndex="1" GridPane.columnIndex="4" />
+
+        <Button id="pos20" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+        <Button id="pos21" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+        <Button id="pos22" GridPane.rowIndex="2" GridPane.columnIndex="2" />
+        <Button id="pos23" GridPane.rowIndex="2" GridPane.columnIndex="3" />
+        <Button id="pos24" GridPane.rowIndex="2" GridPane.columnIndex="4" />
+
+        <Button id="pos30" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+        <Button id="pos31" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+        <Button id="pos32" GridPane.rowIndex="3" GridPane.columnIndex="2" />
+        <Button id="pos33" GridPane.rowIndex="3" GridPane.columnIndex="3" />
+        <Button id="pos34" GridPane.rowIndex="3" GridPane.columnIndex="4" />
+
+
+    </GridPane>
+
+    <VBox fx:id="choosePatternCard" visible="false" alignment="CENTER">
+        <HBox alignment="CENTER">
+            <Button fx:id="btnPrev" text="Prev" onAction="#btnPrevOnCLick"></Button>
+            <Button fx:id="btnNext" text="Next" onAction="#btnNextOnCLick"></Button>
+        </HBox>
+        <Button fx:id="btnChoose" text="Choose this pattern" onAction="#btnChooseOnCLick"></Button>
+    </VBox>
+    <stylesheets>
+        <URL value="@style.css"></URL>
+    </stylesheets>
+</VBox>
