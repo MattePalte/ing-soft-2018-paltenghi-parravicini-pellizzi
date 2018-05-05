@@ -1,15 +1,10 @@
 package project.ing.soft.testsocket;
 
-import project.ing.soft.Die;
 import project.ing.soft.Game;
-import project.ing.soft.cards.WindowPatternCard;
-import project.ing.soft.cards.toolcards.ToolCard;
-import project.ing.soft.exceptions.GameInvalidException;
 import project.ing.soft.testsocket.request.*;
 import project.ing.soft.testsocket.response.CreationGameResponse;
 import project.ing.soft.controller.IController;
 import project.ing.soft.testsocket.response.InformationResponse;
-import project.ing.soft.view.IView;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -61,7 +56,7 @@ public class SocketHandler implements IRequestHandler, Runnable{
 
             while (!aSocket.isClosed() && !Thread.currentThread().isInterrupted()) {
 
-                IRequest aRequest = (IRequest) fromClient.readObject();
+                AbstractRequest aRequest = (AbstractRequest) fromClient.readObject();
                 this.visit(aRequest);
 
             }
@@ -137,7 +132,7 @@ public class SocketHandler implements IRequestHandler, Runnable{
     }
 
     @Override
-    public void visit(IRequest aRequest) throws Exception {
+    public void visit(AbstractRequest aRequest) throws Exception {
         aRequest.accept(this);
     }
 

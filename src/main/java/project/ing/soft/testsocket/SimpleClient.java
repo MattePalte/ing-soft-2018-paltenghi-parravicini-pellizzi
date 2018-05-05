@@ -2,6 +2,7 @@ package project.ing.soft.testsocket;
 
 
 import project.ing.soft.view.ClientViewCLI;
+import project.ing.soft.view.LocalViewCli;
 
 
 public class SimpleClient extends Thread{
@@ -21,10 +22,13 @@ public class SimpleClient extends Thread{
 
 
             ControllerProxy controller = new ControllerProxy(host, port);
-            ClientViewCLI view = new ClientViewCLI(name);
+
+            controller.start();
+            LocalViewCli view = new LocalViewCli(name);
+            //ClientViewCLI view = new ClientViewCLI(name);
             view.attachController(controller);
             controller.joinTheGame(name , view);
-            controller.run();
+
 
         }catch (Exception ex){
             System.out.println("Error "+ex);

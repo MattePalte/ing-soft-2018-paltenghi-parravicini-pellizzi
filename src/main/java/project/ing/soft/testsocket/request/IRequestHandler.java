@@ -1,7 +1,7 @@
 package project.ing.soft.testsocket.request;
 
 public interface IRequestHandler {
-    void visit(IRequest aRequest) throws  Exception;
+    void visit(AbstractRequest aRequest) throws  Exception;
 
     void handle(ParticipationRequest aRequest) throws Exception;
 

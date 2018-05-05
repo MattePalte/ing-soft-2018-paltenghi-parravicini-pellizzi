@@ -1,6 +1,6 @@
 package project.ing.soft.testsocket.request;
 
-public class CreationGameRequest implements IRequest {
+public class CreationGameRequest extends AbstractRequest {
     private int numberOfPlayer;
 
     public CreationGameRequest(int numberOfPlayer) {

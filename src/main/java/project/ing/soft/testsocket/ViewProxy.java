@@ -1,13 +1,11 @@
 package project.ing.soft.testsocket;
 
-import jdk.jshell.spi.ExecutionControl;
 import project.ing.soft.controller.IController;
 import project.ing.soft.events.Event;
 import project.ing.soft.testsocket.request.*;
 import project.ing.soft.testsocket.response.*;
 import project.ing.soft.view.IView;
 
-import java.awt.desktop.SystemEventListener;
 import java.io.*;
 import java.net.Socket;
 
@@ -36,7 +34,7 @@ public class ViewProxy implements IView,IRequestHandler, Runnable {
 
             while (!aSocket.isClosed() && !Thread.currentThread().isInterrupted()) {
 
-                IRequest aRequest = (IRequest) fromClient.readObject();
+                AbstractRequest aRequest = (AbstractRequest) fromClient.readObject();
                 this.visit(aRequest);
 
             }
@@ -80,12 +78,13 @@ public class ViewProxy implements IView,IRequestHandler, Runnable {
 
     //region handle request. pass request to the real controller
     @Override
-    public void visit(IRequest aRequest) throws Exception {
+    public void visit(AbstractRequest aRequest) throws Exception {
         log.println("Request received"+aRequest.getClass());
         try {
             aRequest.accept(this);
+            toClient.writeObject(new AllRightResponse(aRequest.getId()));
         }catch (Exception ex){
-            toClient.writeObject(new ExceptionalResponse(ex));
+            toClient.writeObject(new ExceptionalResponse(ex, aRequest.getId()));
         }
     }
     @Override
@@ -147,11 +146,6 @@ public class ViewProxy implements IView,IRequestHandler, Runnable {
     @Override
     public void update(Event event) throws Exception {
        send(new EventResponse(event));
-    }
-
-    @Override
-    public void handleException(Exception ex) throws Exception {
-        send(new ExceptionalResponse(ex));
     }
 
     @Override

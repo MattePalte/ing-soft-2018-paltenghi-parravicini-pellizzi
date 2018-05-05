@@ -53,6 +53,7 @@ public class ClientViewCLI extends Thread implements IView, IEventHandler, ITool
             if (aEvent instanceof ModelChangedEvent && fut != null &&!fut.isDone()) {
                 events.add(0, aEvent);
                 fut.cancel(true);
+
             } else {
                 events.add(aEvent);
             }
@@ -60,6 +61,7 @@ public class ClientViewCLI extends Thread implements IView, IEventHandler, ITool
 
 
         fut = eventHandlerExecutor.submit(this::flushEvents);
+
     }
 
     private void flushEvents() {
@@ -78,10 +80,6 @@ public class ClientViewCLI extends Thread implements IView, IEventHandler, ITool
 
     }
 
-    @Override
-    public void handleException(Exception ex) throws Exception {
-        displayError(ex);
-    }
 
     @Override
     public void respondTo(PlaceThisDieEvent event) {

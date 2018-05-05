@@ -11,7 +11,11 @@ public interface IResponseHandler {
 
     void handle(ExceptionalResponse aResponse) throws Exception;
 
+    void handle(AllRightResponse aResponse) throws Exception;
+
     void handle(EventResponse aResponse) throws Exception;
+
+
 
 
 }

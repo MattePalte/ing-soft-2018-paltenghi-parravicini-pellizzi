@@ -9,7 +9,6 @@ import java.rmi.RemoteException;
 
 public interface IView extends Remote{
     void update(Event event) throws RemoteException, Exception;
-    void handleException(Exception ex) throws IOException, Exception;
     void attachController(IController gameController) throws RemoteException, Exception;
     void run() throws Exception;
 

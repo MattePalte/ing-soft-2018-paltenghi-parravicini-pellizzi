@@ -2,7 +2,7 @@ package project.ing.soft.testsocket.request;
 
 import project.ing.soft.Game;
 
-public class ParticipationRequest implements IRequest{
+public class ParticipationRequest extends AbstractRequest {
     private Game aGame;
     public ParticipationRequest(Game aGame) {
         super();
