@@ -20,33 +20,39 @@ import java.net.Socket;
 
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class ControllerProxy extends Thread implements IResponseHandler ,IController, Runnable {
     private int         port;
     private String      host;
+
     private ObjectInputStream  fromServer;
     private ObjectOutputStream toServer;
     private PrintWriter logger;
     private IView view;
-    private ConcurrentLinkedQueue<IRequest> bufferReq;
+
+    private final ConcurrentLinkedQueue<AbstractRequest> toSendList;
+    private final ArrayList<AbstractRequest> toAckList;
 
 
     public ControllerProxy(String host, int port){
         this.host = host;
         this.port = port;
         this.logger = new PrintWriter(System.out);
-        this.bufferReq = new ConcurrentLinkedQueue<>();
+        this.toSendList = new ConcurrentLinkedQueue<>();
+        this.toAckList  = new ArrayList<>();
 
     }
 
 
     @Override
     public void run() {
+        int requestNumber = 0;
         try(Socket aSocket = new Socket()) {
             aSocket.connect(new InetSocketAddress(host, port));
+            //to support complete asynchronous operation between client and server
             aSocket.setSoTimeout(500);
 
             logger.println("Connected to the server");
@@ -56,13 +62,15 @@ public class ControllerProxy extends Thread implements IResponseHandler ,IContro
             toServer.flush();
             fromServer = new ObjectInputStream(aSocket.getInputStream());
 
-            flushRequests();
+
             while( !aSocket.isClosed()){
 
                 try {
+
                     //blocked waiting for a response from server
                     //BUT this thread could be interrupted calling interrupt. This will cause the flush of
                     //every Request in the queue
+
                     IResponse aResponse = (IResponse) fromServer.readObject();
                     if (aResponse != null) {
                         this.visit(aResponse);
@@ -72,7 +80,22 @@ public class ControllerProxy extends Thread implements IResponseHandler ,IContro
 
 
                 } catch (SocketTimeoutException ex){
-                    flushRequests();
+
+                    synchronized (toSendList){
+                        for (AbstractRequest aRequest : toSendList) {
+                            if(toAckList.indexOf(null) == -1)
+                                toAckList.add(null);
+                            aRequest.setId(toAckList.indexOf(null));
+                            toAckList.set(aRequest.getId(), aRequest);
+
+                            toServer.writeObject(aRequest);
+                            logger.println("Forwarded a request " + aRequest.getClass());
+                            toSendList.remove(aRequest);
+
+                        }
+
+                    }
+
                 }
 
             }
@@ -80,20 +103,31 @@ public class ControllerProxy extends Thread implements IResponseHandler ,IContro
 
 
         }catch (Exception ex){
-            ex.printStackTrace(System.out);
+            ex.printStackTrace(logger);
         }finally {
-            closeStreams();
+
+            try {
+                if (fromServer != null){
+                    fromServer.close();
+                    fromServer = null;
+                }
+            }catch(IOException ignored){
+                logger.println( "ObjectInputStream was already closed");
+            }
+
+            try{
+                if(toServer != null) {
+                    toServer.close();
+                    toServer = null;
+                }
+            } catch(IOException ignored) {
+                logger.println( "ObjectOutputStream was already closed");
+            }
 
 
         }
     }
-    private synchronized void flushRequests() throws Exception{
-        for (IRequest aRequest : bufferReq) {
-            toServer.writeObject(aRequest);
-            logger.println("Forwarded a request " + aRequest.getClass());
-            bufferReq.remove(aRequest);
-        }
-    }
+
 
     @Override
     public void visit(IResponse aResponse) throws Exception{
@@ -118,9 +152,30 @@ public class ControllerProxy extends Thread implements IResponseHandler ,IContro
 
     @Override
     public void handle(ExceptionalResponse aResponse) throws Exception {
-        if(view != null)
-            view.handleException(aResponse.getEx());
+        AbstractRequest aRequest = toAckList.get(aResponse.getId());
+        toAckList.set(aResponse.getId(), null);
+
+        if(aRequest != null) {
+            synchronized (aRequest) {
+                aRequest.setBeenHandled(true);
+                aRequest.setException(aResponse.getEx());
+                aRequest.notifyAll();
+            }
+        }
     }
+
+    @Override
+    public void handle(AllRightResponse aResponse) throws Exception {
+        AbstractRequest aRequest = toAckList.get(aResponse.getId());
+        toAckList.set(aResponse.getId(), null);
+
+        if(aRequest != null)
+            synchronized (aRequest) {
+                aRequest.setBeenHandled(true);
+                aRequest.notifyAll();
+            }
+    }
+
 
     @Override
     public void handle(EventResponse aResponse) throws Exception {
@@ -129,33 +184,26 @@ public class ControllerProxy extends Thread implements IResponseHandler ,IContro
     }
 
 
-    private void closeStreams(){
-        try {
-            if (fromServer != null){
-                fromServer.close();
-                fromServer = null;
-            }
-        }catch(IOException ignored){
-            logger.println( "ObjectInputStream was already closed");
-        }
 
-        try{
-            if(toServer != null) {
-                toServer.close();
-                toServer = null;
+
+
+
+    public void addToQueue(AbstractRequest aNewRequest) throws Exception{
+        //add to request tobeSent
+        synchronized (toSendList) {
+            toSendList.add(aNewRequest);
+        }
+        //wait for an execution
+        synchronized(aNewRequest){
+            while (!aNewRequest.beenHandled()) {
+                aNewRequest.wait();
             }
-        } catch(IOException ignored) {
-            logger.println( "ObjectOutputStream was already closed");
+
+            if(aNewRequest.hasException()) {
+                throw aNewRequest.getException();
+            }
         }
     }
-
-
-
-    public synchronized void addToQueue(IRequest aNewRequest) throws Exception{
-        bufferReq.add(aNewRequest);
-    }
-
-
 
 
     @Override

@@ -76,11 +76,6 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     }
 
     @Override
-    public void handleException(Exception ex) throws Exception {
-        displayError(ex);
-    }
-
-    @Override
     public void respondTo(PlaceThisDieEvent event){
         Coordinate chosenPosition = null;
 

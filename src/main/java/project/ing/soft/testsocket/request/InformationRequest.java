@@ -1,6 +1,6 @@
 package project.ing.soft.testsocket.request;
 
-public class InformationRequest implements  IRequest{
+public class InformationRequest extends AbstractRequest {
     public InformationRequest() {
         super();
     }

@@ -2,7 +2,7 @@ package project.ing.soft.testsocket.request;
 
 import project.ing.soft.Die;
 
-public class PlaceDieRequest implements IRequest {
+public class PlaceDieRequest extends AbstractRequest {
     private Die aDie;
     private String nickname;
     private int colIndex;

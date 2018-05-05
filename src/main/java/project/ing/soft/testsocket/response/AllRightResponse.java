@@ -1,18 +1,11 @@
 package project.ing.soft.testsocket.response;
 
-public class ExceptionalResponse implements IResponse{
-    private final int id;
-    private Exception ex;
+public class AllRightResponse implements IResponse{
+    int id;
 
-    public ExceptionalResponse(Exception ex, int id) {
+    public AllRightResponse(int id) {
         this.id = id;
-        this.ex = ex;
     }
-
-    public Exception getEx() {
-        return ex;
-    }
-
 
     @Override
     public int getId() {

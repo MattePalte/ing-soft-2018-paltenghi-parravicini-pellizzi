@@ -1,6 +1,6 @@
 package project.ing.soft.testsocket.request;
 
-public class EndTurnRequest implements IRequest {
+public class EndTurnRequest extends AbstractRequest {
     private String nickname;
 
     public EndTurnRequest(String nickname) {

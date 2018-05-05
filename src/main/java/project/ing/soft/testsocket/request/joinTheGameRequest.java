@@ -1,6 +1,6 @@
 package project.ing.soft.testsocket.request;
 
-public class joinTheGameRequest implements IRequest {
+public class joinTheGameRequest extends AbstractRequest {
     private String nickname;
     public joinTheGameRequest(String nickname) {
         this.nickname = nickname;

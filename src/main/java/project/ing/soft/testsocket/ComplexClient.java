@@ -1,7 +1,7 @@
 package project.ing.soft.testsocket;
 
 import project.ing.soft.Game;
-import project.ing.soft.testsocket.request.IRequest;
+import project.ing.soft.testsocket.request.AbstractRequest;
 import project.ing.soft.testsocket.request.ParticipationRequest;
 import project.ing.soft.testsocket.response.*;
 
@@ -130,6 +130,11 @@ public class ComplexClient implements IResponseHandler ,Runnable {
     }
 
     @Override
+    public void handle(AllRightResponse aResponse) throws Exception {
+
+    }
+
+    @Override
     public void handle(EventResponse aResponse) throws Exception {
         out.println("An erroneous response was received");
     }
@@ -171,7 +176,7 @@ public class ComplexClient implements IResponseHandler ,Runnable {
         return isUserRegisteredToGame;
     }
 
-    public synchronized void send(IRequest aRequest) throws Exception{
+    public synchronized void send(AbstractRequest aRequest) throws Exception{
         toServer.writeObject(aRequest);
     }
 

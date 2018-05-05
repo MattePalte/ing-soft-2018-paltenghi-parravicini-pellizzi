@@ -2,10 +2,11 @@ package project.ing.soft.testsocket.request;
 
 import project.ing.soft.cards.WindowPatternCard;
 
-public class choosePatternRequest implements IRequest {
+public class choosePatternRequest extends AbstractRequest {
     private String nickname;
     private WindowPatternCard windowCard;
     private Boolean side;
+
 
     public choosePatternRequest(String nickname, WindowPatternCard windowCard, Boolean side) {
 
@@ -26,6 +27,7 @@ public class choosePatternRequest implements IRequest {
     public Boolean getSide() {
         return side;
     }
+
 
     @Override
     public void accept(IRequestHandler handler) throws Exception {
