@@ -21,15 +21,9 @@ import java.util.concurrent.ExecutorService;
 public class GuiBackgroundApp extends Application {
 
     private Stage primaryStage;
-    private IController myController;
-    private IView myView;
-
-    private IGameManager localCopyOfTheStatus;
-    private String ownerNameOfTheView;
-    private boolean stopResponding = false;
     private transient PrintStream out;
     private transient Queue<Event> eventsReceived;
-    private transient ExecutorService turnExecutor;
+
 
     @Override
     public void start(Stage aPrimaryStage) {
@@ -54,7 +48,7 @@ public class GuiBackgroundApp extends Application {
 
         this.primaryStage.setTitle("Sagrada - GUI");
         this.primaryStage.setScene(scene);
-        //this.primaryStage.setMaximized(true);
+        this.primaryStage.setMaximized(true);
         this.primaryStage.show();
     }
 

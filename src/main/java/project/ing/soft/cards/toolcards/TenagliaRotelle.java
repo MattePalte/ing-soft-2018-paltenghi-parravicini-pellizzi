@@ -9,7 +9,8 @@ public class TenagliaRotelle extends ToolCard {
 
     public TenagliaRotelle() {
         super("Tenaglia a rotelle", "Dopo il tuo primo turno scegli immediatamente un altro dado\n" +
-                "Salta il tuo secondo turno in questo round", Colour.RED);
+                "Salta il tuo secondo turno in questo round", Colour.RED,
+                "toolcard/30%/toolcards-9.png");
     }
 
     @Override

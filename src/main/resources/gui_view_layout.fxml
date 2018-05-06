@@ -9,54 +9,99 @@
 <?import javafx.scene.text.Text?>
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="project.ing.soft.gui.GuiView"
+      fx:id="content"
       prefHeight="400.0" prefWidth="600.0" alignment="CENTER">
-    <Text text="Sagrada" styleClass="title"></Text>
-    <Text fx:id="status" ></Text>
-    <TextField fx:id="txtName"></TextField>
-    <Button fx:id="btnGetController" text="Get/Create a proper Controller" onAction="#btnGetControllerOnClick"></Button>
-    <Button fx:id="btnJoin" text="Join the Game" onAction="#btnJoinOnClick" disable="true"></Button>
-    <Button fx:id="btnStartGame" text="Start the Game" onAction="#btnClickStart" disable="true"></Button>
+    <HBox alignment="CENTER">
+        <VBox fx:id="actionBox" alignment="CENTER">
+            <Text text="Sagrada" styleClass="title"></Text>
+            <Text fx:id="status" ></Text>
+            <TextField fx:id="txtName"></TextField>
+            <Button fx:id="btnGetController" text="Get/Create a proper Controller" onAction="#btnGetControllerOnClick"></Button>
+            <Button fx:id="btnJoin" text="Join the Game" onAction="#btnJoinOnClick" disable="true"></Button>
+            <Button fx:id="btnConfirm" text="Confirm Place" onAction="#btnConfirmOnClick" disable="true"></Button>
+            <Button fx:id="btnPlaceDie" text="Place a Die" onAction="#btnPlaceDieOnCLick" disable="true"></Button>
+            <Button fx:id="btnPlayToolCard" text="Play Toolcard" onAction="#btnPlayToolCardOnCLick" disable="true"></Button>
+            <Button fx:id="btnEndTurn" text="End Turn" onAction="#btnEndTurnOnCLick" disable="true"></Button>
+        </VBox>
+        <VBox fx:id="currentPlayerInfo" alignment="CENTER">
+            <HBox alignment="CENTER">
+                <VBox fx:id="currentPlayerSituation" alignment="CENTER">
+                    <GridPane fx:id="matrix" alignment="center" hgap="10" vgap="10">
+                        <padding><Insets top="25" right="25" bottom="25" left="25"/></padding>
 
-    <GridPane fx:id="matrix" alignment="center" hgap="10" vgap="10" visible="false">
+                        <Button id="pos00" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                        <Button id="pos01" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+                        <Button id="pos02" GridPane.rowIndex="0" GridPane.columnIndex="2" />
+                        <Button id="pos03" GridPane.rowIndex="0" GridPane.columnIndex="3" />
+                        <Button id="pos04" GridPane.rowIndex="0" GridPane.columnIndex="4" />
+
+                        <Button id="pos10" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                        <Button id="pos11" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+                        <Button id="pos12" GridPane.rowIndex="1" GridPane.columnIndex="2" />
+                        <Button id="pos13" GridPane.rowIndex="1" GridPane.columnIndex="3" />
+                        <Button id="pos14" GridPane.rowIndex="1" GridPane.columnIndex="4" />
+
+                        <Button id="pos20" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                        <Button id="pos21" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+                        <Button id="pos22" GridPane.rowIndex="2" GridPane.columnIndex="2" />
+                        <Button id="pos23" GridPane.rowIndex="2" GridPane.columnIndex="3" />
+                        <Button id="pos24" GridPane.rowIndex="2" GridPane.columnIndex="4" />
+
+                        <Button id="pos30" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+                        <Button id="pos31" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+                        <Button id="pos32" GridPane.rowIndex="3" GridPane.columnIndex="2" />
+                        <Button id="pos33" GridPane.rowIndex="3" GridPane.columnIndex="3" />
+                        <Button id="pos34" GridPane.rowIndex="3" GridPane.columnIndex="4" />
+                    </GridPane>
+                    <HBox alignment="CENTER">
+                        <Button fx:id="btnPrev" text="Prev" onAction="#btnPrevOnCLick"></Button>
+                        <Button fx:id="btnNext" text="Next" onAction="#btnNextOnCLick"></Button>
+                    </HBox>
+                    <Button fx:id="btnChoose" text="Choose this pattern" onAction="#btnChooseOnCLick"></Button>
+                </VBox>
+                <VBox prefWidth="300" prefHeight="200" >
+                    <ImageView fx:id="imgPrivateObjective" preserveRatio="true" pickOnBounds="true">
+                    </ImageView>
+                </VBox>
+            </HBox>
+        </VBox>
+    </HBox>
+    <GridPane fx:id="draftPool" alignment="center" hgap="10" vgap="10">
         <padding><Insets top="25" right="25" bottom="25" left="25"/></padding>
 
-        <Button id="pos00" GridPane.rowIndex="0" GridPane.columnIndex="0" />
-        <Button id="pos01" GridPane.rowIndex="0" GridPane.columnIndex="1" />
-        <Button id="pos02" GridPane.rowIndex="0" GridPane.columnIndex="2" />
-        <Button id="pos03" GridPane.rowIndex="0" GridPane.columnIndex="3" />
-        <Button id="pos04" GridPane.rowIndex="0" GridPane.columnIndex="4" />
-
-        <Button id="pos10" GridPane.rowIndex="1" GridPane.columnIndex="0" />
-        <Button id="pos11" GridPane.rowIndex="1" GridPane.columnIndex="1" />
-        <Button id="pos12" GridPane.rowIndex="1" GridPane.columnIndex="2" />
-        <Button id="pos13" GridPane.rowIndex="1" GridPane.columnIndex="3" />
-        <Button id="pos14" GridPane.rowIndex="1" GridPane.columnIndex="4" />
-
-        <Button id="pos20" GridPane.rowIndex="2" GridPane.columnIndex="0" />
-        <Button id="pos21" GridPane.rowIndex="2" GridPane.columnIndex="1" />
-        <Button id="pos22" GridPane.rowIndex="2" GridPane.columnIndex="2" />
-        <Button id="pos23" GridPane.rowIndex="2" GridPane.columnIndex="3" />
-        <Button id="pos24" GridPane.rowIndex="2" GridPane.columnIndex="4" />
-
-        <Button id="pos30" GridPane.rowIndex="3" GridPane.columnIndex="0" />
-        <Button id="pos31" GridPane.rowIndex="3" GridPane.columnIndex="1" />
-        <Button id="pos32" GridPane.rowIndex="3" GridPane.columnIndex="2" />
-        <Button id="pos33" GridPane.rowIndex="3" GridPane.columnIndex="3" />
-        <Button id="pos34" GridPane.rowIndex="3" GridPane.columnIndex="4" />
-
+        <Button id="draft0" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+        <Button id="draft1" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+        <Button id="draft2" GridPane.rowIndex="0" GridPane.columnIndex="2" />
+        <Button id="draft3" GridPane.rowIndex="0" GridPane.columnIndex="3" />
+        <Button id="draft4" GridPane.rowIndex="0" GridPane.columnIndex="4" />
+        <Button id="draft5" GridPane.rowIndex="0" GridPane.columnIndex="5" />
+        <Button id="draft6" GridPane.rowIndex="0" GridPane.columnIndex="6" />
+        <Button id="draft7" GridPane.rowIndex="0" GridPane.columnIndex="7" />
+        <Button id="draft8" GridPane.rowIndex="0" GridPane.columnIndex="8" />
 
     </GridPane>
-
-    <VBox fx:id="choosePatternCard" visible="false" alignment="CENTER">
-        <HBox alignment="CENTER">
-            <Button fx:id="btnPrev" text="Prev" onAction="#btnPrevOnCLick"></Button>
-            <Button fx:id="btnNext" text="Next" onAction="#btnNextOnCLick"></Button>
+    <HBox fx:id="otherInfoBox" alignment="CENTER">
+        <HBox fx:id="toolcardBox" alignment="CENTER">
+            <ImageView fx:id="toolcard0"></ImageView>
+            <ImageView fx:id="toolcard1"></ImageView>
+            <ImageView fx:id="toolcard2"></ImageView>
         </HBox>
-        <Button fx:id="btnChoose" text="Choose this pattern" onAction="#btnChooseOnCLick"></Button>
-    </VBox>
+        <HBox fx:id="publicObjBox" alignment="CENTER">
+            <ImageView fx:id="publicCard0"></ImageView>
+            <ImageView fx:id="publicCard1"></ImageView>
+            <ImageView fx:id="publicCard2"></ImageView>
+        </HBox>
+        <HBox fx:id="otherPlayerSituation">
+
+        </HBox>
+    </HBox>
+
+
     <stylesheets>
         <URL value="@style.css"></URL>
     </stylesheets>

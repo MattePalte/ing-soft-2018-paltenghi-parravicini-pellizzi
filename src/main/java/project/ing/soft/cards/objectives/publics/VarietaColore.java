@@ -9,7 +9,8 @@ import java.util.*;
 public class VarietaColore extends PublicObjective {
 
     public VarietaColore(){
-        super("Varieta Colore", "Conta quanti set di dadi con 5 colori differenti hai composto sulla tua vetrata", 4);
+        super("Varieta Colore", "Conta quanti set di dadi con 5 colori differenti hai composto sulla tua vetrata", 4,
+                "objectives/public/30%/objectives-11.png");
     }
 
     public int checkCondition(Player window) {

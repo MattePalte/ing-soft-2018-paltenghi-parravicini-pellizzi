@@ -9,8 +9,8 @@ public abstract class ObjectiveCard extends Card implements Serializable{
 
     protected int points;
 
-    public ObjectiveCard(String title, String description, int points){
-        super(title, description);
+    public ObjectiveCard(String title, String description, String resourcePath, int points ){
+        super(title, description, resourcePath);
         this.points = points;
     }
 

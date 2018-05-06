@@ -9,7 +9,8 @@ import java.util.*;
 public class DiagonaliColorate extends PublicObjective {
 
     public DiagonaliColorate(){
-        super("Diagonali Colorate", "Conta il numero di dadi dello stesso colore posizionati diagonalmente l'uno rispetto all'altro", 1);
+        super("Diagonali Colorate", "Conta il numero di dadi dello stesso colore posizionati diagonalmente l'uno rispetto all'altro", 1,
+                "objectives/public/30%/objectives-10.png");
     }
 
     public int checkCondition(Player window) {

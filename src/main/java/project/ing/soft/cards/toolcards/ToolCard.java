@@ -15,8 +15,8 @@ public abstract class ToolCard extends Card implements Serializable{
     protected Colour colour;
     //TODO: we have to implement toolcards!
 
-    public ToolCard(String aTitle,String description, Colour aColour){
-        super(aTitle, description);
+    public ToolCard(String aTitle,String description, Colour aColour, String resourcePath){
+        super(aTitle, description, resourcePath);
         this.colour = aColour;
     }
 

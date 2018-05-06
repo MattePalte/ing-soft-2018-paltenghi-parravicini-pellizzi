@@ -7,8 +7,13 @@ public abstract class Card implements Serializable{
     protected String description;
     protected String imgPath;
 
-    public Card(String title, String description){
+    public Card(String title, String description, String imgPath){
+        this.title = title;
+        this.description = description;
+        this.imgPath = imgPath;
+    }
 
+    public Card(String title, String description){
         this.title = title;
         this.description = description;
     }

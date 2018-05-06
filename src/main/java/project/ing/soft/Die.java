@@ -64,7 +64,7 @@ public class Die implements Serializable {
     public String getXLMescapeEncoding(){
         String encoding;
         if(this.value == 0)
-            encoding = "\uD83C\uDFB2";
+            encoding = " ";
         else
             encoding = new String(Character.toChars(9855 + value));
         return encoding;

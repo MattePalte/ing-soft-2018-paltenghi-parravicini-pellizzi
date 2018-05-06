@@ -9,8 +9,8 @@ public class PrivateObjective extends ObjectiveCard {
 
     private Colour colour;
 
-    public PrivateObjective(String title, String description, int points, Colour colour){
-        super(title, description, points);
+    public PrivateObjective(String title, String description, String resourcePath, int points,  Colour colour){
+        super(title, description, resourcePath, points);
         this.colour = colour;
     }
 

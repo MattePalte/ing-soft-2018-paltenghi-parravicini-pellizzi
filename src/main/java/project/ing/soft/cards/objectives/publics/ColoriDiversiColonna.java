@@ -9,7 +9,8 @@ import java.util.Arrays;
 public class ColoriDiversiColonna extends PublicObjective {
 
     public ColoriDiversiColonna(){
-        super("Colori Diversi - Colonna", "Hai formato colonne senza ripetere più volte lo stesso colore", 5);
+        super("Colori Diversi - Colonna", "Hai formato colonne senza ripetere più volte lo stesso colore", 5,
+                "objectives/public/30%/objectives-3.png");
     }
 
     public int checkCondition(Player window) {

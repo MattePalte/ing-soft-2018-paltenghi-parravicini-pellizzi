@@ -8,7 +8,8 @@ import java.util.Arrays;
 public class SfumatureDiverseRiga extends PublicObjective {
 
     public SfumatureDiverseRiga(){
-        super("Sfumature Diverse - Riga", "Hai formato righe senza ripetere piu volte lo stesso grado di sfumatura", 5);
+        super("Sfumature Diverse - Riga", "Hai formato righe senza ripetere piu volte lo stesso grado di sfumatura", 5,
+                "objectives/public/30%/objectives-4.png");
     }
 
     public int checkCondition(Player window) {

@@ -6,7 +6,8 @@ import project.ing.soft.Player;
 public class SfumatureChiare extends PublicObjective {
 
     public SfumatureChiare(){
-        super("Sfumature Chiare","Conta il numero di coppie di dadi (1,2) presenti sulla tua vetrata", 2);
+        super("Sfumature Chiare","Conta il numero di coppie di dadi (1,2) presenti sulla tua vetrata", 2,
+                "objectives/public/30%/objectives-6.png");
     }
 
     public int checkCondition(Player window) {

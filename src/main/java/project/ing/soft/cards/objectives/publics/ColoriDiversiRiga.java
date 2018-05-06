@@ -9,7 +9,8 @@ import java.util.Arrays;
 public class ColoriDiversiRiga extends PublicObjective {
 
     public ColoriDiversiRiga(){
-        super("Colori Diversi - Riga", "Hai formato righe senza ripetere piu volte lo stesso colore", 6);
+        super("Colori Diversi - Riga", "Hai formato righe senza ripetere piu volte lo stesso colore", 6,
+                "objectives/public/30%/objectives-2.png");
     }
 
     public int checkCondition(Player window) {

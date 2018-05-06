@@ -31,7 +31,8 @@ public class Lathekin extends ToolCard {
 
     public Lathekin() {
         super("Lathekin", "Muovi esattamente due dadi,\n" +
-                "rispettando tutte le restrizioni di piazzamento", Colour.YELLOW);
+                "rispettando tutte le restrizioni di piazzamento", Colour.YELLOW,
+                "toolcard/30%/toolcards-5.png");
     }
 
     @Override
