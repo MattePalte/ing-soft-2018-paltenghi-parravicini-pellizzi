@@ -123,7 +123,8 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
         while(true) {
             try {
-
+                out.println("This is your private objective: ");
+                out.println(event.getMyPrivateObjective());
                 WindowPatternCard aCard = (WindowPatternCard) chooseFrom(List.of(event.getOne(), event.getTwo()));
                 int isFront = chooseIndexFrom(List.of(aCard.getFrontPattern(), aCard.getRearPattern()));
 

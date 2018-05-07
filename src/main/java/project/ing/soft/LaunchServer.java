@@ -3,14 +3,28 @@ package project.ing.soft;
 import project.ing.soft.controller.Controller;
 import project.ing.soft.controller.IController;
 
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.lang.Thread.sleep;
 
-public class LaunchServer {
-    public static void main(String[] args) throws RemoteException {
+public class LaunchServer extends Thread{
+    private ArrayList<Controller> hostedGames;
+    private ArrayList<Controller> exportedControllers;
+
+    public LaunchServer(ArrayList<Controller> hostedGames){
+        this.hostedGames = hostedGames;
+        exportedControllers = new ArrayList<>(hostedGames);
+    }
+
+    @Override
+    public void run() {
         // BEFORE LAUNCHING THE SERVER AND CLIENT
         // launch this script from target/classes folder
         // start rmiregistry -J-Djava.rmi.server.logCalls=true -J-Djava.rmi.server.useCodebaseOnly=false
@@ -28,20 +42,60 @@ public class LaunchServer {
         // where 192.168.x.x is the internal ip of the machine hosting the registry
         // decomment this -> System.setProperty("java.rmi.server.hostname","192.168.x.x");
 
-        IController controller = new Controller(2);
-        System.out.println(">>> Controller exported");
+        try{
+            Registry registry = LocateRegistry.getRegistry();
 
-        Registry registry = LocateRegistry.getRegistry();
-        registry.rebind("controller", controller);
+            // Unbinding old games from registry
+            for(String s : registry.list()){
+                try {
+                    registry.unbind(s);
+                } catch (NotBoundException e) {
+                    e.printStackTrace();
+                }
+            }
 
-        while (true) {
+            while(true) {
+
+                // TODO: syncronize this and socket listener on hostedGames
+                if(exportedControllers.size()!=hostedGames.size()) {
+                    ArrayList<Controller> toAdd = new ArrayList<>(hostedGames);
+                    toAdd.removeAll(exportedControllers);
+                    int players = 2;
+                    toAdd.forEach(game -> {
+                        try {
+                            registry.rebind("controller" + exportedControllers.size() + 1, game);
+                            System.out.println(" >>> Controller Exported");
+                            exportedControllers.add(game);
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+
+                ArrayList<IController> gamesThatNeedParticipants = hostedGames.stream()
+                        .filter(aController -> !aController.getIsStarted())
+                        .collect(Collectors.toCollection(ArrayList::new));
+                Controller selectedGame;
+
+                if (gamesThatNeedParticipants.isEmpty()) {
+                    int players = 2;
+                    selectedGame = new Controller(players);
+                    hostedGames.add(selectedGame);
+                    exportedControllers.add(selectedGame);
+                    registry.rebind("controller" + hostedGames.size(), selectedGame);
+                }
+            }
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+        /*while (true) {
             try {
                 sleep(5000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             System.out.println(".");
-        }
+        }*/
 
-    }
 }

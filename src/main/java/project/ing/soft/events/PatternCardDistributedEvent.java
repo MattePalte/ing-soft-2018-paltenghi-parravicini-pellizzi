@@ -1,6 +1,7 @@
 package project.ing.soft.events;
 
 import project.ing.soft.cards.WindowPatternCard;
+import project.ing.soft.cards.objectives.privates.PrivateObjective;
 
 import java.io.Serializable;
 
@@ -11,10 +12,16 @@ public class PatternCardDistributedEvent implements Event, Serializable {
 
     private WindowPatternCard one;
     private WindowPatternCard two;
+    private PrivateObjective myPrivateObjective;
 
-    public PatternCardDistributedEvent(WindowPatternCard one, WindowPatternCard two) {
+    public PatternCardDistributedEvent(PrivateObjective myPrivateObjective, WindowPatternCard one, WindowPatternCard two) {
         this.one = one;
         this.two = two;
+        this.myPrivateObjective = myPrivateObjective;
+    }
+
+    public PrivateObjective getMyPrivateObjective(){
+        return myPrivateObjective;
     }
 
     public WindowPatternCard getOne() {

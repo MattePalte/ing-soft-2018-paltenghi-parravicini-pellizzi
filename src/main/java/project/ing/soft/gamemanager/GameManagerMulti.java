@@ -218,7 +218,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
             new Thread(() -> {
                 try {
                     p.update(new ModelChangedEvent(new GameManagerMulti(this)));
-                    p.update(new PatternCardDistributedEvent(p.getPossiblePatternCard().get(0), p.getPossiblePatternCard().get(1)));
+                    p.update(new PatternCardDistributedEvent(p.getPrivateObjective(), p.getPossiblePatternCard().get(0), p.getPossiblePatternCard().get(1)));
                 } catch(Exception e){
                     e.printStackTrace();
                 }

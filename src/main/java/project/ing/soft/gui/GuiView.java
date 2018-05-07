@@ -604,7 +604,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         Registry registry = LocateRegistry.getRegistry();
 
         // gets a reference for the remote controller
-        myController = (IController) registry.lookup("controller");
+        myController = (IController) registry.lookup("controller" + registry.list().length);
         ownerNameOfTheView = txtName.getText();
         System.out.println("Registered in the app with the name: " + ownerNameOfTheView);
         // creates and launches the view

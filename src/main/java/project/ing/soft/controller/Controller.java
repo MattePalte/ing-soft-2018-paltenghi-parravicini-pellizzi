@@ -1,9 +1,7 @@
 package project.ing.soft.controller;
 
-import com.oracle.tools.packager.Log;
 import project.ing.soft.Die;
 import project.ing.soft.Game;
-import project.ing.soft.exceptions.GameInvalidException;
 import project.ing.soft.cards.toolcards.ToolCard;
 import project.ing.soft.cards.WindowPatternCard;
 import project.ing.soft.gamemanager.GameManagerFactory;
@@ -16,8 +14,6 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Controller extends UnicastRemoteObject implements IController, Serializable {
 
@@ -25,7 +21,7 @@ public class Controller extends UnicastRemoteObject implements IController, Seri
     private transient Game         theGame;
     private transient PrintStream  logger;
     private long startTime;
-    private boolean timeoutExpired = false;
+    private boolean isGameStarted = false;
 
     public Controller(int maxNumberOfPlayer) throws RemoteException{
         this.theGame = new Game(maxNumberOfPlayer);
@@ -33,9 +29,9 @@ public class Controller extends UnicastRemoteObject implements IController, Seri
         this.startTime = System.currentTimeMillis();
 
         /*new Thread( () -> {
-            while(!timeoutExpired){
+            while(!isGameStarted){
                 if(System.currentTimeMillis() - startTime >= 20000 || theGame.getNumberOfPlayers() == theGame.getMaxNumPlayers()) {
-                    timeoutExpired = true;
+                    isGameStarted = true;
                     this.gameManager = GameManagerFactory.factory(theGame);
                     System.out.println("Setup starting");
                     try {
@@ -48,6 +44,14 @@ public class Controller extends UnicastRemoteObject implements IController, Seri
         }).start();*/
     }
 
+    public int getCurrentPlayers(){
+        return theGame.getNumberOfPlayers();
+    }
+
+    public boolean getIsStarted(){
+        return isGameStarted;
+    }
+
     @Override
     public synchronized void  joinTheGame(String playerName, IView view) throws Exception {
         if (theGame.getNumberOfPlayers() < theGame.getMaxNumPlayers()) {
@@ -56,12 +60,14 @@ public class Controller extends UnicastRemoteObject implements IController, Seri
             logger.println( playerName +" added to the match ;)");
         } else {
             logger.println( playerName + " wants to join the game... no space :(");
+            return;
         }
         //TODO: provide a timeout to start the game also with less than the max nr of player
         if (theGame.getNumberOfPlayers() == theGame.getMaxNumPlayers()) {
             this.gameManager = GameManagerFactory.factory(theGame);
            logger.println( "Setup starting");
-            gameManager.setupPhase();
+           isGameStarted = true;
+           gameManager.setupPhase();
         }
     }
 
