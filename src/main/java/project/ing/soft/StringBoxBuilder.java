@@ -22,7 +22,7 @@ public class StringBoxBuilder {
         this.bottomBuilder = new StringBuilder();
         this.lineFilled = 2;
 
-        this.topBuilder.append(buildTopLine()).append('\n');
+        this.topBuilder.append('\n').append(buildTopLine()).append('\n');
         this.bottomBuilder.append(buildBottomLine() ).append('\n');
     }
 

@@ -221,10 +221,6 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
 
         do{
-            synchronized (eventsReceived) {
-                while(!eventsReceived.isEmpty())
-                    eventsReceived.wait();
-            }
             displayMySituation();
             out.println("Take your turn " + localCopyOfTheStatus.getCurrentPlayer().getName());
 
@@ -283,12 +279,13 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
             }
             catch(UserInterruptActionException e){
                 out.println("Operation aborted. Please select an action");
+                update(new MyTurnStartedEvent());
             }
             catch(Exception e){
                 displayError(e);
             }
         }
-        while(cmd != 5 );
+        while(cmd != 5 && cmd != 1 && cmd != 0 );
     }
 
 

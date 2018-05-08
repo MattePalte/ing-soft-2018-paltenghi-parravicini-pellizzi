@@ -210,8 +210,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
         drawDice();
         getCurrentPlayer().resetDieFlag();
         deliverNewStatus(new FinishedSetupEvent());
-        deliverNewStatus(new ModelChangedEvent(new GameManagerMulti(this)));
-        getCurrentPlayer().update(new MyTurnStartedEvent());
+        deliverNewStatus(new ModelChangedEvent(new GameManagerMulti(this)), new MyTurnStartedEvent());
 
     }
 
@@ -304,8 +303,27 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
     @Override
     public void deliverNewStatus(Event event) throws Exception{
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+
         for (Player subscriber : currentGame.getPlayers()) {
-            subscriber.update( event);
+            executor.submit(() -> {
+                subscriber.update( event);
+                return true;
+            });
+        }
+    }
+
+    //TODO: add method to interface and use a common executor on the server to avoid many instances of threadpools
+    public void deliverNewStatus(Event mainEvent, Event currentPlayerEvent) throws Exception{
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+
+        for(Player subscriber : currentGame.getPlayers()){
+            executor.submit(() -> {
+                subscriber.update(mainEvent);
+                if(subscriber.getName().equals(getCurrentPlayer().getName()))
+                    subscriber.update(currentPlayerEvent);
+                return true;
+            });
         }
     }
 
@@ -327,6 +345,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
         favours.replace(getCurrentPlayer().getName(), actualFavours - toolCardCost.get(aToolCard.getTitle()));
         toolCardCost.replace(aToolCard.getTitle(), 2);
         getCurrentPlayer().update( new ModelChangedEvent(new GameManagerMulti(this)));
+        getCurrentPlayer().update(new MyTurnStartedEvent());
     }
 
     @Override
@@ -334,7 +353,9 @@ public class GameManagerMulti implements IGameManager, Serializable {
         getCurrentPlayer().placeDie(aDie,rowIndex,colIndex, true);
         draftPool.remove(aDie);
 
+        //TODO: it's possible to create a new thread to call update to optimize event queue syncronization
         getCurrentPlayer().update( new ModelChangedEvent(new GameManagerMulti(this)));
+        getCurrentPlayer().update( new MyTurnStartedEvent());
     }
 
 
@@ -362,9 +383,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
             drawDice();
         }
         getCurrentPlayer().resetDieFlag();
-        deliverNewStatus( new ModelChangedEvent(new GameManagerMulti(this)));
-        getCurrentPlayer().update(new MyTurnStartedEvent());
-
+        deliverNewStatus( new ModelChangedEvent(new GameManagerMulti(this)), new MyTurnStartedEvent());
     }
     @Override
     public Map<String, Integer> getFavours(){
