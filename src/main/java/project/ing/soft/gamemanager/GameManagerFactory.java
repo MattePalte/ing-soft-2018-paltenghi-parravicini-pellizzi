@@ -16,7 +16,7 @@ public class GameManagerFactory {
     private static ArrayList<ToolCard>          toolCards;
     private static ArrayList<WindowPatternCard> windowPatternCard;
 
-    private static ArrayList<PublicObjective> getPublicObjCards() {
+    public static ArrayList<PublicObjective> getPublicObjCards() {
         if(publicObjCards == null){
             publicObjCards = new ArrayList<>();
             publicObjCards.add(new ColoriDiversiColonna());
@@ -33,7 +33,7 @@ public class GameManagerFactory {
         return publicObjCards;
     }
 
-    private static ArrayList<PrivateObjective> getPrivateObjCards() {
+    public static ArrayList<PrivateObjective> getPrivateObjCards() {
         if(privateObjCards == null){
             privateObjCards = new ArrayList<>();
             privateObjCards.add(new SfumatureBlu());
@@ -46,7 +46,7 @@ public class GameManagerFactory {
         return privateObjCards;
     }
 
-    private static ArrayList<ToolCard> getToolCards() {
+    public static ArrayList<ToolCard> getToolCards() {
         if(toolCards == null){
 
             toolCards = new ArrayList<>();
@@ -68,7 +68,7 @@ public class GameManagerFactory {
         return toolCards;
     }
 
-    private static ArrayList<WindowPatternCard> getWindowPatternCard() {
+    public static ArrayList<WindowPatternCard> getWindowPatternCard() {
         if(windowPatternCard == null){
             windowPatternCard = WindowPatternCard.loadFromFile("src/main/patterns.txt");
         }

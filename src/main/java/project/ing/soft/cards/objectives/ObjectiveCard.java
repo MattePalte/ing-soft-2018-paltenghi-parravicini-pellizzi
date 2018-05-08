@@ -1,5 +1,6 @@
 package project.ing.soft.cards.objectives;
 
+import project.ing.soft.StringBoxBuilder;
 import project.ing.soft.cards.Card;
 import project.ing.soft.Player;
 
@@ -26,4 +27,12 @@ public abstract class ObjectiveCard extends Card implements Serializable{
 
     public abstract int checkCondition(Player window);
 
+    @Override
+    public String toString() {
+        StringBoxBuilder aBuilder = new StringBoxBuilder(new StringBoxBuilder.DOUBLELINESQUAREANGLE(),Card.WIDTH_CARD, Card.HEIGHT_CARD);
+        aBuilder.appendInAboxToTop(getTitle());
+        aBuilder.appendToTop(getDescription());
+        aBuilder.prependInAboxToBottom("Punti: "+ getPoints());
+        return aBuilder.toString();
+    }
 }

@@ -1,11 +1,8 @@
 package project.ing.soft.cards.toolcards;
 
+import project.ing.soft.*;
 import project.ing.soft.cards.Card;
-import project.ing.soft.Colour;
-import project.ing.soft.Coordinate;
-import project.ing.soft.Die;
 import project.ing.soft.gamemanager.IGameManager;
-import project.ing.soft.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
 
 import java.io.Serializable;
@@ -13,7 +10,7 @@ import java.util.List;
 
 public abstract class ToolCard extends Card implements Serializable{
     protected Colour colour;
-    //TODO: we have to implement toolcards!
+
 
     public ToolCard(String aTitle,String description, Colour aColour, String resourcePath){
         super(aTitle, description, resourcePath);
@@ -53,7 +50,5 @@ public abstract class ToolCard extends Card implements Serializable{
             throw new MalformedToolCardException(this.getTitle() + ": the die passed is not in the list (draft or roundtracker)");
         return;
     }
-
-
 
 }

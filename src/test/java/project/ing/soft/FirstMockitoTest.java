@@ -1,5 +1,6 @@
 package project.ing.soft;;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 import org.junit.Test;
@@ -16,6 +17,7 @@ public class FirstMockitoTest {
         mockList.add("First");
         when(mockList.get(0)).thenReturn("Mockito");
         when(mockList.get(1)).thenReturn("JCG");
+
         assertEquals("Mockito", mockList.get(0));
         assertEquals("JCG", mockList.get(1));
     }

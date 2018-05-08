@@ -25,8 +25,4 @@ public class PrivateObjective extends ObjectiveCard {
         return counter;
    }
 
-   public String toString(){
-
-        return (title + "\n" + description + "\n" + "Points: "+ points);
-   }
 }

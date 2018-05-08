@@ -20,6 +20,9 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 
@@ -39,6 +42,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
     private Map<String, Integer>        favours;
     private List<Pair<Player, Integer>> rank;
     private Map<String, Integer>      toolCardCost;
+
 
     private boolean isFinished;
 
@@ -73,6 +77,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
                             List<PrivateObjective> availablePrivateObjectives,
                             List<ToolCard> availableToolCards,
                             List<WindowPatternCard> availableWindowPatternCards) throws GameInvalidException {
+
 
         isFinished = false;
         if (!aGame.isValid() || aGame.getNumberOfPlayers() <= 1  || aGame.getNumberOfPlayers() > 4  ) {
