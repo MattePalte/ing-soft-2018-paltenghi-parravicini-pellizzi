@@ -6,12 +6,14 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Screen;
@@ -61,27 +63,27 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     private final String CONSTRAIN_TEXT_COLOR = "#b8bab9";
     private double SCREEN_WIDTH;
     private double SCREEN_HEIGHT;
+    private final int MATRIX_NR_ROW = 4;
+    private final int MATRIX_NR_COL = 5;
 
-    // parameters to carry out actions
-    private Die dieChosenFromDraft;
-    private Coordinate coordPlacement;
+    private List<Object> parameters = new ArrayList<>();
 
-    public Die getDieChosenFromDraft() {
-        return dieChosenFromDraft;
+    public void put(Object obj) {
+        parameters.add(obj);
     }
 
-    public void setDieChosenFromDraft(Die dieChosenFromDraft) {
-        this.dieChosenFromDraft = dieChosenFromDraft;
+    public Object getObj() throws InterruptedException {
+        synchronized (parameters){
+            while (parameters.isEmpty()) parameters.wait();
+            Object objRemoved = parameters.remove(0);
+            parameters.notifyAll();
+            return objRemoved;
+        }
     }
 
-    public Coordinate getCoordPlacement() {
-        return coordPlacement;
+    public String getOwnerNameOfTheView() {
+        return ownerNameOfTheView;
     }
-
-    public void setCoordPlacement(Coordinate coordPlacement) {
-        this.coordPlacement = coordPlacement;
-    }
-
     @FXML
     protected void initialize(){
         // Initialize maps for conversion between code and resources
@@ -100,7 +102,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         mapDieColour.put(Colour.GREEN, "#278431");
         mapDieColour.put(Colour.YELLOW, "#92961e");
         mapDieColour.put(Colour.WHITE, "#ffffff");
-
 
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
         SCREEN_WIDTH = primaryScreenBounds.getWidth();
@@ -147,6 +148,10 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         this.primaryStage = primaryStage;
     }
 
+    public Stage getPrimaryStage() {
+        return primaryStage;
+    }
+
     public void setOut(PrintStream out) {
         this.out = out;
     }
@@ -184,8 +189,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     private Button btnPlaceDie;
     @FXML
     private Button btnEndTurn;
-    @FXML
-    private Button btnConfirm;
 
 
     public GuiView() throws RemoteException {
@@ -222,46 +225,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         String s ="This is an example of JavaFX 8 Dialogs... ";
         alert.setContentText(s);
         alert.show();*/
-        // open new scene
-        //Stage primaryStage = (Stage) btnGetController.getScene().getWindow();
-        /*Parent root = null;
-        String sceneFile = "/choose_pattern_layout.fxml";
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(sceneFile));
-        try {
-            root = fxmlLoader.load();
-            fxmlLoader.setController(this);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Scene scene = new Scene(root, 400, 400);
-        Button btnNext = (Button) scene.lookup("#btnNext");
-        btnNext.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                btnNextOnCLick(event);
-            }
-        });
-        Button btnPrev = (Button) scene.lookup("#btnPrev");
-        btnPrev.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                btnPrevOnCLick(event);
-            }
-        });
-        Button btnChoose = (Button) scene.lookup("#btnChoose");
-        btnChoose.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                try {
-                    btnChooseOnCLick(event);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        primaryStage.setTitle("Sagrada - GUI");
-        primaryStage.setScene(scene);*/
 
         // get info from event object
         possiblePatterns = new ArrayList<>();
@@ -274,10 +237,10 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         possiblePatternCard.add(event.getTwo());
         // show the first pattern
         currentIndexPatternDisplayed = 0;
-        displayPatternCard(possiblePatterns.get(currentIndexPatternDisplayed), primaryStage.getScene());
-        displayPrivateObjective(primaryStage.getScene());
-        displayToolCard(primaryStage.getScene());
-        displayPublicCard(primaryStage.getScene());
+        displayPatternCard(possiblePatterns.get(currentIndexPatternDisplayed), getPrimaryStage().getScene());
+        displayPrivateObjective(getPrimaryStage().getScene());
+        displayToolCard(getPrimaryStage().getScene());
+        displayPublicCard(getPrimaryStage().getScene());
     }
 
     @Override
@@ -290,9 +253,9 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     public void respondTo(ModelChangedEvent event) {
         localCopyOfTheStatus = event.getaGameCopy();
         out.println("gestione di Model changed");
-        displayMySituation();
-        displayDraftPool();
-        btnConfirm.setDisable(true);
+        drawMySituation();
+        drawDraftPool();
+        initializeButtons();
         /*Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Model is changed");
         alert.setHeaderText("Information Alert");
@@ -303,8 +266,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         alert.show();*/
     }
 
-
-    private void displayPatternCard(WindowPattern pattern, Scene scene){
+    private synchronized void displayPatternCard(WindowPattern pattern, Scene scene){
         for (int row = 0 ; row < pattern.getHeight(); row++) {
             for (int col = 0 ; col < pattern.getWidth(); col++) {
 
@@ -328,9 +290,9 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         }
     }
 
-    private void displayMySituation() {
+    private synchronized void drawMySituation() {
         for (Player p : localCopyOfTheStatus.getPlayerList()){
-            Scene scene = primaryStage.getScene();
+            Scene scene = getPrimaryStage().getScene();
             if (p.getName().equals(ownerNameOfTheView)){
                 Player currentPlayer = p;
                 WindowPattern wndPtrn = p.getPattern();
@@ -353,7 +315,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
                             currentCell.setStyle("-fx-text-fill:" + mapDieColour.get(currentDie.getColour()) +
                                     "; -fx-background-color:" + mapBgColour.get(constraint.getColour()) + "; -fx-font: 22 monospace;");
                         }
-                        currentCell.setOnAction(null);
                     }
                 }
             }
@@ -362,27 +323,24 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
     }
 
-    private void displayDraftPool() {
-        Scene scene = primaryStage.getScene();
+    private synchronized void drawDraftPool() {
+        Scene scene = getPrimaryStage().getScene();
         List<Die> draft = localCopyOfTheStatus.getDraftPool();
         for (int pos = 0 ; pos < 9; pos++) {
             Button currentCell = (Button) scene.lookup("#draft" + pos);
             if (pos < draft.size() ) {
                 Die currentDie = draft.get(pos);
-                currentCell.setDisable(false);
                 currentCell.setText(currentDie.getXLMescapeEncoding());
                 currentCell.setStyle("-fx-text-fill:" + mapDieColour.get(currentDie.getColour()) +
                         "; -fx-background-color:#FFF; -fx-font: 22 monospace;");
-                currentCell.setOnAction(null);
             } else {
                 currentCell.setText(" ");
                 currentCell.setStyle("-fx-background-color:" + NEUTRAL_BG_COLOR + "; -fx-font: 22 monospace;");
-                currentCell.setDisable(true);
             }
         }
     }
 
-    private void displayPrivateObjective(Scene scene) {
+    private synchronized void displayPrivateObjective(Scene scene) {
         ImageView ivPrivateObj = (ImageView) scene.lookup("#imgPrivateObjective");
         Image img = null;
         for (Player p : localCopyOfTheStatus.getPlayerList()) {
@@ -398,12 +356,13 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         ivPrivateObj.setCache(true);
     }
 
-    private void displayToolCard(Scene scene) {
+    private synchronized void displayToolCard(Scene scene) {
         List<ToolCard> tCard = localCopyOfTheStatus.getToolCards();
         for (int i = 0; i<3; i++) {
             ImageView iv = (ImageView) scene.lookup("#toolcard" + i);
             Image img = new Image(tCard.get(i).getImgPath());
             iv.setImage(img);
+            //TODO: fit the screen with toolcard image
             //iv.maxHeight(SCREEN_WIDTH/6);
             iv.setFitHeight(SCREEN_WIDTH/6);
             iv.setPreserveRatio(true);
@@ -412,7 +371,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         }
     }
 
-    private void displayPublicCard(Scene scene) {
+    private synchronized void displayPublicCard(Scene scene) {
         List<PublicObjective> pubCard = localCopyOfTheStatus.getPublicObjective();
         for (int i = 0; i<3; i++) {
             ImageView iv = (ImageView) scene.lookup("#publicCard" + i);
@@ -439,7 +398,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         }
     }
 
-
     @Override
     public void attachController(IController gameController) throws RemoteException, Exception {
         this.myController = gameController;
@@ -450,13 +408,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
     }
 
-    public void btnJoinOnClick(ActionEvent actionEvent) throws Exception {
-        System.out.println("Sto per accedere al match con nome " + ownerNameOfTheView);
-        myController.joinTheGame(ownerNameOfTheView, this);
-        btnJoin.setDisable(true);
-        btnJoin.setText("You are in the game");
-
-    }
     public void btnNextOnCLick(ActionEvent actionEvent) {
         if (currentIndexPatternDisplayed < possiblePatterns.size()-1) {
             currentIndexPatternDisplayed++;
@@ -464,7 +415,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
             currentIndexPatternDisplayed = 0;
         }
         //Stage primaryStage = (Stage) ((Node)actionEvent.getSource()).getScene().getWindow();
-        displayPatternCard(possiblePatterns.get(currentIndexPatternDisplayed), primaryStage.getScene());
+        displayPatternCard(possiblePatterns.get(currentIndexPatternDisplayed), getPrimaryStage().getScene());
     }
     public void btnPrevOnCLick(ActionEvent actionEvent) {
         if (currentIndexPatternDisplayed > 0) {
@@ -473,7 +424,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
             currentIndexPatternDisplayed = possiblePatterns.size() - 1;
         }
         //Stage primaryStage = (Stage) ((Node)actionEvent.getSource()).getScene().getWindow();
-        displayPatternCard(possiblePatterns.get(currentIndexPatternDisplayed), primaryStage.getScene());
+        displayPatternCard(possiblePatterns.get(currentIndexPatternDisplayed), getPrimaryStage().getScene());
     }
     public void btnChooseOnCLick(ActionEvent actionEvent) throws Exception {
         WindowPattern chosenPattern = possiblePatterns.get(currentIndexPatternDisplayed);
@@ -493,110 +444,133 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         return;
     }
 
-    public void btnConfirmOnClick(ActionEvent actionEvent) throws Exception {
-        myController.placeDie(ownerNameOfTheView, getDieChosenFromDraft(), getCoordPlacement().getRow(), getCoordPlacement().getCol());
-        disableAll();
-    }
-
     public void btnPlaceDieOnCLick(ActionEvent actionEvent) throws Exception {
-        focusOnDraft();
-        btnConfirm.setDisable(false);
+        // PRE-SETUP
+        initializeButtons();
         btnPlaceDie.setDisable(true);
+        // CREATE AN ANONYMOUS THREAD WAITING FOR INPUT
+        GuiView myView = this;
+        new Thread(new Runnable() {
+            private GuiView gView;
+            {
+                this.gView = myView;
+            }
+            @Override
+            public void run() {
+                try {
+                    gView.disableAll();
+                    gView.focusOn("matrix", true);
+                    Coordinate chosenCoord = (Coordinate) gView.getObj();
+                    gView.disableAll();
+                    gView.focusOn("draftPool", true);
+                    Die chosenDie = (Die) gView.getObj();
+                    gView.disableAll();
+                    gView.myController.placeDie(gView.getOwnerNameOfTheView(), chosenDie, chosenCoord.getRow(), chosenCoord.getCol());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
-    public void btnPlayToolCardOnCLick(ActionEvent actionEvent) throws Exception {
 
+    public void btnPlayToolCardOnCLick(ActionEvent actionEvent) throws Exception {
     }
+
     public void btnEndTurnOnCLick(ActionEvent actionEvent) throws Exception {
         myController.endTurn(ownerNameOfTheView);
         btnEndTurn.setDisable(true);
         btnPlaceDie.setDisable(true);
     }
 
-    private void disableAll(){
-        Scene scene = primaryStage.getScene();
+    public synchronized void disableAll(){
+        Scene scene = getPrimaryStage().getScene();
         // de-focus draft
-        GridPane gridDraft = (GridPane) scene.lookup("#draftPool");
-        gridDraft.setStyle("-fx-background-color:" + NEUTRAL_BG_COLOR);
+        focusOn("draftPool", false);
         // disable button of draft
-        List<Die> draft = localCopyOfTheStatus.getDraftPool();
         for (int pos = 0 ; pos < 9; pos++) {
             Button currentCell = (Button) scene.lookup("#draft" + pos);
-            if (pos < draft.size()) currentCell.setOnAction(null);
+            //currentCell.setStyle(currentCell.getStyle().replace("-fx-border-color:" + STORNG_FOCUS, ""));
+            currentCell.setDisable(true);
         }
         // de-focus pattern
-        VBox boxPatter = (VBox) scene.lookup("#currentPlayerSituation");
-        boxPatter.setStyle("-fx-background-color:" + NEUTRAL_BG_COLOR);
+        focusOn("matrix", false);
         // disable button of pattern
-        for (Player p : localCopyOfTheStatus.getPlayerList()) {
-            if (p.getName().equals(ownerNameOfTheView)) {
-                Player currentPlayer = p;
-                WindowPattern wndPtrn = p.getPattern();
-                for (int row = 0; row < wndPtrn.getHeight(); row++) {
-                    for (int col = 0; col < wndPtrn.getWidth(); col++) {
-                        Button currentCell = (Button) scene.lookup("#pos" + row + col);
-                        currentCell.setOnAction(null);
-                    }
-                }
+        for (int row = 0; row < MATRIX_NR_ROW; row++) {
+            for (int col = 0; col < MATRIX_NR_COL; col++) {
+                Button currentCell = (Button) scene.lookup("#pos" + row + col);
+                //currentCell.setStyle(currentCell.getStyle().replace("-fx-border-color:" + STORNG_FOCUS, ""));
+                currentCell.setDisable(true);
             }
         }
-
     }
 
-    private void focusOnDraft() {
-        disableAll();
-        Scene scene = primaryStage.getScene();
-        GridPane gridDraft = (GridPane) scene.lookup("#draftPool");
-        gridDraft.setStyle("-fx-background-color:" + LIGHT_FOCUS);
+    public synchronized void initializeButtons(){
+        Scene scene = getPrimaryStage().getScene();
+        // set button of draft
         List<Die> draft = localCopyOfTheStatus.getDraftPool();
         for (int pos = 0 ; pos < 9; pos++) {
             Button currentCell = (Button) scene.lookup("#draft" + pos);
-            if (pos < draft.size() ) {
+            currentCell.setDisable(true);
+            if (pos < draft.size()) {
                 Die currentDie = draft.get(pos);
                 currentCell.setOnAction(new EventHandler<ActionEvent>() {
                     @Override public void handle(ActionEvent e) {
-                        try {
-                            setDieChosenFromDraft(new Die(currentDie));
-                            currentCell.setStyle(currentCell.getStyle() + "; -fx-border-color:" + STORNG_FOCUS);
-                            focusOnPattern();
-                        } catch (Exception e1) {
-                            e1.printStackTrace();
-                        }
+                        collectDie(new Die(currentDie));
+                        //currentCell.setStyle(currentCell.getStyle() + "; -fx-border-color:" + STORNG_FOCUS);
+                    }
+                });
+            } else {
+                currentCell.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override public void handle(ActionEvent e) {
+                        System.out.println("no action with this button");
                     }
                 });
             }
         }
-
+        // set button of pattern
+        for (int row = 0; row < MATRIX_NR_ROW; row++) {
+            for (int col = 0; col < MATRIX_NR_COL; col++) {
+                Button currentCell = (Button) scene.lookup("#pos" + row + col);
+                int finalRow = row;
+                int finalCol = col;
+                currentCell.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override public void handle(ActionEvent e) {
+                        collectCoordinate(new Coordinate(finalRow, finalCol));
+                        //currentCell.setStyle(currentCell.getStyle() + "; -fx-border-color:" + STORNG_FOCUS);
+                    }
+                });
+            }
+        }
     }
 
-    private void focusOnPattern() {
-        disableAll();
-        Scene scene = primaryStage.getScene();
-        VBox boxPatter = (VBox) scene.lookup("#currentPlayerSituation");
-        boxPatter.setStyle("-fx-background-color:" + LIGHT_FOCUS);
-        for (Player p : localCopyOfTheStatus.getPlayerList()) {
-            if (p.getName().equals(ownerNameOfTheView)) {
-                Player currentPlayer = p;
-                WindowPattern wndPtrn = p.getPattern();
-                for (int row = 0; row < wndPtrn.getHeight(); row++) {
-                    for (int col = 0; col < wndPtrn.getWidth(); col++) {
+    public void collectCoordinate(Coordinate coord){
+        synchronized (parameters) {
+            put(coord);
+            parameters.notifyAll();
+        }
+    }
 
-                        Button currentCell = (Button) scene.lookup("#pos" + row + col);
-                        int finalCol = col;
-                        int finalRow = row;
-                        currentCell.setOnAction(new EventHandler<ActionEvent>() {
-                            @Override
-                            public void handle(ActionEvent e) {
-                                try {
-                                    setCoordPlacement(new Coordinate(finalRow, finalCol));
-                                    currentCell.setStyle(currentCell.getStyle() + "; -fx-border-color:" + STORNG_FOCUS);
-                                } catch (Exception e1) {
-                                    e1.printStackTrace();
-                                }
-                            }
-                        });
-                    }
-                }
+    public void collectDie(Die die){
+        synchronized (parameters) {
+            put(die);
+            parameters.notifyAll();
+        }
+    }
+
+
+    private synchronized void focusOn(String idPane, boolean isFocused){
+        Scene scene = getPrimaryStage().getScene();
+        Pane pane = (Pane) scene.lookup("#" + idPane);
+        if (isFocused) {
+            //TODO: implement CSS class change
+            pane.setStyle("-fx-background-color:" + LIGHT_FOCUS);
+            for (Node n : pane.getChildren()) {
+                n.setDisable(false);
             }
+        } else {
+            pane.setStyle("-fx-background-color:" + NEUTRAL_BG_COLOR);
         }
     }
 
@@ -619,8 +593,13 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
     }
 
+    public void btnJoinOnClick(ActionEvent actionEvent) throws Exception {
+        System.out.println("Sto per accedere al match con nome " + ownerNameOfTheView);
+        myController.joinTheGame(ownerNameOfTheView, this);
+        btnJoin.setDisable(true);
+        btnJoin.setText("You are in the game");
 
-
+    }
 
     private void displayError(Exception ex){
         //TODO: display graphical effor messagebox

@@ -23,7 +23,6 @@
             <TextField fx:id="txtName"></TextField>
             <Button fx:id="btnGetController" text="Get/Create a proper Controller" onAction="#btnGetControllerOnClick"></Button>
             <Button fx:id="btnJoin" text="Join the Game" onAction="#btnJoinOnClick" disable="true"></Button>
-            <Button fx:id="btnConfirm" text="Confirm Place" onAction="#btnConfirmOnClick" disable="true"></Button>
             <Button fx:id="btnPlaceDie" text="Place a Die" onAction="#btnPlaceDieOnCLick" disable="true"></Button>
             <Button fx:id="btnPlayToolCard" text="Play Toolcard" onAction="#btnPlayToolCardOnCLick" disable="true"></Button>
             <Button fx:id="btnEndTurn" text="End Turn" onAction="#btnEndTurnOnCLick" disable="true"></Button>
