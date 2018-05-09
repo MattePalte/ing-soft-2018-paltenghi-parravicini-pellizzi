@@ -8,10 +8,12 @@ import javafx.fxml.FXML;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -26,7 +28,7 @@ import project.ing.soft.cards.Constraint;
 import project.ing.soft.cards.WindowPattern;
 import project.ing.soft.cards.WindowPatternCard;
 import project.ing.soft.cards.objectives.publics.PublicObjective;
-import project.ing.soft.cards.toolcards.ToolCard;
+import project.ing.soft.cards.toolcards.*;
 import project.ing.soft.controller.IController;
 import project.ing.soft.events.*;
 import project.ing.soft.events.Event;
@@ -42,7 +44,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 
-public class GuiView extends UnicastRemoteObject implements IView, IEventHandler, Serializable{
+public class GuiView extends UnicastRemoteObject implements IView, IEventHandler, IToolCardFiller,  Serializable{
     private IGameManager localCopyOfTheStatus;
     private String ownerNameOfTheView;
     private IController myController;
@@ -65,11 +67,15 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     private double SCREEN_HEIGHT;
     private final int MATRIX_NR_ROW = 4;
     private final int MATRIX_NR_COL = 5;
+    private final int NR_TOOLCARD = 3;
 
     private List<Object> parameters = new ArrayList<>();
 
     public void put(Object obj) {
-        parameters.add(obj);
+        synchronized (parameters) {
+            parameters.add(obj);
+            parameters.notifyAll();
+        }
     }
 
     public Object getObj() throws InterruptedException {
@@ -188,6 +194,8 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     @FXML
     private Button btnPlaceDie;
     @FXML
+    private Button btnPlayToolCard;
+    @FXML
     private Button btnEndTurn;
 
 
@@ -246,6 +254,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     @Override
     public void respondTo(MyTurnStartedEvent event) {
         btnPlaceDie.setDisable(false);
+        btnPlayToolCard.setDisable(false);
         btnEndTurn.setDisable(false);
     }
 
@@ -467,21 +476,51 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
                     gView.disableAll();
                     gView.myController.placeDie(gView.getOwnerNameOfTheView(), chosenDie, chosenCoord.getRow(), chosenCoord.getCol());
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    displayError(e);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    displayError(e);
+                    btnPlaceDie.setDisable(false);
                 }
             }
         }).start();
     }
 
     public void btnPlayToolCardOnCLick(ActionEvent actionEvent) throws Exception {
+        // PRE-SETUP
+        initializeButtons();
+        btnPlayToolCard.setDisable(true);
+        // CREATE AN ANONYMOUS THREAD WAITING FOR INPUT
+        GuiView myView = this;
+        new Thread(new Runnable() {
+            private GuiView gView;
+            {
+                this.gView = myView;
+            }
+            @Override
+            public void run() {
+                try {
+                    gView.disableAll();
+                    gView.focusOn("toolcardBox", true);
+                    Integer chosenIndex = (Integer) gView.getObj();
+                    ToolCard chosenToolCard = localCopyOfTheStatus.getToolCards().get(chosenIndex);
+                    chosenToolCard.fill(gView);
+                    gView.myController.playToolCard(ownerNameOfTheView, chosenToolCard);
+                } catch (InterruptedException e) {
+                    displayError(e);
+                } catch (Exception e) {
+                    displayError(e);
+                    btnPlayToolCard.setDisable(false);
+                }
+            }
+        }).start();
     }
 
     public void btnEndTurnOnCLick(ActionEvent actionEvent) throws Exception {
         myController.endTurn(ownerNameOfTheView);
+        disableAll();
         btnEndTurn.setDisable(true);
         btnPlaceDie.setDisable(true);
+        btnPlayToolCard.setDisable(true);
     }
 
     public synchronized void disableAll(){
@@ -504,6 +543,13 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
                 currentCell.setDisable(true);
             }
         }
+        // de-focus toolcard Box
+        focusOn("toolcardBox", false);
+        // disable button of pattern
+        for (int index = 0; index < NR_TOOLCARD; index++) {
+            ImageView imageView = (ImageView) scene.lookup("#toolcard" + index);
+            imageView.setDisable(true);
+        }
     }
 
     public synchronized void initializeButtons(){
@@ -517,6 +563,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
                 Die currentDie = draft.get(pos);
                 currentCell.setOnAction(new EventHandler<ActionEvent>() {
                     @Override public void handle(ActionEvent e) {
+                        disableAll();
                         collectDie(new Die(currentDie));
                         //currentCell.setStyle(currentCell.getStyle() + "; -fx-border-color:" + STORNG_FOCUS);
                     }
@@ -537,26 +584,38 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
                 int finalCol = col;
                 currentCell.setOnAction(new EventHandler<ActionEvent>() {
                     @Override public void handle(ActionEvent e) {
+                        disableAll();
                         collectCoordinate(new Coordinate(finalRow, finalCol));
                         //currentCell.setStyle(currentCell.getStyle() + "; -fx-border-color:" + STORNG_FOCUS);
                     }
                 });
             }
         }
+        //set listeners on toolcard
+        for(int index = 0; index < NR_TOOLCARD; index++) {
+            ImageView imageView = (ImageView) scene.lookup("#toolcard" + index);
+            int finalIndex = index;
+            imageView.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent event) {
+                    disableAll();
+                    collectToolcardIndex(finalIndex);
+                }
+            });
+        }
     }
 
+
     public void collectCoordinate(Coordinate coord){
-        synchronized (parameters) {
-            put(coord);
-            parameters.notifyAll();
-        }
+        put(coord);
     }
 
     public void collectDie(Die die){
-        synchronized (parameters) {
-            put(die);
-            parameters.notifyAll();
-        }
+        put(die);
+    }
+
+    public void collectToolcardIndex(Integer index) {
+        put(index);
     }
 
 
@@ -603,13 +662,100 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
     private void displayError(Exception ex){
         //TODO: display graphical effor messagebox
-        out.println("Error:"+ex.getMessage());
+        /*out.println("Error:"+ex.getMessage());
         Scanner input = new Scanner(System.in);
 
         out.println("Do you need stack trace? [y/n]");
 
         if(input.next().startsWith("y"))
-            ex.printStackTrace();
+            ex.printStackTrace();*/
+        ex.printStackTrace();
+        Platform.runLater(new Runnable() {
+            @Override public void run() {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Exeption");
+                alert.setHeaderText("Information Alert");
+                alert.setContentText(ex.getMessage());
+                alert.show();
+            }
+        });
+    }
+
+    @Override
+    public AlesatoreLaminaRame fill(AlesatoreLaminaRame aToolcard) {
+        try {
+            disableAll();
+            focusOn("matrix", true);
+            Coordinate startPos = (Coordinate) getObj();
+            aToolcard.setStartPosition(startPos);
+            disableAll();
+            focusOn("matrix", true);
+            Coordinate endPos = (Coordinate) getObj();
+            aToolcard.setEndPosition(endPos);
+        } catch (InterruptedException e) {
+            displayError(e);
+        }
+        return null;
+    }
+
+    @Override
+    public DiluentePastaSalda fill(DiluentePastaSalda aToolcard) {
+        return null;
+    }
+
+    @Override
+    public Lathekin fill(Lathekin aToolcard) {
+        return null;
+    }
+
+    @Override
+    public Martelletto fill(Martelletto aToolcard) {
+        return null;
+    }
+
+    @Override
+    public PennelloPastaSalda fill(PennelloPastaSalda aToolcard) {
+        return null;
+    }
+
+    @Override
+    public PennelloPerEglomise fill(PennelloPerEglomise aToolcard) {
+        return null;
+    }
+
+    @Override
+    public PinzaSgrossatrice fill(PinzaSgrossatrice aToolcard) {
+        return null;
+    }
+
+    @Override
+    public RigaSughero fill(RigaSughero aToolcard) {
+        return null;
+    }
+
+    @Override
+    public StripCutter fill(StripCutter aToolcard) {
+        return null;
+    }
+
+    @Override
+    public TaglierinaManuale fill(TaglierinaManuale aToolcard) {
+        return null;
+    }
+
+    @Override
+    public TaglierinaCircolare fill(TaglierinaCircolare aToolcard) {
+        return null;
+    }
+
+    @Override
+    public TamponeDiamantato fill(TamponeDiamantato aToolcard) {
+        return null;
+    }
+
+    @Override
+    public TenagliaRotelle fill(TenagliaRotelle aToolcard) {
+        return null;
     }
 }
 
