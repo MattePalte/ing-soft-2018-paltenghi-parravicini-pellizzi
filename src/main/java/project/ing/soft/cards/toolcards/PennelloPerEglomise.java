@@ -1,6 +1,7 @@
 package project.ing.soft.cards.toolcards;
 
 import project.ing.soft.Coordinate;
+import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.gamemanager.IGameManager;
 import project.ing.soft.Colour;
 import project.ing.soft.Player;
@@ -39,7 +40,7 @@ public class PennelloPerEglomise extends ToolCard {
     }
 
     @Override
-    public void fill(IToolCardFiller visitor) {
+    public void fill(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException {
         visitor.fill(this);
     }
 }

@@ -6,6 +6,7 @@ import project.ing.soft.cards.objectives.ObjectiveCard;
 import project.ing.soft.cards.objectives.privates.PrivateObjective;
 import project.ing.soft.cards.objectives.publics.PublicObjective;
 import project.ing.soft.cards.toolcards.ToolCard;
+import project.ing.soft.controller.Controller;
 import project.ing.soft.events.*;
 import project.ing.soft.exceptions.GameInvalidException;
 import project.ing.soft.exceptions.RuleViolatedException;
@@ -42,9 +43,25 @@ public class GameManagerMulti implements IGameManager, Serializable {
     private Map<String, Integer>        favours;
     private List<Pair<Player, Integer>> rank;
     private Map<String, Integer>      toolCardCost;
+    private transient final Timer          TIMER = new Timer();
+    private transient static final long           TIMEOUT = 3000;
 
 
     private boolean isFinished;
+
+    private TimerTask getTimerTask(){
+        return new TimerTask(){
+            @Override
+            public void run(){
+                try {
+                    getCurrentPlayer().update(new TurnEndedEvent());
+                    endTurn();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+    }
 
     @Override
     public int hashCode() {
@@ -207,7 +224,10 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
     @Override
     public void start() throws Exception {
+
+        // Starting timer for the first player of the game
         drawDice();
+        TIMER.schedule(getTimerTask(), TIMEOUT);
         getCurrentPlayer().resetDieFlag();
         deliverNewStatus(new FinishedSetupEvent());
         deliverNewStatus(new ModelChangedEvent(new GameManagerMulti(this)), new MyTurnStartedEvent());
@@ -302,10 +322,12 @@ public class GameManagerMulti implements IGameManager, Serializable {
     }
 
     @Override
-    public void deliverNewStatus(Event event) throws Exception{
+    public void deliverNewStatus(Event event){
         ExecutorService executor = Executors.newFixedThreadPool(4);
 
         for (Player subscriber : currentGame.getPlayers()) {
+
+            //TODO: catch exception from update to notify other players
             executor.submit(() -> {
                 subscriber.update( event);
                 return true;
@@ -382,6 +404,8 @@ public class GameManagerMulti implements IGameManager, Serializable {
             System.out.println("Round " + rounds.getCurrentRound() + " is beginning");
             drawDice();
         }
+
+        TIMER.schedule(getTimerTask(), TIMEOUT);
         getCurrentPlayer().resetDieFlag();
         deliverNewStatus( new ModelChangedEvent(new GameManagerMulti(this)), new MyTurnStartedEvent());
     }

@@ -173,6 +173,11 @@ public class ClientViewCLI extends Thread implements IView, IEventHandler, ITool
 
     }
 
+    @Override
+    public void respondTo(TurnEndedEvent event) {
+        //TODO: to implement method
+    }
+
     private void displayError(Exception ex){
         out.println("Error:"+ex.getMessage());
         Scanner input = new Scanner(System.in);
@@ -336,10 +341,7 @@ public class ClientViewCLI extends Thread implements IView, IEventHandler, ITool
                     Thread.sleep(500);
                 }
                 input = br.readLine();
-            } catch (InterruptedException e) {
-                throw e;
-
-            } catch (IOException e) {
+            }catch (IOException e) {
                 e.printStackTrace(out);
             }
         } while ("".equals(input));

@@ -61,13 +61,15 @@ public class SocketHandler implements IRequestHandler, Runnable{
 
             }
         }catch (EOFException ignored){
+            log.log(Level.SEVERE, "EOF exception occured");
 
         }catch (ClassNotFoundException ex) {
             log.log( Level.SEVERE,"A class wasn't found {0}", ex );
         } catch (Exception ex){
             log.log(Level.SEVERE, "An error occurred while writing/reading objects {0}", ex);
-        }finally {
-            log.log(Level.INFO, "disconnected");
+        }
+        finally {
+            log.log(Level.INFO, "User disconnected");
         }
 
 

@@ -2,8 +2,10 @@ package project.ing.soft.cards.toolcards;
 
 import project.ing.soft.*;
 import project.ing.soft.cards.Card;
+import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.gamemanager.IGameManager;
 import project.ing.soft.exceptions.MalformedToolCardException;
+import project.ing.soft.view.LocalViewCli;
 
 import java.io.Serializable;
 import java.util.List;
@@ -22,7 +24,7 @@ public abstract class ToolCard extends Card implements Serializable{
     }
 
     public abstract void applyEffect(Player p, IGameManager m) throws Exception;
-    public abstract void fill(IToolCardFiller visitor);
+    public abstract void fill(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException, UserInterruptActionException;
     public abstract void checkParameters(Player p, IGameManager m) throws MalformedToolCardException;
 
     protected void validateDie(Die aDie) throws MalformedToolCardException {

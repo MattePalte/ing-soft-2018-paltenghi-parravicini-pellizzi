@@ -33,13 +33,14 @@ public class ViewProxy implements IView,IRequestHandler, Runnable {
 
 
             while (!aSocket.isClosed() && !Thread.currentThread().isInterrupted()) {
-
+                // readObject doesn't wait for the inputStream to have data: it throws EOFException
+                // Must do a requestQueue on which we have to synchronize readObject call
                 AbstractRequest aRequest = (AbstractRequest) fromClient.readObject();
                 this.visit(aRequest);
 
             }
         }catch (EOFException ignored){
-
+            log.println("EOFException occured");
         }catch (ClassNotFoundException ex) {
             log.println( "A class wasn't found "+ ex );
         } catch (Exception ex){

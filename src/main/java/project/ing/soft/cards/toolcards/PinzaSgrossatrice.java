@@ -2,6 +2,7 @@ package project.ing.soft.cards.toolcards;
 
 import project.ing.soft.Die;
 import project.ing.soft.Colour;
+import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.gamemanager.IGameManager;
 import project.ing.soft.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
@@ -46,7 +47,7 @@ public class PinzaSgrossatrice extends ToolCard {
     }
 
     @Override
-    public void fill(IToolCardFiller visitor) {
+    public void fill(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException {
         visitor.fill(this);
     }
 }

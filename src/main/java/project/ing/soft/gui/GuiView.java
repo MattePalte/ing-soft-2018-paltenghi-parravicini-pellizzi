@@ -303,6 +303,11 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         alert.show();*/
     }
 
+    @Override
+    public void respondTo(TurnEndedEvent event) {
+        //TODO: to implement method
+    }
+
 
     private void displayPatternCard(WindowPattern pattern, Scene scene){
         for (int row = 0 ; row < pattern.getHeight(); row++) {
