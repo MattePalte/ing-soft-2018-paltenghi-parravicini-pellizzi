@@ -2,7 +2,6 @@ package project.ing.soft.socket;
 
 import project.ing.soft.model.Game;
 import project.ing.soft.socket.request.AbstractRequest;
-import project.ing.soft.socket.request.ParticipationRequest;
 import project.ing.soft.socket.response.*;
 
 
@@ -102,21 +101,12 @@ public class ComplexClient implements IResponseHandler ,Runnable {
                 in.next();
             out.println("There are games which are seeking for players do you want to join one of them? [y/n]");
             if(in.next().startsWith("y")){
-                send(new ParticipationRequest(gamesThatNeedParticipants.get(0)));
+                //send(new ParticipationRequest(gamesThatNeedParticipants.get(0)));
             }
 
         }
     }
 
-    @Override
-    public void handle(ParticipationConfirmedResponse aResponse) {
-
-        out.println("Joined the game" + aResponse);
-        lock.lock();
-        isUserRegisteredToGame = true;
-        timeToJoinTheGame.signalAll();
-        lock.unlock();
-    }
 
     @Override
     public void handle(CreationGameResponse aResponse) throws Exception {
@@ -126,14 +116,14 @@ public class ComplexClient implements IResponseHandler ,Runnable {
 
     @Override
     public void handle(ExceptionalResponse aResponse) {
+
         out.println("An erroneous response was received");
     }
 
     @Override
     public void handle(AllRightResponse aResponse) throws Exception {
-
+        out.println("An ack message was received");
     }
-
     @Override
     public void handle(EventResponse aResponse) throws Exception {
         out.println("An erroneous response was received");

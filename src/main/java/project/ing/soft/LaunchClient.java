@@ -14,11 +14,10 @@ import static java.lang.Thread.sleep;
 
 public class LaunchClient {
     public static void main(String[] args) throws Exception {
-        // MULTI MACHINE INTERNAL LAN
-        // where 192.168.x.x is the internal ip of the machine hosting the registry
-        // decomment this ->Registry registry = LocateRegistry.getRegistry("192.168.x.x");
-        // and comment the statement below
-        Registry registry = LocateRegistry.getRegistry();
+
+        //args[0] should be the ip address of the machine running the registry
+        Registry registry = LocateRegistry.getRegistry( args.length > 0 ? args[0] : "127.0.0.1");
+
 
         /* Use this if you want to list the bound objects
         for (String name : registry.list()) {
@@ -28,6 +27,7 @@ public class LaunchClient {
         String[] registryList = registry.list();
         for(String s : registryList)
             System.out.println(s);
+
         Scanner scan = new Scanner(System.in);
         System.out.println("Enter your name:");
         String name = scan.next();
@@ -37,7 +37,6 @@ public class LaunchClient {
 
         // creates and launches the view
         IView myView = new LocalViewCli(name);
-
         myView.attachController(controller);
         myView.run();
 

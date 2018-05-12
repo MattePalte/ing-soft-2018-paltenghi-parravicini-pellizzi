@@ -136,17 +136,12 @@ public class ControllerProxy extends Thread implements IResponseHandler ,IContro
 
     @Override
     public void handle(InformationResponse aResponse) throws Exception{
-        logger.println("an erroneous response was taken");
-    }
-
-    @Override
-    public void handle(ParticipationConfirmedResponse aResponse) {
-        logger.println( "an erroneous response was taken");
+        logger.println("an information response was received");
     }
 
     @Override
     public void handle(CreationGameResponse aResponse) throws Exception {
-        logger.println("an erroneous response was taken");
+        logger.println("a game has been created");
     }
 
     @Override

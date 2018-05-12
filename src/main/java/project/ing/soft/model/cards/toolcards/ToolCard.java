@@ -26,7 +26,7 @@ public abstract class ToolCard extends Card implements Serializable{
     }
 
     public abstract void applyEffect(Player p, IGameManager m) throws Exception;
-    public abstract void fill(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException, UserInterruptActionException;
+    public abstract void fill(IToolCardFiller visitor) throws InterruptedException, UserInterruptActionException;
     public abstract void checkParameters(Player p, IGameManager m) throws MalformedToolCardException;
 
     protected void validateDie(Die aDie) throws MalformedToolCardException {

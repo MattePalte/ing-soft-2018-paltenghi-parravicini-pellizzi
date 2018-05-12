@@ -27,11 +27,11 @@ import java.util.stream.Collectors;
 public class GameManagerMulti implements IGameManager, Serializable {
 
 
-    private Game currentGame ;
+    private Game                currentGame ;
 
-    private ArrayList<Die>              diceBag;
-    private ArrayList<Die>              draftPool;
-    private RoundTracker rounds;
+    private ArrayList<Die>      diceBag;
+    private ArrayList<Die>      draftPool;
+    private RoundTracker        rounds;
 
     private ArrayList<PublicObjective> publicObjectives;
 
@@ -51,7 +51,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
             @Override
             public void run(){
                 try {
-                    getCurrentPlayer().update(new TurnEndedEvent());
+                    getCurrentPlayer().update(new MyTurnEndedEvent());
                     endTurn();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -177,11 +177,13 @@ public class GameManagerMulti implements IGameManager, Serializable {
         this.isFinished         = gameManagerMulti.isFinished;
     }
 
-
-
     @Override
     public Game getGameInfo()       {
         return new Game(currentGame);
+    }
+    @Override
+    public boolean isFinished() {
+        return this.isFinished;
     }
     @Override
     public List<Die> getDraftPool() {

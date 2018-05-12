@@ -20,6 +20,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Coordinate;
 import project.ing.soft.model.Die;
@@ -276,7 +277,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     }
 
     @Override
-    public void respondTo(TurnEndedEvent event) {
+    public void respondTo(MyTurnEndedEvent event) {
 
     }
 
@@ -687,7 +688,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     }
 
     @Override
-    public AlesatoreLaminaRame fill(AlesatoreLaminaRame aToolcard) {
+    public void fill(AlesatoreLaminaRame aToolcard) {
         try {
             disableAll();
             focusOn("matrix", true);
@@ -700,67 +701,67 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         } catch (InterruptedException e) {
             displayError(e);
         }
-        return null;
+
     }
 
     @Override
-    public DiluentePastaSalda fill(DiluentePastaSalda aToolcard) {
-        return null;
+    public void fill(DiluentePastaSalda aToolcard) throws InterruptedException, UserInterruptActionException {
+        
     }
 
     @Override
-    public Lathekin fill(Lathekin aToolcard) {
-        return null;
+    public void fill(Lathekin aToolcard) throws InterruptedException, UserInterruptActionException {
+
     }
 
     @Override
-    public Martelletto fill(Martelletto aToolcard) {
-        return null;
+    public void fill(Martelletto aToolcard) throws InterruptedException, UserInterruptActionException {
+
     }
 
     @Override
-    public PennelloPastaSalda fill(PennelloPastaSalda aToolcard) {
-        return null;
+    public void fill(PennelloPastaSalda aToolcard) throws InterruptedException, UserInterruptActionException {
+
     }
 
     @Override
-    public PennelloPerEglomise fill(PennelloPerEglomise aToolcard) {
-        return null;
+    public void fill(PennelloPerEglomise aToolcard) throws InterruptedException, UserInterruptActionException {
+
     }
 
     @Override
-    public PinzaSgrossatrice fill(PinzaSgrossatrice aToolcard) {
-        return null;
+    public void fill(PinzaSgrossatrice aToolcard) throws InterruptedException, UserInterruptActionException {
+
     }
 
     @Override
-    public RigaSughero fill(RigaSughero aToolcard) {
-        return null;
+    public void fill(RigaSughero aToolcard) throws InterruptedException, UserInterruptActionException {
+
     }
 
     @Override
-    public StripCutter fill(StripCutter aToolcard) {
-        return null;
+    public void fill(StripCutter aToolcard) {
+
     }
 
     @Override
-    public TaglierinaManuale fill(TaglierinaManuale aToolcard) {
-        return null;
+    public void fill(TaglierinaManuale aToolcard) throws InterruptedException, UserInterruptActionException {
+
     }
 
     @Override
-    public TaglierinaCircolare fill(TaglierinaCircolare aToolcard) {
-        return null;
+    public void fill(TaglierinaCircolare aToolcard) throws InterruptedException, UserInterruptActionException {
+
     }
 
     @Override
-    public TamponeDiamantato fill(TamponeDiamantato aToolcard) {
-        return null;
+    public void fill(TamponeDiamantato aToolcard) throws InterruptedException, UserInterruptActionException {
+
     }
 
     @Override
-    public TenagliaRotelle fill(TenagliaRotelle aToolcard) {
-        return null;
+    public void fill(TenagliaRotelle aToolcard) throws InterruptedException, UserInterruptActionException {
+
     }
 }
 

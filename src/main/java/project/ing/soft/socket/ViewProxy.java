@@ -19,7 +19,7 @@ public class ViewProxy implements IView,IRequestHandler, Runnable {
     private PrintStream log;
 
 
-    public ViewProxy(Socket aSocket)throws Exception {
+    public ViewProxy(Socket aSocket) throws IOException {
         this.aSocket = aSocket;
         this.toClient   = new ObjectOutputStream(aSocket.getOutputStream());
         this.toClient.flush();
@@ -88,10 +88,7 @@ public class ViewProxy implements IView,IRequestHandler, Runnable {
             toClient.writeObject(new ExceptionalResponse(ex, aRequest.getId()));
         }
     }
-    @Override
-    public void handle(ParticipationRequest aRequest) throws Exception {
-        throw new UnsupportedOperationException();
-    }
+
 
     @Override
     public void handle(InformationRequest aRequest) throws Exception {

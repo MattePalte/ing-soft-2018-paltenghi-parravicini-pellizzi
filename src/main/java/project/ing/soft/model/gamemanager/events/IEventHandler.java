@@ -9,6 +9,5 @@ public interface IEventHandler {
     void respondTo(PatternCardDistributedEvent event);
     void respondTo(MyTurnStartedEvent event);
     void respondTo(ModelChangedEvent event);
-
-    void respondTo(TurnEndedEvent event);
+    void respondTo(MyTurnEndedEvent event);
 }

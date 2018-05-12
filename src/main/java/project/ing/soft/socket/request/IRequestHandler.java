@@ -3,8 +3,6 @@ package project.ing.soft.socket.request;
 public interface IRequestHandler {
     void visit(AbstractRequest aRequest) throws  Exception;
 
-    void handle(ParticipationRequest aRequest) throws Exception;
-
     void handle(InformationRequest aRequest) throws Exception;
 
     void handle(CreationGameRequest aRequest) throws Exception;

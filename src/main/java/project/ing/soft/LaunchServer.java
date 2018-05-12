@@ -2,6 +2,7 @@ package project.ing.soft;
 
 import project.ing.soft.controller.Controller;
 import project.ing.soft.controller.IController;
+import project.ing.soft.socket.SimpleSocketConnectionListener;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +19,7 @@ import static java.lang.Thread.sleep;
 public class LaunchServer extends Thread{
     private ArrayList<Controller> hostedGames;
     private ArrayList<Controller> exportedControllers;
-    private static final String cmdForStartingRegistry = "start rmiregistry -J-Djava.rmi.server.logCalls=true -J-Djava.rmi.server.useCodebaseOnly=false";
+    private static final String cmdForStartingRegistry = "start rmiregistry.exe -J-Djava.rmi.server.logCalls=true -J-Djava.rmi.server.useCodebaseOnly=false";
     private static final String classesRootpath =  Controller.class.getProtectionDomain().getCodeSource().getLocation().getPath().replace("%20", " ");
 
 
@@ -57,7 +58,7 @@ public class LaunchServer extends Thread{
             //https://ss64.com/nt/cmd.html
             //reference for operators in scripting
             //http://mywiki.wooledge.org/BashGuide/TestsAndConditionals
-            ProcessBuilder pb = new ProcessBuilder("cmd.exe", "/C echo Start &"+cmdForStartingRegistry);
+            ProcessBuilder pb = new ProcessBuilder("cmd.exe", "/C "+cmdForStartingRegistry);
             //we set directory strating point
             File classesDir = new File(classesRootpath);
             pb.directory(classesDir);

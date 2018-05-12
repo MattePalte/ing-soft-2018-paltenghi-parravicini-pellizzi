@@ -108,11 +108,6 @@ public class SocketHandler implements IRequestHandler, Runnable{
 
     }
 
-    @Override
-    public void handle(ParticipationRequest aRequest) throws Exception{
-
-
-    }
 
     @Override
     public void handle(InformationRequest aRequest) throws Exception {

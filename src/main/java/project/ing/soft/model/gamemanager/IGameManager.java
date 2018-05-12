@@ -29,6 +29,7 @@ public interface IGameManager extends Serializable {
     Map<String, Integer>    getFavours();
     RoundTracker            getRoundTracker();
     List<Player>            getCurrentTurnList();
+    boolean                 isFinished();
 
     Player getWinner()                                  throws Exception;
     void start()                                        throws Exception;
@@ -51,4 +52,5 @@ public interface IGameManager extends Serializable {
     Die drawFromDicebag();
 
     void samePlayerAgain();
+
 }
