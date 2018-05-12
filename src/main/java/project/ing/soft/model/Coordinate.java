@@ -24,4 +24,9 @@ public final class Coordinate implements Serializable{
         return col;
     }
 
+    @Override
+    public String toString(){
+        return "(" + row + ", " + col + ")";
+    }
+
 }

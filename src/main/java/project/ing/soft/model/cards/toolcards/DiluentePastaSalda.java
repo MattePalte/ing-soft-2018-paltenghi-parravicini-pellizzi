@@ -29,10 +29,12 @@ public class DiluentePastaSalda extends ToolCard {
     public void applyEffect(Player p, IGameManager m) throws Exception {
         // TODO: Make current player place the die drawn from the dicebag, if he can
         m.removeFromDraft(chosenDie);
-        Die toBePlaced = m.drawFromDicebag();
+        m.addToDicebag(chosenDie);
+        Die toBePlaced = m.drawFromDicebag().rollDie();
+        m.addToDraft(toBePlaced);
         ArrayList<Coordinate> compatiblePositions = new ArrayList<>(p.getCompatiblePositions(toBePlaced));
         if(!compatiblePositions.isEmpty()){
-            p.update(new PlaceThisDieEvent(toBePlaced, compatiblePositions));
+            p.update(new PlaceThisDieEvent(toBePlaced, compatiblePositions, true));
         }
     }
 

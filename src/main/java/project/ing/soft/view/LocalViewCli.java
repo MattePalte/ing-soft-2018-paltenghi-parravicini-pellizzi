@@ -29,6 +29,8 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     private final transient Queue<Event> eventsReceived;
     private transient ExecutorService turnExecutor;
     private transient Future actualTurn;
+    private transient Future eventWaitingForInput;
+    private transient Thread eventHandler;
 
     public LocalViewCli(String ownerNameOfTheView) throws RemoteException {
         // getCurrentPlayer da solo il giocatore di turno non il giocatore della view
@@ -37,7 +39,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
         eventsReceived = new LinkedList<>();
         turnExecutor = Executors.newSingleThreadExecutor();
 
-        new Thread( () -> {
+        eventHandler = new Thread( () -> {
             Event toRespond = null;
 
             while(true) {
@@ -57,7 +59,9 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                     eventsReceived.notifyAll();
                 }
             }
-        }).start();
+        });
+
+        eventHandler.start();
     }
 
 
@@ -76,25 +80,42 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
     @Override
     public void respondTo(PlaceThisDieEvent event){
-        Coordinate chosenPosition = null;
+        eventWaitingForInput = turnExecutor.submit(() -> {
+            Coordinate chosenPosition = null;
+            Die toBePlaced = event.getToBePlaced();
 
-        do {
             try {
-                out.println("Choose a position where to place this die: " + event.getToBePlaced());
-                chosenPosition = (Coordinate) chooseFrom(event.getCompatiblePositions());
+                if (event.getIsValueChoosable()) {
+                    System.out.println("You draft a " + toBePlaced.getColour() + " die. Choose the die value");
+                    int newValue = waitForUserInput(1, 6);
+                    toBePlaced = new Die(newValue, toBePlaced.getColour());
+                    System.out.println("Die to be placed: ");
+                }
             } catch (UserInterruptActionException e) {
-                chosenPosition = null;
-                out.println("You must choose where to place this die: " + event.getToBePlaced());
-            }catch(InterruptedException e){
-                out.println("Operation has been cancelled");
+                System.out.println("You didn't choose the die value. The die has been rolled");
+            } catch (InterruptedException e) {
+                System.out.println("Timeout expired. Your turn ended");
+                return;
             }
-        }
-        while(chosenPosition == null);
-        try {
-            controller.placeDie(ownerNameOfTheView, event.getToBePlaced(), chosenPosition.getRow(), chosenPosition.getCol());
-        } catch(Exception e){
-            displayError(e);
-        }
+            do {
+                try {
+                    out.println("Choose a position where to place this die: " + toBePlaced);
+                    chosenPosition = (Coordinate) chooseFrom(event.getCompatiblePositions());
+                } catch (UserInterruptActionException e) {
+                    chosenPosition = null;
+                    out.println("You must choose where to place this die: " + toBePlaced);
+                } catch (InterruptedException e) {
+                    out.println("Timeout expired. Your turn ended.");
+                    return;
+                }
+            }
+            while (chosenPosition == null);
+            try {
+                controller.placeDie(ownerNameOfTheView, toBePlaced, chosenPosition.getRow(), chosenPosition.getCol());
+            } catch (Exception e) {
+                displayError(e);
+            }
+        });
     }
 
     @Override
@@ -145,7 +166,8 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     @Override
     public void respondTo(TurnEndedEvent event){
         actualTurn.cancel(true);
-        System.out.println(actualTurn.isCancelled());
+        if(eventWaitingForInput != null && !eventWaitingForInput.isDone())
+            eventWaitingForInput.cancel(true);
     }
 
     @Override
@@ -291,10 +313,10 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
             catch(UserInterruptActionException e){
                 out.println("Operation aborted. Please select an action");
                 update(new MyTurnStartedEvent());
-            }catch(InterruptedException | ExecutionException e){
-                out.println("Timeout expired. Your turn ended");
+            }catch(InterruptedException e){
+                out.println("Timeout expired. Your turn ended. Too bad :(");
             } catch (Exception e) {
-                e.printStackTrace();
+                displayError(e);
             }
             /*catch(Exception e){
                 displayError(e);
@@ -317,7 +339,6 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                 while (!br.ready()) {
                     //Thread.sleep(500);
                     if(Thread.currentThread().isInterrupted()) {
-                        System.out.println("Interrupted thread");
                         throw new InterruptedException();
                     }
                 }
@@ -333,13 +354,14 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     private int waitForUserInput(int lowerBound , int upperBound) throws UserInterruptActionException, InterruptedException {
         int ret = 0;
         boolean err;
-
+        String in = null;
 
 
         do{
             err = false;
             try{
-                ret = Integer.valueOf(preemptiveReadline());
+                in = preemptiveReadline();
+                ret = Integer.valueOf(in);
             }
             catch( NumberFormatException e){
                 err = true;
@@ -347,7 +369,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
             err = err || ret < lowerBound || ret > upperBound;
 
             if(err){
-                if(preemptiveReadline().startsWith("q"))
+                if(in.startsWith("q"))
                     throw new UserInterruptActionException();
                 out.println("You entered a value that does not fit into the correct interval. Enter q to interrupt the operation");
 

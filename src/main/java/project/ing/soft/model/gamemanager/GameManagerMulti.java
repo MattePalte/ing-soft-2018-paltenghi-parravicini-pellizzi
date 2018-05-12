@@ -41,7 +41,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
     private List<Pair<Player, Integer>> rank;
     private Map<String, Integer>      toolCardCost;
     private transient final Timer          TIMER = new Timer();
-    private transient static final long           TIMEOUT = 3000;
+    private transient static final long    TIMEOUT = 60000;
 
 
     private boolean isFinished;
@@ -151,9 +151,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
     @Override
     public void removeFromDraft(Die aDie) {
-
         draftPool.remove(aDie);
-
     }
 
     @Override
@@ -224,12 +222,11 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
         // Starting timer for the first player of the game
         drawDice();
-        getCurrentPlayer().endTurn();
-        TIMER.schedule(getTimerTask(), TIMEOUT);
-        getCurrentPlayer().endTurn();
+        //getCurrentPlayer().endTurn();
+        //getCurrentPlayer().endTurn();
         deliverNewStatus(new FinishedSetupEvent());
         deliverNewStatus(new ModelChangedEvent(new GameManagerMulti(this)), new MyTurnStartedEvent());
-
+        TIMER.schedule(getTimerTask(), TIMEOUT);
     }
 
     @Override
@@ -364,18 +361,24 @@ public class GameManagerMulti implements IGameManager, Serializable {
         int actualFavours = favours.get(getCurrentPlayer().getName());
         favours.replace(getCurrentPlayer().getName(), actualFavours - toolCardCost.get(aToolCard.getTitle()));
         toolCardCost.replace(aToolCard.getTitle(), 2);
-        getCurrentPlayer().update( new ModelChangedEvent(new GameManagerMulti(this)));
-        getCurrentPlayer().update(new MyTurnStartedEvent());
+        if(!aToolCard.getTitle().equals("Diluente per pasta salda")) {
+            getCurrentPlayer().update(new ModelChangedEvent(new GameManagerMulti(this)));
+            getCurrentPlayer().update(new MyTurnStartedEvent());
+        }
     }
 
     @Override
     public void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception {
+        try{
         getCurrentPlayer().placeDie(aDie,rowIndex,colIndex, true);
-        draftPool.remove(aDie);
+        draftPool.remove(aDie);}
 
         //TODO: it's possible to create a new thread to call update to optimize event queue syncronization
-        getCurrentPlayer().update( new ModelChangedEvent(new GameManagerMulti(this)));
-        getCurrentPlayer().update( new MyTurnStartedEvent());
+        // finally branch: to execute even if an exception is thrown (for example if a user places a die in an incorrect position)
+        finally {
+            getCurrentPlayer().update(new ModelChangedEvent(new GameManagerMulti(this)));
+            getCurrentPlayer().update(new MyTurnStartedEvent());
+        }
     }
 
 
@@ -403,9 +406,10 @@ public class GameManagerMulti implements IGameManager, Serializable {
             drawDice();
         }
 
-        TIMER.schedule(getTimerTask(), TIMEOUT);
         getCurrentPlayer().endTurn();
         deliverNewStatus( new ModelChangedEvent(new GameManagerMulti(this)), new MyTurnStartedEvent());
+        TIMER.schedule(getTimerTask(), TIMEOUT);
+
     }
     @Override
     public Map<String, Integer> getFavours(){
@@ -441,7 +445,6 @@ public class GameManagerMulti implements IGameManager, Serializable {
         Die ret;
 
         ret = diceBag.remove(new Random().nextInt(diceBag.size()));
-        addToDraft(ret);
         return ret;
     }
 
