@@ -2,16 +2,15 @@ package project.ing.soft;
 
 import project.ing.soft.controller.Controller;
 import project.ing.soft.controller.IController;
-import project.ing.soft.socket.SimpleSocketConnectionListener;
 
+import java.io.File;
+import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.Thread.sleep;
@@ -19,6 +18,9 @@ import static java.lang.Thread.sleep;
 public class LaunchServer extends Thread{
     private ArrayList<Controller> hostedGames;
     private ArrayList<Controller> exportedControllers;
+    private static final String cmdForStartingRegistry = "start rmiregistry -J-Djava.rmi.server.logCalls=true -J-Djava.rmi.server.useCodebaseOnly=false";
+    private static final String classesRootpath =  Controller.class.getProtectionDomain().getCodeSource().getLocation().getPath().replace("%20", " ");
+
 
     public LaunchServer(ArrayList<Controller> hostedGames){
         this.hostedGames = hostedGames;
@@ -44,7 +46,31 @@ public class LaunchServer extends Thread{
         // where 192.168.x.x is the internal ip of the machine hosting the registry
         // decomment this -> System.setProperty("java.rmi.server.hostname","192.168.x.x");
 
+        Process rmiRegistryProcess = null;
         try{
+            System.out.println("Starting rmi registry in "+ classesRootpath);
+
+            //we start registry using another process
+            //Notice that the process is actually started into a separate cmd than the one started with this process builder
+            // this was done for debugging purposes
+            //reference for cmd program
+            //https://ss64.com/nt/cmd.html
+            //reference for operators in scripting
+            //http://mywiki.wooledge.org/BashGuide/TestsAndConditionals
+            ProcessBuilder pb = new ProcessBuilder("cmd.exe", "/C echo Start &"+cmdForStartingRegistry);
+            //we set directory strating point
+            File classesDir = new File(classesRootpath);
+            pb.directory(classesDir);
+            //se a log for output
+            File log = new File("log.txt");
+            pb.redirectErrorStream(true);
+            pb.redirectOutput(ProcessBuilder.Redirect.appendTo(log));
+            //start the rmi process
+            rmiRegistryProcess = pb.start();
+            //waiting for server start
+            Thread.sleep(1000);
+            //it would be nice to test for ativity of the thread of rmi registry.
+            rmiRegistryProcess.isAlive();
             Registry registry = LocateRegistry.getRegistry();
 
             // Unbinding old games from registry
@@ -89,22 +115,22 @@ public class LaunchServer extends Thread{
             }
         } catch (RemoteException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("Error while starting registry");
+            e.printStackTrace();
+        }finally {
+            if(rmiRegistryProcess != null)
+                rmiRegistryProcess.destroy();
         }
     }
-        /*while (true) {
-            try {
-                sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            System.out.println(".");
-        }*/
 
     public static void main(String[] args) {
-        ArrayList<Controller> hostedGames = new ArrayList();
+        ArrayList<Controller> hostedGames = new ArrayList<>();
 
-        SimpleSocketConnectionListener socketConnectionListener = new SimpleSocketConnectionListener(3000, hostedGames);
-        socketConnectionListener.start();
+        //SimpleSocketConnectionListener socketConnectionListener = new SimpleSocketConnectionListener(3000, hostedGames);
+        //socketConnectionListener.start();
 
         LaunchServer rmiConnectionListener = new LaunchServer(hostedGames);
         rmiConnectionListener.start();
@@ -113,9 +139,9 @@ public class LaunchServer extends Thread{
 
         do{
             System.out.println("If you want to shutdown the server enter q");
-        }while(!input.next().startsWith("q"));
+        }while(!input.next().startsWith("q") );
 
-        socketConnectionListener.interrupt();
+        //socketConnectionListener.interrupt();
         rmiConnectionListener.interrupt();
     }
 }
