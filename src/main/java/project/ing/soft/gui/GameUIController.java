@@ -35,10 +35,9 @@ public class GameUIController {
         myController = (IController) registry.lookup("controller");
         System.out.println("Name inserted: " + txtName.getText());
         // creates and launches the view
-        myView = new LocalViewCli(txtName.getText());
-
-        myView.attachController(myController);
+        myView = new LocalViewCli(txtName.getText(), myController);
         myView.run();
+
         System.out.println("View was created!");
         btnConnect.setText("Connesso");
         btnConnect.setDisable(true);

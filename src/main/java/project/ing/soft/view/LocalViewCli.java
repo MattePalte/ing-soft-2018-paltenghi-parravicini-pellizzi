@@ -3,6 +3,7 @@ package project.ing.soft.view;
 import project.ing.soft.model.Coordinate;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Player;
+import project.ing.soft.model.cards.Card;
 import project.ing.soft.model.cards.objectives.publics.PublicObjective;
 import project.ing.soft.model.cards.toolcards.*;
 import project.ing.soft.exceptions.UserInterruptActionException;
@@ -20,67 +21,87 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
 
-public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHandler, IToolCardFiller, Serializable {
+public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHandler, Serializable {
+
     private IGameManager localCopyOfTheStatus;
-    private IController  controller;
+
     private String ownerNameOfTheView;
-    private boolean stopResponding = false;
+    private transient IController  controller;
+
     private transient PrintStream out;
+    private transient NonBlockingScanner scanner;
+    private transient CliToolCardFiller aToolCardFiller;
+
+    private transient ExecutorService threadPool;
     private final transient Queue<Event> eventsReceived;
-    private transient ExecutorService turnExecutor;
+
     private transient Future actualTurn;
-    private transient Future eventWaitingForInput;
-    private transient Thread eventHandler;
+    private transient Future eventDigester;
+    private transient Future remoteOperation;
 
+
+
+    public LocalViewCli(String ownerNameOfTheView, IController controller) throws RemoteException {
+        this(ownerNameOfTheView);
+        this.controller           = controller;
+    }
     public LocalViewCli(String ownerNameOfTheView) throws RemoteException {
-        // getCurrentPlayer da solo il giocatore di turno non il giocatore della view
-        this.ownerNameOfTheView = ownerNameOfTheView;
-        out = new PrintStream(System.out);
-        eventsReceived = new LinkedList<>();
-        turnExecutor = Executors.newSingleThreadExecutor();
+        super();
 
-        eventHandler = new Thread( () -> {
-            Event toRespond = null;
+        this.ownerNameOfTheView   = ownerNameOfTheView;
+        this.out                  = new PrintStream(System.out);
+        this.scanner              = new NonBlockingScanner(System.in);
+        this.localCopyOfTheStatus = null;
+        this.aToolCardFiller      = new CliToolCardFiller( scanner, System.out, null);
+        this.eventsReceived       = new LinkedList<>();
+        this.threadPool           = Executors.newCachedThreadPool();
 
-            while(true) {
-                synchronized (eventsReceived) {
-                    try {
-                        while (eventsReceived.isEmpty())
-                            eventsReceived.wait();
-                        toRespond = eventsReceived.remove();
-                    } catch (InterruptedException e) {
-                        displayError(e);
-                    }
-                }
-                if (toRespond != null)
-                    toRespond.accept(this);
-                toRespond = null;
-                synchronized (eventsReceived) {
-                    eventsReceived.notifyAll();
-                }
-            }
-        });
-
-        eventHandler.start();
+        eventDigester = threadPool.submit( this::eventHandlingFunction);
     }
 
+    private boolean eventHandlingFunction() throws InterruptedException {
+        Event toRespond;
+
+        while(gameOngoing()) {
+
+            synchronized (eventsReceived) {
+                while (eventsReceived.isEmpty())
+                    eventsReceived.wait();
+                toRespond = eventsReceived.remove();
+            }
+
+            if (toRespond != null)
+                toRespond.accept(this);
+
+            synchronized (eventsReceived) {
+                eventsReceived.notifyAll();
+            }
+        }
+        //this return
+        return true;
+    }
+
+    private boolean gameOngoing(){
+        return (localCopyOfTheStatus == null || !localCopyOfTheStatus.isFinished());
+    }
 
     @Override
     public void update(Event aEvent) {
-        out.println( ownerNameOfTheView + " ha ricevuto un evento :" + aEvent);
+        out.println( ownerNameOfTheView + " has received an event:" + aEvent);
 
-        if (!stopResponding) {
+        if (gameOngoing()) {
             synchronized (eventsReceived) {
                 eventsReceived.add(aEvent);
                 eventsReceived.notifyAll();
             }
-            //aEvent.accept(this);
         }
     }
 
     @Override
     public void respondTo(PlaceThisDieEvent event){
-        eventWaitingForInput = turnExecutor.submit(() -> {
+        actualTurn.cancel(true);
+
+        actualTurn = threadPool.submit(() -> {
             Coordinate chosenPosition = null;
             Die toBePlaced = event.getToBePlaced();
 
@@ -116,10 +137,12 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                 displayError(e);
             }
         });
+
     }
 
     @Override
     public void respondTo(CurrentPlayerChangedEvent event) {
+        out.println("Now it's others turn");
         return;
     }
 
@@ -136,82 +159,85 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
         for (Pair<Player, Integer> aPair : event.getRank()){
             out.println(aPair.getKey() + " => " + aPair.getValue());
         }
-        stopResponding = true;
-
     }
 
     @Override
     public void respondTo(PatternCardDistributedEvent event) {
-
-        while(true) {
+        boolean err;
+        do {
+            err = false;
             try {
                 out.println("This is your private objective: ");
                 out.println(event.getMyPrivateObjective());
                 WindowPatternCard aCard = (WindowPatternCard) chooseFrom(List.of(event.getOne(), event.getTwo()));
                 int isFront = chooseIndexFrom(List.of(aCard.getFrontPattern(), aCard.getRearPattern()));
 
-                out.println("Wait for other players to choose ther pattern card.");
+                out.println("Wait for other players to choose their pattern card.");
                 controller.choosePattern(ownerNameOfTheView, aCard, isFront == 1);
 
-                return;
             } catch (UserInterruptActionException ex) {
                 out.println("The game can't start until you select a window pattern");
-            } catch (Exception e) {
+                err = true;
+            } catch (InterruptedException e) {
                 displayError(e);
+
+            }catch (Exception otherException){
+                err = true;
             }
-        }
+        }while (err);
 
     }
 
     @Override
-    public void respondTo(TurnEndedEvent event){
+    public void respondTo(MyTurnEndedEvent event){
+        out.println("You had plenty of time and you didn't used.. the turn was ended by the server");
         actualTurn.cancel(true);
-        if(eventWaitingForInput != null && !eventWaitingForInput.isDone())
-            eventWaitingForInput.cancel(true);
+
+        out.println(actualTurn.isCancelled());
+
     }
 
     @Override
     public void respondTo(MyTurnStartedEvent event) {
-        actualTurn = turnExecutor.submit(() -> {
-            try {
-                takeTurn();
-            } catch (Exception e) {
-                displayError(e);
-            }
-        });
+        actualTurn = threadPool.submit(this:: takeTurn);
     }
 
     @Override
     public void respondTo(ModelChangedEvent event) {
         localCopyOfTheStatus = event.getaGameCopy();
+
+        if(actualTurn != null && !actualTurn.isDone()) {
+            actualTurn.cancel(true);
+            actualTurn = threadPool.submit(this:: takeTurn);
+        }
+
         out.println("Modello aggiornato!");
         if (!localCopyOfTheStatus.getCurrentPlayer().getName().equals(ownerNameOfTheView)) {
             out.println("It's the turn of " + localCopyOfTheStatus.getCurrentPlayer().getName() + ". Wait for yours.");
         }
-        //displayMySituation();
+
     }
 
     private void displayError(Exception ex){
-        out.println("Error:"+ex.getMessage());
+        out.println("Error: "+ex.getMessage());
         Scanner input = new Scanner(System.in);
 
         out.println("Do you need stack trace? [y/n]");
 
         if(input.next().startsWith("y"))
-            ex.printStackTrace();
+            ex.printStackTrace(out);
     }
 
     @Override
     public void attachController(IController aController){
-        // TODO: come fa la view a sapere a che controller deve parlare?
         this.controller = aController;
     }
 
 
 
     private void displayMySituation(){
-        out.println("Turn:"+localCopyOfTheStatus.getRoundTracker().getCurrentRound());
-        // Stampa solo situazione attuale del giocatore attuale
+        out.println("Turn: "+localCopyOfTheStatus.getRoundTracker().getCurrentRound());
+        // Print only the situation of the current player, i.e. the owner of this view.
         for (Player p : localCopyOfTheStatus.getPlayerList()) {
             if (p.getName().equals(ownerNameOfTheView)) {
                 out.println(p);
@@ -222,22 +248,29 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     }
 
     private void displayEntireGameBoard(){
-        // TODO: abilitare stampa di tutti i giocatori su tutti i client con il codice sotto
-        /*for (Player p : localCopyOfTheStatus.getPlayerList()) {
+        out.println("Public objectives");
+        out.println(Card.drawNear(localCopyOfTheStatus.getPublicObjective()));
+        out.println("ToolCards");
+        out.println(Card.drawNear(localCopyOfTheStatus.getToolCards()));
+
+        for (Player p : localCopyOfTheStatus.getPlayerList()) {
             out.println(p);
-        }*/
+        }
         out.println("Draft pool : "+ localCopyOfTheStatus.getDraftPool());
     }
 
     @Override
     public void run() throws Exception {
+        this.attachController(controller);
+
         out.println(ownerNameOfTheView + " started ");
-        out.println("Waiting for enought players to start the match...");
+        out.println("Waiting for enough players to start the match...");
+
     }
 
-    private void takeTurn() {
-        int cmd = -1;
-        ExecutorService opExecutor = Executors.newSingleThreadExecutor();
+    private boolean takeTurn() throws InterruptedException {
+        int cmd ;
+
 
         List<String> commands = List.of("Place a die",
                 "Play a toolcard",
@@ -247,51 +280,49 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                 "End turn");
 
 
-
         do{
             displayMySituation();
             out.println("Take your turn " + localCopyOfTheStatus.getCurrentPlayer().getName());
 
             try{
                 cmd = chooseIndexFrom(commands);
-
             }
             catch(UserInterruptActionException e){
-                out.println("If you do not want to perform any action, please end your turn.");
                 cmd = -1;
-            } catch (InterruptedException ignored) {
-                System.out.println("Timeout expired. Your turn ended");
-                return;
             }
 
             try{
-                Future fut;
+
                 switch(cmd){
+                    case -1:
+                        out.println("If you do not want to perform any action, please end your turn.");
+                        break;
                     case 0:
                         out.println(localCopyOfTheStatus.getCurrentPlayer());
                         Coordinate placePosition = chooseDieCoordinate("Enter where you want to place your die");
                         Die chosenDie = (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
 
-                        fut = opExecutor.submit(() -> {
+                        remoteOperation = threadPool.submit(() -> {
                             controller.placeDie(ownerNameOfTheView, chosenDie, placePosition.getRow(), placePosition.getCol());
                             return true;
                         });
-                        fut.get();
+                        remoteOperation.get();
                         break;
                     case 1:
                         out.println("Choose a toolcard: ");
                         ToolCard aToolCard =  (ToolCard) chooseFrom(localCopyOfTheStatus.getToolCards());
-                        aToolCard.fill(this);
-                        fut = opExecutor.submit(() -> {
+                        aToolCardFiller.updateLocalCopyOfModel(localCopyOfTheStatus);
+                        aToolCardFiller.fill(aToolCard);
+
+                        remoteOperation = threadPool.submit(() -> {
                             controller.playToolCard(ownerNameOfTheView, aToolCard);
                             return true;
                         });
-                        fut.get();
+                        remoteOperation.get();
                         break;
                     case 2:
                         out.println("Public objectives: ");
-                        for(PublicObjective card : localCopyOfTheStatus.getPublicObjective())
-                            out.println(card);
+                        out.println(Card.drawNear(localCopyOfTheStatus.getPublicObjective()));
                         break;
                     case 3:
                         displayMySituation();
@@ -300,10 +331,10 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                         out.println("You still have " + localCopyOfTheStatus.getFavours().get(localCopyOfTheStatus.getCurrentPlayer().getName()));
                         break;
                     case 5:
+
                         controller.endTurn(ownerNameOfTheView);
                         break;
-                    case -2:
-                        break;
+
                     default:
                         out.println("No operation performed");
 
@@ -318,50 +349,25 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
             } catch (Exception e) {
                 displayError(e);
             }
-            /*catch(Exception e){
-                displayError(e);
-            }*/
+
         }
         while(cmd != 5 && cmd != 1 && cmd != 0 );
+
+        return true;
     }
 
 
 
-    private String preemptiveReadline() throws InterruptedException {
-
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
-        String input = "";
-        do {
-
-            try {
-                // wait until we have data to complete a readLine()
-                while (!br.ready()) {
-                    //Thread.sleep(500);
-                    if(Thread.currentThread().isInterrupted()) {
-                        throw new InterruptedException();
-                    }
-                }
-                input = br.readLine();
-            }catch (IOException e) {
-                e.printStackTrace(out);
-            }
-        } while ("".equals(input));
-
-        return  input;
-    }
 
     private int waitForUserInput(int lowerBound , int upperBound) throws UserInterruptActionException, InterruptedException {
-        int ret = 0;
+        int ret = lowerBound;
         boolean err;
-        String in = null;
-
 
         do{
             err = false;
             try{
-                in = preemptiveReadline();
-                ret = Integer.valueOf(in);
+
+                ret = Integer.valueOf(scanner.readLine());
             }
             catch( NumberFormatException e){
                 err = true;
@@ -369,17 +375,12 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
             err = err || ret < lowerBound || ret > upperBound;
 
             if(err){
-                if(in.startsWith("q"))
+                if(scanner.readLine().startsWith("q"))
                     throw new UserInterruptActionException();
                 out.println("You entered a value that does not fit into the correct interval. Enter q to interrupt the operation");
 
             }
-
-
         }while(err);
-
-
-
 
         return ret;
     }
@@ -410,130 +411,18 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
     }
 
-    @Override
-    public AlesatoreLaminaRame fill(AlesatoreLaminaRame aToolcard) throws InterruptedException, UserInterruptActionException {
-        out.println(aToolcard);
-        aToolcard.setStartPosition(chooseDieCoordinate("Enter which die you want to move"));
-        aToolcard.setEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
-        return null;
-    }
-
-    @Override
-    public DiluentePastaSalda fill(DiluentePastaSalda aToolcard) throws InterruptedException, UserInterruptActionException {
-        out.println(aToolcard);
-        out.println("Choose a die to take back to the dicebag: ");
-        Die chosenDie = (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
-        aToolcard.setChosenDie(chosenDie);
-        return null;
-    }
-
-    @Override
-    public Lathekin fill(Lathekin aToolcard) throws InterruptedException, UserInterruptActionException {
-        out.println(aToolcard);
-        aToolcard.setFirstDieStartPosition(chooseDieCoordinate("Enter which is the first die you want to move"));
-        aToolcard.setFirstDieEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
-        aToolcard.setSecondDieStartPosition(chooseDieCoordinate("Enter which is the second die you want to move"));
-        aToolcard.setSecondDieEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
-        return null;
-    }
-
-    @Override
-    public Martelletto fill(Martelletto aToolcard) throws InterruptedException, UserInterruptActionException {
-        return null;
-    }
-
-    @Override
-    public PennelloPastaSalda fill(PennelloPastaSalda aToolcard) throws InterruptedException, UserInterruptActionException {
-        out.println(aToolcard);
-        Die chosenDie;
-        chosenDie =  (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
-        aToolcard.setToRoll(chosenDie);
-        return null;
-    }
-
-    @Override
-    public PennelloPerEglomise fill(PennelloPerEglomise aToolcard) throws InterruptedException, UserInterruptActionException {
-        out.println(aToolcard);
-        aToolcard.setStartPosition(chooseDieCoordinate("Enter which die you want to move"));
-        aToolcard.setEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
-        return null;
-    }
-
-    @Override
-    public PinzaSgrossatrice fill(PinzaSgrossatrice aToolcard) throws InterruptedException, UserInterruptActionException {
-        out.println(aToolcard);
-        Die chosenDie;
-        boolean toBeIncreased;
-        chosenDie =  (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
-        aToolcard.setChoosenDie(chosenDie);
-        toBeIncreased = (chooseIndexFrom(List.of("Decrease its value", "Increase its value")) == 1);
-        aToolcard.setToBeIncreased(toBeIncreased);
-        return null;
-    }
-
-    @Override
-    public RigaSughero fill(RigaSughero aToolcard) throws InterruptedException, UserInterruptActionException {
-        out.println(aToolcard);
-        out.println("Choose a die from the draftpool: ");
-        Die chosenDie = (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
-        aToolcard.setChosenDie(chosenDie);
-        Coordinate chosenPosition = chooseDieCoordinate("Choose a position away from other dice: ");
-        aToolcard.setPosition(chosenPosition);
-
-        return null;
-    }
-
-    @Override
-    public StripCutter fill(StripCutter aToolcard) {
-        return null;
-    }
-
-    @Override
-    public TaglierinaManuale fill(TaglierinaManuale aToolcard) throws InterruptedException, UserInterruptActionException {
-        ArrayList<Coordinate> positions = null;
-        ArrayList<Coordinate> moveTo = null;
-
-        out.println(aToolcard);
-        out.println("Choose a die from the roundtracker: ");
-        Die chosenDie = (Die) chooseFrom(localCopyOfTheStatus.getRoundTracker().getDiceLeftFromRound());
-        aToolcard.setDieFromRoundTracker(chosenDie);
-        positions = new ArrayList<>();
-        moveTo = new ArrayList<>();
-        for(int i = 0; i < 2; i++){
-            positions.add(chooseDieCoordinate("Choose the position of a " + chosenDie.getColour() + " placed die in your pattern"));
-            moveTo.add(chooseDieCoordinate("Choose where you want to move the die you have just chosen"));
+    public void stop(){
+        if (eventDigester!= null){
+            eventDigester.cancel(true);
         }
-        aToolcard.setDiceChosen(positions);
-        aToolcard.setMoveTo(moveTo);
-        //TODO: find a way to let players choose to select just one die
-        return null;
-    }
 
-    @Override
-    public TaglierinaCircolare fill(TaglierinaCircolare aToolcard) throws InterruptedException, UserInterruptActionException {
-        out.println(aToolcard);
-        Die chosenDieFromDraft;
-        Die chosenDieFromRoundTracker;
-        out.println("Chose from Draft:");
-        chosenDieFromDraft =  (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
-        aToolcard.setDieFromDraft(chosenDieFromDraft);
-        out.println("Chose from RoundTracker:");
-        chosenDieFromRoundTracker =  (Die) chooseFrom(localCopyOfTheStatus.getRoundTracker().getDiceLeftFromRound());
-        aToolcard.setDieFromRoundTracker(chosenDieFromRoundTracker);
-        return null;
-    }
+        if(remoteOperation != null ){
+            eventDigester.cancel(true);
+        }
 
-    @Override
-    public TamponeDiamantato fill(TamponeDiamantato aToolcard) throws InterruptedException, UserInterruptActionException {
-        out.println(aToolcard);
-        out.println("Choose a die from the draftpool: ");
-        Die chosenDie = (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
-        aToolcard.setChosenDie(chosenDie);
-        return null;
-    }
+        if( actualTurn != null){
+            actualTurn.cancel(true);
+        }
 
-    @Override
-    public TenagliaRotelle fill(TenagliaRotelle aToolcard) throws InterruptedException, UserInterruptActionException {
-        return null;
     }
 }
