@@ -38,7 +38,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
         this.ownerNameOfTheView = ownerNameOfTheView;
         out = new PrintStream(System.out);
         eventsReceived = new LinkedList<>();
-        turnExecutor = Executors.newSingleThreadExecutor();
+        turnExecutor = Executors.newFixedThreadPool(2);
 
         eventHandler = new Thread( () -> {
             Event toRespond = null;
@@ -122,6 +122,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                 controller.placeDie(ownerNameOfTheView, toBePlaced, chosenPosition.getRow(), chosenPosition.getCol());
             } catch (Exception e) {
                 displayError(e);
+                respondTo(new MyTurnStartedEvent());
             }
         });
     }
@@ -310,8 +311,6 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                     case 5:
                         controller.endTurn(ownerNameOfTheView);
                         break;
-                    case -2:
-                        break;
                     default:
                         out.println("No operation performed");
 
@@ -325,6 +324,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                 out.println("Timeout expired. Your turn ended. Too bad :(");
             } catch (Exception e) {
                 displayError(e);
+                cmd = -1;
             }
             /*catch(Exception e){
                 displayError(e);

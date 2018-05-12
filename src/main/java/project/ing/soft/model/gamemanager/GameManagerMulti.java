@@ -41,7 +41,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
     private List<Pair<Player, Integer>> rank;
     private Map<String, Integer>      toolCardCost;
     private transient Timer myTimer;
-    private transient static final long    TIMEOUT = 60000;
+    private transient static final long    TIMEOUT = 10000;
 
 
     private boolean isFinished;
@@ -97,6 +97,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
         if (!aGame.isValid() || aGame.getNumberOfPlayers() <= 1  || aGame.getNumberOfPlayers() > 4  ) {
             throw new GameInvalidException("Game is not valid!");
         }
+
         currentGame = new Game(aGame);
         // initialize empty draft pool
         draftPool = new ArrayList<>();
@@ -364,24 +365,20 @@ public class GameManagerMulti implements IGameManager, Serializable {
         int actualFavours = favours.get(getCurrentPlayer().getName());
         favours.replace(getCurrentPlayer().getName(), actualFavours - toolCardCost.get(aToolCard.getTitle()));
         toolCardCost.replace(aToolCard.getTitle(), 2);
+        getCurrentPlayer().update(new ModelChangedEvent(new GameManagerMulti(this)));
         if(!aToolCard.getTitle().equals("Diluente per pasta salda")) {
-            getCurrentPlayer().update(new ModelChangedEvent(new GameManagerMulti(this)));
             getCurrentPlayer().update(new MyTurnStartedEvent());
         }
     }
 
     @Override
     public void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception {
-        try{
         getCurrentPlayer().placeDie(aDie,rowIndex,colIndex, true);
-        draftPool.remove(aDie);}
+        draftPool.remove(aDie);
 
         //TODO: it's possible to create a new thread to call update to optimize event queue syncronization
-        // finally branch: to execute even if an exception is thrown (for example if a user places a die in an incorrect position)
-        finally {
-            getCurrentPlayer().update(new ModelChangedEvent(new GameManagerMulti(this)));
-            getCurrentPlayer().update(new MyTurnStartedEvent());
-        }
+        getCurrentPlayer().update(new ModelChangedEvent(new GameManagerMulti(this)));
+        getCurrentPlayer().update(new MyTurnStartedEvent());
     }
 
 

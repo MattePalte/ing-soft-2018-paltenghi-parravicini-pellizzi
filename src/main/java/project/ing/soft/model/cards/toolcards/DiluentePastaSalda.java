@@ -2,6 +2,9 @@ package project.ing.soft.model.cards.toolcards;
 
 import project.ing.soft.model.Coordinate;
 import project.ing.soft.model.Die;
+import project.ing.soft.model.gamemanager.GameManagerMulti;
+import project.ing.soft.model.gamemanager.events.ModelChangedEvent;
+import project.ing.soft.model.gamemanager.events.MyTurnStartedEvent;
 import project.ing.soft.model.gamemanager.events.PlaceThisDieEvent;
 import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.gamemanager.IGameManager;
@@ -27,7 +30,8 @@ public class DiluentePastaSalda extends ToolCard {
 
     @Override
     public void applyEffect(Player p, IGameManager m) throws Exception {
-        // TODO: Make current player place the die drawn from the dicebag, if he can
+        // TODO: Players can now choose the die value and choose where to place it, but if no compatible positions are found or the player doesn't choose a position, the die will be rolled
+        System.out.println("Starting applyEffect");
         m.removeFromDraft(chosenDie);
         m.addToDicebag(chosenDie);
         Die toBePlaced = m.drawFromDicebag().rollDie();
@@ -36,6 +40,10 @@ public class DiluentePastaSalda extends ToolCard {
         if(!compatiblePositions.isEmpty()){
             p.update(new PlaceThisDieEvent(toBePlaced, compatiblePositions, true));
         }
+        else {
+            p.update(new MyTurnStartedEvent());
+        }
+        System.out.println("Terminating applyEffect");
     }
 
     @Override
