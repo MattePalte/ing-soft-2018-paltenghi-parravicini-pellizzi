@@ -1,10 +1,9 @@
 package project.ing.soft.controller;
 
-import project.ing.soft.cards.WindowPatternCard;
-import project.ing.soft.Die;
+import project.ing.soft.model.cards.WindowPatternCard;
+import project.ing.soft.model.Die;
 import project.ing.soft.view.IView;
-import project.ing.soft.exceptions.GameInvalidException;
-import project.ing.soft.cards.toolcards.ToolCard;
+import project.ing.soft.model.cards.toolcards.ToolCard;
 
 import java.rmi.Remote;
 

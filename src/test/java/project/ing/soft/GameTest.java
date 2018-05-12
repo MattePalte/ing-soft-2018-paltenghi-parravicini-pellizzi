@@ -1,8 +1,11 @@
 package project.ing.soft;
 
 
-import project.ing.soft.gamemanager.GameManagerFactory;
-import project.ing.soft.gamemanager.IGameManager;
+import project.ing.soft.model.Colour;
+import project.ing.soft.model.Game;
+import project.ing.soft.model.Player;
+import project.ing.soft.model.gamemanager.GameManagerFactory;
+import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.view.LocalViewCli;
 
 import java.io.FileNotFoundException;

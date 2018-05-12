@@ -1,9 +1,8 @@
 package project.ing.soft.view;
 
-import project.ing.soft.events.Event;
+import project.ing.soft.model.gamemanager.events.Event;
 import project.ing.soft.controller.IController;
 
-import java.io.IOException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 

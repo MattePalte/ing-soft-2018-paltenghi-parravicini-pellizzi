@@ -2,6 +2,8 @@ package project.ing.soft;
 
 
 import org.junit.Test;
+import project.ing.soft.model.Colour;
+import project.ing.soft.model.Die;
 
 import java.util.ArrayList;
 

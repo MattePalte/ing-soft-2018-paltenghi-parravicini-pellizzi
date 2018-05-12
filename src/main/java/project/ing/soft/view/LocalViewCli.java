@@ -1,18 +1,19 @@
 package project.ing.soft.view;
 
-import project.ing.soft.*;
-import project.ing.soft.cards.objectives.publics.PublicObjective;
-import project.ing.soft.cards.toolcards.*;
+import project.ing.soft.model.Coordinate;
+import project.ing.soft.model.Die;
+import project.ing.soft.model.Player;
+import project.ing.soft.model.cards.objectives.publics.PublicObjective;
+import project.ing.soft.model.cards.toolcards.*;
 import project.ing.soft.exceptions.UserInterruptActionException;
-import project.ing.soft.gamemanager.IGameManager;
-import project.ing.soft.events.*;
+import project.ing.soft.model.gamemanager.IGameManager;
+import project.ing.soft.model.gamemanager.events.*;
 import javafx.util.Pair;
-import project.ing.soft.cards.WindowPatternCard;
+import project.ing.soft.model.cards.WindowPatternCard;
 import project.ing.soft.controller.IController;
-import project.ing.soft.events.Event;
+import project.ing.soft.model.gamemanager.events.Event;
 
 import java.io.*;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;

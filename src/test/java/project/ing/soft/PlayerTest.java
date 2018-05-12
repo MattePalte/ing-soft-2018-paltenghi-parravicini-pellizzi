@@ -1,19 +1,19 @@
 package project.ing.soft;
 
 
-import project.ing.soft.cards.WindowPatternCard;
+import project.ing.soft.model.Colour;
+import project.ing.soft.model.Die;
+import project.ing.soft.model.Player;
+import project.ing.soft.model.cards.WindowPatternCard;
 import project.ing.soft.view.LocalViewCli;
 import project.ing.soft.exceptions.PatternConstraintViolatedException;
 import project.ing.soft.exceptions.PositionOccupiedException;
 import project.ing.soft.exceptions.RuleViolatedException;
 import org.junit.*;
-import project.ing.soft.cards.Constraint;
-import project.ing.soft.cards.objectives.privates.SfumatureBlu;
+import project.ing.soft.model.cards.Constraint;
+import project.ing.soft.model.cards.objectives.privates.SfumatureBlu;
 
 import java.io.File;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.SequenceInputStream;
 import java.rmi.RemoteException;
 import java.util.*;
 
@@ -69,22 +69,22 @@ public class PlayerTest {
 
             System.out.println(p );
             p .placeDie(new Die(2, Colour.YELLOW),0,0, true);
-            p.resetDieFlag();
+            p.endTurn();
             System.out.println(p );
             p .placeDie(new Die(3, Colour.BLUE),0,1, true);
-            p.resetDieFlag();
+            p.endTurn();
             System.out.println(p );
             p .placeDie(new Die(4, Colour.RED),0,2, true);
-            p.resetDieFlag();
+            p.endTurn();
             System.out.println(p );
             p .placeDie(new Die(5, Colour.GREEN),0,3, true);
-            p.resetDieFlag();
+            p.endTurn();
             System.out.println(p );
             p .placeDie(new Die(1, Colour.VIOLET),0,4, true);
-            p.resetDieFlag();
+            p.endTurn();
             System.out.println(p );
             p .placeDie(new Die(6, Colour.GREEN),1,0, true);
-            p.resetDieFlag();
+            p.endTurn();
 
 
             System.out.println(p );
@@ -286,7 +286,7 @@ public class PlayerTest {
 
             /*try {
                 p.placeDie(aCompatibleDie, p.getPattern().getHeight()-1, p.getPattern().getWidth()-1 );
-                p.resetDieFlag();
+                p.endTurn();
             } catch (Exception e){
                 Assert.fail("cannot place the first die in the last corner ");
             }*/
@@ -318,7 +318,7 @@ public class PlayerTest {
                 }
 
                 //System.out.println(localPlayer);
-                localPlayer.resetDieFlag();
+                localPlayer.endTurn();
 
 
                 if (row == localPlayer.getPattern().getHeight() - 1 && col == localPlayer.getPattern().getWidth() - 1)
@@ -424,7 +424,7 @@ public class PlayerTest {
             } catch (Exception ex){
                 Assert.fail(ex.getMessage());
             }
-            p.resetDieFlag();
+            p.endTurn();
             Colour aRandomColour2 = (Colour) otherColors.remove( new Random().nextInt(otherColors.size()));
 
 
@@ -456,7 +456,7 @@ public class PlayerTest {
             } catch (Exception ex){
                 Assert.fail(ex.getMessage());
             }
-            p.resetDieFlag();
+            p.endTurn();
 
 
             try {
@@ -517,7 +517,7 @@ public class PlayerTest {
                 Assert.fail(ex.getMessage());
             }
 
-            p.resetDieFlag();
+            p.endTurn();
 
             ArrayList<Die> dice = buildDiceAccordingTo(aDie);
             Collections.shuffle(dice);
@@ -560,7 +560,7 @@ public class PlayerTest {
                     Assert.fail("Error");
                 }
 
-                p.resetDieFlag();
+                p.endTurn();
 
                 for (int otherRow = 0; otherRow < height; otherRow++) {
                     for (int otherCol = 0; otherCol < width; otherCol++) {
@@ -594,9 +594,9 @@ public class PlayerTest {
 
         try {
             testPlayerWithWhitePatternCardNoMove.placeDie(new Die(3, Colour.YELLOW), 3,3, true);
-            testPlayerWithWhitePatternCardNoMove.resetDieFlag();
+            testPlayerWithWhitePatternCardNoMove.endTurn();
             testPlayerWithWhitePatternCardNoMove.placeDie(new Die(6, Colour.BLUE), 2,4, true);
-            testPlayerWithWhitePatternCardNoMove.resetDieFlag();
+            testPlayerWithWhitePatternCardNoMove.endTurn();
             testPlayerWithWhitePatternCardNoMove.placeDie(new Die(2, Colour.VIOLET), 2,3, true);
 
         } catch (Exception e) {

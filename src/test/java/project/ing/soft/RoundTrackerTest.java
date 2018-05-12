@@ -3,6 +3,9 @@ package project.ing.soft;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import project.ing.soft.model.Colour;
+import project.ing.soft.model.Die;
+import project.ing.soft.model.RoundTracker;
 
 import java.util.ArrayList;
 import java.util.Random;

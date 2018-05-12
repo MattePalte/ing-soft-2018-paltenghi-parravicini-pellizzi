@@ -1,9 +1,12 @@
 package project.ing.soft;
 
-import project.ing.soft.cards.objectives.ObjectiveCard;
-import project.ing.soft.cards.objectives.privates.*;
-import project.ing.soft.cards.objectives.publics.*;
-import project.ing.soft.cards.WindowPattern;
+import project.ing.soft.model.Colour;
+import project.ing.soft.model.Die;
+import project.ing.soft.model.Player;
+import project.ing.soft.model.cards.objectives.ObjectiveCard;
+import project.ing.soft.model.cards.objectives.privates.*;
+import project.ing.soft.model.cards.objectives.publics.*;
+import project.ing.soft.model.cards.WindowPattern;
 import javafx.util.Pair;
 import org.junit.*;
 

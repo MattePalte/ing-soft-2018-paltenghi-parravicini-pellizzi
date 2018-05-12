@@ -1,8 +1,10 @@
 package project.ing.soft;
 
 
-import project.ing.soft.cards.Constraint;
-import project.ing.soft.cards.WindowPatternCard;
+import project.ing.soft.model.Colour;
+import project.ing.soft.model.Die;
+import project.ing.soft.model.cards.Constraint;
+import project.ing.soft.model.cards.WindowPatternCard;
 import org.junit.*;
 
 import java.io.File;

@@ -1,5 +1,8 @@
 package project.ing.soft;
 
+import project.ing.soft.model.Colour;
+import project.ing.soft.model.Game;
+import project.ing.soft.model.Player;
 import project.ing.soft.view.LocalViewCli;
 
 import java.io.FileNotFoundException;

@@ -20,19 +20,19 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import project.ing.soft.Colour;
-import project.ing.soft.Coordinate;
-import project.ing.soft.Die;
-import project.ing.soft.Player;
-import project.ing.soft.cards.Constraint;
-import project.ing.soft.cards.WindowPattern;
-import project.ing.soft.cards.WindowPatternCard;
-import project.ing.soft.cards.objectives.publics.PublicObjective;
-import project.ing.soft.cards.toolcards.*;
+import project.ing.soft.model.Colour;
+import project.ing.soft.model.Coordinate;
+import project.ing.soft.model.Die;
+import project.ing.soft.model.Player;
+import project.ing.soft.model.cards.Constraint;
+import project.ing.soft.model.cards.WindowPattern;
+import project.ing.soft.model.cards.WindowPatternCard;
+import project.ing.soft.model.cards.objectives.publics.PublicObjective;
+import project.ing.soft.model.cards.toolcards.*;
 import project.ing.soft.controller.IController;
-import project.ing.soft.events.*;
-import project.ing.soft.events.Event;
-import project.ing.soft.gamemanager.IGameManager;
+import project.ing.soft.model.gamemanager.events.*;
+import project.ing.soft.model.gamemanager.events.Event;
+import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.view.IView;
 
 import java.io.PrintStream;
@@ -261,18 +261,23 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     @Override
     public void respondTo(ModelChangedEvent event) {
         localCopyOfTheStatus = event.getaGameCopy();
-        out.println("gestione di Model changed");
+        out.println("gestione di model changed");
         drawMySituation();
         drawDraftPool();
         initializeButtons();
         /*Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Model is changed");
+        alert.setTitle("model is changed");
         alert.setHeaderText("Information Alert");
         if (!localCopyOfTheStatus.getCurrentPlayer().getName().equals(ownerNameOfTheView)) {
             String s = "It's the turn of " + localCopyOfTheStatus.getCurrentPlayer().getName() + ". Wait for yours.";
             alert.setContentText(s);
         }
         alert.show();*/
+    }
+
+    @Override
+    public void respondTo(TurnEndedEvent event) {
+
     }
 
     private synchronized void displayPatternCard(WindowPattern pattern, Scene scene){

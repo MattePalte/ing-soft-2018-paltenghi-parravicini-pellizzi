@@ -1,12 +1,12 @@
 package project.ing.soft.controller;
 
-import project.ing.soft.Die;
-import project.ing.soft.Game;
-import project.ing.soft.cards.toolcards.ToolCard;
-import project.ing.soft.cards.WindowPatternCard;
-import project.ing.soft.gamemanager.GameManagerFactory;
-import project.ing.soft.gamemanager.IGameManager;
-import project.ing.soft.Player;
+import project.ing.soft.model.Die;
+import project.ing.soft.model.Game;
+import project.ing.soft.model.cards.toolcards.ToolCard;
+import project.ing.soft.model.cards.WindowPatternCard;
+import project.ing.soft.model.gamemanager.GameManagerFactory;
+import project.ing.soft.model.gamemanager.IGameManager;
+import project.ing.soft.model.Player;
 import project.ing.soft.view.IView;
 
 import java.io.PrintStream;

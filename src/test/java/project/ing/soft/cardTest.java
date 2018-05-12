@@ -2,14 +2,11 @@ package project.ing.soft;
 
 import org.junit.Test;
 
-import project.ing.soft.cards.Card;
-import project.ing.soft.cards.objectives.publics.VarietaColore;
-import project.ing.soft.cards.toolcards.AlesatoreLaminaRame;
-import project.ing.soft.cards.toolcards.ToolCard;
-import project.ing.soft.gamemanager.GameManagerFactory;
-
-import java.util.ArrayList;
-import java.util.stream.Collectors;
+import project.ing.soft.model.cards.Card;
+import project.ing.soft.model.StringBoxBuilder;
+import project.ing.soft.model.cards.toolcards.AlesatoreLaminaRame;
+import project.ing.soft.model.cards.toolcards.ToolCard;
+import project.ing.soft.model.gamemanager.GameManagerFactory;
 
 
 public class cardTest {

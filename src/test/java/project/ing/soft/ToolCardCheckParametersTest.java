@@ -1,10 +1,11 @@
 package project.ing.soft;
 
-import project.ing.soft.cards.toolcards.*;
-import project.ing.soft.cards.WindowPattern;
+import project.ing.soft.model.*;
+import project.ing.soft.model.cards.toolcards.*;
+import project.ing.soft.model.cards.WindowPattern;
 import org.junit.Before;
 import org.junit.Test;
-import project.ing.soft.gamemanager.GameManagerMulti;
+import project.ing.soft.model.gamemanager.GameManagerMulti;
 import project.ing.soft.exceptions.MalformedToolCardException;
 
 import java.util.ArrayList;

@@ -1,22 +1,16 @@
 package project.ing.soft.gui;
 
 import javafx.application.Application;
-import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import project.ing.soft.controller.IController;
-import project.ing.soft.events.*;
-import project.ing.soft.gamemanager.IGameManager;
-import project.ing.soft.view.IView;
+import project.ing.soft.model.gamemanager.events.*;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Scanner;
-import java.util.concurrent.ExecutorService;
 
 public class GuiBackgroundApp extends Application {
 
@@ -37,7 +31,7 @@ public class GuiBackgroundApp extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        GuiView backBoneOfInterface = fxmlLoader.<GuiView>getController();
+        GuiView backBoneOfInterface = fxmlLoader.getController();
         out = new PrintStream(System.out);
         eventsReceived = new LinkedList<>();
         // event list is shared with guiView before starting the interface
