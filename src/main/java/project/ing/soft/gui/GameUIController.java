@@ -37,6 +37,7 @@ public class GameUIController {
         // creates and launches the view
         myView = new LocalViewCli(txtName.getText());
 
+
         myView.attachController(myController);
         myView.run();
         System.out.println("View was created!");
