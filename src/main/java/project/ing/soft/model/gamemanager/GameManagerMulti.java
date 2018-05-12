@@ -40,7 +40,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
     private Map<String, Integer>        favours;
     private List<Pair<Player, Integer>> rank;
     private Map<String, Integer>      toolCardCost;
-    private transient final Timer          TIMER = new Timer();
+    private transient Timer myTimer;
     private transient static final long    TIMEOUT = 60000;
 
 
@@ -228,7 +228,8 @@ public class GameManagerMulti implements IGameManager, Serializable {
         //getCurrentPlayer().endTurn();
         deliverNewStatus(new FinishedSetupEvent());
         deliverNewStatus(new ModelChangedEvent(new GameManagerMulti(this)), new MyTurnStartedEvent());
-        TIMER.schedule(getTimerTask(), TIMEOUT);
+        myTimer = new Timer();
+        myTimer.schedule(getTimerTask(), TIMEOUT);
     }
 
     @Override
@@ -410,7 +411,13 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
         getCurrentPlayer().endTurn();
         deliverNewStatus( new ModelChangedEvent(new GameManagerMulti(this)), new MyTurnStartedEvent());
-        TIMER.schedule(getTimerTask(), TIMEOUT);
+        try {
+            myTimer.cancel();
+            myTimer = new Timer();
+        } catch (Exception e) {
+            // no timer to cancel
+        }
+        myTimer.schedule(getTimerTask(), TIMEOUT);
 
     }
     @Override

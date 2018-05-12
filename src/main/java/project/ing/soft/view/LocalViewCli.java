@@ -16,6 +16,7 @@ import project.ing.soft.model.gamemanager.events.Event;
 import java.io.*;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
@@ -67,7 +68,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
     @Override
     public void update(Event aEvent) {
-        out.println( ownerNameOfTheView + " ha ricevuto un evento :" + aEvent);
+        out.println( getTime() + " - " + ownerNameOfTheView + " ha ricevuto un evento :" + aEvent);
 
         if (!stopResponding) {
             synchronized (eventsReceived) {
@@ -76,6 +77,13 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
             }
             //aEvent.accept(this);
         }
+    }
+
+    private String getTime() {
+        Calendar c = Calendar.getInstance(); //automatically set to current time
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        String time = dateFormat.format(c.getTime()).toString();
+        return time;
     }
 
     @Override

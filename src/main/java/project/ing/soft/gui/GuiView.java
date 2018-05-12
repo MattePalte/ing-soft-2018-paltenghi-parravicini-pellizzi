@@ -42,8 +42,11 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class GuiView extends UnicastRemoteObject implements IView, IEventHandler, IToolCardFiller,  Serializable{
     private IGameManager localCopyOfTheStatus;
@@ -52,7 +55,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     private boolean stopResponding = false;
     private transient PrintStream out;
     private transient Queue<Event> eventsReceived;
-    private transient ExecutorService turnExecutor;
     private ArrayList<WindowPattern> possiblePatterns;
     private ArrayList<WindowPatternCard> possiblePatternCard;
     private int currentIndexPatternDisplayed;
@@ -66,11 +68,14 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     private final String CONSTRAIN_TEXT_COLOR = "#b8bab9";
     private double SCREEN_WIDTH;
     private double SCREEN_HEIGHT;
+    private double CELL_DIMENSION;
     private final int MATRIX_NR_ROW = 4;
     private final int MATRIX_NR_COL = 5;
     private final int NR_TOOLCARD = 3;
 
+    private transient ExecutorService turnExecutor;
     private List<Object> parameters = new ArrayList<>();
+    private transient Future waitingForParameters;
 
     public void put(Object obj) {
         synchronized (parameters) {
@@ -113,6 +118,9 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
         SCREEN_WIDTH = primaryScreenBounds.getWidth();
         SCREEN_HEIGHT = primaryScreenBounds.getHeight();
+        CELL_DIMENSION = SCREEN_WIDTH/23;
+
+        turnExecutor = Executors.newSingleThreadExecutor();
 
         IEventHandler eventHandler = this;
 
@@ -278,7 +286,27 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
     @Override
     public void respondTo(MyTurnEndedEvent event) {
+        endingOperation();
+        out.println("Timeeeer");
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Timer expired");
+        String s ="Turn finished";
+        alert.setHeaderText(s);
+        alert.show();
+    }
 
+    private void endingOperation() {
+        disableAll();
+        btnPlaceDie.setDisable(true);
+        btnPlayToolCard.setDisable(true);
+        btnEndTurn.setDisable(true);
+        if(waitingForParameters != null && !waitingForParameters.isDone())
+            waitingForParameters.cancel(true);
+        // Remove everithing in the queue
+        synchronized (eventsReceived) {
+            while (eventsReceived.size()>0)
+                eventsReceived.remove(0);
+        }
     }
 
     private synchronized void displayPatternCard(WindowPattern pattern, Scene scene){
@@ -287,7 +315,22 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
                 Button currentCell = (Button) scene.lookup("#pos" + row + col);
                 Constraint constraint = pattern.getConstraintsMatrix()[row][col];
-                currentCell.setText(constraint.getXLMescapeEncoding());
+                if (constraint != null && constraint.getImgPath() != "") {
+                    Image image = new Image(constraint.getImgPath());
+                    ImageView bg = new ImageView(image);
+                    bg.setFitHeight(CELL_DIMENSION);
+                    bg.setFitWidth(CELL_DIMENSION);
+                    bg.setPreserveRatio(true);
+                    bg.setSmooth(true);
+                    bg.setCache(true);
+                    currentCell.setGraphic(bg);
+                } else {
+                    ImageView bg = new ImageView();
+                    bg.setFitHeight(CELL_DIMENSION);
+                    bg.setFitWidth(CELL_DIMENSION);
+                    currentCell.setGraphic(bg);
+                }
+                //currentCell.setText(constraint.getXLMescapeEncoding());
                 currentCell.setStyle("-fx-background-color:" + mapBgColour.get(constraint.getColour()) + "; -fx-font: 22 monospace;");
                 /*int finalRow = row;
                 int finalCol = col;
@@ -320,13 +363,32 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
                         Button currentCell = (Button) scene.lookup("#pos" + row + col);
                         Die currentDie = placedDie[row][col];
                         Constraint constraint = constraints[row][col];
-
-                        if (currentDie == null) {
-                            currentCell.setText(constraint.getXLMescapeEncoding());
+                        if (currentDie == null ) {
+                            if (constraint.getImgPath() != "") {
+                                Image image = new Image(constraint.getImgPath());
+                                ImageView bg = new ImageView(image);
+                                bg.setFitHeight(CELL_DIMENSION);
+                                bg.setFitWidth(CELL_DIMENSION);
+                                bg.setPreserveRatio(true);
+                                bg.setSmooth(true);
+                                bg.setCache(true);
+                                currentCell.setGraphic(bg);
+                            }
+                            //currentCell.setText(constraint.getXLMescapeEncoding());
                             currentCell.setStyle("-fx-text-fill: " + CONSTRAIN_TEXT_COLOR + " ;"+
                                     "-fx-background-color:" + mapBgColour.get(constraint.getColour()) + "; -fx-font: 22 monospace;");
                         } else {
-                            currentCell.setText(currentDie.getXLMescapeEncoding());
+                            if (currentDie.getImgPath() != "") {
+                                Image image = new Image(currentDie.getImgPath());
+                                ImageView bg = new ImageView(image);
+                                bg.setFitHeight(SCREEN_WIDTH / 23);
+                                bg.setFitWidth(SCREEN_WIDTH / 23);
+                                bg.setPreserveRatio(true);
+                                bg.setSmooth(true);
+                                bg.setCache(true);
+                                currentCell.setGraphic(bg);
+                            }
+                            //currentCell.setText(currentDie.getXLMescapeEncoding());
                             currentCell.setStyle("-fx-text-fill:" + mapDieColour.get(currentDie.getColour()) +
                                     "; -fx-background-color:" + mapBgColour.get(constraint.getColour()) + "; -fx-font: 22 monospace;");
                         }
@@ -345,11 +407,20 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
             Button currentCell = (Button) scene.lookup("#draft" + pos);
             if (pos < draft.size() ) {
                 Die currentDie = draft.get(pos);
-                currentCell.setText(currentDie.getXLMescapeEncoding());
+                Image image = new Image(currentDie.getImgPath());
+                ImageView bg = new ImageView(image);
+                bg.setFitHeight(CELL_DIMENSION);
+                bg.setFitWidth(CELL_DIMENSION);
+                bg.setPreserveRatio(true);
+                bg.setSmooth(true);
+                bg.setCache(true);
+                currentCell.setGraphic(bg);
+                //currentCell.setText(currentDie.getXLMescapeEncoding());
                 currentCell.setStyle("-fx-text-fill:" + mapDieColour.get(currentDie.getColour()) +
                         "; -fx-background-color:#FFF; -fx-font: 22 monospace;");
             } else {
-                currentCell.setText(" ");
+                currentCell.setGraphic(null);
+                //currentCell.setText(" ");
                 currentCell.setStyle("-fx-background-color:" + NEUTRAL_BG_COLOR + "; -fx-font: 22 monospace;");
             }
         }
@@ -402,7 +473,8 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
     @Override
     public void update(Event event) throws RemoteException, Exception {
-        out.println( ownerNameOfTheView + " ha ricevuto un evento :" + event);
+
+        out.println( getTime() + " - " + ownerNameOfTheView + " ha ricevuto un evento :" + event);
 
         if (!stopResponding) {
             synchronized (eventsReceived) {
@@ -411,6 +483,13 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
             }
             //aEvent.accept(this);
         }
+    }
+
+    private String getTime() {
+        Calendar c = Calendar.getInstance(); //automatically set to current time
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        String time = dateFormat.format(c.getTime()).toString();
+        return time;
     }
 
     @Override
@@ -465,30 +544,33 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         btnPlaceDie.setDisable(true);
         // CREATE AN ANONYMOUS THREAD WAITING FOR INPUT
         GuiView myView = this;
-        new Thread(new Runnable() {
-            private GuiView gView;
-            {
-                this.gView = myView;
-            }
-            @Override
-            public void run() {
-                try {
-                    gView.disableAll();
-                    gView.focusOn("matrix", true);
-                    Coordinate chosenCoord = (Coordinate) gView.getObj();
-                    gView.disableAll();
-                    gView.focusOn("draftPool", true);
-                    Die chosenDie = (Die) gView.getObj();
-                    gView.disableAll();
-                    gView.myController.placeDie(gView.getOwnerNameOfTheView(), chosenDie, chosenCoord.getRow(), chosenCoord.getCol());
-                } catch (InterruptedException e) {
-                    displayError(e);
-                } catch (Exception e) {
-                    displayError(e);
-                    btnPlaceDie.setDisable(false);
+        waitingForParameters = turnExecutor.submit(
+            new Runnable() {
+                private GuiView gView;
+                {
+                    this.gView = myView;
+                }
+                @Override
+                public void run() {
+                    try {
+                        gView.disableAll();
+                        gView.focusOn("matrix", true);
+                        Coordinate chosenCoord = (Coordinate) gView.getObj();
+                        gView.disableAll();
+                        gView.focusOn("draftPool", true);
+                        Die chosenDie = (Die) gView.getObj();
+                        gView.disableAll();
+                        gView.myController.placeDie(gView.getOwnerNameOfTheView(), chosenDie, chosenCoord.getRow(), chosenCoord.getCol());
+                    } catch (InterruptedException e) {
+                        displayError(e);
+                        gView.out.println( getTime() + " - " + "Interrupted place die of " + ownerNameOfTheView);
+                    } catch (Exception e) {
+                        displayError(e);
+                        btnPlaceDie.setDisable(false);
+                    }
                 }
             }
-        }).start();
+        );
     }
 
     public void btnPlayToolCardOnCLick(ActionEvent actionEvent) throws Exception {
@@ -497,36 +579,36 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         btnPlayToolCard.setDisable(true);
         // CREATE AN ANONYMOUS THREAD WAITING FOR INPUT
         GuiView myView = this;
-        new Thread(new Runnable() {
-            private GuiView gView;
-            {
-                this.gView = myView;
-            }
-            @Override
-            public void run() {
-                try {
-                    gView.disableAll();
-                    gView.focusOn("toolcardBox", true);
-                    Integer chosenIndex = (Integer) gView.getObj();
-                    ToolCard chosenToolCard = localCopyOfTheStatus.getToolCards().get(chosenIndex);
-                    chosenToolCard.fill(gView);
-                    gView.myController.playToolCard(ownerNameOfTheView, chosenToolCard);
-                } catch (InterruptedException e) {
-                    displayError(e);
-                } catch (Exception e) {
-                    displayError(e);
-                    btnPlayToolCard.setDisable(false);
+        waitingForParameters = turnExecutor.submit(
+            new Runnable() {
+                private GuiView gView;
+                {
+                    this.gView = myView;
+                }
+                @Override
+                public void run() {
+                    try {
+                        gView.disableAll();
+                        gView.focusOn("toolcardBox", true);
+                        Integer chosenIndex = (Integer) gView.getObj();
+                        ToolCard chosenToolCard = localCopyOfTheStatus.getToolCards().get(chosenIndex);
+                        chosenToolCard.fill(gView);
+                        gView.myController.playToolCard(ownerNameOfTheView, chosenToolCard);
+                    } catch (InterruptedException e) {
+                        displayError(e);
+                        out.println("Interrupted play toolcard of " + ownerNameOfTheView);
+                    } catch (Exception e) {
+                        displayError(e);
+                        btnPlayToolCard.setDisable(false);
+                    }
                 }
             }
-        }).start();
+        );
     }
 
     public void btnEndTurnOnCLick(ActionEvent actionEvent) throws Exception {
+        endingOperation();
         myController.endTurn(ownerNameOfTheView);
-        disableAll();
-        btnEndTurn.setDisable(true);
-        btnPlaceDie.setDisable(true);
-        btnPlayToolCard.setDisable(true);
     }
 
     public synchronized void disableAll(){

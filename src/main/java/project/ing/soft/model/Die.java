@@ -1,6 +1,7 @@
 package project.ing.soft.model;
 
 import java.io.Serializable;
+import java.net.URL;
 import java.util.Random;
 
 public class Die implements Serializable {
@@ -73,7 +74,10 @@ public class Die implements Serializable {
     public String getImgPath(){
         if(getColour() == Colour.WHITE || getValue() == 0)
             return "";
-        return this.getClass().getClassLoader().getResource(String.format("window pattern/dice/%s/%d.png", getColour().name().toLowerCase(), getValue())).toString();
+        String path = String.format("windowpattern/dice/%s/%d.png", getColour().name().toLowerCase(), getValue());
+        URL urlResource =  this.getClass().getClassLoader().getResource(path);
+        return urlResource.toString();
+        //return this.getClass().getClassLoader().getResource(String.format("windowpattern/dice/%s/%d.png", getColour().name().toLowerCase(), getValue())).toString();
     }
 
     @Override
