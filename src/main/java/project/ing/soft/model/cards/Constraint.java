@@ -48,13 +48,18 @@ public class Constraint implements Serializable {
         String encoding;
         if(value == 0){
             //abbiamo provato 2000+2004, 2001, 3000,2007
-
             encoding = "\u2000\u2005";// \u2000\u2005"
         }else{
             encoding = (new Die( value , Colour.WHITE)).toString();
         }
 
         return encoding;
+    }
+
+    public String getImgPath(){
+        if(getColour() != Colour.WHITE || getValue() == 0)
+            return "";
+        return this.getClass().getClassLoader().getResource(String.format("window pattern/dice/constraint/%d.png", getValue())).toString();
     }
 
     public String getXLMescapeEncoding(){

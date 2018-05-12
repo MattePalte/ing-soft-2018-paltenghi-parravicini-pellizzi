@@ -70,6 +70,12 @@ public class Die implements Serializable {
         return encoding;
     }
 
+    public String getImgPath(){
+        if(getColour() == Colour.WHITE || getValue() == 0)
+            return "";
+        return this.getClass().getClassLoader().getResource(String.format("window pattern/dice/%s/%d.png", getColour().name().toLowerCase(), getValue())).toString();
+    }
+
     @Override
     public String toString() {
         String encoding;

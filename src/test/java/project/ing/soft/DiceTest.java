@@ -5,13 +5,15 @@ import org.junit.Test;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Die;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class DiceTest {
     @Test
-    public void simpleCreationTest() {
-        Die myDie = new Die(0, Colour.RED);
-        System.out.println(myDie);
+    public void simpleCreationTest() throws IOException {
+        Die myDie = new Die(2, Colour.RED);
+        System.out.println(myDie.getImgPath());
+        System.out.write(myDie.toString().getBytes());
     }
 
     @Test
@@ -26,5 +28,6 @@ public class DiceTest {
         }
         System.out.println(diceBag);
     }
+
 
 }

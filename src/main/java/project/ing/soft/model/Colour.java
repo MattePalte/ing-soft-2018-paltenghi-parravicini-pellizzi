@@ -19,11 +19,12 @@ public enum Colour implements Serializable{
     //http://jkorpela.fi/chars/spaces.html
     // Because ⚄ is an irregular width character -> 1+1/3 em
 
-    RED   ("\u001B[91m","\u001B[41m"),
-    YELLOW("\u001B[93m", "\u001B[43m"),
-    GREEN ("\u001B[92m", "\u001B[42m"),
     BLUE  ("\u001B[96m", "\u001B[44m"),
+    GREEN ("\u001B[92m", "\u001B[42m"),
+    RED   ("\u001B[91m","\u001B[41m"),
     VIOLET("\u001B[95m", "\u001B[45m"),
+    YELLOW("\u001B[93m", "\u001B[43m"),
+
     WHITE("\u001B[97m", "\u001B[47m");
 
     private static final String ANSI_RESET = "\u001B[0m";
