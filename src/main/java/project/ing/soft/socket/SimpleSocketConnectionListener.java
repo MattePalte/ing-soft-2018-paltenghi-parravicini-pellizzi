@@ -20,7 +20,7 @@ public class SimpleSocketConnectionListener extends Thread {
     private ArrayList<Controller> hostedGames;
     private ServerSocket aServerSocket;
 
-    private SimpleSocketConnectionListener(int localPort, ArrayList<Controller> hostedGames) {
+    public SimpleSocketConnectionListener(int localPort, ArrayList<Controller> hostedGames) {
         this.localPort    = localPort;
         this.log = new PrintStream(System.out);
         this.hostedGames = hostedGames;
@@ -60,7 +60,6 @@ public class SimpleSocketConnectionListener extends Thread {
                 }
 
                 ViewProxy viewProxy = new ViewProxy(spilledSocket);
-                //hostedGames.get(selectedGame).add(new Player("aPlayer", viewProxy));
                 viewProxy.attachController(selectedGame);
                 ex.submit(viewProxy);
 
@@ -97,7 +96,7 @@ public class SimpleSocketConnectionListener extends Thread {
 
         SimpleSocketConnectionListener serverThread = new SimpleSocketConnectionListener(3000, hostedGames);
         serverThread.start();
-        new LaunchServer(hostedGames).start();
+
 
         Scanner input = new Scanner(System.in);
 

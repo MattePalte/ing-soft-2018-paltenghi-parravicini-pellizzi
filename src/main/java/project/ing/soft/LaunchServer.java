@@ -2,6 +2,7 @@ package project.ing.soft;
 
 import project.ing.soft.controller.Controller;
 import project.ing.soft.controller.IController;
+import project.ing.soft.socket.SimpleSocketConnectionListener;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -9,6 +10,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -98,4 +100,22 @@ public class LaunchServer extends Thread{
             System.out.println(".");
         }*/
 
+    public static void main(String[] args) {
+        ArrayList<Controller> hostedGames = new ArrayList();
+
+        SimpleSocketConnectionListener socketConnectionListener = new SimpleSocketConnectionListener(3000, hostedGames);
+        socketConnectionListener.start();
+
+        LaunchServer rmiConnectionListener = new LaunchServer(hostedGames);
+        rmiConnectionListener.start();
+
+        Scanner input = new Scanner(System.in);
+
+        do{
+            System.out.println("If you want to shutdown the server enter q");
+        }while(!input.next().startsWith("q"));
+
+        socketConnectionListener.interrupt();
+        rmiConnectionListener.interrupt();
+    }
 }
