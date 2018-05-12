@@ -136,6 +136,7 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
             } catch (Exception e) {
                 displayError(e);
             }
+            actualTurn = threadPool.submit(this::takeTurn);
         });
 
     }
