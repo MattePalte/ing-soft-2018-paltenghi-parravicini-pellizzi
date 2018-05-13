@@ -48,7 +48,7 @@ public class ControllerProxy extends Thread implements IResponseHandler ,IContro
 
     @Override
     public void run() {
-        int requestNumber = 0;
+
         try(Socket aSocket = new Socket()) {
             aSocket.connect(new InetSocketAddress(host, port));
             //to support complete asynchronous operation between client and server
