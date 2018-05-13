@@ -1,13 +1,13 @@
 package project.ing.soft.model.cards.toolcards;
 
+import project.ing.soft.exceptions.*;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Coordinate;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Player;
 import project.ing.soft.model.cards.Card;
-import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.gamemanager.IGameManager;
-import project.ing.soft.exceptions.MalformedToolCardException;
+
 
 import java.io.Serializable;
 import java.util.List;
@@ -25,7 +25,7 @@ public abstract class ToolCard extends Card implements Serializable{
         return this.colour;
     }
 
-    public abstract void applyEffect(Player p, IGameManager m) throws Exception;
+    public abstract void applyEffect(Player p, IGameManager m) throws ToolCardApplicationException;
     public abstract void fill(IToolCardFiller visitor) throws InterruptedException, UserInterruptActionException;
     public abstract void checkParameters(Player p, IGameManager m) throws MalformedToolCardException;
 

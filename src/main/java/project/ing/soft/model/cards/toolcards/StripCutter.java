@@ -1,5 +1,6 @@
 package project.ing.soft.model.cards.toolcards;
 
+import project.ing.soft.exceptions.ToolCardApplicationException;
 import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.model.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
@@ -15,13 +16,13 @@ public class StripCutter extends ToolCard {
     }
 
     @Override
-    public void applyEffect(Player p, IGameManager m) throws Exception {
-        throw new UnsupportedOperationException();
+    public void applyEffect(Player p, IGameManager m) throws ToolCardApplicationException {
+        throw new ToolCardApplicationException(new UnsupportedOperationException());
     }
 
     @Override
     public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
-        throw new UnsupportedOperationException();
+        throw new MalformedToolCardException("Used a not supported ToolCard");
     }
 
     @Override

@@ -1,11 +1,15 @@
 package project.ing.soft.model.cards.toolcards;
 
+import project.ing.soft.exceptions.RuleViolatedException;
+import project.ing.soft.exceptions.ToolCardApplicationException;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Colour;
 import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.model.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
+
+import javax.tools.Tool;
 
 public class PinzaSgrossatrice extends ToolCard {
 
@@ -30,12 +34,17 @@ public class PinzaSgrossatrice extends ToolCard {
     }
 
     @Override
-    public void applyEffect(Player p, IGameManager m) throws Exception {
-        checkParameters(p, m);
-        m.removeFromDraft(choosenDie);
-        if ((choosenDie.getValue() == 6 && toBeIncreased )||(choosenDie.getValue() == 1 && !toBeIncreased )) throw new Exception("invalid operation: 6-> 1 or 1->6");
-        Die newDie = (toBeIncreased ? new Die(choosenDie.getValue() + 1, choosenDie.getColour()) : new Die(choosenDie.getValue() - 1, choosenDie.getColour()));
-        m.addToDraft(newDie);
+    public void applyEffect(Player p, IGameManager m) throws ToolCardApplicationException {
+        try {
+            checkParameters(p, m);
+            m.removeFromDraft(choosenDie);
+            if ((choosenDie.getValue() == 6 && toBeIncreased) || (choosenDie.getValue() == 1 && !toBeIncreased))
+                throw new RuleViolatedException("invalid operation: 6-> 1 or 1->6");
+            Die newDie = (toBeIncreased ? new Die(choosenDie.getValue() + 1, choosenDie.getColour()) : new Die(choosenDie.getValue() - 1, choosenDie.getColour()));
+            m.addToDraft(newDie);
+        }catch(Exception e){
+            throw new ToolCardApplicationException(e);
+        }
 
     }
 

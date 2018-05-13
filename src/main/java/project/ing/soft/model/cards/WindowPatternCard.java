@@ -5,7 +5,9 @@ import project.ing.soft.model.Colour;
 
 import java.io.File;
 import java.io.Serializable;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class WindowPatternCard extends Card implements Serializable {
@@ -40,7 +42,7 @@ public class WindowPatternCard extends Card implements Serializable {
         return frontPattern + "\n" + rearPattern;
     }
 
-    public static WindowPatternCard loadFromScanner(Scanner aScanner) throws Colour.ColorNotFoundException, GameInvalidException {
+    public static WindowPatternCard loadAPatternCardFromScanner(Scanner aScanner) throws Colour.ColorNotFoundException, GameInvalidException {
 
         WindowPattern f = WindowPattern.loadFromScanner(aScanner);
         aScanner.nextLine();
@@ -48,11 +50,11 @@ public class WindowPatternCard extends Card implements Serializable {
         return new WindowPatternCard(f.getTitle() + " - " + r.getTitle(),"",f, r );
     }
 
-    public static ArrayList<WindowPatternCard> loadFromFile(String pathname) {
+    public static List<WindowPatternCard> loadFromFile(String pathname) {
         ArrayList<WindowPatternCard> patterns = new ArrayList<>();
         try( Scanner input = new Scanner(new File(pathname))) {
             for (int i = 0; i < 12; i++) {
-                patterns.add(WindowPatternCard.loadFromScanner(input));
+                patterns.add(WindowPatternCard.loadAPatternCardFromScanner(input));
                 input.nextLine();
             }
 
@@ -63,4 +65,10 @@ public class WindowPatternCard extends Card implements Serializable {
 
         return patterns;
     }
+
+    public static List<WindowPatternCard> loadFromFile(URL pathname) {
+        return loadFromFile(pathname.getFile().replace("%20", " "));
+    }
+
+
 }

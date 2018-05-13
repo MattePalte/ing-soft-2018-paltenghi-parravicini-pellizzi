@@ -13,8 +13,12 @@ import project.ing.soft.model.cards.WindowPatternCard;
 
 import project.ing.soft.view.IView;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.rmi.RemoteException;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Player implements Serializable{
     private final String            name;
@@ -29,6 +33,8 @@ public class Player implements Serializable{
     private transient IView         myView;
     private boolean                 hasPlacedADieInThisTurn;
     private boolean                 hasEverPlacedADie;
+
+
 
 
     //In order to let the player use patterns with non-predefined dimensions
@@ -194,7 +200,7 @@ public class Player implements Serializable{
 
     }
 
-    public void moveDice(List<Coordinate> start, List<Coordinate> end, boolean checkColour, boolean checkValue, boolean checkPresence) throws RuleViolatedException, PatternConstraintViolatedException {
+    public void moveDice(List<Coordinate> start, List<Coordinate> end, boolean checkColour, boolean checkValue, boolean checkPresence) throws RuleViolatedException, PatternConstraintViolatedException, PositionOccupiedException {
         Player copyTest = this.getMemento();
         List<Die> queue = new ArrayList<>();
 
@@ -208,8 +214,6 @@ public class Player implements Serializable{
 
         for (int i = 0; i < queue.size(); i++) {
 
-            if (getPlacedDice(end.get(i)) != null)
-                throw new RuleViolatedException("The destination cell is already occupied");
             checkPlaceDie(queue.get(i),end.get(i), checkColour, checkValue, checkPresence);
             placedDice[end.get(i).getRow()][end.get(i).getCol()] = queue.get(i);
         }
@@ -230,11 +234,13 @@ public class Player implements Serializable{
 
     public List<Coordinate> getCompatiblePositions(Die aDie){
         ArrayList<Coordinate> ret = new ArrayList<>();
+        if(hasPlacedADieInThisTurn)
+            return ret;
 
         for(int row = 0; row < placedDice.length; row++){
             for(int col = 0; col < placedDice[0].length; col++){
                 try{
-                    checkPlaceDie(aDie, row, col, true, true, true);
+                    checkPlaceDie(aDie, row, col, true, true, hasEverPlacedADie);
                     ret.add(new Coordinate(row, col));
                 } catch (Exception ignored) {
                     //because this method determines the possible die that can be placed into a
@@ -245,8 +251,8 @@ public class Player implements Serializable{
         return ret;
     }
 
-    private void checkPlaceDie(Die aDie, int row, int col, boolean checkColor, boolean checkValue, boolean checkPresence) throws RuleViolatedException, PatternConstraintViolatedException {
-        //check pattern contraint in row,col
+    private void checkPlaceDie(Die aDie, int row, int col, boolean checkColor, boolean checkValue, boolean checkPresence) throws RuleViolatedException, PatternConstraintViolatedException, PositionOccupiedException {
+        //check pattern constraint in row,col
         Constraint actualConstraint = getPattern().getConstraintsMatrix()[row][col];
 
         if(checkColor && !actualConstraint.compatibleWithColour(aDie))
@@ -267,9 +273,14 @@ public class Player implements Serializable{
         if(checkPresence && !isThereAnAdjacentDie(row, col)){
             throw new RuleViolatedException("Die must be placed near an already placed die!");
         }
+
+        if(placedDice[row][col]!= null) {
+            throw new PositionOccupiedException("A die has already been placed here");
+        }
+
     }
 
-    private void checkPlaceDie(Die aDie, Coordinate c, boolean checkColor, boolean checkValue, boolean checkPresence) throws RuleViolatedException, PatternConstraintViolatedException {
+    private void checkPlaceDie(Die aDie, Coordinate c, boolean checkColor, boolean checkValue, boolean checkPresence) throws RuleViolatedException, PatternConstraintViolatedException, PositionOccupiedException {
         checkPlaceDie(aDie, c.getRow(), c.getCol(), checkColor, checkValue, checkPresence);
     }
 
@@ -302,6 +313,15 @@ public class Player implements Serializable{
         return false;
     }
 
+    public int getEmptyCells(){
+        int ret = 0;
+
+        for(Die[] row : placedDice)
+            for(Die die : row)
+                if(die == null)
+                    ret++;
+        return ret;
+    }
     public void endTurn() {
         hasPlacedADieInThisTurn = false;
     }
@@ -309,8 +329,8 @@ public class Player implements Serializable{
     //endregion
 
 
-    public void update(Event event) throws Exception{
-        myView.update( event);
+    public void update(Event event) throws IOException {
+        myView.update(event);
     }
 
     //region object override

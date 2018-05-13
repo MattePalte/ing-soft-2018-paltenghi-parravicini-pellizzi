@@ -307,7 +307,7 @@ public class GameManagerSingle {
         ArrayList<WindowPatternCard> patterns = new ArrayList<>();
         try( Scanner input = new Scanner(new File("src/main/patterns.txt"))) {
             for (int i = 0; i < 12; i++) {
-                patterns.add(WindowPatternCard.loadFromScanner(input));
+                patterns.add(WindowPatternCard.loadAPatternCardFromScanner(input));
                 input.nextLine();
             }
 

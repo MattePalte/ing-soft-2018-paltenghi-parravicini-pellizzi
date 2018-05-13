@@ -36,10 +36,6 @@ public class ClientExample extends Thread{
 
     }
 
-    @Override
-    public void interrupt() {
-        super.interrupt();
-    }
 
     public static void main(String[] args) {
         String host = "localhost";

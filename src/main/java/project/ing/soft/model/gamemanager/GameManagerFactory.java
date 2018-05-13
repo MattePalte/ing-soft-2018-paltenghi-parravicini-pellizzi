@@ -7,7 +7,9 @@ import project.ing.soft.model.cards.WindowPatternCard;
 import project.ing.soft.model.Game;
 import project.ing.soft.exceptions.GameInvalidException;
 
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class GameManagerFactory {
@@ -16,7 +18,11 @@ public class GameManagerFactory {
     private static ArrayList<ToolCard>          toolCards;
     private static ArrayList<WindowPatternCard> windowPatternCard;
 
-    public static ArrayList<PublicObjective> getPublicObjCards() {
+    private GameManagerFactory(){
+
+    }
+
+    public static List<PublicObjective> getPublicObjCards() {
         if(publicObjCards == null){
             publicObjCards = new ArrayList<>();
             publicObjCards.add(new ColoriDiversiColonna());
@@ -33,7 +39,7 @@ public class GameManagerFactory {
         return publicObjCards;
     }
 
-    public static ArrayList<PrivateObjective> getPrivateObjCards() {
+    public static List<PrivateObjective> getPrivateObjCards() {
         if(privateObjCards == null){
             privateObjCards = new ArrayList<>();
             privateObjCards.add(new SfumatureBlu());
@@ -46,7 +52,7 @@ public class GameManagerFactory {
         return privateObjCards;
     }
 
-    public static ArrayList<ToolCard> getToolCards() {
+    public static List<ToolCard> getToolCards() {
         if(toolCards == null){
 
             toolCards = new ArrayList<>();
@@ -68,9 +74,10 @@ public class GameManagerFactory {
         return toolCards;
     }
 
-    public static ArrayList<WindowPatternCard> getWindowPatternCard() {
-        if(windowPatternCard == null){
-            windowPatternCard = WindowPatternCard.loadFromFile("src/main/patterns.txt");
+    public static List<WindowPatternCard> getWindowPatternCard() {
+        URL path = GameManagerFactory.class.getClassLoader().getResource("patterns.txt");
+        if(windowPatternCard == null && path != null){
+            windowPatternCard = new ArrayList<>(WindowPatternCard.loadFromFile(path));
         }
         return windowPatternCard;
     }
@@ -78,7 +85,7 @@ public class GameManagerFactory {
 
     public static IGameManager factory(Game aGame) {
         if (aGame.getNumberOfPlayers() == 1) {
-            //instantiate a single player gamemanager
+            //instantiate a single player GameManager
 
             return null;
         } else if (aGame.getNumberOfPlayers() <= 4) {

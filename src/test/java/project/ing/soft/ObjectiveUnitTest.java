@@ -31,7 +31,7 @@ public class ObjectiveUnitTest {
     public void createPlayer() throws FileNotFoundException, Colour.ColorNotFoundException {
         playerStub = mock(Player.class);
         placedDice = new Die[4][5];
-        pattern = WindowPattern.loadFromScanner(new Scanner(new File("src/main/empty_pattern.txt")));
+        pattern = WindowPattern.loadFromScanner(new Scanner(new File("src/main/resources/empty_pattern.txt")));
         when(playerStub.getPlacedDice()).thenReturn(placedDice);
         when(playerStub.getPattern()).thenReturn(pattern);
         when(playerStub.getPlacedDice()).thenReturn(placedDice);

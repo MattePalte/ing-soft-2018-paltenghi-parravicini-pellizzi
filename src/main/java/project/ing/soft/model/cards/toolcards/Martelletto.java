@@ -1,5 +1,6 @@
 package project.ing.soft.model.cards.toolcards;
 
+import project.ing.soft.exceptions.ToolCardApplicationException;
 import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.model.Player;
@@ -14,9 +15,13 @@ public class Martelletto extends ToolCard {
     }
 
     @Override
-    public void applyEffect(Player p, IGameManager m) throws Exception {
-        checkParameters(p,m);
-        m.rollDraftPool();
+    public void applyEffect(Player p, IGameManager m) throws ToolCardApplicationException {
+        try {
+            checkParameters(p,m);
+            m.rollDraftPool();
+        }catch(Exception e){
+            throw new ToolCardApplicationException(e);
+        }
     }
 
     @Override

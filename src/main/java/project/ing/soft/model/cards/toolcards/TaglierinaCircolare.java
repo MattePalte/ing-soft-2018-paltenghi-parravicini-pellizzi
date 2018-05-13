@@ -1,5 +1,6 @@
 package project.ing.soft.model.cards.toolcards;
 
+import project.ing.soft.exceptions.ToolCardApplicationException;
 import project.ing.soft.model.Die;
 import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.gamemanager.IGameManager;
@@ -27,11 +28,15 @@ public class TaglierinaCircolare extends ToolCard {
     }
 
     @Override
-    public void applyEffect(Player p, IGameManager m) throws Exception {
-        checkParameters(p,m);
-        m.removeFromDraft(dieFromDraft);
-        m.swapWithRoundTracker(dieFromDraft,dieFromRoundTracker);
-        m.addToDraft(dieFromRoundTracker);
+    public void applyEffect(Player p, IGameManager m) throws ToolCardApplicationException {
+        try{
+            checkParameters(p,m);
+            m.removeFromDraft(dieFromDraft);
+            m.swapWithRoundTracker(dieFromDraft,dieFromRoundTracker);
+            m.addToDraft(dieFromRoundTracker);
+        }catch(Exception e){
+            throw new ToolCardApplicationException(e);
+        }
     }
 
     @Override

@@ -10,6 +10,7 @@ import java.io.*;
 import java.net.Socket;
 
 
+
 public class ViewProxy implements IView,IRequestHandler, Runnable {
     private IController controller;
     private Socket aSocket;
@@ -53,27 +54,27 @@ public class ViewProxy implements IView,IRequestHandler, Runnable {
 
 
     public void interrupt() {
-        //super.interrupt();
+        //super.interrupt()
 
         try {
             if(fromClient != null)
                 fromClient.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace(log);
         }
 
         try {
             if(toClient != null)
                 toClient.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace(log);
         }
 
         try {
             if(aSocket != null)
                 aSocket.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace(log);
         }
     }
 
@@ -136,18 +137,18 @@ public class ViewProxy implements IView,IRequestHandler, Runnable {
     //endregion
 
     //region IView
-    private void send(IResponse aResponse) throws Exception {
+    private void send(IResponse aResponse) throws IOException {
         log.println("Forwarding a response "+ aResponse.getClass());
         toClient.writeObject(aResponse);
     }
 
     @Override
-    public void update(Event event) throws Exception {
+    public void update(Event event) throws IOException {
        send(new EventResponse(event));
     }
 
     @Override
-    public void attachController(IController gameController) throws Exception {
+    public void attachController(IController gameController) {
         this.controller = gameController;
     }
     //endregion

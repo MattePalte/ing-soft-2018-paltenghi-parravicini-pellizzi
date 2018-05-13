@@ -4,7 +4,6 @@ import project.ing.soft.model.Coordinate;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Player;
 import project.ing.soft.model.cards.Card;
-import project.ing.soft.model.cards.objectives.publics.PublicObjective;
 import project.ing.soft.model.cards.toolcards.*;
 import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.gamemanager.IGameManager;
@@ -39,12 +38,11 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
     private transient Future eventDigester;
     private transient Future remoteOperation;
 
-
-
     public ClientViewCLI(String ownerNameOfTheView, IController controller) throws RemoteException {
         this(ownerNameOfTheView);
         this.controller           = controller;
     }
+
     public ClientViewCLI(String ownerNameOfTheView) throws RemoteException {
         super();
 
@@ -77,13 +75,20 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
                 eventsReceived.notifyAll();
             }
         }
-        //this return
+
         return true;
     }
 
     private boolean gameOngoing(){
         return (localCopyOfTheStatus == null || !localCopyOfTheStatus.isFinished());
     }
+
+    @Override
+    public void attachController(IController aController){
+        this.controller = aController;
+    }
+
+    //region event handling
 
     @Override
     public void update(Event aEvent) {
@@ -97,70 +102,19 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
         }
     }
 
-    @Override
-    public void respondTo(PlaceThisDieEvent event){
-        actualTurn.cancel(true);
-
-        actualTurn = threadPool.submit(() -> {
-            Coordinate chosenPosition = null;
-            Die toBePlaced = event.getToBePlaced();
-
-            try {
-                if (event.getIsValueChoosable()) {
-                    System.out.println("You draft a " + toBePlaced.getColour() + " die. Choose the die value");
-                    int newValue = waitForUserInput(1, 6);
-                    toBePlaced = new Die(newValue, toBePlaced.getColour());
-                    System.out.println("Die to be placed: ");
-                }
-            } catch (UserInterruptActionException e) {
-                System.out.println("You didn't choose the die value. The die has been rolled");
-            } catch (InterruptedException e) {
-                System.out.println("Timeout expired. Your turn ended");
-                return;
-            }
-            do {
-                try {
-                    out.println("Choose a position where to place this die: " + toBePlaced);
-                    chosenPosition = (Coordinate) chooseFrom(event.getCompatiblePositions());
-                } catch (UserInterruptActionException e) {
-                    chosenPosition = null;
-                    out.println("You must choose where to place this die: " + toBePlaced);
-                } catch (InterruptedException e) {
-                    out.println("Timeout expired. Your turn ended.");
-                    return;
-                }
-            }
-            while (chosenPosition == null);
-            try {
-                controller.placeDie(ownerNameOfTheView, toBePlaced, chosenPosition.getRow(), chosenPosition.getCol());
-            } catch (Exception e) {
-                displayError(e);
-            }
-            actualTurn = threadPool.submit(this::takeTurn);
-        });
-
-    }
 
     @Override
     public void respondTo(CurrentPlayerChangedEvent event) {
         out.println("Now it's others turn");
-        return;
+
     }
 
     @Override
     public void respondTo(FinishedSetupEvent event) {
-        return;
+
+        out.println("Finished setup.. wait while the game start");
     }
 
-    @Override
-    public void respondTo(GameFinishedEvent event) {
-        out.println("Game finished!");
-        out.println("Final Rank:");
-
-        for (Pair<Player, Integer> aPair : event.getRank()){
-            out.println(aPair.getKey() + " => " + aPair.getValue());
-        }
-    }
 
     @Override
     public void respondTo(PatternCardDistributedEvent event) {
@@ -190,17 +144,46 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
     }
 
     @Override
-    public void respondTo(MyTurnEndedEvent event){
-        out.println("You had plenty of time and you didn't used.. the turn was ended by the server");
+    public void respondTo(PlaceThisDieEvent event){
         actualTurn.cancel(true);
+        actualTurn = threadPool.submit(() -> {
+            Coordinate chosenPosition = null;
+            Die toBePlaced = event.getToBePlaced();
 
-        out.println(actualTurn.isCancelled());
+            try {
+                if (event.getIsValueChoosable()) {
+                    out.println("You draft a " + toBePlaced.getColour() + " die. Choose the die value");
+                    int newValue = waitForUserInput(1, 6);
+                    toBePlaced = new Die(newValue, toBePlaced.getColour());
+                    out.println("Die to be placed: ");
+                }
+            } catch (UserInterruptActionException e) {
+                out.println("You didn't choose the die value. The die has been rolled");
+            } catch (InterruptedException e) {
+                out.println("Timeout expired. Your turn ended");
+                return;
+            }
+            do {
+                try {
+                    out.println("Choose a position where to place this die: " + toBePlaced);
+                    chosenPosition = (Coordinate) chooseFrom(event.getCompatiblePositions());
+                } catch (UserInterruptActionException e) {
+                    chosenPosition = null;
+                    out.println("You must choose where to place this die: " + toBePlaced);
+                } catch (InterruptedException e) {
+                    out.println("Timeout expired. Your turn ended.");
+                    return;
+                }
+            }
+            while (chosenPosition == null);
+            try {
+                controller.placeDie(ownerNameOfTheView, toBePlaced, chosenPosition.getRow(), chosenPosition.getCol());
+            } catch (Exception e) {
+                displayError(e);
+            }
+            actualTurn = threadPool.submit(this::takeTurn);
+        });
 
-    }
-
-    @Override
-    public void respondTo(MyTurnStartedEvent event) {
-        actualTurn = threadPool.submit(this:: takeTurn);
     }
 
     @Override
@@ -218,55 +201,9 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
         }
 
     }
-
-    private void displayError(Exception ex){
-        out.println("Error: "+ex.getMessage());
-        Scanner input = new Scanner(System.in);
-
-        out.println("Do you need stack trace? [y/n]");
-
-        if(input.next().startsWith("y"))
-            ex.printStackTrace(out);
-    }
-
     @Override
-    public void attachController(IController aController){
-        this.controller = aController;
-    }
-
-
-
-    private void displayMySituation(){
-        out.println("Turn: "+localCopyOfTheStatus.getRoundTracker().getCurrentRound());
-        // Print only the situation of the current player, i.e. the owner of this view.
-        for (Player p : localCopyOfTheStatus.getPlayerList()) {
-            if (p.getName().equals(ownerNameOfTheView)) {
-                out.println(p);
-            }
-        }
-        out.println("Draft pool : "+ localCopyOfTheStatus.getDraftPool());
-        out.println("RoundTracker dice left : "+ localCopyOfTheStatus.getRoundTracker().getDiceLeftFromRound());
-    }
-
-    private void displayEntireGameBoard(){
-        out.println("Public objectives");
-        out.println(Card.drawNear(localCopyOfTheStatus.getPublicObjective()));
-        out.println("ToolCards");
-        out.println(Card.drawNear(localCopyOfTheStatus.getToolCards()));
-
-        for (Player p : localCopyOfTheStatus.getPlayerList()) {
-            out.println(p);
-        }
-        out.println("Draft pool : "+ localCopyOfTheStatus.getDraftPool());
-    }
-
-    @Override
-    public void run() throws Exception {
-        this.attachController(controller);
-
-        out.println(ownerNameOfTheView + " started ");
-        out.println("Waiting for enough players to start the match...");
-
+    public void respondTo(MyTurnStartedEvent event) {
+        actualTurn = threadPool.submit(this:: takeTurn);
     }
 
     private boolean takeTurn() throws InterruptedException {
@@ -357,8 +294,74 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
         return true;
     }
 
+    @Override
+    public void respondTo(MyTurnEndedEvent event){
+        out.println("You had plenty of time and you didn't used.. the turn was ended by the server");
+        actualTurn.cancel(true);
 
+        out.println(actualTurn.isCancelled());
 
+    }
+
+    @Override
+    public void respondTo(GameFinishedEvent event) {
+        out.println("Game finished!");
+        out.println("Final Rank:");
+
+        for (Pair<Player, Integer> aPair : event.getRank()){
+            out.println(aPair.getKey() + " => " + aPair.getValue());
+        }
+    }
+
+    //endregion
+
+    //region helper functions
+
+    private void displayError(Exception ex){
+        out.println("Error: "+ex.getMessage());
+        Scanner input = new Scanner(System.in);
+
+        out.println("Do you need stack trace? [y/n]");
+
+        if(input.next().startsWith("y"))
+            ex.printStackTrace(out);
+    }
+
+    private void displayMySituation(){
+        out.println("Turn: "+localCopyOfTheStatus.getRoundTracker().getCurrentRound());
+        // Print only the situation of the current player, i.e. the owner of this view.
+        for (Player p : localCopyOfTheStatus.getPlayerList()) {
+            if (p.getName().equals(ownerNameOfTheView)) {
+                out.println(p);
+            }
+        }
+        out.println("Draft pool : "+ localCopyOfTheStatus.getDraftPool());
+        out.println("RoundTracker dice left : "+ localCopyOfTheStatus.getRoundTracker().getDiceLeftFromRound());
+    }
+
+    private void displayEntireGameBoard(){
+        out.println("Public objectives");
+        out.println(Card.drawNear(localCopyOfTheStatus.getPublicObjective()));
+        out.println("ToolCards");
+        out.println(Card.drawNear(localCopyOfTheStatus.getToolCards()));
+
+        for (Player p : localCopyOfTheStatus.getPlayerList()) {
+            out.println(p);
+        }
+        out.println("Draft pool : "+ localCopyOfTheStatus.getDraftPool());
+    }
+
+    @Override
+    public void run() throws Exception {
+        this.attachController(controller);
+
+        out.println(ownerNameOfTheView + " started ");
+        out.println("Waiting for enough players to start the match...");
+
+    }
+//endregion
+
+    //region user input
 
     private int waitForUserInput(int lowerBound , int upperBound) throws UserInterruptActionException, InterruptedException {
         int ret = lowerBound;
@@ -411,14 +414,16 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
         return waitForUserInput(0, objs.size()-1);
 
     }
+//endregion
+
 
     public void stop(){
-        if (eventDigester!= null){
+        if (eventDigester != null){
             eventDigester.cancel(true);
         }
 
         if(remoteOperation != null ){
-            eventDigester.cancel(true);
+            remoteOperation.cancel(true);
         }
 
         if( actualTurn != null){

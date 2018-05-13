@@ -45,7 +45,6 @@ public interface IGameManager extends Serializable {
     List<Pair<Player, Integer>> countPlayersPoints()    throws Exception;
 
     void requestUpdate()                                throws RemoteException, Exception;
-    void deliverNewStatus(Event event)                  throws RemoteException, Exception;
 
     void addToDicebag(Die aDie);
 
