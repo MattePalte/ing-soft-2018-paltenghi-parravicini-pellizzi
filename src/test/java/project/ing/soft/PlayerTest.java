@@ -2,6 +2,7 @@ package project.ing.soft;
 
 
 import project.ing.soft.model.Colour;
+import project.ing.soft.model.Coordinate;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Player;
 import project.ing.soft.model.cards.WindowPatternCard;
@@ -60,6 +61,21 @@ public class PlayerTest {
         }
     }
 
+    //test every set_enable method
+    @Test
+    public void testMemento() throws PositionOccupiedException, RuleViolatedException, PatternConstraintViolatedException {
+
+       Player memento = testPlayerWithWhitePatternCardNoMove.getMemento();
+
+            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(1, Colour.BLUE), 0, 0, true);
+            testPlayerWithWhitePatternCardNoMove.moveDice(List.of(new Coordinate(0,0)),List.of(new Coordinate(1,0)) , false, false, false);
+            testPlayerWithWhitePatternCardNoMove.endTurn();
+            Assert.assertNotEquals(testPlayerWithWhitePatternCardNoMove,memento);
+            testPlayerWithWhitePatternCardNoMove.saveMemento(memento);
+            Assert.assertEquals( testPlayerWithWhitePatternCardNoMove, memento);
+
+
+    }
 
     @Test
     public void testTotring(){
@@ -90,6 +106,25 @@ public class PlayerTest {
             System.out.println(p );
         } catch (Exception e) {
            Assert.fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testPlacementOnTheSamePositionException() {
+        try {
+
+            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(2, Colour.BLUE), 3, 4, true);
+        }catch (Exception ex){
+            Assert.fail();
+        }
+        testPlayerWithWhitePatternCardNoMove.endTurn();
+        try {
+            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(4, Colour.VIOLET), 3, 4, true);
+            Assert.fail();
+        }catch (PositionOccupiedException ignored){
+
+        }catch (Exception ex){
+            Assert.fail();
         }
     }
 
@@ -590,7 +625,6 @@ public class PlayerTest {
     @Test
     // check adjacent placing
     public void testDieCornerToCorner(){
-        Player p = new Player(testPlayerWithWhitePatternCardNoMove);
 
         try {
             testPlayerWithWhitePatternCardNoMove.placeDie(new Die(3, Colour.YELLOW), 3,3, true);
@@ -604,6 +638,47 @@ public class PlayerTest {
         }
 
 
+    }
+
+    @Test
+    public void testMovementSwapping(){
+        try {
+            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(2, Colour.VIOLET), 0, 0, true);
+            testPlayerWithWhitePatternCardNoMove.endTurn();
+            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(4, Colour.RED), 0, 1, true);
+            testPlayerWithWhitePatternCardNoMove.moveDice(List.of(new Coordinate(0,0), new Coordinate(0,1)),
+                                                            List.of(new Coordinate(1,0), new Coordinate(0,0)), true, true, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testMovementExceptionWhenOccupied(){
+        try {
+            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(2, Colour.VIOLET), 2, 0, true);
+            testPlayerWithWhitePatternCardNoMove.endTurn();
+            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(4, Colour.RED), 3, 1, true);
+            testPlayerWithWhitePatternCardNoMove.moveDice(List.of(new Coordinate(2,0)),
+                    List.of( new Coordinate(3,1)), true, true, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void FlipTest(){
+
+    }
+
+    @Test
+    public void testMovementExceptionWhenDieIsNull(){
+        try {
+            testPlayerWithWhitePatternCardNoMove.moveDice(List.of(new Coordinate(0,0)), List.of(new Coordinate(3,4)),true, true, true);
+        } catch (RuleViolatedException ignored) {
+
+        } catch (PatternConstraintViolatedException e) {
+            Assert.fail();
+        }
     }
 
     //region serialization

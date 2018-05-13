@@ -125,7 +125,10 @@ public class Player implements Serializable{
     }
     //@assignable nothing
     public Die getPlacedDice(Coordinate c){
-        return  new Die(placedDice[c.getRow()][ c.getRow()]);
+        Die aDie = placedDice[c.getRow()][ c.getCol()];
+        if(aDie != null)
+            return new Die(aDie);
+        return null;
     }
 
     /**
@@ -233,8 +236,9 @@ public class Player implements Serializable{
                 try{
                     checkPlaceDie(aDie, row, col, true, true, true);
                     ret.add(new Coordinate(row, col));
-                } catch (Exception e) {
-
+                } catch (Exception ignored) {
+                    //because this method determines the possible die that can be placed into a
+                    //location by the exception trowed
                 }
             }
         }
