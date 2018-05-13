@@ -62,21 +62,12 @@ public class Die implements Serializable {
         return result;
     }
 
-    public String getXLMescapeEncoding(){
-        String encoding;
-        if(this.value == 0)
-            encoding = " ";
-        else
-            encoding = new String(Character.toChars(9855 + value));
-        return encoding;
-    }
-
     public String getImgPath(){
         if(getColour() == Colour.WHITE || getValue() == 0)
             return "";
         String path = String.format("windowPattern/dice/%s/%d.png", getColour().name().toLowerCase(), getValue());
         URL urlResource =  this.getClass().getClassLoader().getResource(path);
-        return urlResource.getPath();
+        return urlResource.toString();
     }
 
     @Override

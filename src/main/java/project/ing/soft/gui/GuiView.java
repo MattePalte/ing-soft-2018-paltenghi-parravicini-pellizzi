@@ -20,6 +20,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Coordinate;
@@ -59,20 +60,24 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     private ArrayList<WindowPatternCard> possiblePatternCard;
     private int currentIndexPatternDisplayed;
     private Stage primaryStage;
+
+    //region Constants
     Map<Colour, String> mapBgColour;
     Map<Colour, String> mapDieColour;
-
     private final String STORNG_FOCUS = "#f47a42";
     private final String LIGHT_FOCUS = "#c4fff0";
     private final String NEUTRAL_BG_COLOR = "#c4c4c4";
     private final String CONSTRAIN_TEXT_COLOR = "#b8bab9";
-    private double SCREEN_WIDTH;
-    private double SCREEN_HEIGHT;
-    private double CELL_DIMENSION;
     private final int MATRIX_NR_ROW = 4;
     private final int MATRIX_NR_COL = 5;
     private final int NR_TOOLCARD = 3;
+    private double SCREEN_WIDTH;
+    private double SCREEN_HEIGHT;
+    private double CELL_DIMENSION;
+    private double SMALL_CELL_DIMENSION;
+    //endregion
 
+    //region Retrieving parameters methods
     private transient ExecutorService turnExecutor;
     private List<Object> parameters = new ArrayList<>();
     private transient Future waitingForParameters;
@@ -93,9 +98,21 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         }
     }
 
-    public String getOwnerNameOfTheView() {
-        return ownerNameOfTheView;
+    public void collectCoordinate(Coordinate coord){
+        put(coord);
     }
+
+    public void collectDie(Die die){
+        put(die);
+    }
+
+    public void collectToolcardIndex(Integer index) {
+        put(index);
+    }
+
+
+    //endregion
+
     @FXML
     protected void initialize(){
         // Initialize maps for conversion between code and resources
@@ -119,6 +136,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         SCREEN_WIDTH = primaryScreenBounds.getWidth();
         SCREEN_HEIGHT = primaryScreenBounds.getHeight();
         CELL_DIMENSION = SCREEN_WIDTH/23;
+        SMALL_CELL_DIMENSION = CELL_DIMENSION/1.5;
 
         turnExecutor = Executors.newSingleThreadExecutor();
 
@@ -159,6 +177,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         th.start();
     }
 
+    //region Getter e Setter
     public void setPrimaryStage(Stage primaryStage) {
         this.primaryStage = primaryStage;
     }
@@ -175,6 +194,13 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         this.eventsReceived = eventsReceived;
     }
 
+    public String getOwnerNameOfTheView() {
+        return ownerNameOfTheView;
+    }
+
+    //endregion
+
+    //region GUI Elements
     // PHASE 0 - OPEN CONNECTION
     @FXML
     private Button btnGetController;
@@ -197,6 +223,8 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     @FXML
     private Text status;
     @FXML
+    private Text instructionBox;
+    @FXML
     private GridPane matrixPane;
 
     // PHASE 2 - ACTIONS
@@ -206,11 +234,14 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     private Button btnPlayToolCard;
     @FXML
     private Button btnEndTurn;
-
+    @FXML
+    private Button btnCancel;
+    //endregion
 
     public GuiView() throws RemoteException {
     }
 
+    //region Event Responding
     @Override
     public void respondTo(PlaceThisDieEvent event) {
 
@@ -228,7 +259,18 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
     @Override
     public void respondTo(GameFinishedEvent event) {
+        out.println("Game finished!");
 
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Final Rank:");
+        String s = "";
+        for (Pair<Player, Integer> aPair : event.getRank()){
+            s += aPair.getKey().getName() + " => " + aPair.getValue() + "\n";
+            out.println(aPair.getKey() + " => " + aPair.getValue());
+        }
+        alert.setHeaderText(s);
+        alert.show();
+        stopResponding = true;
     }
 
     @Override
@@ -273,15 +315,9 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         out.println("gestione di model changed");
         drawMySituation();
         drawDraftPool();
+        drawRoundTracker();
         initializeButtons();
-        /*Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("model is changed");
-        alert.setHeaderText("Information Alert");
-        if (!localCopyOfTheStatus.getCurrentPlayer().getName().equals(ownerNameOfTheView)) {
-            String s = "It's the turn of " + localCopyOfTheStatus.getCurrentPlayer().getName() + ". Wait for yours.";
-            alert.setContentText(s);
-        }
-        alert.show();*/
+        disableAll();
     }
 
     @Override
@@ -294,6 +330,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         alert.setHeaderText(s);
         alert.show();
     }
+    //endregion
 
     private void endingOperation() {
         disableAll();
@@ -303,12 +340,14 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         if(waitingForParameters != null && !waitingForParameters.isDone())
             waitingForParameters.cancel(true);
         // Remove everithing in the queue
-        synchronized (eventsReceived) {
+        //TODO: does it make sense?
+        /*synchronized (eventsReceived) {
             while (eventsReceived.size()>0)
                 eventsReceived.remove(0);
-        }
+        }*/
     }
 
+    //region Draw Things
     private synchronized void displayPatternCard(WindowPattern pattern, Scene scene){
         for (int row = 0 ; row < pattern.getHeight(); row++) {
             for (int col = 0 ; col < pattern.getWidth(); col++) {
@@ -330,19 +369,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
                     bg.setFitWidth(CELL_DIMENSION);
                     currentCell.setGraphic(bg);
                 }
-                //currentCell.setText(constraint.getXLMescapeEncoding());
                 currentCell.setStyle("-fx-background-color:" + mapBgColour.get(constraint.getColour()) + "; -fx-font: 22 monospace;");
-                /*int finalRow = row;
-                int finalCol = col;
-                currentCell.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override public void handle(ActionEvent e) {
-                        try {
-                            myController.placeDie(ownerNameOfTheView, new Die(5, Colour.BLUE),finalRow, finalCol);
-                        } catch (Exception e1) {
-                            e1.printStackTrace();
-                        }
-                    }
-                });*/
             }
 
         }
@@ -374,7 +401,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
                                 bg.setCache(true);
                                 currentCell.setGraphic(bg);
                             }
-                            //currentCell.setText(constraint.getXLMescapeEncoding());
                             currentCell.setStyle("-fx-text-fill: " + CONSTRAIN_TEXT_COLOR + " ;"+
                                     "-fx-background-color:" + mapBgColour.get(constraint.getColour()) + "; -fx-font: 22 monospace;");
                         } else {
@@ -388,7 +414,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
                                 bg.setCache(true);
                                 currentCell.setGraphic(bg);
                             }
-                            //currentCell.setText(currentDie.getXLMescapeEncoding());
                             currentCell.setStyle("-fx-text-fill:" + mapDieColour.get(currentDie.getColour()) +
                                     "; -fx-background-color:" + mapBgColour.get(constraint.getColour()) + "; -fx-font: 22 monospace;");
                         }
@@ -402,27 +427,63 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
     private synchronized void drawDraftPool() {
         Scene scene = getPrimaryStage().getScene();
+        GridPane paneDraft = (GridPane) scene.lookup("#draftPool");
         List<Die> draft = localCopyOfTheStatus.getDraftPool();
-        for (int pos = 0 ; pos < 9; pos++) {
-            Button currentCell = (Button) scene.lookup("#draft" + pos);
-            if (pos < draft.size() ) {
-                Die currentDie = draft.get(pos);
-                Image image = new Image(currentDie.getImgPath());
-                ImageView bg = new ImageView(image);
-                bg.setFitHeight(CELL_DIMENSION);
-                bg.setFitWidth(CELL_DIMENSION);
-                bg.setPreserveRatio(true);
-                bg.setSmooth(true);
-                bg.setCache(true);
-                currentCell.setGraphic(bg);
-                //currentCell.setText(currentDie.getXLMescapeEncoding());
-                currentCell.setStyle("-fx-text-fill:" + mapDieColour.get(currentDie.getColour()) +
-                        "; -fx-background-color:#FFF; -fx-font: 22 monospace;");
-            } else {
-                currentCell.setGraphic(null);
-                //currentCell.setText(" ");
-                currentCell.setStyle("-fx-background-color:" + NEUTRAL_BG_COLOR + "; -fx-font: 22 monospace;");
-            }
+        paneDraft.getChildren().clear();
+        //TODO: add button to draftpool programmatically as in roundtracker
+        for (int pos = 0 ; pos < draft.size(); pos++) {
+            Die currentDie = draft.get(pos);
+            // Create Image
+            Image image = new Image(currentDie.getImgPath());
+            ImageView bg = new ImageView(image);
+            bg.setFitHeight(SMALL_CELL_DIMENSION);
+            bg.setFitWidth(SMALL_CELL_DIMENSION);
+            bg.setPreserveRatio(true);
+            bg.setSmooth(true);
+            bg.setCache(true);
+            // Create Button
+            Button currentCell = new Button();
+            paneDraft.add(currentCell, pos,0);
+            currentCell.setGraphic(bg);
+            currentCell.setStyle("-fx-text-fill:" + mapDieColour.get(currentDie.getColour()) +
+                    "; -fx-background-color:#FFF; -fx-font: 22 monospace;");
+            currentCell.setOnAction(new EventHandler<ActionEvent>() {
+                @Override public void handle(ActionEvent e) {
+                    disableAll();
+                    collectDie(new Die(currentDie));
+                }
+            });
+        }
+    }
+
+    private synchronized void drawRoundTracker() {
+        Scene scene = getPrimaryStage().getScene();
+        GridPane paneRoundTracker = (GridPane) scene.lookup("#roundtracker");
+        List<Die> diceLeft = localCopyOfTheStatus.getRoundTracker().getDiceLeftFromRound();
+        paneRoundTracker.getChildren().clear();
+        for (int pos = 0 ; pos < diceLeft.size(); pos++) {
+            int row = pos/9;
+            Die currentDie = diceLeft.get(pos);
+            // Create Image
+            Image image = new Image(currentDie.getImgPath());
+            ImageView bg = new ImageView(image);
+            bg.setFitHeight(SMALL_CELL_DIMENSION);
+            bg.setFitWidth(SMALL_CELL_DIMENSION);
+            bg.setPreserveRatio(true);
+            bg.setSmooth(true);
+            bg.setCache(true);
+            // Create Button
+            Button currentCell = new Button();
+            paneRoundTracker.add(currentCell, pos, row);
+            currentCell.setGraphic(bg);
+            currentCell.setStyle("-fx-text-fill:" + mapDieColour.get(currentDie.getColour()) +
+                    "; -fx-background-color:#FFF; -fx-font: 22 monospace;");
+            currentCell.setOnAction(new EventHandler<ActionEvent>() {
+                @Override public void handle(ActionEvent e) {
+                    disableAll();
+                    collectDie(new Die(currentDie));
+                }
+            });
         }
     }
 
@@ -470,9 +531,11 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
             iv.setCache(true);
         }
     }
+    //endregion
 
+    //region IView interface
     @Override
-    public void update(Event event) throws RemoteException, Exception {
+    public void update(Event event) throws RemoteException {
 
         out.println( getTime() + " - " + ownerNameOfTheView + " ha ricevuto un evento :" + event);
 
@@ -485,13 +548,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         }
     }
 
-    private String getTime() {
-        Calendar c = Calendar.getInstance(); //automatically set to current time
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-        String time = dateFormat.format(c.getTime()).toString();
-        return time;
-    }
-
     @Override
     public void attachController(IController gameController) throws RemoteException, Exception {
         this.myController = gameController;
@@ -501,7 +557,15 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     public void run() throws Exception {
 
     }
+    private String getTime() {
+        Calendar c = Calendar.getInstance(); //automatically set to current time
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        String time = dateFormat.format(c.getTime()).toString();
+        return time;
+    }
+    //endregion
 
+    //region Fixed Button Handling
     public void btnNextOnCLick(ActionEvent actionEvent) {
         if (currentIndexPatternDisplayed < possiblePatterns.size()-1) {
             currentIndexPatternDisplayed++;
@@ -541,7 +605,8 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     public void btnPlaceDieOnCLick(ActionEvent actionEvent) throws Exception {
         // PRE-SETUP
         initializeButtons();
-        btnPlaceDie.setDisable(true);
+        endingOperation();
+        btnCancel.setDisable(false);
         // CREATE AN ANONYMOUS THREAD WAITING FOR INPUT
         GuiView myView = this;
         waitingForParameters = turnExecutor.submit(
@@ -576,7 +641,8 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     public void btnPlayToolCardOnCLick(ActionEvent actionEvent) throws Exception {
         // PRE-SETUP
         initializeButtons();
-        btnPlayToolCard.setDisable(true);
+        endingOperation();
+        btnCancel.setDisable(false);
         // CREATE AN ANONYMOUS THREAD WAITING FOR INPUT
         GuiView myView = this;
         waitingForParameters = turnExecutor.submit(
@@ -606,64 +672,32 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         );
     }
 
+    public void btnCancelOnCLick(ActionEvent actionEvent) throws Exception{
+        endingOperation();
+        btnEndTurn.setDisable(false);
+        btnPlayToolCard.setDisable(false);
+        btnPlaceDie.setDisable(false);
+        btnCancel.setDisable(true);
+        synchronized (this) {
+            instructionBox.setText("");
+        }
+    }
     public void btnEndTurnOnCLick(ActionEvent actionEvent) throws Exception {
         endingOperation();
+        btnCancel.setDisable(true);
         myController.endTurn(ownerNameOfTheView);
     }
+    //endregion
 
     public synchronized void disableAll(){
-        Scene scene = getPrimaryStage().getScene();
-        // de-focus draft
         focusOn("draftPool", false);
-        // disable button of draft
-        for (int pos = 0 ; pos < 9; pos++) {
-            Button currentCell = (Button) scene.lookup("#draft" + pos);
-            //currentCell.setStyle(currentCell.getStyle().replace("-fx-border-color:" + STORNG_FOCUS, ""));
-            currentCell.setDisable(true);
-        }
-        // de-focus pattern
         focusOn("matrix", false);
-        // disable button of pattern
-        for (int row = 0; row < MATRIX_NR_ROW; row++) {
-            for (int col = 0; col < MATRIX_NR_COL; col++) {
-                Button currentCell = (Button) scene.lookup("#pos" + row + col);
-                //currentCell.setStyle(currentCell.getStyle().replace("-fx-border-color:" + STORNG_FOCUS, ""));
-                currentCell.setDisable(true);
-            }
-        }
-        // de-focus toolcard Box
+        focusOn("roundtracker", false);
         focusOn("toolcardBox", false);
-        // disable button of pattern
-        for (int index = 0; index < NR_TOOLCARD; index++) {
-            ImageView imageView = (ImageView) scene.lookup("#toolcard" + index);
-            imageView.setDisable(true);
-        }
     }
 
     public synchronized void initializeButtons(){
         Scene scene = getPrimaryStage().getScene();
-        // set button of draft
-        List<Die> draft = localCopyOfTheStatus.getDraftPool();
-        for (int pos = 0 ; pos < 9; pos++) {
-            Button currentCell = (Button) scene.lookup("#draft" + pos);
-            currentCell.setDisable(true);
-            if (pos < draft.size()) {
-                Die currentDie = draft.get(pos);
-                currentCell.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override public void handle(ActionEvent e) {
-                        disableAll();
-                        collectDie(new Die(currentDie));
-                        //currentCell.setStyle(currentCell.getStyle() + "; -fx-border-color:" + STORNG_FOCUS);
-                    }
-                });
-            } else {
-                currentCell.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override public void handle(ActionEvent e) {
-                        System.out.println("no action with this button");
-                    }
-                });
-            }
-        }
         // set button of pattern
         for (int row = 0; row < MATRIX_NR_ROW; row++) {
             for (int col = 0; col < MATRIX_NR_COL; col++) {
@@ -693,20 +727,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         }
     }
 
-
-    public void collectCoordinate(Coordinate coord){
-        put(coord);
-    }
-
-    public void collectDie(Die die){
-        put(die);
-    }
-
-    public void collectToolcardIndex(Integer index) {
-        put(index);
-    }
-
-
     private synchronized void focusOn(String idPane, boolean isFocused){
         Scene scene = getPrimaryStage().getScene();
         Pane pane = (Pane) scene.lookup("#" + idPane);
@@ -718,9 +738,21 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
             }
         } else {
             pane.setStyle("-fx-background-color:" + NEUTRAL_BG_COLOR);
+            for (Node n : pane.getChildren()) {
+                n.setDisable(true);
+            }
         }
     }
 
+    private void focusOn(String idPane, boolean isFocused, String message){
+        focusOn(idPane, isFocused);
+        synchronized (this) {
+            instructionBox.setText(message);
+        }
+    }
+
+    //region Get Controller
+    //TODO: create a splash view
     public void btnGetControllerOnClick(ActionEvent actionEvent) throws Exception {
         Registry registry = LocateRegistry.getRegistry();
 
@@ -737,6 +769,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         btnGetController.setText("Controller obtained");
         btnGetController.setDisable(true);
         btnJoin.setDisable(false);
+        txtName.setDisable(true);
 
     }
 
@@ -745,8 +778,8 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         myController.joinTheGame(ownerNameOfTheView, this);
         btnJoin.setDisable(true);
         btnJoin.setText("You are in the game");
-
     }
+    //endregion
 
     private void displayError(Exception ex){
         //TODO: display graphical effor messagebox
@@ -769,15 +802,16 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         });
     }
 
+    //region IToolCardFiller
     @Override
     public void fill(AlesatoreLaminaRame aToolcard) {
         try {
             disableAll();
-            focusOn("matrix", true);
+            focusOn("matrix", true, "Enter which die you want to move");
             Coordinate startPos = (Coordinate) getObj();
             aToolcard.setStartPosition(startPos);
             disableAll();
-            focusOn("matrix", true);
+            focusOn("matrix", true, "Enter an empty cell's position to move it");
             Coordinate endPos = (Coordinate) getObj();
             aToolcard.setEndPosition(endPos);
         } catch (InterruptedException e) {
@@ -788,12 +822,38 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
     @Override
     public void fill(DiluentePastaSalda aToolcard) throws InterruptedException, UserInterruptActionException {
-        
+        try {
+            disableAll();
+            focusOn("draftPool", true, "Choose a die to take back to the dicebag: ");
+            Die chosenDie = (Die) getObj();
+            aToolcard.setChosenDie(chosenDie);
+        } catch (InterruptedException e) {
+            displayError(e);
+        }
     }
 
     @Override
     public void fill(Lathekin aToolcard) throws InterruptedException, UserInterruptActionException {
-
+        try {
+            disableAll();
+            focusOn("matrix", true, "Enter which is the first die you want to move");
+            Coordinate firstStart = (Coordinate) getObj();
+            aToolcard.setFirstDieStartPosition(firstStart);
+            disableAll();
+            focusOn("matrix", true, "Enter an empty cell's position to move it");
+            Coordinate firstEnd = (Coordinate) getObj();
+            aToolcard.setFirstDieEndPosition(firstEnd);
+            disableAll();
+            focusOn("matrix", true, "Enter which is the second die you want to move");
+            Coordinate secondStart = (Coordinate) getObj();
+            aToolcard.setSecondDieStartPosition(secondStart);
+            disableAll();
+            focusOn("matrix", true, "Enter an empty cell's position to move it");
+            Coordinate secondEnd = (Coordinate) getObj();
+            aToolcard.setSecondDieEndPosition(secondEnd);
+        } catch (InterruptedException e) {
+            displayError(e);
+        }
     }
 
     @Override
@@ -803,22 +863,51 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
     @Override
     public void fill(PennelloPastaSalda aToolcard) throws InterruptedException, UserInterruptActionException {
-
+        try {
+            disableAll();
+            focusOn("draftPool", true, "Choose a die to roll");
+            Die chosenDie = (Die) getObj();
+            aToolcard.setToRoll(chosenDie);
+        } catch (InterruptedException e) {
+            displayError(e);
+        }
     }
 
     @Override
     public void fill(PennelloPerEglomise aToolcard) throws InterruptedException, UserInterruptActionException {
-
+        try {
+            disableAll();
+            focusOn("matrix", true, "Enter which die you want to move");
+            Coordinate startPosition = (Coordinate) getObj();
+            aToolcard.setStartPosition(startPosition);
+            disableAll();
+            focusOn("matrix", true, "Enter an empty cell's position to move it");
+            Coordinate endPosition = (Coordinate) getObj();
+            aToolcard.setEndPosition(endPosition);
+        } catch (InterruptedException e) {
+            displayError(e);
+        }
     }
 
     @Override
     public void fill(PinzaSgrossatrice aToolcard) throws InterruptedException, UserInterruptActionException {
-
+        //TODO: implement msgbox to choose between increase and decrease
     }
 
     @Override
     public void fill(RigaSughero aToolcard) throws InterruptedException, UserInterruptActionException {
-
+        try {
+            disableAll();
+            focusOn("draftPool", true, "Choose a die from the draftpool: ");
+            Die chosenDie = (Die) getObj();
+            aToolcard.setChosenDie(chosenDie);
+            disableAll();
+            focusOn("matrix", true, "Choose a position away from other dice: ");
+            Coordinate coord = (Coordinate) getObj();
+            aToolcard.setPosition(coord);
+        } catch (InterruptedException e) {
+            displayError(e);
+        }
     }
 
     @Override
@@ -828,22 +917,65 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
     @Override
     public void fill(TaglierinaManuale aToolcard) throws InterruptedException, UserInterruptActionException {
-
+        ArrayList<Coordinate> positions = null;
+        ArrayList<Coordinate> moveTo = null;
+        try {
+            disableAll();
+            focusOn("roundtracker", true, "Choose a die from the roundtracker: ");
+            Die chosenDieRound = (Die) getObj();
+            aToolcard.setDieFromRoundTracker(chosenDieRound);
+            positions = new ArrayList<>();
+            moveTo = new ArrayList<>();
+            for(int i = 0; i < 2; i++){
+                disableAll();
+                focusOn("matrix", true, "Choose the position of a " + chosenDieRound.getColour() + " placed die in your pattern");
+                Coordinate startPosition = (Coordinate) getObj();
+                disableAll();
+                focusOn("matrix", true, "Choose where you want to move the die you have just chosen");
+                Coordinate endPosition = (Coordinate) getObj();
+                positions.add(startPosition);
+                moveTo.add(endPosition);
+            }
+            aToolcard.setDiceChosen(positions);
+            aToolcard.setMoveTo(moveTo);
+        } catch (InterruptedException e) {
+            displayError(e);
+        }
     }
 
     @Override
     public void fill(TaglierinaCircolare aToolcard) throws InterruptedException, UserInterruptActionException {
-
+        //TODO: implement roundtracker
+        try {
+            disableAll();
+            focusOn("draftPool", true, "Chose from Draft:");
+            Die dieDraft = (Die) getObj();
+            aToolcard.setDieFromDraft(dieDraft);
+            disableAll();
+            focusOn("roundtracker", true, "Chose from RoundTracker:");
+            Die dieRound = (Die) getObj();
+            aToolcard.setDieFromRoundTracker(dieRound);
+        } catch (InterruptedException e) {
+            displayError(e);
+        }
     }
 
     @Override
     public void fill(TamponeDiamantato aToolcard) throws InterruptedException, UserInterruptActionException {
-
+        try {
+            disableAll();
+            focusOn("draftPool", true, "Choose a die from the draftpool: ");
+            Die chosenDie = (Die) getObj();
+            aToolcard.setChosenDie(chosenDie);
+        } catch (InterruptedException e) {
+            displayError(e);
+        }
     }
 
     @Override
     public void fill(TenagliaRotelle aToolcard) throws InterruptedException, UserInterruptActionException {
 
     }
+    //endregion
 }
 

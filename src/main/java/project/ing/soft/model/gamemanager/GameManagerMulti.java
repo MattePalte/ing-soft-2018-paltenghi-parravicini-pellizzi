@@ -44,7 +44,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
     private List<Pair<Player, Integer>> rank;
     private Map<String, Integer>      toolCardCost;
     private transient Timer myTimer;
-    private transient static final long    TIMEOUT = 10000;
+    private transient static final long    TIMEOUT = 60000;
 
     private static transient ExecutorService eventDispatcher = Executors.newCachedThreadPool();
 

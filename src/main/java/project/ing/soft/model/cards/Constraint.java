@@ -65,15 +65,6 @@ public class Constraint implements Serializable {
         return urlResource.toString();
     }
 
-    public String getXLMescapeEncoding(){
-        String encoding;
-        if(this.value == 0)
-            encoding = " ";
-        else
-            encoding = new String(Character.toChars(9855 + value));
-        return encoding;
-    }
-
     public static Constraint fromEncoding(String rep) throws Colour.ColorNotFoundException {
        return new Constraint((int) rep.charAt(0) - (int) '0', Colour.valueOf(rep.charAt(1)));
     }

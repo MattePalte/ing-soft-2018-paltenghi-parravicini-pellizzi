@@ -32,6 +32,7 @@ public class AlesatoreLaminaRame extends ToolCard {
     public void applyEffect(Player p, IGameManager m) throws ToolCardApplicationException {
         try {
             checkParameters(p, m);
+            //TODO: doesn't have to check value, does it?
             p.moveDice(List.of(startPosition), List.of(endPosition), true, true, true);
         }catch(Exception e){
             throw new ToolCardApplicationException(e);
