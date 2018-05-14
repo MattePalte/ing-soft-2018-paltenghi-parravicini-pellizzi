@@ -28,8 +28,11 @@
             <padding><Insets top="25" right="25" bottom="25" left="25"/></padding>
             <Text fx:id="status" ></Text>
             <TextField fx:id="txtName"></TextField>
-            <Button fx:id="btnGetController" text="Get/Create a proper Controller" onAction="#btnGetControllerOnClick"></Button>
-            <Button fx:id="btnJoin" text="Join the Game" onAction="#btnJoinOnClick" disable="true"></Button>
+            <HBox alignment="CENTER">
+            <padding><Insets top="25" right="25" bottom="25" left="25"/></padding>
+                <Button fx:id="btnRmiConnection" onAction="#btnRmiConnectionOnClick" styleClass="title" text="Connect with RMI"/>
+                <Button fx:id="btnSocketConnection" onAction="#btnSocketConnectionOnClick" styleClass="title" text="Connect with Socket"/>
+            </HBox>
         </VBox>
         <GridPane fx:id="main_actions" alignment="center" hgap="10" vgap="10">
             <padding><Insets top="25" right="25" bottom="25" left="25"/></padding>
@@ -79,7 +82,11 @@
                         <Button fx:id="btnPrev" text="Prev" onAction="#btnPrevOnCLick"></Button>
                         <Button fx:id="btnNext" text="Next" onAction="#btnNextOnCLick"></Button>
                     </HBox>
-                    <Button fx:id="btnChoose" text="Choose this pattern" onAction="#btnChooseOnCLick"></Button>
+                    <HBox alignment="CENTER">
+                        <Text text="Favours :"></Text>
+                        <TextField fx:id="favourField" disable="true"></TextField>
+                        <Button fx:id="btnChoose" text="Choose this pattern" onAction="#btnChooseOnCLick"></Button>
+                    </HBox>
                 </VBox>
                 <VBox alignment="CENTER">
                     <ImageView fx:id="imgPrivateObjective" preserveRatio="true" pickOnBounds="true">

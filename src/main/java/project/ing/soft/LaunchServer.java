@@ -129,10 +129,10 @@ public class LaunchServer extends Thread{
 
     public static void main(String[] args) {
         ArrayList<Controller> hostedGames = new ArrayList<>();
-
-        //SimpleSocketConnectionListener socketConnectionListener = new SimpleSocketConnectionListener(3000, hostedGames);
-        //socketConnectionListener.start();
-
+        //Start socket
+        SimpleSocketConnectionListener socketConnectionListener = new SimpleSocketConnectionListener(3000, hostedGames);
+        socketConnectionListener.start();
+        //Start RMI
         LaunchServer rmiConnectionListener = new LaunchServer(hostedGames);
         rmiConnectionListener.start();
 

@@ -35,6 +35,7 @@ import project.ing.soft.controller.IController;
 import project.ing.soft.model.gamemanager.events.*;
 import project.ing.soft.model.gamemanager.events.Event;
 import project.ing.soft.model.gamemanager.IGameManager;
+import project.ing.soft.socket.ControllerProxy;
 import project.ing.soft.view.IView;
 
 import java.io.PrintStream;
@@ -62,6 +63,9 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     private Stage primaryStage;
 
     //region Constants
+    // default configuration for sockets
+    String host = "localhost";
+    int port    = 3000;
     Map<Colour, String> mapBgColour;
     Map<Colour, String> mapDieColour;
     private final String STORNG_FOCUS = "#f47a42";
@@ -205,9 +209,15 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     @FXML
     private Button btnGetController;
     @FXML
+    private Button btnRmiConnection;
+    @FXML
+    private Button btnSocketConnection;
+    @FXML
     private Button btnJoin;
     @FXML
     private TextField txtName;
+    @FXML
+    private TextField favourField;
 
     // PHASE 1 - CHOOSE PATTERN CARD
     @FXML
@@ -318,6 +328,8 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         drawRoundTracker();
         initializeButtons();
         disableAll();
+        int favoursLeft = localCopyOfTheStatus.getFavours().get(ownerNameOfTheView);
+        favourField.setText(String.valueOf(favoursLeft));
     }
 
     @Override
@@ -373,6 +385,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
             }
 
         }
+        favourField.setText(String.valueOf(pattern.getDifficulty()));
     }
 
     private synchronized void drawMySituation() {
@@ -753,31 +766,45 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
     //region Get Controller
     //TODO: create a splash view
-    public void btnGetControllerOnClick(ActionEvent actionEvent) throws Exception {
+    public void btnRmiConnectionOnClick(ActionEvent actionEvent) throws Exception {
+        setName();
         Registry registry = LocateRegistry.getRegistry();
-
         // gets a reference for the remote controller
         myController = (IController) registry.lookup("controller" + registry.list().length);
-        ownerNameOfTheView = txtName.getText();
-        System.out.println("Registered in the app with the name: " + ownerNameOfTheView);
-        // creates and launches the view
-        //myView = new LocalViewCli(txtName.getText());
-
-        this.attachController(myController);
-        this.run();
-        System.out.println("Controller retrieved");
-        btnGetController.setText("Controller obtained");
-        btnGetController.setDisable(true);
-        btnJoin.setDisable(false);
-        txtName.setDisable(true);
-
+        System.out.println("Controller retrieved by RMI");
+        setController();
+        btnRmiConnection.setText("Controller Obtained");
     }
 
-    public void btnJoinOnClick(ActionEvent actionEvent) throws Exception {
-        System.out.println("Sto per accedere al match con nome " + ownerNameOfTheView);
+    public void btnSocketConnectionOnClick(ActionEvent actionEvent) throws Exception {
+        setName();
+        ControllerProxy controllerProxy = new ControllerProxy(host, port);
+        controllerProxy.start();
+        myController = (IController) controllerProxy;
+        System.out.println("ControllerProxy created");
+        setController();
+        btnSocketConnection.setText("Controller Obtained");
+    }
+
+    private void setName() throws Exception {
+        // get user name
+        ownerNameOfTheView = txtName.getText();
+        if (ownerNameOfTheView.equals("")) {
+            Exception ex = new Exception("no name inserted");
+            displayError(ex);
+            throw ex;
+        }
+        System.out.println("Registered in the app with the name: " + ownerNameOfTheView);
+        txtName.setDisable(true);
+    }
+
+    private void setController() throws Exception{
+        // attach the controller to the GuiView
+        this.attachController(myController);
+        this.run(); //TODO: useless method?
         myController.joinTheGame(ownerNameOfTheView, this);
-        btnJoin.setDisable(true);
-        btnJoin.setText("You are in the game");
+        btnRmiConnection.setDisable(true);
+        btnSocketConnection.setDisable(true);
     }
     //endregion
 
