@@ -1,5 +1,7 @@
 package project.ing.soft.model.gamemanager;
 
+import project.ing.soft.model.Colour;
+import project.ing.soft.model.Die;
 import project.ing.soft.model.cards.objectives.privates.*;
 import project.ing.soft.model.cards.objectives.publics.*;
 import project.ing.soft.model.cards.toolcards.*;
@@ -17,6 +19,7 @@ public class GameManagerFactory {
     private static ArrayList<PrivateObjective>  privateObjCards;
     private static ArrayList<ToolCard>          toolCards;
     private static ArrayList<WindowPatternCard> windowPatternCard;
+    private static ArrayList<Die>               dice;
 
     private GameManagerFactory(){
 
@@ -76,12 +79,25 @@ public class GameManagerFactory {
         return toolCards;
     }
 
+
     public static List<WindowPatternCard> getWindowPatternCard() {
         URL path = GameManagerFactory.class.getClassLoader().getResource("patterns.txt");
         if(windowPatternCard == null && path != null){
             windowPatternCard = new ArrayList<>(WindowPatternCard.loadFromFile(path));
         }
         return windowPatternCard;
+    }
+
+    public static List<Die> getDice() {
+        if(dice == null) {
+            dice = new ArrayList<>();
+            for (Colour c : Colour.validColours()) {
+                for (int i = 0; i < 18; i++) {
+                    dice.add(new Die(c));
+                }
+            }
+        }
+        return dice;
     }
 
 
@@ -92,7 +108,7 @@ public class GameManagerFactory {
             return null;
         } else if (aGame.getNumberOfPlayers() <= 4) {
             try {
-                return new GameManagerMulti(aGame, getPublicObjCards(), getPrivateObjCards(), getToolCards(), getWindowPatternCard());
+                return new GameManagerMulti(aGame, getPublicObjCards(), getPrivateObjCards(), getToolCards(), getWindowPatternCard(), getDice());
             } catch (GameInvalidException e) {
                 return null;
             }

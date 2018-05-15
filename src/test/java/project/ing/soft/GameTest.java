@@ -37,7 +37,6 @@ public class GameTest {
     @Test
     public void testMultiplayer() throws Exception {
         IGameManager myModel = GameManagerFactory.factory(aMultiplePlayerGame);
-        myModel.start();
 
         myModel.countPlayersPoints();
         Player p = myModel.getWinner();

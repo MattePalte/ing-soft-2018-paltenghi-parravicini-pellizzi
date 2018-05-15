@@ -35,7 +35,7 @@ import project.ing.soft.controller.IController;
 import project.ing.soft.model.gamemanager.events.*;
 import project.ing.soft.model.gamemanager.events.Event;
 import project.ing.soft.model.gamemanager.IGameManager;
-import project.ing.soft.socket.ControllerProxy;
+import project.ing.soft.socket.ControllerProxyOverSocket;
 import project.ing.soft.view.IView;
 
 import java.io.PrintStream;
@@ -562,12 +562,12 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     }
 
     @Override
-    public void attachController(IController gameController) throws RemoteException, Exception {
+    public void attachController(IController gameController) {
         this.myController = gameController;
     }
 
     @Override
-    public void run() throws Exception {
+    public void run() {
 
     }
     private String getTime() {
@@ -778,7 +778,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
     public void btnSocketConnectionOnClick(ActionEvent actionEvent) throws Exception {
         setName();
-        ControllerProxy controllerProxy = new ControllerProxy(host, port);
+        ControllerProxyOverSocket controllerProxy = new ControllerProxyOverSocket(host, port);
         controllerProxy.start();
         myController = (IController) controllerProxy;
         System.out.println("ControllerProxy created");

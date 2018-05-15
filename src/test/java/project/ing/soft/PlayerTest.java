@@ -733,12 +733,12 @@ public class PlayerTest {
         Assert.assertEquals(testPlayerWithWhitePatternCardNoMove.getEmptyCells() ,
                 testPlayerWithWhitePatternCardNoMove.getPattern().getHeight()*testPlayerWithWhitePatternCardNoMove.getPattern().getWidth());
         Player result = tryToCompleteTheWindow(testPlayer, 0,0);
-        Assert.assertEquals(result.getEmptyCells(), 0) ;
+        Assert.assertEquals(0,result.getEmptyCells()) ;
     }
 
     //region serialization
     public void testSerialization(){
-
+        //TODO add test about serialization
     }
 
     //endregion

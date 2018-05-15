@@ -59,7 +59,7 @@ public class LaunchServer extends Thread{
             //reference for operators in scripting
             //http://mywiki.wooledge.org/BashGuide/TestsAndConditionals
             ProcessBuilder pb = new ProcessBuilder("cmd.exe", "/C "+cmdForStartingRegistry);
-            //we set directory strating point
+            //we set directory starting point
             File classesDir = new File(classesRootpath);
             pb.directory(classesDir);
             //se a log for output
@@ -83,13 +83,13 @@ public class LaunchServer extends Thread{
                 }
             }
 
-            while(true) {
+            while(!Thread.currentThread().isInterrupted()) {
 
                 // TODO: syncronize this and socket listener on hostedGames
                 if(exportedControllers.size()!=hostedGames.size()) {
                     ArrayList<Controller> toAdd = new ArrayList<>(hostedGames);
                     toAdd.removeAll(exportedControllers);
-                    int players = 2;
+
                     toAdd.forEach(game -> {
                         try {
                             registry.rebind("controller" + exportedControllers.size() + 1, game);
@@ -102,7 +102,7 @@ public class LaunchServer extends Thread{
                 }
 
                 ArrayList<IController> gamesThatNeedParticipants = hostedGames.stream()
-                        .filter(aController -> !aController.getIsStarted())
+                        .filter (Controller::notAlreadyStarted )
                         .collect(Collectors.toCollection(ArrayList::new));
                 Controller selectedGame;
 
@@ -142,7 +142,7 @@ public class LaunchServer extends Thread{
             System.out.println("If you want to shutdown the server enter q");
         }while(!input.next().startsWith("q") );
 
-        //socketConnectionListener.interrupt();
+        socketConnectionListener.interrupt();
         rmiConnectionListener.interrupt();
     }
 }

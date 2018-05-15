@@ -9,8 +9,8 @@ import java.rmi.RemoteException;
 
 public interface IView extends Remote{
     void update(Event event) throws IOException;
-    void attachController(IController gameController) throws RemoteException, Exception;
-    void run() throws Exception;
+    void attachController(IController gameController) throws IOException;
+    void run() throws IOException;
 
 
 }

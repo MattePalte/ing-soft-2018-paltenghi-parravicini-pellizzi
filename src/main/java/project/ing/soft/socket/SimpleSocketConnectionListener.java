@@ -1,7 +1,6 @@
 package project.ing.soft.socket;
 
 
-import project.ing.soft.LaunchServer;
 import project.ing.soft.controller.Controller;
 
 import java.io.*;
@@ -17,10 +16,10 @@ import java.util.stream.Collectors;
 public class SimpleSocketConnectionListener extends Thread {
     private int     localPort;
     private PrintStream log;
-    private ArrayList<Controller> hostedGames;
+    private List<Controller> hostedGames;
     private ServerSocket aServerSocket;
 
-    public SimpleSocketConnectionListener(int localPort, ArrayList<Controller> hostedGames) {
+    public SimpleSocketConnectionListener(int localPort, List<Controller> hostedGames) {
         this.localPort    = localPort;
         this.log = new PrintStream(System.out);
         this.hostedGames = hostedGames;
@@ -46,7 +45,7 @@ public class SimpleSocketConnectionListener extends Thread {
 
                 //when connection is established a game is directly chosen from the list of available ones
                 ArrayList<Controller> gamesThatNeedParticipants = hostedGames.stream()
-                        .filter(aController -> !aController.getIsStarted())
+                        .filter (Controller::notAlreadyStarted)
                         .collect(Collectors.toCollection(ArrayList::new));
                 Controller selectedGame;
 
@@ -59,7 +58,7 @@ public class SimpleSocketConnectionListener extends Thread {
 
                 }
 
-                ViewProxy viewProxy = new ViewProxy(spilledSocket);
+                ViewProxyOverSocket viewProxy = new ViewProxyOverSocket(spilledSocket);
                 viewProxy.attachController(selectedGame);
                 ex.submit(viewProxy);
 
@@ -75,24 +74,23 @@ public class SimpleSocketConnectionListener extends Thread {
     @Override
     public void interrupt(){
         super.interrupt();
-        if(aServerSocket == null )
-            return;
-        if(aServerSocket.isClosed())
+        if(aServerSocket == null || aServerSocket.isClosed())
             return;
 
         try {
             aServerSocket.close();
         }catch (Exception ignored){
-
+            //This exception should be ignored during shutting down of the system.
         }
     }
 
 
 
 
-
+    //sample of usage of the class
+    //No more than an instance of this class should run in a server.
     public static void main(String[] args) {
-        ArrayList<Controller> hostedGames = new ArrayList();
+        ArrayList<Controller> hostedGames = new ArrayList<>();
 
         SimpleSocketConnectionListener serverThread = new SimpleSocketConnectionListener(3000, hostedGames);
         serverThread.start();

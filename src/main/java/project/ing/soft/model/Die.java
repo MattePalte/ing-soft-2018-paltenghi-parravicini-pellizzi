@@ -45,6 +45,7 @@ public class Die implements Serializable {
         return new Die(randGen.nextInt(FACES) + 1, this.colour);
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

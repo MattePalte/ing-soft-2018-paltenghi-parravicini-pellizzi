@@ -11,6 +11,7 @@ import project.ing.soft.model.cards.objectives.privates.PrivateObjective;
 import project.ing.soft.model.cards.WindowPatternCard;
 
 
+import project.ing.soft.model.gamemanager.events.MyTurnEndedEvent;
 import project.ing.soft.view.IView;
 
 import java.io.IOException;
@@ -323,14 +324,20 @@ public class Player implements Serializable{
         return ret;
     }
     public void endTurn() {
+
         hasPlacedADieInThisTurn = false;
+
     }
 
     //endregion
+    public void update(Event event) {
+        try {
+            if(myView != null)
+                myView.update(event);
+        }catch (IOException ex){
+            assert(false);
+        }
 
-
-    public void update(Event event) throws IOException {
-        myView.update(event);
     }
 
     //region object override

@@ -2,15 +2,15 @@ package project.ing.soft.socket.response;
 
 import project.ing.soft.model.Game;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class InformationResponse implements IResponse {
-    private ArrayList<Game> gamesAvailable;
-    public InformationResponse(ArrayList<Game> gamesAvailable){
+    private List<Game> gamesAvailable;
+    public InformationResponse(List<Game> gamesAvailable){
         this.gamesAvailable = gamesAvailable;
     }
 
-    public ArrayList<Game> getGamesAvailable() {
+    public List<Game> getGamesAvailable() {
         return gamesAvailable;
     }
 
@@ -20,7 +20,7 @@ public class InformationResponse implements IResponse {
     }
 
     @Override
-    public void accept(IResponseHandler handler) throws Exception {
+    public void accept(IResponseHandler handler) {
         handler.handle(this);
     }
 }

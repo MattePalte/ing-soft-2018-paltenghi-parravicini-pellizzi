@@ -5,6 +5,7 @@ import project.ing.soft.model.*;
 import project.ing.soft.model.cards.objectives.ObjectiveCard;
 import project.ing.soft.model.cards.objectives.privates.PrivateObjective;
 import project.ing.soft.model.cards.objectives.publics.PublicObjective;
+import project.ing.soft.model.cards.toolcards.DiluentePastaSalda;
 import project.ing.soft.model.cards.toolcards.ToolCard;
 import project.ing.soft.model.gamemanager.events.*;
 import project.ing.soft.exceptions.GameInvalidException;
@@ -19,9 +20,6 @@ import project.ing.soft.model.gamemanager.events.Event;
 import java.io.Serializable;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 
@@ -31,76 +29,39 @@ public class GameManagerMulti implements IGameManager, Serializable {
     private static final int ROUNDS_NUMBER = 3;
 
     private Game                currentGame ;
+    private GAME_MANAGER_STATUS status;
 
-    private ArrayList<Die>      diceBag;
-    private ArrayList<Die>      draftPool;
-    private RoundTracker        rounds;
+    private RoundTracker                rounds;
+    private ArrayList<Player>           currentTurnList;
+    private List<Pair<Player, Integer>> rank;
+
+    private ArrayList<Die>              diceBag;
+    private ArrayList<Die>              draftPool;
 
     private ArrayList<PublicObjective> publicObjectives;
 
     private ArrayList<ToolCard>         toolCards;
-    private ArrayList<Player>           currentTurnList;
+    private Map<String, Integer>        toolCardCost;
+
     private Map<String, Integer>        favours;
-    private List<Pair<Player, Integer>> rank;
-    private Map<String, Integer>      toolCardCost;
-    private transient Timer myTimer;
-    private transient static final long    TIMEOUT = 60000;
 
-    private static transient ExecutorService eventDispatcher = Executors.newCachedThreadPool();
-
-    private boolean isFinished;
-
-    private TimerTask getTimerTask(){
-        return new TimerTask(){
-            @Override
-            public void run(){
-                try {
-                    getCurrentPlayer().update(new MyTurnEndedEvent());
-                    endTurn();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(currentGame, diceBag, draftPool, rounds, publicObjectives, toolCards, currentTurnList, favours, rank, toolCardCost, isFinished);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GameManagerMulti that = (GameManagerMulti) o;
-        return isFinished == that.isFinished &&
-                currentGame.equals(that.currentGame) &&
-                Objects.equals(diceBag, that.diceBag) &&
-                Objects.equals(draftPool, that.draftPool) &&
-                Objects.equals(rounds, that.rounds) &&
-                Objects.equals(publicObjectives, that.publicObjectives) &&
-                Objects.equals(toolCards, that.toolCards) &&
-                Objects.equals(currentTurnList, that.currentTurnList) &&
-                Objects.equals(favours, that.favours) &&
-                Objects.equals(rank, that.rank) &&
-                Objects.equals(toolCardCost, that.toolCardCost);
-    }
-
-
+    //Constructor
     //@Signals Exception aGame.isValid() || aGame.numOfPlayers() <= 1 or aGame.numOfPlayers()> 4
     public GameManagerMulti(Game aGame,
                             List<PublicObjective> availablePublicObjectives,
                             List<PrivateObjective> availablePrivateObjectives,
                             List<ToolCard> availableToolCards,
-                            List<WindowPatternCard> availableWindowPatternCards) throws GameInvalidException {
+                            List<WindowPatternCard> availableWindowPatternCards,
+                            List<Die> dice
+    ) throws GameInvalidException {
 
 
-        isFinished = false;
+
         if (!aGame.isValid() || aGame.getNumberOfPlayers() <= 1  || aGame.getNumberOfPlayers() > 4  ) {
+            status = GAME_MANAGER_STATUS.ENDED;
             throw new GameInvalidException("Game is not valid!");
         }
+        status = GAME_MANAGER_STATUS.WAITING_FOR_PATTERNCARD;
 
         currentGame = new Game(aGame);
         // initialize empty draft pool
@@ -108,7 +69,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
         // initialize Round Tracker obj
         rounds = new RoundTracker();
         // create dies and populate Die Bag
-        diceBag = createDice();
+        diceBag = new ArrayList<>(dice);
         //initialize hashMap favours
         favours = new HashMap<>();
         //initialize hashMap rank
@@ -153,7 +114,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
             p.givePossiblePatternCard(new ArrayList<>(selectedPatternCards));
         }
     }
-
+    //Copy constructor
     private GameManagerMulti(GameManagerMulti gameManagerMulti){
         this.currentGame        = new Game(gameManagerMulti.currentGame);
         this.diceBag            = new ArrayList<> (gameManagerMulti.diceBag);
@@ -165,58 +126,24 @@ public class GameManagerMulti implements IGameManager, Serializable {
         for(Player p : gameManagerMulti.currentTurnList){
             this.currentTurnList.add(new Player(p));
         }
-
         this.rank               = new ArrayList<> (gameManagerMulti.rank);
         this.toolCardCost       = new HashMap<>   (gameManagerMulti.toolCardCost);
         this.favours            = new HashMap<>   (gameManagerMulti.favours);
-        this.isFinished         = gameManagerMulti.isFinished;
+        this.status             = gameManagerMulti.status;
     }
-
-    @Override
-    public void removeFromDraft(Die aDie) {
-        draftPool.remove(aDie);
-    }
-
-    @Override
-    public void addToDraft(Die aDie) {
-        draftPool.add(new Die(aDie));
-    }
-
-
 
     @Override
     public Game getGameInfo()       {
         return new Game(currentGame);
     }
     @Override
-    public boolean isFinished() {
-        return this.isFinished;
+    public GAME_MANAGER_STATUS getStatus() {
+        return status;
     }
     @Override
-    public List<Die> getDraftPool() {
-        return new ArrayList<>(draftPool);
-    }
-    @Override
-    public List<PublicObjective> getPublicObjective() {
-        return new ArrayList<>(publicObjectives);
-    }
-    @Override
-    public List<ToolCard> getToolCards()     {
-        return new ArrayList<>(toolCards);
-    }
-
-    @Override
-    public List<Card> getPublicCards() {
-        ArrayList<Card> ret = new ArrayList<>();
-        ret.addAll(publicObjectives);
-        ret.addAll(toolCards);
-        return ret;
-    }
-
     public List<Player> getCurrentTurnList(){
         return new ArrayList<>(currentTurnList);
     }
-
     @Override
     public List<Player> getPlayerList() {
         return currentGame.getPlayers().stream().sorted((p1,p2) -> p1.getName().compareTo(p2.getName())).collect(Collectors.toCollection(ArrayList :: new));
@@ -225,21 +152,33 @@ public class GameManagerMulti implements IGameManager, Serializable {
     public Player getCurrentPlayer() {
         return currentTurnList.get(0);
     }
+    @Override
+    public List<Die> getDraftPool() {
+        return new ArrayList<>(draftPool);
+    }
+    @Override
+    public void addToDraft(Die aDie) {
+        draftPool.add(new Die(aDie));
+    }
+    @Override
+    public void removeFromDraft(Die aDie) {
+        draftPool.remove(aDie);
+    }
 
     @Override
-    public void start() throws GameInvalidException {
-        // Starting timer for the first player of the game
-        drawDice();
-
-        for(Player p : getPlayerList()){
-            if(p.equals(getCurrentPlayer()))
-                deliverEvent(p, new FinishedSetupEvent(), new ModelChangedEvent(new GameManagerMulti(this)), new MyTurnStartedEvent());
-            else
-                deliverEvent(p, new FinishedSetupEvent(), new ModelChangedEvent(new GameManagerMulti(this)));
-        }
-
-        myTimer = new Timer();
-        myTimer.schedule(getTimerTask(), TIMEOUT);
+    public List<PublicObjective> getPublicObjective() {
+        return new ArrayList<>(publicObjectives);
+    }
+    @Override
+    public List<ToolCard> getToolCards()     {
+        return new ArrayList<>(toolCards);
+    }
+    @Override
+    public List<Card> getPublicCards() {
+        ArrayList<Card> ret = new ArrayList<>();
+        ret.addAll(publicObjectives);
+        ret.addAll(toolCards);
+        return ret;
     }
 
     @Override
@@ -247,7 +186,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
         //distribute event for selecting a WindowPatternCard
         for(Player p : getPlayerList()) {
             deliverEvent(p, new ModelChangedEvent(new GameManagerMulti(this)),
-                            new PatternCardDistributedEvent(p.getPrivateObjective(), p.getPossiblePatternCard().get(0), p.getPossiblePatternCard().get(1)));
+                    new PatternCardDistributedEvent(p.getPrivateObjective(), p.getPossiblePatternCard().get(0), p.getPossiblePatternCard().get(1)));
 
         }
     }
@@ -266,7 +205,11 @@ public class GameManagerMulti implements IGameManager, Serializable {
             if (p.getPatternCard() == null) return;
         }
         // if all have chosen their card start the match
-        start();
+        status = GAME_MANAGER_STATUS.ONGOING;
+
+        drawDice();
+        broadcastEvents(new FinishedSetupEvent(), new ModelChangedEvent(new GameManagerMulti(this)));
+        getCurrentPlayer().update(new MyTurnStartedEvent());
     }
 
     @Override
@@ -303,28 +246,21 @@ public class GameManagerMulti implements IGameManager, Serializable {
     @Override
     public void requestUpdate() {
 
-        broadcastEvent( new ModelChangedEvent( new GameManagerMulti(this)));
+        broadcastEvents( new ModelChangedEvent( new GameManagerMulti(this)));
 
     }
 
-    private List<Future> broadcastEvent(Event ... events){
-        ArrayList<Future>  ops = new ArrayList<>();
-
+    private void broadcastEvents(Event ... events){
         for (Player subscriber : currentGame.getPlayers()) {
-           ops.add(deliverEvent(subscriber, events));
+           deliverEvent(subscriber, events);
         }
 
-        return ops;
     }
 
-    private Future deliverEvent(Player p, Event ...events ){
-
-        return eventDispatcher.submit( ()-> {
-            for(Event event: events)
+    private void deliverEvent(Player p, Event ...events ){
+            for(Event event: events) {
                 p.update(event);
-
-            return true;
-        });
+            }
     }
 
 
@@ -333,6 +269,15 @@ public class GameManagerMulti implements IGameManager, Serializable {
         return rank.get(0).getKey();
     }
 
+    @Override
+    public void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception {
+
+        getCurrentPlayer().placeDie(aDie,rowIndex,colIndex, true);
+        draftPool.remove(aDie);
+
+        deliverEvent(getCurrentPlayer(), new ModelChangedEvent(new GameManagerMulti(this)), new MyTurnStartedEvent());
+
+    }
     @Override
     public void playToolCard(ToolCard aToolCard) throws Exception {
         //Because apply effect embed some test of the fields passed with the toolcard itself
@@ -348,33 +293,27 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
         getCurrentPlayer().update(new ModelChangedEvent(new GameManagerMulti(this)));
 
-        if(!aToolCard.getTitle().equals("Diluente per pasta salda")) {
+        if(!(aToolCard instanceof DiluentePastaSalda) ){
             getCurrentPlayer().update(new MyTurnStartedEvent());
         }
-    }
-
-    @Override
-    public void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception {
-
-        getCurrentPlayer().placeDie(aDie,rowIndex,colIndex, true);
-        draftPool.remove(aDie);
-
-        deliverEvent(getCurrentPlayer(), new ModelChangedEvent(new GameManagerMulti(this)), new MyTurnStartedEvent());
 
     }
 
-
     @Override
-    public void endTurn() throws GameInvalidException {
-        if (isFinished) return;
+    public void endTurn(boolean timeoutOccurred) throws GameInvalidException {
+        if (status == GAME_MANAGER_STATUS.ENDED) return;
 
+        Player current = getCurrentPlayer();
+        if(timeoutOccurred)
+            current.update(new MyTurnEndedEvent());
+        current.endTurn();
         currentTurnList.remove(0);
 
         if(currentTurnList.isEmpty() && rounds.getCurrentRound() == ROUNDS_NUMBER) {
 
-            isFinished = true;
+            status = GAME_MANAGER_STATUS.ENDED;
             countPlayersPoints();
-            broadcastEvent(new GameFinishedEvent(new ArrayList<>(rank)));
+            broadcastEvents(new GameFinishedEvent(new ArrayList<>(rank)));
             return;
         }else if(currentTurnList.isEmpty()){
             System.out.println("End of round " + rounds.getCurrentRound());
@@ -388,23 +327,10 @@ public class GameManagerMulti implements IGameManager, Serializable {
             drawDice();
         }
 
-        getCurrentPlayer().endTurn();
 
-        for(Player p : getPlayerList()){
-            if(p.equals(getCurrentPlayer()))
-                deliverEvent(p, new ModelChangedEvent(new GameManagerMulti(this)), new MyTurnStartedEvent());
-            else
-                deliverEvent(p, new ModelChangedEvent(new GameManagerMulti(this)));
-        }
-
-        try {
-            myTimer.cancel();
-            myTimer = new Timer();
-        } catch (Exception e) {
-            // no timer to cancel
-        }
-        myTimer.schedule(getTimerTask(), TIMEOUT);
-
+        Player next = getCurrentPlayer();
+        broadcastEvents(new ModelChangedEvent(new GameManagerMulti(this)));
+        next.update(new MyTurnStartedEvent());
     }
     @Override
     public Map<String, Integer> getFavours(){
@@ -468,26 +394,10 @@ public class GameManagerMulti implements IGameManager, Serializable {
         if(!draftPool.isEmpty())
             throw new GameInvalidException("Panic");
 
-        draftPool = new ArrayList<> (diceBag.subList(0, (2 * currentGame.getNumberOfPlayers()) + 1));
+        draftPool = (diceBag.subList(0, (2 * currentGame.getNumberOfPlayers()) + 1)).stream().map(Die::rollDie).collect(Collectors.toCollection(ArrayList::new));
+
         diceBag = new ArrayList<> (diceBag.subList((2*currentGame.getNumberOfPlayers()) +1, diceBag.size()));
 
     }
-
-    private ArrayList<Die> createDice() {
-        ArrayList tmp = new ArrayList<Die>();
-
-        for (Colour c : Colour.validColours()) {
-            //because aDie it's an immutable class.
-            Die aDie = new Die( c);
-            for(int i = 0; i < 18; i++){
-                tmp.add(aDie.rollDie());
-            }
-        }
-        return tmp;
-    }
-
-
-
-
 
 }

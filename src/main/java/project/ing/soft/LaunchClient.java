@@ -1,23 +1,25 @@
 package project.ing.soft;
 
 import project.ing.soft.controller.IController;
-import project.ing.soft.socket.ControllerProxy;
+
+import project.ing.soft.socket.ControllerProxyOverSocket;
 import project.ing.soft.view.IView;
 import project.ing.soft.view.LocalViewCli;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
 
 import static java.lang.Thread.sleep;
 
 public class LaunchClient {
+
+    private static final String DEFAULT_IP = "127.0.0.1";
+
     public static void main(String[] args) throws Exception {
 
         //args[0] should be the ip address of the machine running the registry
-        Registry registry = LocateRegistry.getRegistry( args.length > 0 ? args[0] : "127.0.0.1");
+        Registry registry = LocateRegistry.getRegistry( args.length > 0 ? args[0] : DEFAULT_IP);
 
         // default configuration for sockets
         String host = "localhost";
@@ -48,7 +50,7 @@ public class LaunchClient {
                 break;
             case "1":
                 try {
-                    ControllerProxy controllerProxy = new ControllerProxy(host, port);
+                    ControllerProxyOverSocket controllerProxy = new ControllerProxyOverSocket(host, port);
                     controllerProxy.start();
                     // from now on we will use the controllerProxy as a real IController
                     controller = (IController) controllerProxy;

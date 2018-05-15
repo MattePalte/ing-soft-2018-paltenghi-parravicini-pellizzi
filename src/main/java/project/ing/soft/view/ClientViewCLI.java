@@ -80,7 +80,7 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
     }
 
     private boolean gameOngoing(){
-        return (localCopyOfTheStatus == null || !localCopyOfTheStatus.isFinished());
+        return (localCopyOfTheStatus == null || localCopyOfTheStatus.getStatus() == IGameManager.GAME_MANAGER_STATUS.ONGOING);
     }
 
     @Override
@@ -352,7 +352,7 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
     }
 
     @Override
-    public void run() throws Exception {
+    public void run() {
         this.attachController(controller);
 
         out.println(ownerNameOfTheView + " started ");
