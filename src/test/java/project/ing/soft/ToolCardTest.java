@@ -143,18 +143,18 @@ public class ToolCardTest {
 
         // When playerStub.moveDice is called, move the dice in placedDiceStub
         try {
-            doAnswer((invocation) -> {
-                LinkedList<Die> queue = new LinkedList<>();
-                for(Coordinate position : (List<Coordinate>)invocation.getArgument(0)){
-                    queue.add(placedDiceStub[position.getRow()][position.getCol()]);
-                    placedDiceStub[position.getRow()][position.getCol()] = null;
-                }
-                for(Coordinate finalPos : (List<Coordinate>)invocation.getArgument(1)){
-                    placedDiceStub[finalPos.getRow()][finalPos.getCol()] = queue.remove(0);
-                }
-                return true;
-            }).when(playerStub).moveDice(any(List.class), any(List.class), any(boolean.class), any(boolean.class), any(boolean.class));
-        } catch (RuleViolatedException | PatternConstraintViolatedException e) {
+                doAnswer((invocation) -> {
+                    LinkedList<Die> queue = new LinkedList<>();
+                    for(Coordinate position : (List<Coordinate>)invocation.getArgument(0)){
+                        queue.add(placedDiceStub[position.getRow()][position.getCol()]);
+                        placedDiceStub[position.getRow()][position.getCol()] = null;
+                    }
+                    for(Coordinate finalPos : (List<Coordinate>)invocation.getArgument(1)){
+                        placedDiceStub[finalPos.getRow()][finalPos.getCol()] = queue.remove(0);
+                    }
+                    return true;
+                }).when(playerStub).moveDice(any(List.class), any(List.class), any(boolean.class), any(boolean.class), any(boolean.class));
+        } catch (RuleViolatedException | PatternConstraintViolatedException | PositionOccupiedException e) {
             e.printStackTrace();
         }
     }
