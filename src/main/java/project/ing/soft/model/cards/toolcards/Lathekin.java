@@ -52,10 +52,10 @@ public class Lathekin extends ToolCard {
     @Override
     public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
         //check parameters integrity, otherwise send MalformedToolCardException
-        validateCoordinate(firstDieStartPosition, p.getPattern().getHeight(), p.getPattern().getHeight());
-        validateCoordinate(firstDieEndPosition, p.getPattern().getHeight(), p.getPattern().getHeight());
-        validateCoordinate(secondDieStartPosition, p.getPattern().getHeight(), p.getPattern().getHeight());
-        validateCoordinate(secondDieEndPosition, p.getPattern().getHeight(), p.getPattern().getHeight());
+        validateCoordinate(firstDieStartPosition, p.getPattern().getHeight(), p.getPattern().getWidth());
+        validateCoordinate(firstDieEndPosition, p.getPattern().getHeight(), p.getPattern().getWidth());
+        validateCoordinate(secondDieStartPosition, p.getPattern().getHeight(), p.getPattern().getWidth());
+        validateCoordinate(secondDieEndPosition, p.getPattern().getHeight(), p.getPattern().getWidth());
     }
 
     @Override

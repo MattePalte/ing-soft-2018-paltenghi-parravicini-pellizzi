@@ -37,8 +37,8 @@ public class PennelloPerEglomise extends ToolCard {
     @Override
     public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
         //check parameters integrity, otherwise send MalformedToolCardException
-        validateCoordinate(startPosition, p.getPattern().getHeight(), p.getPattern().getHeight());
-        validateCoordinate(endPosition, p.getPattern().getHeight(), p.getPattern().getHeight());
+        validateCoordinate(startPosition, p.getPattern().getHeight(), p.getPattern().getWidth());
+        validateCoordinate(endPosition, p.getPattern().getHeight(), p.getPattern().getWidth());
     }
 
     @Override

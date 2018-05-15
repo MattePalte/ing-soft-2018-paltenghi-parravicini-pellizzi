@@ -37,6 +37,7 @@ public class DiluentePastaSalda extends ToolCard {
         Die toBePlaced = m.drawFromDicebag().rollDie();
         m.addToDraft(toBePlaced);
         ArrayList<Coordinate> compatiblePositions = new ArrayList<>(p.getCompatiblePositions(toBePlaced));
+        // TODO: mandare un modelchanged event
         if(!compatiblePositions.isEmpty()){
             p.update(new PlaceThisDieEvent(toBePlaced, compatiblePositions, true));
         }

@@ -197,7 +197,7 @@ public class Player implements Serializable{
 
 
         for (int i = 0; i < Math.min(start.size(), end.size()); i++) {
-            Die aDie = removeDie(start.get(i));
+            Die aDie = copyTest.removeDie(start.get(i));
             if (aDie == null)
                 throw new RuleViolatedException("There's no die to move at the specified cell");
             queue.add(aDie);
@@ -205,10 +205,10 @@ public class Player implements Serializable{
 
         for (int i = 0; i < queue.size(); i++) {
 
-            if (getPlacedDice(end.get(i)) != null)
+            if (copyTest.getPlacedDice(end.get(i)) != null)
                 throw new RuleViolatedException("The destination cell is already occupied");
-            checkPlaceDie(queue.get(i),end.get(i), checkColour, checkValue, checkPresence);
-            placedDice[end.get(i).getRow()][end.get(i).getCol()] = queue.get(i);
+            copyTest.checkPlaceDie(queue.get(i),end.get(i), checkColour, checkValue, checkPresence);
+            copyTest.placedDice[end.get(i).getRow()][end.get(i).getCol()] = queue.get(i);
         }
 
         this.saveMemento(copyTest);
@@ -262,6 +262,7 @@ public class Player implements Serializable{
 
         if(checkPresence && !isThereAnAdjacentDie(row, col)){
             throw new RuleViolatedException("Die must be placed near an already placed die!");
+        // TODO: if checkPresence is false we must check that there is not any die around the chosen position, otherwise throw exception
         }
     }
 

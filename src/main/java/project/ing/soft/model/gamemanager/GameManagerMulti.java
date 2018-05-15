@@ -428,8 +428,8 @@ public class GameManagerMulti implements IGameManager, Serializable {
     }
 
     @Override
-    public void swapWithRoundTracker(Die toRemove, Die toAdd) {
-        rounds.swapDie(toRemove, toAdd);
+    public void swapWithRoundTracker(Die toAdd, Die toRemove) {
+        rounds.swapDie(toAdd, toRemove);
     }
 
     @Override

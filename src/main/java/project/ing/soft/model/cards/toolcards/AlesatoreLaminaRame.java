@@ -32,14 +32,14 @@ public class AlesatoreLaminaRame extends ToolCard {
     @Override
     public void applyEffect(Player p, IGameManager m) throws Exception {
         checkParameters(p,m);
-        p.moveDice(List.of(startPosition), List.of(endPosition), true, true, true);
+        p.moveDice(List.of(startPosition), List.of(endPosition), true, false, true);
     }
 
     @Override
     public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
         //check parameters integrity, otherwise send MalformedToolCardException
-        validateCoordinate(startPosition, p.getPattern().getHeight(), p.getPattern().getHeight());
-        validateCoordinate(endPosition, p.getPattern().getHeight(), p.getPattern().getHeight());
+        validateCoordinate(startPosition, p.getPattern().getHeight(), p.getPattern().getWidth());
+        validateCoordinate(endPosition, p.getPattern().getHeight(), p.getPattern().getWidth());
     }
 
     @Override
