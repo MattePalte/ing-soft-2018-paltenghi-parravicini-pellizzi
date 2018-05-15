@@ -21,7 +21,7 @@ public class ExceptionalResponse implements IResponse{
 
 
     @Override
-    public void accept(IResponseHandler handler) throws Exception {
+    public void accept(IResponseHandler handler)  {
         handler.handle(this);
     }
 }

@@ -1,17 +1,19 @@
 package project.ing.soft.socket.response;
 
+import java.io.IOException;
+
 public interface IResponseHandler {
-    void visit(IResponse aResponse) throws Exception;
+    void visit(IResponse aResponse) ;
 
-    void handle(InformationResponse aResponse) throws Exception;
+    void handle(InformationResponse aResponse) ;
 
-    void handle(CreationGameResponse aResponse) throws Exception;
+    void handle(CreationGameResponse aResponse) ;
 
-    void handle(ExceptionalResponse aResponse) throws Exception;
+    void handle(ExceptionalResponse aResponse) ;
 
-    void handle(AllRightResponse aResponse) throws Exception;
+    void handle(AllRightResponse aResponse) ;
 
-    void handle(EventResponse aResponse) throws Exception;
+    void handle(EventResponse aResponse);
 
 
 

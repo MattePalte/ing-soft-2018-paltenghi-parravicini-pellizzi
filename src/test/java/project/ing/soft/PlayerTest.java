@@ -2,6 +2,7 @@ package project.ing.soft;
 
 
 import project.ing.soft.model.Colour;
+import project.ing.soft.model.Coordinate;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Player;
 import project.ing.soft.model.cards.WindowPatternCard;
@@ -28,11 +29,11 @@ public class PlayerTest {
         // set private objective
         testPlayer.setPrivateObjective(new SfumatureBlu());
         // set WindowPatternCard from file
-        File file = new File("src/main/patterns.txt");
+        File file = new File("src/main/resources/patterns.txt");
         Scanner input = null;
         try {
             input = new Scanner(file);
-            WindowPatternCard window = WindowPatternCard.loadFromScanner(input);
+            WindowPatternCard window = WindowPatternCard.loadAPatternCardFromScanner(input);
             Assert.assertEquals("Kaleidoscopic Dream", window.getFrontPattern().getTitle());
             testPlayer.setPatternCard(window);
         } catch (Exception e) {
@@ -46,10 +47,10 @@ public class PlayerTest {
         // set private objective
         testPlayerWithWhitePatternCardNoMove.setPrivateObjective(new SfumatureBlu());
         // set WindowPatternCard from file
-        file = new File("src/main/empty_pattern.txt");
+        file = new File("src/main/resources/empty_pattern.txt");
         try {
             input = new Scanner(file);
-            WindowPatternCard window = WindowPatternCard.loadFromScanner(input);
+            WindowPatternCard window = WindowPatternCard.loadAPatternCardFromScanner(input);
 
             testPlayerWithWhitePatternCardNoMove.setPatternCard(window);
         } catch (Exception e) {
@@ -60,6 +61,21 @@ public class PlayerTest {
         }
     }
 
+    //test every set_enable method
+    @Test
+    public void testMemento() throws PositionOccupiedException, RuleViolatedException, PatternConstraintViolatedException {
+
+       Player memento = testPlayerWithWhitePatternCardNoMove.getMemento();
+
+            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(1, Colour.BLUE), 0, 0, true);
+            testPlayerWithWhitePatternCardNoMove.moveDice(List.of(new Coordinate(0,0)),List.of(new Coordinate(1,0)) , false, false, false);
+            testPlayerWithWhitePatternCardNoMove.endTurn();
+            Assert.assertNotEquals(testPlayerWithWhitePatternCardNoMove,memento);
+            testPlayerWithWhitePatternCardNoMove.saveMemento(memento);
+            Assert.assertEquals( testPlayerWithWhitePatternCardNoMove, memento);
+
+
+    }
 
     @Test
     public void testTotring(){
@@ -90,6 +106,25 @@ public class PlayerTest {
             System.out.println(p );
         } catch (Exception e) {
            Assert.fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testPlacementOnTheSamePositionException() {
+        try {
+
+            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(2, Colour.BLUE), 3, 4, true);
+        }catch (Exception ex){
+            Assert.fail();
+        }
+        testPlayerWithWhitePatternCardNoMove.endTurn();
+        try {
+            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(4, Colour.VIOLET), 3, 4, true);
+            Assert.fail();
+        }catch (PositionOccupiedException ignored){
+
+        }catch (Exception ex){
+            Assert.fail();
         }
     }
 
@@ -349,6 +384,54 @@ public class PlayerTest {
 
     }
 
+    @Test
+    //This test tries with a recursive fashion to complete the windowPattern
+    //since the dice are build up from scratch considering constraints limitation the placeDieMethod do not raise a PatternConstraintsViolatedException
+    public void tryToCompleteTheWindowRandomly(){
+
+
+            System.out.println(testPlayerWithWhitePatternCardNoMove);
+            Player res = tryToCompleteTheWindowRandomlyPlaying(testPlayerWithWhitePatternCardNoMove);
+            if(res != null) {
+                System.out.println("Schema completed:" + res);
+            }else
+                Assert.fail("no solution was find to this pattern"+testPlayerWithWhitePatternCardNoMove);
+
+
+
+    }
+
+    private Player tryToCompleteTheWindowRandomlyPlaying(Player p) {
+        Player localPlayer ;
+        Player result = null;
+
+        if(p.getEmptyCells() == 0) {
+            return p;
+        }else{
+
+            List<Die> dice = buildAllDice();
+            Collections.shuffle(dice);
+            for (Die aDie : dice) {
+                for (Coordinate c : p.getCompatiblePositions(aDie)) {
+                    System.out.println(p);
+                    System.out.println("Trying with "+aDie +" in position "+ c);
+                    localPlayer = new Player(p);
+                    try {
+                        localPlayer.placeDie(aDie, c.getRow(), c.getCol(), true);
+                    } catch (Exception ex) {
+                        Assert.fail();
+                    }
+                    localPlayer.endTurn();
+                    result = tryToCompleteTheWindowRandomlyPlaying(localPlayer);
+                    if (result != null)
+                        return result;
+                }
+            }
+            return null;
+        }
+    }
+
+
     private ArrayList<Die> buildDiceAccordingTo(Constraint aConstraint){
         ArrayList<Die> ret = new ArrayList<>();
         for(Colour aColour : Colour.validColours()){
@@ -388,7 +471,7 @@ public class PlayerTest {
         return ret;
     }
 
-    private ArrayList<Die> allDice(){
+    private ArrayList<Die> buildAllDice(){
         ArrayList<Die> ret = new ArrayList<>();
         for(Colour aColour : Colour.validColours()){
             for (int i = 1; i <= 6 ; i++) {
@@ -399,13 +482,13 @@ public class PlayerTest {
     }
 
     private ArrayList<Die> buildDiceDisappointing(Die aDie){
-        ArrayList<Die> ret = allDice();
+        ArrayList<Die> ret = buildAllDice();
         ret.removeAll(buildDiceAccordingTo(aDie));
         return ret;
     }
 
     private ArrayList<Die> buildDiceDisappointing(Constraint aContraint){
-        ArrayList<Die> ret = allDice();
+        ArrayList<Die> ret = buildAllDice();
         ret.removeAll(buildDiceAccordingTo(aContraint));
         return ret;
     }
@@ -590,7 +673,6 @@ public class PlayerTest {
     @Test
     // check adjacent placing
     public void testDieCornerToCorner(){
-        Player p = new Player(testPlayerWithWhitePatternCardNoMove);
 
         try {
             testPlayerWithWhitePatternCardNoMove.placeDie(new Die(3, Colour.YELLOW), 3,3, true);
@@ -606,9 +688,57 @@ public class PlayerTest {
 
     }
 
+    @Test
+    public void testMovementSwapping(){
+        try {
+            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(2, Colour.VIOLET), 0, 0, true);
+            testPlayerWithWhitePatternCardNoMove.endTurn();
+            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(4, Colour.RED), 0, 1, true);
+            testPlayerWithWhitePatternCardNoMove.moveDice(List.of(new Coordinate(0,0), new Coordinate(0,1)),
+                                                            List.of(new Coordinate(1,0), new Coordinate(0,0)), true, true, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testMovementExceptionWhenOccupied(){
+        try {
+            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(2, Colour.VIOLET), 2, 0, true);
+            testPlayerWithWhitePatternCardNoMove.endTurn();
+            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(4, Colour.RED), 3, 1, true);
+            testPlayerWithWhitePatternCardNoMove.moveDice(List.of(new Coordinate(2,0)),
+                    List.of( new Coordinate(3,1)), true, true, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testMovementExceptionWhenDieIsNull(){
+        try {
+            testPlayerWithWhitePatternCardNoMove.moveDice(List.of(new Coordinate(0,0)), List.of(new Coordinate(3,4)),true, true, true);
+        } catch (RuleViolatedException ignored) {
+
+        } catch (Exception e) {
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void testGetEmptyCells(){
+        Assert.assertEquals(testPlayer.getEmptyCells() ,
+                testPlayer.getPattern().getHeight()*testPlayer.getPattern().getWidth());
+
+        Assert.assertEquals(testPlayerWithWhitePatternCardNoMove.getEmptyCells() ,
+                testPlayerWithWhitePatternCardNoMove.getPattern().getHeight()*testPlayerWithWhitePatternCardNoMove.getPattern().getWidth());
+        Player result = tryToCompleteTheWindow(testPlayer, 0,0);
+        Assert.assertEquals(0,result.getEmptyCells()) ;
+    }
+
     //region serialization
     public void testSerialization(){
-
+        //TODO add test about serialization
     }
 
     //endregion

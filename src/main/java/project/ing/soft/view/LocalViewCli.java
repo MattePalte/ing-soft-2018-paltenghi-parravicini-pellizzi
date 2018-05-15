@@ -239,7 +239,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     }
 
     @Override
-    public void run() throws Exception {
+    public void run() {
         out.println(ownerNameOfTheView + " started ");
         out.println("Waiting for enought players to start the match...");
     }

@@ -60,18 +60,9 @@ public class Constraint implements Serializable {
     public String getImgPath(){
         if(getColour() != Colour.WHITE || getValue() == 0)
             return "";
-        String path = String.format("windowpattern/dice/constraint/%d.jpg", getValue());
+        String path = String.format("windowPattern/dice/constraint/%d.jpg", getValue());
         URL urlResource =  this.getClass().getClassLoader().getResource(path);
         return urlResource.toString();
-    }
-
-    public String getXLMescapeEncoding(){
-        String encoding;
-        if(this.value == 0)
-            encoding = " ";
-        else
-            encoding = new String(Character.toChars(9855 + value));
-        return encoding;
     }
 
     public static Constraint fromEncoding(String rep) throws Colour.ColorNotFoundException {

@@ -1,12 +1,11 @@
 package project.ing.soft.model.cards.toolcards;
 
 
+import project.ing.soft.exceptions.*;
 import project.ing.soft.model.Coordinate;
-import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Player;
-import project.ing.soft.exceptions.MalformedToolCardException;
 
 import java.util.List;
 
@@ -30,9 +29,14 @@ public class AlesatoreLaminaRame extends ToolCard {
     }
 
     @Override
-    public void applyEffect(Player p, IGameManager m) throws Exception {
-        checkParameters(p,m);
-        p.moveDice(List.of(startPosition), List.of(endPosition), true, false, true);
+    public void applyEffect(Player p, IGameManager m) throws ToolCardApplicationException {
+        try {
+            checkParameters(p, m);
+            //TODO: doesn't have to check value, does it?
+            p.moveDice(List.of(startPosition), List.of(endPosition), true, true, true);
+        }catch(Exception e){
+            throw new ToolCardApplicationException(e);
+        }
     }
 
     @Override

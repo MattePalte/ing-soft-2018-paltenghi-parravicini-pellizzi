@@ -10,7 +10,8 @@ import java.io.*;
 import java.net.Socket;
 
 
-public class ViewProxy implements IView,IRequestHandler, Runnable {
+
+public class ViewProxyOverSocket implements IView,IRequestHandler, Runnable {
     private IController controller;
     private Socket aSocket;
 
@@ -19,7 +20,7 @@ public class ViewProxy implements IView,IRequestHandler, Runnable {
     private PrintStream log;
 
 
-    public ViewProxy(Socket aSocket) throws IOException {
+    public ViewProxyOverSocket(Socket aSocket) throws IOException {
         this.aSocket = aSocket;
         this.toClient   = new ObjectOutputStream(aSocket.getOutputStream());
         this.toClient.flush();
@@ -40,7 +41,7 @@ public class ViewProxy implements IView,IRequestHandler, Runnable {
 
             }
         }catch (EOFException ignored){
-            log.println("EOFException occured");
+            log.println("EOFException occurred");
         }catch (ClassNotFoundException ex) {
             log.println( "A class wasn't found "+ ex );
         } catch (Exception ex){
@@ -53,31 +54,31 @@ public class ViewProxy implements IView,IRequestHandler, Runnable {
 
 
     public void interrupt() {
-        //super.interrupt();
+        //super.interrupt()
 
         try {
             if(fromClient != null)
                 fromClient.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace(log);
         }
 
         try {
             if(toClient != null)
                 toClient.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace(log);
         }
 
         try {
             if(aSocket != null)
                 aSocket.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace(log);
         }
     }
 
-    //region handle request. pass request to the real controller
+    //region handle request. Pass request to the real controller
     @Override
     public void visit(AbstractRequest aRequest) throws Exception {
         log.println("Request received"+aRequest.getClass());
@@ -117,7 +118,6 @@ public class ViewProxy implements IView,IRequestHandler, Runnable {
 
     @Override
     public void handle(EndTurnRequest aRequest) throws Exception {
-
         this.controller.endTurn(aRequest.getNickname());
     }
 
@@ -136,19 +136,20 @@ public class ViewProxy implements IView,IRequestHandler, Runnable {
     //endregion
 
     //region IView
-    private void send(IResponse aResponse) throws Exception {
+    @Override
+    public void attachController(IController gameController) {
+        this.controller = gameController;
+    }
+
+    @Override
+    public void update(Event event) throws IOException {
+       send(new EventResponse(event));
+    }
+
+    private void send(IResponse aResponse) throws IOException {
         log.println("Forwarding a response "+ aResponse.getClass());
         toClient.writeObject(aResponse);
     }
 
-    @Override
-    public void update(Event event) throws Exception {
-       send(new EventResponse(event));
-    }
-
-    @Override
-    public void attachController(IController gameController) throws Exception {
-        this.controller = gameController;
-    }
     //endregion
 }

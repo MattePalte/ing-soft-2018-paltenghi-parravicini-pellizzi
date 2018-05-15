@@ -14,12 +14,12 @@ import java.util.Scanner;
 public class WindowPatternTest {
     @Test
     public void CreationTest() throws Exception {
-        File file = new File("src/main/patterns.txt");
+        File file = new File("src/main/resources/patterns.txt");
         Scanner input = new Scanner(file);
 
 
         for(int i = 0; i < 12; i++) {
-            WindowPatternCard window = WindowPatternCard.loadFromScanner(input);
+            WindowPatternCard window = WindowPatternCard.loadAPatternCardFromScanner(input);
             System.out.println(window.getFrontPattern());
             System.out.println(window.getRearPattern() );
             input.nextLine();

@@ -1,13 +1,12 @@
 package project.ing.soft.model.cards.toolcards;
 
+import project.ing.soft.exceptions.*;
 import project.ing.soft.model.Coordinate;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.cards.WindowPattern;
-import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Player;
-import project.ing.soft.exceptions.MalformedToolCardException;
 
 public class RigaSughero extends ToolCard {
     private Die chosenDieFromDraft;
@@ -29,10 +28,14 @@ public class RigaSughero extends ToolCard {
     }
 
     @Override
-    public void applyEffect(Player p, IGameManager m) throws Exception {
-        checkParameters(p, m);
-        p.placeDie(chosenDieFromDraft, chosenPosition.getRow(), chosenPosition.getCol(), false);
-        m.removeFromDraft(chosenDieFromDraft);
+    public void applyEffect(Player p, IGameManager m) throws ToolCardApplicationException{
+        try{
+            checkParameters(p, m);
+            p.placeDie(chosenDieFromDraft, chosenPosition.getRow(), chosenPosition.getCol(), false);
+            m.removeFromDraft(chosenDieFromDraft);
+        }catch(Exception e){
+            throw new ToolCardApplicationException(e);
+        }
     }
 
     @Override

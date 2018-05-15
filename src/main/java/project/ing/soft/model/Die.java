@@ -45,6 +45,7 @@ public class Die implements Serializable {
         return new Die(randGen.nextInt(FACES) + 1, this.colour);
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -62,22 +63,12 @@ public class Die implements Serializable {
         return result;
     }
 
-    public String getXLMescapeEncoding(){
-        String encoding;
-        if(this.value == 0)
-            encoding = " ";
-        else
-            encoding = new String(Character.toChars(9855 + value));
-        return encoding;
-    }
-
     public String getImgPath(){
         if(getColour() == Colour.WHITE || getValue() == 0)
             return "";
-        String path = String.format("windowpattern/dice/%s/%d.png", getColour().name().toLowerCase(), getValue());
+        String path = String.format("windowPattern/dice/%s/%d.png", getColour().name().toLowerCase(), getValue());
         URL urlResource =  this.getClass().getClassLoader().getResource(path);
         return urlResource.toString();
-        //return this.getClass().getClassLoader().getResource(String.format("windowpattern/dice/%s/%d.png", getColour().name().toLowerCase(), getValue())).toString();
     }
 
     @Override

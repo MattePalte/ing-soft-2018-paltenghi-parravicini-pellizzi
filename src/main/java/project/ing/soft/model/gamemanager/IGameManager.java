@@ -19,38 +19,40 @@ import java.util.Map;
 
 public interface IGameManager extends Serializable {
     Game getGameInfo();
+    GAME_MANAGER_STATUS     getStatus();
 
     List<Player>            getPlayerList();
     Player                  getCurrentPlayer();
+    List<Player>            getCurrentTurnList();
+
     List<ToolCard>          getToolCards();
     List<PublicObjective>   getPublicObjective();
     List<Card>              getPublicCards();
+
     List<Die>               getDraftPool();
     Map<String, Integer>    getFavours();
     RoundTracker            getRoundTracker();
-    List<Player>            getCurrentTurnList();
-    boolean                 isFinished();
 
     Player getWinner()                                  throws Exception;
-    void start()                                        throws Exception;
+    List<Pair<Player, Integer>> countPlayersPoints()    throws Exception;
+    Die drawFromDicebag();
+
+
     void setupPhase()                                   throws RemoteException, Exception;
     void playToolCard(ToolCard aToolCard)               throws Exception;
     void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception;
     void removeFromDraft(Die aDie);
     void addToDraft(Die aDie);
     void bindPatternAndPlayer(String nickname, WindowPatternCard windowCard, Boolean side) throws Exception, GameInvalidException;
-    void endTurn()                                      throws Exception;
+    void endTurn(boolean timeoutOccurred)                throws Exception;
     void swapWithRoundTracker(Die toAdd, Die toRemove);
     void rollDraftPool();
-    List<Pair<Player, Integer>> countPlayersPoints()    throws Exception;
-
     void requestUpdate()                                throws RemoteException, Exception;
-    void deliverNewStatus(Event event)                  throws RemoteException, Exception;
-
     void addToDicebag(Die aDie);
-
-    Die drawFromDicebag();
-
     void samePlayerAgain();
 
+
+    static enum GAME_MANAGER_STATUS{
+        WAITING_FOR_PATTERNCARD, ONGOING, ENDED
+    }
 }

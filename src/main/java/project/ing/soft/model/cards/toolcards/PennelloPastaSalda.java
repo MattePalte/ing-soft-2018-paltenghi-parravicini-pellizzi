@@ -1,5 +1,6 @@
 package project.ing.soft.model.cards.toolcards;
 
+import project.ing.soft.exceptions.ToolCardApplicationException;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Colour;
 import project.ing.soft.exceptions.UserInterruptActionException;
@@ -23,10 +24,14 @@ public class PennelloPastaSalda extends ToolCard {
 
 
     @Override
-    public void applyEffect(Player p, IGameManager m) throws Exception {
-        checkParameters(p,m);
-        m.removeFromDraft(dieToRoll);
-        m.addToDraft(dieToRoll.rollDie());
+    public void applyEffect(Player p, IGameManager m) throws ToolCardApplicationException {
+        try {
+            checkParameters(p, m);
+            m.removeFromDraft(dieToRoll);
+            m.addToDraft(dieToRoll.rollDie());
+        }catch(Exception e){
+            throw new ToolCardApplicationException(e);
+        }
     }
 
     @Override

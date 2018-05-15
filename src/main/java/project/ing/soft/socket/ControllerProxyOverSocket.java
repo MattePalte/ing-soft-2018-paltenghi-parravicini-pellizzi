@@ -1,6 +1,7 @@
 package project.ing.soft.socket;
 
 
+import org.junit.Assert;
 import project.ing.soft.model.Die;
 
 import project.ing.soft.model.cards.WindowPatternCard;
@@ -23,7 +24,7 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 
-public class ControllerProxy extends Thread implements IResponseHandler ,IController, Runnable {
+public class ControllerProxyOverSocket extends Thread implements IResponseHandler ,IController, Runnable {
     private int         port;
     private String      host;
 
@@ -36,7 +37,7 @@ public class ControllerProxy extends Thread implements IResponseHandler ,IContro
     private final ArrayList<AbstractRequest> toAckList;
 
 
-    public ControllerProxy(String host, int port){
+    public ControllerProxyOverSocket(String host, int port){
         this.host = host;
         this.port = port;
         this.logger = new PrintWriter(System.out);
@@ -48,7 +49,7 @@ public class ControllerProxy extends Thread implements IResponseHandler ,IContro
 
     @Override
     public void run() {
-        int requestNumber = 0;
+
         try(Socket aSocket = new Socket()) {
             aSocket.connect(new InetSocketAddress(host, port));
             //to support complete asynchronous operation between client and server
@@ -129,23 +130,23 @@ public class ControllerProxy extends Thread implements IResponseHandler ,IContro
 
 
     @Override
-    public void visit(IResponse aResponse) throws Exception{
+    public void visit(IResponse aResponse) {
         logger.println( "Received a response " + aResponse.getClass());
         aResponse.accept(this);
     }
 
     @Override
-    public void handle(InformationResponse aResponse) throws Exception{
+    public void handle(InformationResponse aResponse) {
         logger.println("an information response was received");
     }
 
     @Override
-    public void handle(CreationGameResponse aResponse) throws Exception {
+    public void handle(CreationGameResponse aResponse) {
         logger.println("a game has been created");
     }
 
     @Override
-    public void handle(ExceptionalResponse aResponse) throws Exception {
+    public void handle(ExceptionalResponse aResponse) {
         AbstractRequest aRequest = toAckList.get(aResponse.getId());
         toAckList.set(aResponse.getId(), null);
 
@@ -159,7 +160,7 @@ public class ControllerProxy extends Thread implements IResponseHandler ,IContro
     }
 
     @Override
-    public void handle(AllRightResponse aResponse) throws Exception {
+    public void handle(AllRightResponse aResponse) {
         AbstractRequest aRequest = toAckList.get(aResponse.getId());
         toAckList.set(aResponse.getId(), null);
 
@@ -172,9 +173,13 @@ public class ControllerProxy extends Thread implements IResponseHandler ,IContro
 
 
     @Override
-    public void handle(EventResponse aResponse) throws Exception {
-        if(view != null)
-            view.update(aResponse.getEvent());
+    public void handle(EventResponse aResponse) {
+        try {
+            if (view != null)
+                view.update(aResponse.getEvent());
+        }catch (IOException exc){
+            Assert.fail("A local view has raised an io exception. Panic! ");
+        }
     }
 
 

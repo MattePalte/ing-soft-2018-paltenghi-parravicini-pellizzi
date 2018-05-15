@@ -1,12 +1,11 @@
 package project.ing.soft.model.cards.toolcards;
 
+import project.ing.soft.exceptions.*;
 import project.ing.soft.model.Coordinate;
 import project.ing.soft.model.Colour;
 
-import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.model.Player;
-import project.ing.soft.exceptions.MalformedToolCardException;
 
 import java.util.List;
 
@@ -40,12 +39,16 @@ public class Lathekin extends ToolCard {
     }
 
     @Override
-    public void applyEffect(Player p, IGameManager m) throws Exception {
-        checkParameters(p,m);
+    public void applyEffect(Player p, IGameManager m) throws ToolCardApplicationException {
 
-        p.moveDice( List.of(firstDieStartPosition,secondDieStartPosition),
+        try{
+            checkParameters(p,m);
+            p.moveDice( List.of(firstDieStartPosition,secondDieStartPosition),
                     List.of(firstDieEndPosition, secondDieEndPosition),
                     true, true, true);
+        }catch(Exception e){
+            throw new ToolCardApplicationException(e);
+        }
 
     }
 

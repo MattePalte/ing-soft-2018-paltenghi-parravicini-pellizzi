@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CliToolCardFiller implements IToolCardFiller {
+    private static final String REQUEST_FOR_AN_EMPTY_CELL_ = "Enter an empty cell's position to move it";
     private NonBlockingScanner scanner;
     private PrintStream out;
     private IGameManager localCopyOfModel;
@@ -88,7 +89,7 @@ public class CliToolCardFiller implements IToolCardFiller {
     public void fill(AlesatoreLaminaRame aToolCard) throws InterruptedException, UserInterruptActionException {
         out.println(aToolCard);
         aToolCard.setStartPosition(chooseDieCoordinate("Enter which die you want to move"));
-        aToolCard.setEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
+        aToolCard.setEndPosition(chooseDieCoordinate(REQUEST_FOR_AN_EMPTY_CELL_));
     }
 
     @Override
@@ -103,9 +104,9 @@ public class CliToolCardFiller implements IToolCardFiller {
     public void fill(Lathekin aToolCard) throws InterruptedException, UserInterruptActionException {
         out.println(aToolCard);
         aToolCard.setFirstDieStartPosition(chooseDieCoordinate("Enter which is the first die you want to move"));
-        aToolCard.setFirstDieEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
+        aToolCard.setFirstDieEndPosition(chooseDieCoordinate(REQUEST_FOR_AN_EMPTY_CELL_));
         aToolCard.setSecondDieStartPosition(chooseDieCoordinate("Enter which is the second die you want to move"));
-        aToolCard.setSecondDieEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
+        aToolCard.setSecondDieEndPosition(chooseDieCoordinate(REQUEST_FOR_AN_EMPTY_CELL_));
     }
 
     @Override
@@ -125,7 +126,7 @@ public class CliToolCardFiller implements IToolCardFiller {
     public void fill(PennelloPerEglomise aToolCard) throws InterruptedException, UserInterruptActionException {
         out.println(aToolCard);
         aToolCard.setStartPosition(chooseDieCoordinate("Enter which die you want to move"));
-        aToolCard.setEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
+        aToolCard.setEndPosition(chooseDieCoordinate(REQUEST_FOR_AN_EMPTY_CELL_));
     }
 
     @Override
