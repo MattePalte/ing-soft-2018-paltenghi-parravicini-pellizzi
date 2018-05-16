@@ -91,10 +91,11 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
         eventWaitingForInput = turnExecutor.submit(() -> {
             Coordinate chosenPosition = null;
             Die toBePlaced = event.getToBePlaced();
+            ArrayList<Coordinate> compatiblePositions = event.getCompatiblePositions(toBePlaced);
 
             try {
                 if (event.getIsValueChoosable()) {
-                    System.out.println("You draft a " + toBePlaced.getColour() + " die. Choose the die value");
+                    System.out.println("You draft this die: " + toBePlaced + " Choose the die value");
                     int newValue = waitForUserInput(1, 6);
                     toBePlaced = new Die(newValue, toBePlaced.getColour());
                     System.out.println("Die to be placed: ");
@@ -105,23 +106,31 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                 System.out.println("Timeout expired. Your turn ended");
                 return;
             }
-            do {
+
+            compatiblePositions = event.getCompatiblePositions(toBePlaced);
+
+            if(!compatiblePositions.isEmpty()) {
+                do {
+                    try {
+                        out.println("Choose a position where to place this die: " + toBePlaced);
+                        chosenPosition = (Coordinate) chooseFrom(compatiblePositions);
+                    } catch (UserInterruptActionException e) {
+                        chosenPosition = null;
+                        out.println("You must choose where to place this die: " + toBePlaced);
+                    } catch (InterruptedException e) {
+                        out.println("Timeout expired. Your turn ended.");
+                        return;
+                    }
+                }
+                while (chosenPosition == null);
                 try {
-                    out.println("Choose a position where to place this die: " + toBePlaced);
-                    chosenPosition = (Coordinate) chooseFrom(event.getCompatiblePositions());
-                } catch (UserInterruptActionException e) {
-                    chosenPosition = null;
-                    out.println("You must choose where to place this die: " + toBePlaced);
-                } catch (InterruptedException e) {
-                    out.println("Timeout expired. Your turn ended.");
-                    return;
+                    controller.placeDie(ownerNameOfTheView, toBePlaced, chosenPosition.getRow(), chosenPosition.getCol());
+                } catch (Exception e) {
+                    displayError(e);
+                    respondTo(new MyTurnStartedEvent());
                 }
             }
-            while (chosenPosition == null);
-            try {
-                controller.placeDie(ownerNameOfTheView, toBePlaced, chosenPosition.getRow(), chosenPosition.getCol());
-            } catch (Exception e) {
-                displayError(e);
+            else{
                 respondTo(new MyTurnStartedEvent());
             }
         });

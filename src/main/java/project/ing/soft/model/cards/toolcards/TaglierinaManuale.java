@@ -10,7 +10,7 @@ import project.ing.soft.model.Player;
 
 import java.util.ArrayList;
 
-public class TaglierinaManuale extends ToolCard {
+public class TaglierinaManuale extends SingleInterationToolcard {
     private Die dieFromRoundTracker;
     private ArrayList<Coordinate> diceChosen;
     private ArrayList<Coordinate> moveTo;

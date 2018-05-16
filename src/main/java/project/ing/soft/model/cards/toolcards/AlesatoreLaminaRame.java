@@ -9,7 +9,7 @@ import project.ing.soft.model.Player;
 
 import java.util.List;
 
-public class AlesatoreLaminaRame extends ToolCard {
+public class AlesatoreLaminaRame extends SingleInterationToolcard {
 
     private Coordinate startPosition;
     private Coordinate endPosition;

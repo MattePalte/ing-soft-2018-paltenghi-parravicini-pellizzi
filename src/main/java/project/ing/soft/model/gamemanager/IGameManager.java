@@ -47,6 +47,9 @@ public interface IGameManager extends Serializable {
     void endTurn(boolean timeoutOccurred)                throws Exception;
     void swapWithRoundTracker(Die toAdd, Die toRemove);
     void rollDraftPool();
+
+    void setUnrolledDie(Die aDie);
+
     void requestUpdate()                                throws RemoteException, Exception;
     void addToDicebag(Die aDie);
     void samePlayerAgain();

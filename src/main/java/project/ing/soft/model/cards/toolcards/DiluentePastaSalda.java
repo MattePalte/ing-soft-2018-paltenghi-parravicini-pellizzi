@@ -15,7 +15,7 @@ import project.ing.soft.model.Colour;
 
 import java.util.ArrayList;
 
-public class DiluentePastaSalda extends ToolCard {
+public class DiluentePastaSalda extends MultipleInteractionToolcard {
     private Die chosenDie;
 
     public void setChosenDie(Die chosenDie){
@@ -35,16 +35,12 @@ public class DiluentePastaSalda extends ToolCard {
         // TODO: Players can now choose the die value and choose where to place it, but if no compatible positions are found or the player doesn't choose a position, the die will be rolled
         System.out.println("Starting applyEffect");
         m.removeFromDraft(chosenDie);
-        m.addToDicebag(chosenDie);
+        // Die is placed into the dicebag rolled to avoid to draft it again with the same value in following rounds
+        m.addToDicebag(chosenDie.rollDie());
         Die toBePlaced = m.drawFromDicebag().rollDie();
         m.addToDraft(toBePlaced);
-        ArrayList<Coordinate> compatiblePositions = new ArrayList<>(p.getCompatiblePositions(toBePlaced));
-        // TODO: mandare un modelchanged event
-        if(!compatiblePositions.isEmpty()){
-            p.update(new PlaceThisDieEvent(toBePlaced, compatiblePositions, true));
-        }else{
-            p.update(new MyTurnStartedEvent());
-        }
+        m.setUnrolledDie(toBePlaced);
+        p.update(new PlaceThisDieEvent(toBePlaced, new Player(p), true));
 
         }catch(Exception e){
             throw new ToolCardApplicationException(e);

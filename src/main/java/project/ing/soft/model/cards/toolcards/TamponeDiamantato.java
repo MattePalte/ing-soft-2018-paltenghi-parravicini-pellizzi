@@ -8,7 +8,7 @@ import project.ing.soft.model.Colour;
 import project.ing.soft.model.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
 
-public class TamponeDiamantato extends ToolCard {
+public class TamponeDiamantato extends SingleInterationToolcard {
     private Die chosenDie;
 
     public void setChosenDie(Die chosenDie){

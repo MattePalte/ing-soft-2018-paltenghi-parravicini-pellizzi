@@ -182,18 +182,9 @@ public class Player implements Serializable{
     //      a die placed doesn't match rules -> RuleViolatedExceptions
     //      a pattern constraint is violated -> PatternConstraintViolatedException
     public void placeDie(Die aDie, int row, int col, boolean checkPresence) throws PositionOccupiedException, PatternConstraintViolatedException, RuleViolatedException {
+
         if(hasPlacedADieInThisTurn)
             throw new RuleViolatedException("Player can't place more than a die at turn.");
-
-        if(placedDice[row][col]!= null) {
-            throw new PositionOccupiedException("A die has already been placed here");
-        }
-
-
-        if(!hasEverPlacedADie && row !=0 && row != getPattern().getHeight()-1 && col != 0 && col != getPattern().getWidth()-1){
-            throw new RuleViolatedException("Each player’s first die of the game must be placed on an edge or corner space");
-
-        }
 
         checkPlaceDie                     (aDie, row, col, true, true, hasEverPlacedADie && checkPresence);
         placeDieWithoutConstraints        (aDie, row, col);
@@ -243,11 +234,11 @@ public class Player implements Serializable{
         for(int row = 0; row < placedDice.length; row++){
             for(int col = 0; col < placedDice[0].length; col++){
                 try{
-                    checkPlaceDie(aDie, row, col, true, true, hasEverPlacedADie);
+                    checkPlaceDie(aDie, row, col, true, true, true);
                     ret.add(new Coordinate(row, col));
                 } catch (Exception ignored) {
                     //because this method determines the possible die that can be placed into a
-                    //location by the exception trowed
+                    //location by the exception thrown
                 }
             }
         }
@@ -255,6 +246,17 @@ public class Player implements Serializable{
     }
 
     private void checkPlaceDie(Die aDie, int row, int col, boolean checkColor, boolean checkValue, boolean checkPresence) throws RuleViolatedException, PatternConstraintViolatedException, PositionOccupiedException {
+
+        if(placedDice[row][col]!= null) {
+            throw new PositionOccupiedException("A die has already been placed here");
+        }
+
+
+        if(!hasEverPlacedADie && row !=0 && row != getPattern().getHeight()-1 && col != 0 && col != getPattern().getWidth()-1){
+            throw new RuleViolatedException("Each player’s first die of the game must be placed on an edge or corner space");
+
+        }
+
         //check pattern constraint in row,col
         Constraint actualConstraint = getPattern().getConstraintsMatrix()[row][col];
 
@@ -273,13 +275,15 @@ public class Player implements Serializable{
                 throw new RuleViolatedException("Ehi! You are trying to place the same value than an adjacent die. You can't do whatever you want! You must follow the rules");
         }
 
-        if(checkPresence && !isThereAnAdjacentDie(row, col)){
+        boolean isThereAnAdjacentDie = isThereAnAdjacentDie(row, col);
+
+
+        if(checkPresence && !isThereAnAdjacentDie && hasEverPlacedADie) {
             throw new RuleViolatedException("Die must be placed near an already placed die!");
-        // TODO: if checkPresence is false we must check that there is not any die around the chosen position, otherwise throw exception
         }
 
-        if(placedDice[row][col]!= null) {
-            throw new PositionOccupiedException("A die has already been placed here");
+        if(!checkPresence && isThereAnAdjacentDie){
+            throw new RuleViolatedException("Die must be placed away from other dice");
         }
 
     }
@@ -311,7 +315,7 @@ public class Player implements Serializable{
                         row+deltaRow >=0 && row+deltaRow < getPattern().getHeight() &&
                         col+deltaCol >= 0 && col+deltaCol < getPattern().getWidth() &&
                         placedDice[row+deltaRow][col+deltaCol] != null)
-                   return true;
+                    return true;
             }
         }
         return false;

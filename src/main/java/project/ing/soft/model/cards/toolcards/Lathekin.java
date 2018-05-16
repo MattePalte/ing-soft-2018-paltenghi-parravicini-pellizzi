@@ -9,7 +9,7 @@ import project.ing.soft.model.Player;
 
 import java.util.List;
 
-public class Lathekin extends ToolCard {
+public class Lathekin extends SingleInterationToolcard {
 
     private Coordinate firstDieStartPosition;
     private Coordinate firstDieEndPosition;

@@ -11,7 +11,7 @@ import project.ing.soft.exceptions.MalformedToolCardException;
 
 import javax.tools.Tool;
 
-public class PinzaSgrossatrice extends ToolCard {
+public class PinzaSgrossatrice extends SingleInterationToolcard {
 
     private Die choosenDie;
     private boolean toBeIncreased;

@@ -7,7 +7,7 @@ import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.model.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
 
-public class TenagliaRotelle extends ToolCard {
+public class TenagliaRotelle extends SingleInterationToolcard {
 
     public TenagliaRotelle() {
         super("Tenaglia a rotelle", "Dopo il tuo primo turno scegli immediatamente un altro dado\n" +

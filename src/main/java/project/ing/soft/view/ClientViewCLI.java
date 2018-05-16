@@ -145,7 +145,7 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
 
     @Override
     public void respondTo(PlaceThisDieEvent event){
-        actualTurn.cancel(true);
+        /*actualTurn.cancel(true);
         actualTurn = threadPool.submit(() -> {
             Coordinate chosenPosition = null;
             Die toBePlaced = event.getToBePlaced();
@@ -182,7 +182,7 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
                 displayError(e);
             }
             actualTurn = threadPool.submit(this::takeTurn);
-        });
+        });*/
 
     }
 

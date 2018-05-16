@@ -7,7 +7,7 @@ import project.ing.soft.model.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
 import project.ing.soft.model.Colour;
 
-public class Martelletto extends ToolCard {
+public class Martelletto extends SingleInterationToolcard {
     public Martelletto() {
         super("Martelletto", "Tira nuovamente tutti i dadi della Riserva Questa carta può essera usata\n" +
                 "solo durante il tuo secondo turno, prima di scegliere il secondo dado", Colour.BLUE,

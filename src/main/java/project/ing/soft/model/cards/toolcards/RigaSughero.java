@@ -8,7 +8,7 @@ import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Player;
 
-public class RigaSughero extends ToolCard {
+public class RigaSughero extends SingleInterationToolcard {
     private Die chosenDieFromDraft;
     private Coordinate chosenPosition;
 

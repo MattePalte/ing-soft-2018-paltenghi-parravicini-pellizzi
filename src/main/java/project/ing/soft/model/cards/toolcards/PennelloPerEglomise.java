@@ -8,7 +8,7 @@ import project.ing.soft.model.Player;
 
 import java.util.List;
 
-public class PennelloPerEglomise extends ToolCard {
+public class PennelloPerEglomise extends SingleInterationToolcard {
 
     private Coordinate startPosition;
     private Coordinate endPosition;

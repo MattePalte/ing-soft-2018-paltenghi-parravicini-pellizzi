@@ -71,16 +71,7 @@ public class LaunchClient {
             System.out.println("View created successfully");
             view.attachController(controller);
             controller.joinTheGame(name , view);
-        } else {
-            return;
         }
 
-        while (true) {
-            try {
-                sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
     }
 }

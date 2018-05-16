@@ -6,6 +6,8 @@ import project.ing.soft.model.cards.objectives.ObjectiveCard;
 import project.ing.soft.model.cards.objectives.privates.PrivateObjective;
 import project.ing.soft.model.cards.objectives.publics.PublicObjective;
 import project.ing.soft.model.cards.toolcards.DiluentePastaSalda;
+import project.ing.soft.model.cards.toolcards.MultipleInteractionToolcard;
+import project.ing.soft.model.cards.toolcards.SingleInterationToolcard;
 import project.ing.soft.model.cards.toolcards.ToolCard;
 import project.ing.soft.model.gamemanager.events.*;
 import project.ing.soft.exceptions.GameInvalidException;
@@ -37,6 +39,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
     private ArrayList<Die>              diceBag;
     private ArrayList<Die>              draftPool;
+    private transient Die unrolledDie;
 
     private ArrayList<PublicObjective> publicObjectives;
 
@@ -66,6 +69,8 @@ public class GameManagerMulti implements IGameManager, Serializable {
         currentGame = new Game(aGame);
         // initialize empty draft pool
         draftPool = new ArrayList<>();
+
+        unrolledDie = null;
         // initialize Round Tracker obj
         rounds = new RoundTracker();
         // create dies and populate Die Bag
@@ -244,6 +249,11 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
 
     @Override
+    public void setUnrolledDie(Die aDie){
+        unrolledDie = aDie;
+    }
+
+    @Override
     public void requestUpdate() {
 
         broadcastEvents( new ModelChangedEvent( new GameManagerMulti(this)));
@@ -252,15 +262,15 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
     private void broadcastEvents(Event ... events){
         for (Player subscriber : currentGame.getPlayers()) {
-           deliverEvent(subscriber, events);
+            deliverEvent(subscriber, events);
         }
 
     }
 
     private void deliverEvent(Player p, Event ...events ){
-            for(Event event: events) {
-                p.update(event);
-            }
+        for(Event event: events) {
+            p.update(event);
+        }
     }
 
 
@@ -273,13 +283,19 @@ public class GameManagerMulti implements IGameManager, Serializable {
     public void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception {
 
         getCurrentPlayer().placeDie(aDie,rowIndex,colIndex, true);
-        draftPool.remove(aDie);
+        if(unrolledDie == null)
+            draftPool.remove(aDie);
+        else {
+            draftPool.remove(unrolledDie);
+            unrolledDie = null;
+        }
 
         deliverEvent(getCurrentPlayer(), new ModelChangedEvent(new GameManagerMulti(this)), new MyTurnStartedEvent());
 
     }
+
     @Override
-    public void playToolCard(ToolCard aToolCard) throws Exception {
+    public void playToolCard(ToolCard aToolCard) throws Exception{
         //Because apply effect embed some test of the fields passed with the toolcard itself
         int actualFavours = favours.get(getCurrentPlayer().getName());
 
@@ -291,13 +307,14 @@ public class GameManagerMulti implements IGameManager, Serializable {
         favours.replace(getCurrentPlayer().getName(), actualFavours - toolCardCost.get(aToolCard.getTitle()));
         toolCardCost.replace(aToolCard.getTitle(), 2);
 
-        getCurrentPlayer().update(new ModelChangedEvent(new GameManagerMulti(this)));
 
-        if(!(aToolCard instanceof DiluentePastaSalda) ){
+        getCurrentPlayer().update(new ModelChangedEvent(new GameManagerMulti(this)));
+        if(!(aToolCard instanceof MultipleInteractionToolcard)) {
+            // If a single interaction is needed, send new TurnStartedEvent, otherwise, the toolcard itself will call it due to operation requests
             getCurrentPlayer().update(new MyTurnStartedEvent());
         }
-
     }
+
 
     @Override
     public void endTurn(boolean timeoutOccurred) throws GameInvalidException {
@@ -329,6 +346,8 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
 
         Player next = getCurrentPlayer();
+        if(unrolledDie != null)
+            unrolledDie = null;
         broadcastEvents(new ModelChangedEvent(new GameManagerMulti(this)));
         next.update(new MyTurnStartedEvent());
     }

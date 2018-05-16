@@ -2,19 +2,20 @@ package project.ing.soft.model.gamemanager.events;
 
 import project.ing.soft.model.Coordinate;
 import project.ing.soft.model.Die;
+import project.ing.soft.model.Player;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PlaceThisDieEvent implements Event {
     private Die toBePlaced;
-    private List<Coordinate> compatiblePositions;
     private boolean isValueChoosable;
+    private Player player;
 
-    public PlaceThisDieEvent(Die aDie, List<Coordinate> compatiblePositions, boolean isValueChoosable){
+    public PlaceThisDieEvent(Die aDie, Player player, boolean isValueChoosable){
         this.toBePlaced = aDie;
-        this.compatiblePositions = compatiblePositions;
         this.isValueChoosable = isValueChoosable;
+        this.player = player;
     }
 
     @Override
@@ -30,7 +31,7 @@ public class PlaceThisDieEvent implements Event {
         return toBePlaced;
     }
 
-    public ArrayList<Coordinate> getCompatiblePositions(){
-        return new ArrayList<>(compatiblePositions);
+    public ArrayList<Coordinate> getCompatiblePositions(Die aDie){
+        return new ArrayList<>(player.getCompatiblePositions(aDie));
     }
 }

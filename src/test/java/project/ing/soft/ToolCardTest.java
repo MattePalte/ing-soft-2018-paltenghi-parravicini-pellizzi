@@ -396,7 +396,7 @@ public class ToolCardTest {
         try {
             tested.applyEffect(playerStub, gameManagerStub);
         } catch (Exception e) {
-            message = e.getMessage();
+            message = e.getCause().getMessage();
             exceptionThrown = true;
             Assert.assertEquals("You can't play this toolcard: you can only use this during your first turn in the round", message);
         }
@@ -437,7 +437,7 @@ public class ToolCardTest {
                 tested.applyEffect(playerStub, gameManagerStub);
             } catch (Exception e) {
                 exceptionThrown = true;
-                Assert.assertEquals(message, e.getMessage());
+                Assert.assertEquals(message, e.getCause().getMessage());
             }
             Assert.assertTrue(exceptionThrown);
             exceptionThrown = false;
@@ -453,7 +453,7 @@ public class ToolCardTest {
                 tested.applyEffect(playerStub, gameManagerStub);
             } catch (Exception e) {
                 exceptionThrown = true;
-                Assert.assertEquals(message, e.getMessage());
+                Assert.assertEquals(message, e.getCause().getMessage());
             }
             Assert.assertEquals(diceToTest.get(i), placedDiceStub[posToTest.get(i).getRow()][posToTest.get(i).getCol()]);
             Assert.assertFalse(exceptionThrown);
@@ -465,7 +465,7 @@ public class ToolCardTest {
             tested.applyEffect(playerStub, gameManagerStub);
         } catch (Exception e) {
             exceptionThrown = true;
-            Assert.assertEquals(message, e.getMessage());
+            Assert.assertEquals(message, e.getCause().getMessage());
         }
         Assert.assertTrue(exceptionThrown);
     }

@@ -8,7 +8,7 @@ import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.model.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
 
-public class PennelloPastaSalda extends ToolCard {
+public class PennelloPastaSalda extends MultipleInteractionToolcard {
 
     private Die dieToRoll;
 

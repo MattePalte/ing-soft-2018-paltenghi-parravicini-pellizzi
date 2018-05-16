@@ -8,7 +8,7 @@ import project.ing.soft.model.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
 import project.ing.soft.model.Colour;
 
-public class TaglierinaCircolare extends ToolCard {
+public class TaglierinaCircolare extends SingleInterationToolcard {
 
     private Die dieFromDraft;
     private Die dieFromRoundTracker;
