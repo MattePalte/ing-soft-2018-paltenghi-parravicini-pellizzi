@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 public class GameManagerMulti implements IGameManager, Serializable {
 
     //TODO: keep 3 round during debugging procedue, switch to 10 only in final version
-    private static final int ROUNDS_NUMBER = 3;
+    private static final int ROUNDS_NUMBER = 10;
 
     private Game                currentGame ;
     private GAME_MANAGER_STATUS status;
