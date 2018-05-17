@@ -44,11 +44,6 @@ public class GameManagerSingle {
 
     }
 
-    @Override
-    public GameManagerSingle clone(){
-        return new GameManagerSingle(this);
-    }
-
     private GameManagerSingle(GameManagerSingle gameManagerSingle){
         this.currentGame = new Game(gameManagerSingle.getGameInfo());
         this.diceBag = new ArrayList<>(gameManagerSingle.diceBag);

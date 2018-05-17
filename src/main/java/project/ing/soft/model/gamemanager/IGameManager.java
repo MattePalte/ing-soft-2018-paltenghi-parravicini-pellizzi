@@ -53,9 +53,10 @@ public interface IGameManager extends Serializable {
     void requestUpdate()                                throws RemoteException, Exception;
     void addToDicebag(Die aDie);
     void samePlayerAgain();
+    void chooseDie(Die aDie);
 
 
-    static enum GAME_MANAGER_STATUS{
+    enum GAME_MANAGER_STATUS{
         WAITING_FOR_PATTERNCARD, ONGOING, ENDED
     }
 }

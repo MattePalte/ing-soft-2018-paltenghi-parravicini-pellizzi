@@ -75,7 +75,7 @@ public class Game implements Serializable{
 
     @Override
     public boolean equals(Object o) {
-        //No because the object could have the same reference but for Objocet serialization something caould have changed if (this == o) return true;
+        //No because the object could have the same reference but for Objocet serialization something caould have changed if (this == o) return true
         if (o == null || getClass() != o.getClass()) return false;
         Game game = (Game) o;
         return maxNumPlayer == game.maxNumPlayer &&

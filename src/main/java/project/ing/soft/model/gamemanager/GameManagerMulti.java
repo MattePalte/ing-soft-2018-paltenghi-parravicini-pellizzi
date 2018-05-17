@@ -5,9 +5,7 @@ import project.ing.soft.model.*;
 import project.ing.soft.model.cards.objectives.ObjectiveCard;
 import project.ing.soft.model.cards.objectives.privates.PrivateObjective;
 import project.ing.soft.model.cards.objectives.publics.PublicObjective;
-import project.ing.soft.model.cards.toolcards.DiluentePastaSalda;
 import project.ing.soft.model.cards.toolcards.MultipleInteractionToolcard;
-import project.ing.soft.model.cards.toolcards.SingleInterationToolcard;
 import project.ing.soft.model.cards.toolcards.ToolCard;
 import project.ing.soft.model.gamemanager.events.*;
 import project.ing.soft.exceptions.GameInvalidException;
@@ -281,7 +279,8 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
     @Override
     public void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception {
-
+        if(!draftPool.contains(aDie) && !aDie.equals(unrolledDie))
+            throw new RuleViolatedException("The die you want to place does not exist in the current turn");
         getCurrentPlayer().placeDie(aDie,rowIndex,colIndex, true);
         if(unrolledDie == null)
             draftPool.remove(aDie);
@@ -397,6 +396,22 @@ public class GameManagerMulti implements IGameManager, Serializable {
         }
         currentTurnList.add(1, getCurrentPlayer());
 
+    }
+
+    @Override
+    public void chooseDie(Die aDie) {
+        // Whenever this method is called with a null parameter, unset unrolledDie
+        if(aDie == null)
+            unrolledDie = null;
+        // If gamemanager didn't set an unrolledDie, so there's no need for the player to change a die, it return doing nothing
+        if(unrolledDie == null)
+            return;
+        // if the player chose a die with the same colour of unrolledDie, then change it and add it to the draftpool
+        if(aDie.getColour().equals(unrolledDie.getColour())) {
+            unrolledDie = new Die(aDie);
+            draftPool.add(unrolledDie);
+            getCurrentPlayer().update(new ModelChangedEvent(new GameManagerMulti(this)));
+        }
     }
 
     private ArrayList<Player> createTurns(List<Player> players){

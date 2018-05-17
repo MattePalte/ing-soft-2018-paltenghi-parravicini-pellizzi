@@ -1,11 +1,7 @@
 package project.ing.soft.model.cards.toolcards;
 
 import project.ing.soft.exceptions.ToolCardApplicationException;
-import project.ing.soft.model.Coordinate;
 import project.ing.soft.model.Die;
-import project.ing.soft.model.gamemanager.GameManagerMulti;
-import project.ing.soft.model.gamemanager.events.ModelChangedEvent;
-import project.ing.soft.model.gamemanager.events.MyTurnStartedEvent;
 import project.ing.soft.model.gamemanager.events.PlaceThisDieEvent;
 import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.gamemanager.IGameManager;
@@ -13,7 +9,6 @@ import project.ing.soft.model.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
 import project.ing.soft.model.Colour;
 
-import java.util.ArrayList;
 
 public class DiluentePastaSalda extends MultipleInteractionToolcard {
     private Die chosenDie;
@@ -32,13 +27,14 @@ public class DiluentePastaSalda extends MultipleInteractionToolcard {
     @Override
     public void applyEffect(Player p, IGameManager m) throws ToolCardApplicationException {
         try{
-        // TODO: Players can now choose the die value and choose where to place it, but if no compatible positions are found or the player doesn't choose a position, the die will be rolled
+        // N.B: players can now choose the die value and place it in a compatible position. However, if they choose the die value and there are no compatible positions,
+        // the die draft from the diceBag and added to draftPool won't have the value chosen by the player, but it will be rolled
         System.out.println("Starting applyEffect");
+        checkParameters(p, m);
         m.removeFromDraft(chosenDie);
         // Die is placed into the dicebag rolled to avoid to draft it again with the same value in following rounds
-        m.addToDicebag(chosenDie.rollDie());
+        m.addToDicebag(chosenDie);
         Die toBePlaced = m.drawFromDicebag().rollDie();
-        m.addToDraft(toBePlaced);
         m.setUnrolledDie(toBePlaced);
         p.update(new PlaceThisDieEvent(toBePlaced, new Player(p), true));
 

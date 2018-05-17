@@ -85,6 +85,11 @@ public class Controller extends UnicastRemoteObject implements IController, Seri
 
     }
 
+    @Override
+    public synchronized void chooseDie(Die aDie) {
+        gameManager.chooseDie(aDie);
+    }
+
     private TimerTask  buildStartTimeoutTask() {
         return new TimerTask() {
             @Override

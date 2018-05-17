@@ -23,7 +23,6 @@ public class ClientExample extends Thread{
             ControllerProxyOverSocket controller = new ControllerProxyOverSocket(host, port);
 
             controller.start();
-            //LocalViewCli view = new LocalViewCli(name);
             ClientViewCLI view = new ClientViewCLI(name);
             view.attachController(controller);
             controller.joinTheGame(name , view);
@@ -41,9 +40,9 @@ public class ClientExample extends Thread{
         String host = "localhost";
         int port    = 3000;
         new ClientExample(args[0]  , host, port ).start();
-        //new ClientExample("gianpaolo",host, port ).start();
-        //new ClientExample("affo"     , host, port ).start();
-        //new ClientExample("baffo"     , host, port ).start();
+        //new ClientExample("gianpaolo",host, port ).start()
+        //new ClientExample("affo"     , host, port ).start()
+        //new ClientExample("baffo"     , host, port ).start()
 
 
 

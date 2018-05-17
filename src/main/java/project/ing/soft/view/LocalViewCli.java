@@ -98,18 +98,22 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                     System.out.println("You draft this die: " + toBePlaced + " Choose the die value");
                     int newValue = waitForUserInput(1, 6);
                     toBePlaced = new Die(newValue, toBePlaced.getColour());
-                    System.out.println("Die to be placed: ");
+                    System.out.println("Die to be placed: " + toBePlaced);
+                    controller.chooseDie(toBePlaced);
+
                 }
             } catch (UserInterruptActionException e) {
                 System.out.println("You didn't choose the die value. The die has been rolled");
             } catch (InterruptedException e) {
                 System.out.println("Timeout expired. Your turn ended");
                 return;
+            } catch(Exception e){
+                displayError(e);
             }
 
             compatiblePositions = event.getCompatiblePositions(toBePlaced);
 
-            if(!compatiblePositions.isEmpty()) {
+            if(compatiblePositions.isEmpty()) {
                 do {
                     try {
                         out.println("Choose a position where to place this die: " + toBePlaced);
@@ -190,6 +194,11 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
     @Override
     public void respondTo(MyTurnStartedEvent event) {
+        try {
+            controller.chooseDie(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         actualTurn = turnExecutor.submit(() -> {
             try {
                 takeTurn();

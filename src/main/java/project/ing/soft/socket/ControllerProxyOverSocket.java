@@ -72,11 +72,7 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
                     //every Request in the queue
 
                     IResponse aResponse = (IResponse) fromServer.readObject();
-                    if (aResponse != null) {
-                        this.visit(aResponse);
-                    }
-
-
+                    this.visit(aResponse);
 
 
                 } catch (SocketTimeoutException ex){
@@ -151,10 +147,10 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
         toAckList.set(aResponse.getId(), null);
 
         if(aRequest != null) {
-            synchronized (aRequest) {
+            synchronized (toAckList) {
                 aRequest.setBeenHandled(true);
                 aRequest.setException(aResponse.getEx());
-                aRequest.notifyAll();
+                toAckList.notifyAll();
             }
         }
     }
@@ -165,9 +161,9 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
         toAckList.set(aResponse.getId(), null);
 
         if(aRequest != null)
-            synchronized (aRequest) {
+            synchronized (toAckList) {
                 aRequest.setBeenHandled(true);
-                aRequest.notifyAll();
+                toAckList.notifyAll();
             }
     }
 
@@ -193,9 +189,10 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
             toSendList.add(aNewRequest);
         }
         //wait for an execution
-        synchronized(aNewRequest){
+        // aNewRequest should be used, but sonarlint complaints
+        synchronized(toAckList){
             while (!aNewRequest.beenHandled()) {
-                aNewRequest.wait();
+                toAckList.wait();
             }
 
             if(aNewRequest.hasException()) {
@@ -234,6 +231,11 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
     public void joinTheGame(String nickname, IView view) throws Exception {
         this.view = view;
         addToQueue(new JoinTheGameRequest(nickname));
+    }
+
+    @Override
+    public void chooseDie(Die aDie) {
+        // TODO: implement method and create request
     }
 }
 

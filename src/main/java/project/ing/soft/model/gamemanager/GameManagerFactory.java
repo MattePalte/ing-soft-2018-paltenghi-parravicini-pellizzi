@@ -74,7 +74,6 @@ public class GameManagerFactory {
             toolCards.add( new TenagliaRotelle());*/
 
 
-            //toolCards.add( new StripCutter());
         }
         return toolCards;
     }

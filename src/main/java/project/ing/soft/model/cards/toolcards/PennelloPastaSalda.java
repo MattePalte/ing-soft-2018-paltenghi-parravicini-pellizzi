@@ -7,6 +7,7 @@ import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.model.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
+import project.ing.soft.model.gamemanager.events.PlaceThisDieEvent;
 
 public class PennelloPastaSalda extends MultipleInteractionToolcard {
 
@@ -28,7 +29,10 @@ public class PennelloPastaSalda extends MultipleInteractionToolcard {
         try {
             checkParameters(p, m);
             m.removeFromDraft(dieToRoll);
-            m.addToDraft(dieToRoll.rollDie());
+            Die toPlace = dieToRoll.rollDie();
+            m.addToDraft(toPlace);
+            m.setUnrolledDie(toPlace);
+            p.update(new PlaceThisDieEvent(toPlace, new Player(p), false));
         }catch(Exception e){
             throw new ToolCardApplicationException(e);
         }
