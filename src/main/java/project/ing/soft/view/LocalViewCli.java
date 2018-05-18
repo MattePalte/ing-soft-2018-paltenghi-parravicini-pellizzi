@@ -100,7 +100,8 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                     toBePlaced = new Die(newValue, toBePlaced.getColour());
                     System.out.println("Die to be placed: " + toBePlaced);
                     controller.chooseDie(toBePlaced);
-
+                    // Needed to let player see the die chosen in the draftpool even if the modelChangedEvent has not been handled yet
+                    localCopyOfTheStatus.addToDraft(toBePlaced);
                 }
             } catch (UserInterruptActionException e) {
                 System.out.println("You didn't choose the die value. The die has been rolled");
@@ -113,7 +114,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
             compatiblePositions = event.getCompatiblePositions(toBePlaced);
 
-            if(compatiblePositions.isEmpty()) {
+            if(!compatiblePositions.isEmpty()) {
                 do {
                     try {
                         out.println("Choose a position where to place this die: " + toBePlaced);
@@ -131,11 +132,11 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                     controller.placeDie(ownerNameOfTheView, toBePlaced, chosenPosition.getRow(), chosenPosition.getCol());
                 } catch (Exception e) {
                     displayError(e);
-                    respondTo(new MyTurnStartedEvent());
+                    update(new MyTurnStartedEvent());
                 }
             }
             else{
-                respondTo(new MyTurnStartedEvent());
+                update(new MyTurnStartedEvent());
             }
         });
     }
