@@ -60,18 +60,18 @@ public class GameManagerFactory {
 
             toolCards = new ArrayList<>();
 
-            /*toolCards.add( new PinzaSgrossatrice());
+            toolCards.add( new PinzaSgrossatrice());
             toolCards.add( new PennelloPerEglomise());
             toolCards.add( new AlesatoreLaminaRame());
             toolCards.add( new Lathekin());
             toolCards.add( new TaglierinaCircolare());
-            toolCards.add( new PennelloPastaSalda());*/
+            toolCards.add( new PennelloPastaSalda());
             toolCards.add( new DiluentePastaSalda());
             toolCards.add( new Martelletto());
             toolCards.add( new RigaSughero());
-            /*toolCards.add( new TaglierinaManuale());
+            toolCards.add( new TaglierinaManuale());
             toolCards.add( new TamponeDiamantato());
-            toolCards.add( new TenagliaRotelle());*/
+            toolCards.add( new TenagliaRotelle());
 
 
         }

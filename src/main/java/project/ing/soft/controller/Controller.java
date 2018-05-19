@@ -36,7 +36,7 @@ public class Controller extends UnicastRemoteObject implements IController, Seri
     private transient Timer         timer;
     private transient TimerTask     timeoutTask;
 
-    private static final transient long TURN_TIMEOUT       = 30000;
+    private static final transient long TURN_TIMEOUT       = 60000;
     private static final transient long GAME_START_TIMEOUT = 60000;
 
 

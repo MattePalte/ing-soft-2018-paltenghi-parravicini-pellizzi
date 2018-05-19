@@ -31,7 +31,7 @@ public class PennelloPerEglomise extends SingleInterationToolcard {
     public void applyEffect(Player p, IGameManager m) throws ToolCardApplicationException{
         try{
             checkParameters(p,m);
-            p.moveDice(List.of(startPosition), List.of(endPosition), true, true, true);
+            p.moveDice(List.of(startPosition), List.of(endPosition), false, true, true);
         }catch(Exception e){
             throw new ToolCardApplicationException(e);
         }

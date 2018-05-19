@@ -16,7 +16,6 @@ public class GuiBackgroundApp extends Application {
 
     private Stage primaryStage;
     private transient PrintStream out;
-    private transient Queue<Event> eventsReceived;
 
 
     @Override
@@ -33,9 +32,6 @@ public class GuiBackgroundApp extends Application {
         }
         GuiView backBoneOfInterface = fxmlLoader.getController();
         out = new PrintStream(System.out);
-        eventsReceived = new LinkedList<>();
-        // event list is shared with guiView before starting the interface
-        backBoneOfInterface.setEventsReceived(eventsReceived);
         backBoneOfInterface.setOut(out);
         backBoneOfInterface.setPrimaryStage(aPrimaryStage);
         Scene scene = new Scene(root, 500, 600);

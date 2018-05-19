@@ -47,10 +47,14 @@
 
     <VBox fx:id="choosePatternCard">
         <HBox alignment="CENTER">
-            <Button fx:id="btnPrev" text="Prev" ></Button>
-            <Button fx:id="btnNext" text="Next" ></Button>
+            <Button fx:id="btnPrev" text="Prev"></Button>
+            <Button fx:id="btnNext" text="Next"></Button>
         </HBox>
-        <Button fx:id="btnChoose" text="Choose this pattern" ></Button>
+        <HBox alignment="CENTER">
+            <Text text="Favours :"></Text>
+            <TextField fx:id="favourField" disable="true"></TextField>
+            <Button fx:id="btnChoose" text="Choose this pattern" ></Button>
+        </HBox>
     </VBox>
     <stylesheets>
         <URL value="@style.css"></URL>
