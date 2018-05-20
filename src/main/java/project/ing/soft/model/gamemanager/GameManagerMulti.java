@@ -45,6 +45,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
     private Map<String, Integer>        toolCardCost;
 
     private Map<String, Integer>        favours;
+    private Map<String, String>         pointDescription;
 
     //Constructor
     //@Signals Exception aGame.isValid() || aGame.numOfPlayers() <= 1 or aGame.numOfPlayers()> 4
@@ -77,6 +78,8 @@ public class GameManagerMulti implements IGameManager, Serializable {
         favours = new HashMap<>();
         //initialize hashMap rank
         rank = new ArrayList<>();
+        // initialize hashmap points description
+        pointDescription = new HashMap<>();
         //initialize toolCards cost
         toolCardCost = new HashMap<>();
 
@@ -220,17 +223,37 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
 
         for (Player p : getPlayerList()){
+            int tmpCount;
+            StringBuilder sb = new StringBuilder(p.getName());
+            sb.append(" gained points due to\n");
             int sum = 0;
             sum += p.countPrivateObjectivesPoints();
+            sb.append(p.getPrivateObjective().getTitle());
+            sb.append(": ");
+            sb.append(sum);
+            sb.append("\n");
 
             for (ObjectiveCard pubObj : getPublicObjective()){
-                sum += pubObj.countPoints(p);
+                tmpCount = pubObj.countPoints(p);
+                sb.append(pubObj.getTitle());
+                sb.append(": ");
+                sb.append(tmpCount);
+                sb.append("\n");
+                sum += tmpCount;
             }
 
-            sum += favours.get(p.getName());
-            sum -= p.getEmptyCells();
+            tmpCount = favours.get(p.getName());
+            sb.append("Favours: ");
+            sb.append(tmpCount);
+            sb.append("\n");
+            sum += tmpCount;
+            tmpCount = p.getEmptyCells();
+            sb.append("Empty cells: ");
+            sb.append(tmpCount);
+            sb.append("\n");
+            sum -= tmpCount;
 
-
+            pointDescription.put(p.getName(), new String(sb));
             rank.add( new Pair<>(p, sum));
         }
 
@@ -329,7 +352,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
             status = GAME_MANAGER_STATUS.ENDED;
             countPlayersPoints();
-            broadcastEvents(new GameFinishedEvent(new ArrayList<>(rank)));
+            broadcastEvents(new GameFinishedEvent(new ArrayList<>(rank), new HashMap<>(pointDescription)));
             return;
         }else if(currentTurnList.isEmpty()){
             System.out.println("End of round " + rounds.getCurrentRound());

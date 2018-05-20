@@ -154,8 +154,12 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     @Override
     public void respondTo(GameFinishedEvent event) {
         out.println("Game finished!");
-        out.println("Final Rank:");
 
+        Map<String, String> pointsDescriptor = event.getPointsDescriptor();
+        for(Player p : localCopyOfTheStatus.getPlayerList()){
+            out.println(pointsDescriptor.get(p.getName()));
+        }
+        out.println("Final Rank:");
         for (Pair<Player, Integer> aPair : event.getRank()){
             out.println(aPair.getKey() + " => " + aPair.getValue());
         }
