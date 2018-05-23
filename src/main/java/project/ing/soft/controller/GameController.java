@@ -10,7 +10,6 @@ import project.ing.soft.model.cards.WindowPatternCard;
 import project.ing.soft.model.gamemanager.GameManagerFactory;
 import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.model.Player;
-import project.ing.soft.model.gamemanager.events.MyTurnEndedEvent;
 import project.ing.soft.rmi.ViewProxyOverRmi;
 import project.ing.soft.view.IView;
 
@@ -19,13 +18,10 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class Controller extends UnicastRemoteObject implements IController, Serializable {
+public class GameController extends UnicastRemoteObject implements IController, Serializable {
 
 
     private transient IGameManager  gameManager;
@@ -35,17 +31,19 @@ public class Controller extends UnicastRemoteObject implements IController, Seri
     private transient AtomicBoolean turnEnded;
     private transient Timer         timer;
     private transient TimerTask     timeoutTask;
+    private final String id;
 
     private static final transient long TURN_TIMEOUT       = 60000;
     private static final transient long GAME_START_TIMEOUT = 60000;
 
 
-    public Controller(int maxNumberOfPlayer) throws RemoteException{
+    public GameController(int maxNumberOfPlayer, String id) throws RemoteException{
         this.theGame        = new Game(maxNumberOfPlayer);
         this.gameManager    = null;
         this.logger         = new PrintStream(System.out);
         this.turnEnded      = new AtomicBoolean(false);
         this.timer          = new Timer();
+        this.id             = id;
     }
 
     public synchronized int getCurrentPlayers(){
@@ -107,6 +105,11 @@ public class Controller extends UnicastRemoteObject implements IController, Seri
         this.gameManager = GameManagerFactory.factory(theGame);
         logger.println( "Setup starting");
         gameManager.setupPhase();
+    }
+
+    @Override
+    public String getControllerSecurityCode() {
+        return id;
     }
 
     @Override
@@ -217,7 +220,7 @@ public class Controller extends UnicastRemoteObject implements IController, Seri
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        Controller that = (Controller) o;
+        GameController that = (GameController) o;
         return Objects.equals(gameManager, that.gameManager) &&
                 Objects.equals(theGame, that.theGame) &&
                 Objects.equals(logger, that.logger) &&

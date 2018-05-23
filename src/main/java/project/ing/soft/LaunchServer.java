@@ -1,6 +1,6 @@
 package project.ing.soft;
 
-import project.ing.soft.controller.Controller;
+import project.ing.soft.controller.GameController;
 import project.ing.soft.controller.IController;
 import project.ing.soft.socket.SimpleSocketConnectionListener;
 
@@ -12,20 +12,21 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static java.lang.Thread.sleep;
 
 public class LaunchServer extends Thread{
-    private ArrayList<Controller> hostedGames;
-    private ArrayList<Controller> exportedControllers;
+    private ArrayList<GameController> hostedGames;
+    private ArrayList<GameController> exportedGameControllers;
     private static final String cmdForStartingRegistry = "start rmiregistry.exe -J-Djava.rmi.server.logCalls=true -J-Djava.rmi.server.useCodebaseOnly=false";
-    private static final String classesRootpath =  Controller.class.getProtectionDomain().getCodeSource().getLocation().getPath().replace("%20", " ");
+    private static final String classesRootpath =  GameController.class.getProtectionDomain().getCodeSource().getLocation().getPath().replace("%20", " ");
 
 
-    public LaunchServer(ArrayList<Controller> hostedGames){
+    public LaunchServer(ArrayList<GameController> hostedGames){
         this.hostedGames = hostedGames;
-        exportedControllers = new ArrayList<>(hostedGames);
+        exportedGameControllers = new ArrayList<>(hostedGames);
     }
 
     @Override
@@ -86,15 +87,15 @@ public class LaunchServer extends Thread{
             while(!Thread.currentThread().isInterrupted()) {
 
                 // TODO: syncronize this and socket listener on hostedGames
-                if(exportedControllers.size()!=hostedGames.size()) {
-                    ArrayList<Controller> toAdd = new ArrayList<>(hostedGames);
-                    toAdd.removeAll(exportedControllers);
+                if(exportedGameControllers.size()!=hostedGames.size()) {
+                    ArrayList<GameController> toAdd = new ArrayList<>(hostedGames);
+                    toAdd.removeAll(exportedGameControllers);
 
                     toAdd.forEach(game -> {
                         try {
-                            registry.rebind("controller" + exportedControllers.size() + 1, game);
-                            System.out.println(" >>> Controller Exported");
-                            exportedControllers.add(game);
+                            registry.rebind("controller" + exportedGameControllers.size() + 1, game);
+                            System.out.println(" >>> GameController Exported");
+                            exportedGameControllers.add(game);
                         } catch (RemoteException e) {
                             e.printStackTrace();
                         }
@@ -102,15 +103,15 @@ public class LaunchServer extends Thread{
                 }
 
                 ArrayList<IController> gamesThatNeedParticipants = hostedGames.stream()
-                        .filter (Controller::notAlreadyStarted )
+                        .filter (GameController::notAlreadyStarted )
                         .collect(Collectors.toCollection(ArrayList::new));
-                Controller selectedGame;
+                GameController selectedGame;
 
                 if (gamesThatNeedParticipants.isEmpty()) {
                     int players = 2;
-                    selectedGame = new Controller(players);
+                    selectedGame = new GameController(players, UUID.randomUUID().toString());
                     hostedGames.add(selectedGame);
-                    exportedControllers.add(selectedGame);
+                    exportedGameControllers.add(selectedGame);
                     registry.rebind("controller" + hostedGames.size(), selectedGame);
                 }
             }
@@ -128,7 +129,7 @@ public class LaunchServer extends Thread{
     }
 
     public static void main(String[] args) {
-        ArrayList<Controller> hostedGames = new ArrayList<>();
+        ArrayList<GameController> hostedGames = new ArrayList<>();
         //Start socket
         SimpleSocketConnectionListener socketConnectionListener = new SimpleSocketConnectionListener(3000, hostedGames);
         socketConnectionListener.start();

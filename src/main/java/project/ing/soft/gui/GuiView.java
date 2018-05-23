@@ -894,16 +894,16 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
 
 
-    //region Get Controller
+    //region Get GameController
     //TODO: create a splash view
     public void btnRmiConnectionOnClick() throws Exception {
         setName();
         Registry registry = LocateRegistry.getRegistry();
         // gets a reference for the remote controller
         myController = (IController) registry.lookup("controller" + registry.list().length);
-        System.out.println("Controller retrieved by RMI");
+        System.out.println("GameController retrieved by RMI");
         setController();
-        btnRmiConnection.setText("Controller Obtained");
+        btnRmiConnection.setText("GameController Obtained");
     }
 
     public void btnSocketConnectionOnClick() throws Exception {
@@ -913,7 +913,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         myController = (IController) controllerProxy;
         System.out.println("ControllerProxy created");
         setController();
-        btnSocketConnection.setText("Controller Obtained");
+        btnSocketConnection.setText("GameController Obtained");
     }
 
     private void setName() throws Exception {

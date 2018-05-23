@@ -237,5 +237,10 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
     public void chooseDie(Die aDie) {
         // TODO: implement method and create request
     }
+
+    @Override
+    public String getControllerSecurityCode() {
+        throw new UnsupportedOperationException();
+    }
 }
 
