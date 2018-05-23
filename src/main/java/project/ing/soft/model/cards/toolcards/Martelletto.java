@@ -15,7 +15,7 @@ public class Martelletto extends SingleInterationToolcard {
     }
 
     @Override
-    public void applyEffect(Player p, IGameManager m) throws ToolCardApplicationException {
+    public void applyFirst(Player p, IGameManager m) throws ToolCardApplicationException {
         try {
             checkParameters(p,m);
             m.rollDraftPool();
@@ -32,7 +32,7 @@ public class Martelletto extends SingleInterationToolcard {
 
     // Nothing to be filled here
     @Override
-    public void fill(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException {
+    public void fillFirst(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException {
         visitor.fill(this);
     }
 }

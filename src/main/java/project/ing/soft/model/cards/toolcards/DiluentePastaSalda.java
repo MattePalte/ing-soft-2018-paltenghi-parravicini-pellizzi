@@ -25,11 +25,11 @@ public class DiluentePastaSalda extends MultipleInteractionToolcard {
     }
 
     @Override
-    public void applyEffect(Player p, IGameManager m) throws ToolCardApplicationException {
+    public void applyFirst(Player p, IGameManager m) throws ToolCardApplicationException {
         try{
         // N.B: players can now choose the die value and place it in a compatible position. However, if they choose the die value and there are no compatible positions,
         // the die draft from the diceBag and added to draftPool won't have the value chosen by the player, but it will be rolled
-        System.out.println("Starting applyEffect");
+        System.out.println("Starting applyFirst");
         checkParameters(p, m);
         m.removeFromDraft(chosenDie);
         // Die is placed into the dicebag rolled to avoid to draft it again with the same value in following rounds
@@ -42,7 +42,7 @@ public class DiluentePastaSalda extends MultipleInteractionToolcard {
             throw new ToolCardApplicationException(e);
         }
 
-        System.out.println("Terminating applyEffect");
+        System.out.println("Terminating applyFirst");
     }
 
     @Override
@@ -52,7 +52,7 @@ public class DiluentePastaSalda extends MultipleInteractionToolcard {
     }
 
     @Override
-    public void fill(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException {
+    public void fillFirst(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException {
         visitor.fill(this);
     }
 }

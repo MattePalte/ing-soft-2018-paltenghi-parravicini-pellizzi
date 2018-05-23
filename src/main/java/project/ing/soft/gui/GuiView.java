@@ -40,7 +40,6 @@ import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.socket.ControllerProxyOverSocket;
 import project.ing.soft.view.IView;
 
-import java.awt.*;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Serializable;
@@ -735,8 +734,8 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
                         showPickToolCardIndex("Choose a toolcard to use");
                         Integer chosenIndex = getValue();
                         ToolCard chosenToolCard = localCopyOfTheStatus.getToolCards().get(chosenIndex);
-                        chosenToolCard.fill(gView);
-                        gView.myController.playToolCard(ownerNameOfTheView, chosenToolCard);
+                        chosenToolCard.fillFirst(gView);
+                        gView.myController.firstPhaseToolCard(ownerNameOfTheView, chosenToolCard);
                     } catch (InterruptedException e) {
                         displayError(e);
                         out.println("Interrupted play toolcard of " + ownerNameOfTheView);

@@ -25,8 +25,14 @@ public abstract class ToolCard extends Card implements Serializable{
         return this.colour;
     }
 
-    public abstract void applyEffect(Player p, IGameManager m) throws ToolCardApplicationException;
-    public abstract void fill(IToolCardFiller visitor) throws InterruptedException, UserInterruptActionException;
+    public abstract void applyFirst(Player p, IGameManager m) throws ToolCardApplicationException;
+    public void applySecond(Player p, IGameManager m) throws ToolCardApplicationException{
+        throw new UnsupportedOperationException();
+    }
+    public abstract void fillFirst(IToolCardFiller visitor) throws InterruptedException, UserInterruptActionException;
+    public void fillSecond(IToolCardFiller visitor) throws InterruptedException, UserInterruptActionException {
+        throw new UnsupportedOperationException();
+    }
     public abstract void checkParameters(Player p, IGameManager m) throws MalformedToolCardException;
 
     protected void validateDie(Die aDie) throws MalformedToolCardException {

@@ -28,7 +28,7 @@ public class PennelloPerEglomise extends SingleInterationToolcard {
     }
 
     @Override
-    public void applyEffect(Player p, IGameManager m) throws ToolCardApplicationException{
+    public void applyFirst(Player p, IGameManager m) throws ToolCardApplicationException{
         try{
             checkParameters(p,m);
             p.moveDice(List.of(startPosition), List.of(endPosition), false, true, true);
@@ -45,7 +45,7 @@ public class PennelloPerEglomise extends SingleInterationToolcard {
     }
 
     @Override
-    public void fill(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException {
+    public void fillFirst(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException {
         visitor.fill(this);
     }
 }

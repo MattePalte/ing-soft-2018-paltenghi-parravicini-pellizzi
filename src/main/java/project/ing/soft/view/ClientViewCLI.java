@@ -253,7 +253,7 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
                         aToolCardFiller.fill(aToolCard);
 
                         remoteOperation = threadPool.submit(() -> {
-                            controller.playToolCard(ownerNameOfTheView, aToolCard);
+                            controller.firstPhaseToolCard(ownerNameOfTheView, aToolCard);
                             return true;
                         });
                         remoteOperation.get();

@@ -3,7 +3,6 @@ package project.ing.soft.model.gamemanager;
 import project.ing.soft.model.cards.objectives.publics.PublicObjective;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Game;
-import project.ing.soft.model.gamemanager.events.Event;
 import project.ing.soft.exceptions.GameInvalidException;
 import javafx.util.Pair;
 import project.ing.soft.model.cards.Card;
@@ -39,7 +38,8 @@ public interface IGameManager extends Serializable {
 
 
     void setupPhase()                                   throws RemoteException, Exception;
-    void playToolCard(ToolCard aToolCard)               throws Exception;
+    void firstPhaseToolCard(ToolCard aToolCard)               throws Exception;
+    void secondPhaseToolCard(ToolCard aToolCard)               throws Exception;
     void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception;
     void removeFromDraft(Die aDie);
     void addToDraft(Die aDie);

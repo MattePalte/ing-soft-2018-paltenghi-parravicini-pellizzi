@@ -28,7 +28,7 @@ public class RigaSughero extends SingleInterationToolcard {
     }
 
     @Override
-    public void applyEffect(Player p, IGameManager m) throws ToolCardApplicationException{
+    public void applyFirst(Player p, IGameManager m) throws ToolCardApplicationException{
         try{
             checkParameters(p, m);
             p.placeDie(chosenDieFromDraft, chosenPosition.getRow(), chosenPosition.getCol(), false);
@@ -50,7 +50,7 @@ public class RigaSughero extends SingleInterationToolcard {
     }
 
     @Override
-    public void fill(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException {
+    public void fillFirst(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException {
         visitor.fill(this);
     }
 }

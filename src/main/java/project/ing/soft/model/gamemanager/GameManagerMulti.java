@@ -317,14 +317,14 @@ public class GameManagerMulti implements IGameManager, Serializable {
     }
 
     @Override
-    public void playToolCard(ToolCard aToolCard) throws Exception{
+    public void firstPhaseToolCard(ToolCard aToolCard) throws Exception{
         //Because apply effect embed some test of the fields passed with the toolcard itself
         int actualFavours = favours.get(getCurrentPlayer().getName());
 
         if(actualFavours < toolCardCost.get(aToolCard.getTitle()))
             throw new RuleViolatedException("Ehi! You don't have enough favours to do that, poor man!!");
 
-        aToolCard.applyEffect(getCurrentPlayer(), this);
+        aToolCard.applyFirst(getCurrentPlayer(), this);
 
         favours.replace(getCurrentPlayer().getName(), actualFavours - toolCardCost.get(aToolCard.getTitle()));
         toolCardCost.replace(aToolCard.getTitle(), 2);
@@ -336,7 +336,10 @@ public class GameManagerMulti implements IGameManager, Serializable {
             getCurrentPlayer().update(new MyTurnStartedEvent());
         }
     }
+    @Override
+    public void secondPhaseToolCard(ToolCard aToolCard) throws Exception {
 
+    }
 
     @Override
     public void endTurn(boolean timeoutOccurred) throws GameInvalidException {

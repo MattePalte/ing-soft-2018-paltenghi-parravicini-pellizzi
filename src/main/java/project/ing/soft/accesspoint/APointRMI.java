@@ -38,8 +38,9 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
 
             if (gamesThatNeedParticipants.isEmpty()) {
                 int players = 3;
+                String newId = UUID.randomUUID().toString();
                 gameToJoin = new GameController(players, UUID.randomUUID().toString());
-                hostedGameController.put(gameToJoin.getControllerSecurityCode(), gameToJoin);
+                hostedGameController.put(newId, gameToJoin);
             } else {
                 gameToJoin = gamesThatNeedParticipants.get(0);
             }

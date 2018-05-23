@@ -1,8 +1,6 @@
 package project.ing.soft;
 
 import org.junit.*;
-import org.junit.rules.ExpectedException;
-import project.ing.soft.exceptions.MalformedToolCardException;
 import project.ing.soft.exceptions.PatternConstraintViolatedException;
 import project.ing.soft.exceptions.PositionOccupiedException;
 import project.ing.soft.exceptions.RuleViolatedException;
@@ -11,7 +9,6 @@ import project.ing.soft.model.cards.WindowPattern;
 import project.ing.soft.model.cards.toolcards.*;
 import project.ing.soft.model.gamemanager.GameManagerMulti;
 import project.ing.soft.model.gamemanager.IGameManager;
-import project.ing.soft.view.LocalViewCli;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -173,7 +170,7 @@ public class ToolCardTest {
         tested.setChoosenDie(addedDie);
         tested.setToBeIncreased(true);
         try {
-            tested.applyEffect(playerStub, gameManagerStub);
+            tested.applyFirst(playerStub, gameManagerStub);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -198,7 +195,7 @@ public class ToolCardTest {
         tested.setChoosenDie(addedDie);
         tested.setToBeIncreased(false);
         try{
-            tested.applyEffect(playerStub, gameManagerStub);
+            tested.applyFirst(playerStub, gameManagerStub);
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -220,7 +217,7 @@ public class ToolCardTest {
         tested.setChoosenDie(addedDie);
         tested.setToBeIncreased(false);
         try {
-            tested.applyEffect(playerStub, gameManagerStub);
+            tested.applyFirst(playerStub, gameManagerStub);
         } catch (Exception e) {
             exceptionThrown = true;
         }
@@ -236,7 +233,7 @@ public class ToolCardTest {
         tested.setChoosenDie(addedDie);
         tested.setToBeIncreased(true);
         try {
-            tested.applyEffect(playerStub, gameManagerStub);
+            tested.applyFirst(playerStub, gameManagerStub);
         } catch (Exception e) {
             exceptionThrown = true;
         }
@@ -256,7 +253,7 @@ public class ToolCardTest {
         tested.setStartPosition(randomStartCoord);
         tested.setEndPosition(randomEndCoord);
         try {
-            tested.applyEffect(playerStub, gameManagerStub);
+            tested.applyFirst(playerStub, gameManagerStub);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -278,7 +275,7 @@ public class ToolCardTest {
         tested.setStartPosition(randomStartCoord);
         tested.setEndPosition(randomEndCoord);
         try {
-            tested.applyEffect(playerStub, gameManagerStub);
+            tested.applyFirst(playerStub, gameManagerStub);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -315,7 +312,7 @@ public class ToolCardTest {
         tested.setSecondDieEndPosition(randomEndCoord.get(1));
 
         try {
-            tested.applyEffect(playerStub, gameManagerStub);
+            tested.applyFirst(playerStub, gameManagerStub);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -343,7 +340,7 @@ public class ToolCardTest {
         tested.setDieFromDraft(fromDraftPool);
         tested.setDieFromRoundTracker(fromRoundTracker);
         try {
-            tested.applyEffect(playerStub, gameManagerStub);
+            tested.applyFirst(playerStub, gameManagerStub);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -359,7 +356,7 @@ public class ToolCardTest {
 
         ArrayList<Die> oldDraftPool = new ArrayList<>(draftPoolStub);
         try {
-            tested.applyEffect(playerStub, gameManagerStub);
+            tested.applyFirst(playerStub, gameManagerStub);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -383,7 +380,7 @@ public class ToolCardTest {
         for(int i = 0; i < fullTurnListSize / 2; i++) {
             turnListStub.add(turnListStub.size() - (i), fstPlayer);
             try {
-                tested.applyEffect(playerStub, gameManagerStub);
+                tested.applyFirst(playerStub, gameManagerStub);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -394,7 +391,7 @@ public class ToolCardTest {
             turnListStub.remove(1);
         }
         try {
-            tested.applyEffect(playerStub, gameManagerStub);
+            tested.applyFirst(playerStub, gameManagerStub);
         } catch (Exception e) {
             message = e.getCause().getMessage();
             exceptionThrown = true;
@@ -421,7 +418,7 @@ public class ToolCardTest {
         for(Die die : getAdjacents(randomPosition.getRow(), randomPosition.getCol()))
             System.out.println(die);
         try {
-            tested.applyEffect(playerStub, gameManagerStub);
+            tested.applyFirst(playerStub, gameManagerStub);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -434,7 +431,7 @@ public class ToolCardTest {
             tested.setChosenDie(diceToTest.get(i));
             tested.setPosition(posToTest.get(i));
             try {
-                tested.applyEffect(playerStub, gameManagerStub);
+                tested.applyFirst(playerStub, gameManagerStub);
             } catch (Exception e) {
                 exceptionThrown = true;
                 Assert.assertEquals(message, e.getCause().getMessage());
@@ -450,7 +447,7 @@ public class ToolCardTest {
             tested.setChosenDie(diceToTest.get(i));
             tested.setPosition(posToTest.get(i));
             try {
-                tested.applyEffect(playerStub, gameManagerStub);
+                tested.applyFirst(playerStub, gameManagerStub);
             } catch (Exception e) {
                 exceptionThrown = true;
                 Assert.assertEquals(message, e.getCause().getMessage());
@@ -462,7 +459,7 @@ public class ToolCardTest {
         tested.setChosenDie(dieToPlace);
         tested.setPosition(randomPosition);
         try {
-            tested.applyEffect(playerStub, gameManagerStub);
+            tested.applyFirst(playerStub, gameManagerStub);
         } catch (Exception e) {
             exceptionThrown = true;
             Assert.assertEquals(message, e.getCause().getMessage());
@@ -479,7 +476,7 @@ public class ToolCardTest {
         draftPoolStub.add(toFlip);
         tested.setChosenDie(toFlip);
         try {
-            tested.applyEffect(playerStub, gameManagerStub);
+            tested.applyFirst(playerStub, gameManagerStub);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -522,7 +519,7 @@ public class ToolCardTest {
         tested.setDiceChosen(startPos);
         tested.setMoveTo(endPos);
         try {
-            tested.applyEffect(playerStub, gameManagerStub);
+            tested.applyFirst(playerStub, gameManagerStub);
         } catch (Exception e) {
             e.printStackTrace();
         }

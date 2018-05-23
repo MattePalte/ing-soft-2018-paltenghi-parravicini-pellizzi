@@ -9,8 +9,6 @@ import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.model.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
 
-import javax.tools.Tool;
-
 public class PinzaSgrossatrice extends SingleInterationToolcard {
 
     private Die choosenDie;
@@ -34,7 +32,7 @@ public class PinzaSgrossatrice extends SingleInterationToolcard {
     }
 
     @Override
-    public void applyEffect(Player p, IGameManager m) throws ToolCardApplicationException {
+    public void applyFirst(Player p, IGameManager m) throws ToolCardApplicationException {
         try {
             checkParameters(p, m);
             m.removeFromDraft(choosenDie);
@@ -56,7 +54,7 @@ public class PinzaSgrossatrice extends SingleInterationToolcard {
     }
 
     @Override
-    public void fill(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException {
+    public void fillFirst(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException {
         visitor.fill(this);
     }
 }

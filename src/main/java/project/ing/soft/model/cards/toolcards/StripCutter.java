@@ -16,7 +16,7 @@ public class StripCutter extends ToolCard {
     }
 
     @Override
-    public void applyEffect(Player p, IGameManager m) throws ToolCardApplicationException {
+    public void applyFirst(Player p, IGameManager m) throws ToolCardApplicationException {
         throw new ToolCardApplicationException(new UnsupportedOperationException());
     }
 
@@ -26,7 +26,7 @@ public class StripCutter extends ToolCard {
     }
 
     @Override
-    public void fill(IToolCardFiller visitor) {
+    public void fillFirst(IToolCardFiller visitor) {
         visitor.fill(this);
     }
 }

@@ -113,7 +113,7 @@ public class ViewProxyOverSocket implements IView,IRequestHandler, Runnable {
 
     @Override
     public void handle(PlayToolCardRequest aRequest) throws Exception {
-        this.controller.playToolCard(aRequest.getNickname(), aRequest.getaToolCard());
+        this.controller.firstPhaseToolCard(aRequest.getNickname(), aRequest.getaToolCard());
     }
 
     @Override

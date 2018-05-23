@@ -82,7 +82,7 @@ public class CliToolCardFiller implements IToolCardFiller {
     
 
     public void fill(ToolCard aToolCard) throws UserInterruptActionException, InterruptedException {
-        aToolCard.fill(this);
+        aToolCard.fillFirst(this);
     }
 
     @Override

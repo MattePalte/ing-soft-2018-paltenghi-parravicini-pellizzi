@@ -16,7 +16,7 @@ public class TenagliaRotelle extends SingleInterationToolcard {
     }
 
     @Override
-    public void applyEffect(Player p, IGameManager m) throws ToolCardApplicationException {
+    public void applyFirst(Player p, IGameManager m) throws ToolCardApplicationException {
         try {
             checkParameters(p, m);
             m.samePlayerAgain();
@@ -34,7 +34,7 @@ public class TenagliaRotelle extends SingleInterationToolcard {
 
     // Nothing to fill
     @Override
-    public void fill(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException {
+    public void fillFirst(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException {
         visitor.fill(this);
     }
 }

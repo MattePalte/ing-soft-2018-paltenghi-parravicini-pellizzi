@@ -25,7 +25,7 @@ public class PennelloPastaSalda extends MultipleInteractionToolcard {
 
 
     @Override
-    public void applyEffect(Player p, IGameManager m) throws ToolCardApplicationException {
+    public void applyFirst(Player p, IGameManager m) throws ToolCardApplicationException {
         try {
             checkParameters(p, m);
             m.removeFromDraft(dieToRoll);
@@ -46,7 +46,7 @@ public class PennelloPastaSalda extends MultipleInteractionToolcard {
     }
 
     @Override
-    public void fill(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException {
+    public void fillFirst(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException {
         visitor.fill(this);
     }
 }
