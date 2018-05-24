@@ -5,6 +5,7 @@ import project.ing.soft.model.gamemanager.events.Event;
 import project.ing.soft.view.IView;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 
 
@@ -49,5 +50,10 @@ public class ViewProxyOverRmi implements IView, Runnable {
             //the update function raise an exception because the update couldn't be completed
             Thread.currentThread().interrupt();
         }
+    }
+
+    @Override
+    public PrintStream getPrintStream() throws Exception{
+        return rmiView.getPrintStream();
     }
 }

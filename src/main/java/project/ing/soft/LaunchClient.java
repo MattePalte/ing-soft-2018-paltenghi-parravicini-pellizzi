@@ -50,10 +50,10 @@ public class LaunchClient {
                 break;
             case "1":
                 try {
-                    ControllerProxyOverSocket controllerProxy = new ControllerProxyOverSocket(host, port);
-                    controllerProxy.start();
+                    //ControllerProxyOverSocket controllerProxy = new ControllerProxyOverSocket(host, port);
+                    //controllerProxy.start();
                     // from now on we will use the controllerProxy as a real IController
-                    controller = (IController) controllerProxy;
+                    //controller = (IController) controllerProxy;
                 }catch (Exception ex){
                     System.out.println("Error "+ex);
                     ex.printStackTrace(System.out);
@@ -70,7 +70,7 @@ public class LaunchClient {
             IView view = new LocalViewCli(name);
             System.out.println("View created successfully");
             view.attachController(controller);
-            controller.joinTheGame(name , view);
+            //controller.joinTheGame(name , view);
         }
 
     }

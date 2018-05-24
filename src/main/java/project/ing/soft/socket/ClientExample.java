@@ -1,7 +1,9 @@
 package project.ing.soft.socket;
 
 
+import project.ing.soft.accesspoint.APProxy;
 import project.ing.soft.view.ClientViewCLI;
+import project.ing.soft.view.LocalViewCli;
 
 
 public class ClientExample extends Thread{
@@ -19,14 +21,9 @@ public class ClientExample extends Thread{
     public void run() {
         try {
 
-
-            ControllerProxyOverSocket controller = new ControllerProxyOverSocket(host, port);
-
-            controller.start();
-            ClientViewCLI view = new ClientViewCLI(name);
-            view.attachController(controller);
-            controller.joinTheGame(name , view);
-
+            LocalViewCli view = new LocalViewCli(name);
+            APProxy AccessPointProxy = new APProxy(host, port);
+            AccessPointProxy.connect(name, view);
 
         }catch (Exception ex){
             System.out.println("Error "+ex);

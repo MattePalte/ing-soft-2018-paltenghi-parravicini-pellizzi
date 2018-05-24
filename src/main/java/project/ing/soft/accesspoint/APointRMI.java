@@ -6,10 +6,7 @@ import project.ing.soft.view.IView;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
@@ -30,26 +27,22 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
      */
     @Override
     public IController connect(String nickname, IView clientView) throws RemoteException{
+
         GameController gameToJoin;
         synchronized (hostedGameController){
-            ArrayList<GameController> gamesThatNeedParticipants = hostedGameController.values().stream()
-                    .filter (GameController::notAlreadyStarted )
-                    .collect(Collectors.toCollection(ArrayList::new));
+            int players = 3;
 
-            if (gamesThatNeedParticipants.isEmpty()) {
-                int players = 3;
-                String newId = UUID.randomUUID().toString();
-                gameToJoin = new GameController(players, UUID.randomUUID().toString());
-                hostedGameController.put(newId, gameToJoin);
-            } else {
-                gameToJoin = gamesThatNeedParticipants.get(0);
-            }
+            gameToJoin = hostedGameController.values().stream()
+                    .filter (GameController::notAlreadyStarted )
+                    .findFirst().orElse(new GameController(players, UUID.randomUUID().toString()));
+
             try {
                 gameToJoin.joinTheGame(nickname, clientView);
             } catch (Exception e) {
                 e.printStackTrace();
-                assert (false); // stop the server if exception
             }
+
+
             //TODO: create PlayerController and return instead of GameControler
         }
         return gameToJoin;

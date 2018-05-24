@@ -14,7 +14,6 @@ public interface IController extends Remote{
     void secondPhaseToolCard(String nickname, ToolCard aToolCard)                  throws Exception;
     void endTurn(String nickname)                                           throws Exception;
     void choosePattern(String nickname, WindowPatternCard windowCard, Boolean side) throws Exception;
-    void joinTheGame(String nickname, IView view)                           throws Exception;
     String getControllerSecurityCode()                                      throws Exception;
     void chooseDie(Die aDie)                                                throws Exception;
 }

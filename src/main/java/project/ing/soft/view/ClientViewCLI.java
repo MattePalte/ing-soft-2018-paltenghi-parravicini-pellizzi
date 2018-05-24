@@ -359,6 +359,11 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
         out.println("Waiting for enough players to start the match...");
 
     }
+
+    @Override
+    public PrintStream getPrintStream() {
+        return out;
+    }
 //endregion
 
     //region user input

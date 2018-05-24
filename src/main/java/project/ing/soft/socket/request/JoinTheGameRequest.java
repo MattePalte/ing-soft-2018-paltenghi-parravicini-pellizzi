@@ -1,7 +1,8 @@
 package project.ing.soft.socket.request;
 
-public class JoinTheGameRequest extends AbstractRequest {
+public class JoinTheGameRequest implements ConnectionRequest {
     private String nickname;
+
     public JoinTheGameRequest(String nickname) {
         this.nickname = nickname;
     }
@@ -11,7 +12,7 @@ public class JoinTheGameRequest extends AbstractRequest {
     }
 
     @Override
-    public void accept(IRequestHandler handler) throws Exception {
+    public void accept(ClientConnectionRequestHandler handler) throws Exception {
         handler.handle(this);
     }
 }

@@ -10,23 +10,21 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.ArrayList;
-import java.util.Scanner;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.Thread.sleep;
 
 public class LaunchServer extends Thread{
-    private ArrayList<GameController> hostedGames;
-    private ArrayList<GameController> exportedGameControllers;
+    private Map<String, GameController> hostedGames;
+    private Map<String, GameController> exportedGameControllers;
     private static final String cmdForStartingRegistry = "start rmiregistry.exe -J-Djava.rmi.server.logCalls=true -J-Djava.rmi.server.useCodebaseOnly=false";
     private static final String classesRootpath =  GameController.class.getProtectionDomain().getCodeSource().getLocation().getPath().replace("%20", " ");
 
 
-    public LaunchServer(ArrayList<GameController> hostedGames){
+    public LaunchServer(Map<String, GameController> hostedGames){
         this.hostedGames = hostedGames;
-        exportedGameControllers = new ArrayList<>(hostedGames);
+        exportedGameControllers = new HashMap<>(hostedGames);
     }
 
     @Override
@@ -88,21 +86,21 @@ public class LaunchServer extends Thread{
 
                 // TODO: syncronize this and socket listener on hostedGames
                 if(exportedGameControllers.size()!=hostedGames.size()) {
-                    ArrayList<GameController> toAdd = new ArrayList<>(hostedGames);
-                    toAdd.removeAll(exportedGameControllers);
+                    ArrayList<GameController> toAdd = new ArrayList<>(hostedGames.values());
+                    toAdd.removeAll(exportedGameControllers.values());
 
                     toAdd.forEach(game -> {
                         try {
                             registry.rebind("controller" + exportedGameControllers.size() + 1, game);
                             System.out.println(" >>> GameController Exported");
-                            exportedGameControllers.add(game);
+                            exportedGameControllers.put(UUID.randomUUID().toString(), game);
                         } catch (RemoteException e) {
                             e.printStackTrace();
                         }
                     });
                 }
 
-                ArrayList<IController> gamesThatNeedParticipants = hostedGames.stream()
+                ArrayList<IController> gamesThatNeedParticipants = hostedGames.values().stream()
                         .filter (GameController::notAlreadyStarted )
                         .collect(Collectors.toCollection(ArrayList::new));
                 GameController selectedGame;
@@ -110,8 +108,8 @@ public class LaunchServer extends Thread{
                 if (gamesThatNeedParticipants.isEmpty()) {
                     int players = 2;
                     selectedGame = new GameController(players, UUID.randomUUID().toString());
-                    hostedGames.add(selectedGame);
-                    exportedGameControllers.add(selectedGame);
+                    hostedGames.put(UUID.randomUUID().toString(), selectedGame);
+                    exportedGameControllers.put(UUID.randomUUID().toString(), selectedGame);
                     registry.rebind("controller" + hostedGames.size(), selectedGame);
                 }
             }
@@ -129,7 +127,7 @@ public class LaunchServer extends Thread{
     }
 
     public static void main(String[] args) {
-        ArrayList<GameController> hostedGames = new ArrayList<>();
+        HashMap<String, GameController> hostedGames = new HashMap<>();
         //Start socket
         SimpleSocketConnectionListener socketConnectionListener = new SimpleSocketConnectionListener(3000, hostedGames);
         socketConnectionListener.start();

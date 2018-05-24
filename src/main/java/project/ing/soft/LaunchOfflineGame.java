@@ -27,9 +27,9 @@ public class LaunchOfflineGame
         viewKris.attachController(fantasticController);
 
         // let the view add themselves to the game through a method call to the controller
-        fantasticController.joinTheGame("Matteo", viewMatteo);
-        fantasticController.joinTheGame("Daniele", viewDaniele);
-        fantasticController.joinTheGame("Kris", viewKris);
+        //fantasticController.joinTheGame("Matteo", viewMatteo);
+        //fantasticController.joinTheGame("Daniele", viewDaniele);
+        //fantasticController.joinTheGame("Kris", viewKris);
 
     System.out.println("This is the end of the game. Hope you enjoyed");
 

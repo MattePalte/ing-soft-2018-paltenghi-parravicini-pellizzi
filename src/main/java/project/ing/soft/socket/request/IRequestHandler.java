@@ -1,7 +1,6 @@
 package project.ing.soft.socket.request;
 
 public interface IRequestHandler {
-    void visit(AbstractRequest aRequest) throws  Exception;
 
     void handle(InformationRequest aRequest) throws Exception;
 
@@ -16,7 +15,4 @@ public interface IRequestHandler {
     void handle(EndTurnRequest aRequest) throws Exception;
 
     void handle(ChoosePatternRequest aRequest) throws Exception;
-
-    void handle(JoinTheGameRequest aRequest) throws Exception;
-
 }

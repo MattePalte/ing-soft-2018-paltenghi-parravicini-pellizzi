@@ -54,7 +54,6 @@ public class GameController extends UnicastRemoteObject implements IController, 
         return this.gameManager == null;
     }
 
-    @Override
     public synchronized void joinTheGame(String playerName, IView view) throws Exception {
 
         if (theGame.getNumberOfPlayers() < theGame.getMaxNumPlayers()) {

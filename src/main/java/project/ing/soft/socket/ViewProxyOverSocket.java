@@ -20,11 +20,11 @@ public class ViewProxyOverSocket implements IView,IRequestHandler, Runnable {
     private PrintStream log;
 
 
-    public ViewProxyOverSocket(Socket aSocket) throws IOException {
+    public ViewProxyOverSocket(Socket aSocket, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         this.aSocket = aSocket;
-        this.toClient   = new ObjectOutputStream(aSocket.getOutputStream());
+        this.toClient   = oos;
         this.toClient.flush();
-        this.fromClient = new ObjectInputStream(aSocket.getInputStream());
+        this.fromClient = ois;
         this.log = new PrintStream(System.out);
     }
 
@@ -50,6 +50,11 @@ public class ViewProxyOverSocket implements IView,IRequestHandler, Runnable {
             log.println("disconnected");
         }
 
+    }
+
+    @Override
+    public PrintStream getPrintStream() {
+        return log;
     }
 
 
@@ -79,7 +84,6 @@ public class ViewProxyOverSocket implements IView,IRequestHandler, Runnable {
     }
 
     //region handle request. Pass request to the real controller
-    @Override
     public void visit(AbstractRequest aRequest) throws Exception {
         log.println("Request received"+aRequest.getClass());
         try {
@@ -124,11 +128,6 @@ public class ViewProxyOverSocket implements IView,IRequestHandler, Runnable {
     @Override
     public void handle(ChoosePatternRequest aRequest) throws Exception {
         this.controller.choosePattern(aRequest.getNickname(), aRequest.getWindowCard(), aRequest.getSide());
-    }
-
-    @Override
-    public void handle(JoinTheGameRequest aRequest) throws Exception {
-        this.controller.joinTheGame(aRequest.getNickname(), this);
     }
 
 

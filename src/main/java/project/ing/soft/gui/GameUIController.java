@@ -24,7 +24,7 @@ public class GameUIController {
 
     public void btnClickJoin(ActionEvent actionEvent) throws Exception {
         System.out.println("Sto per accedere al match con nome " + txtName.getText());
-        myController.joinTheGame(txtName.getText(), myView);
+        //myController.joinTheGame(txtName.getText(), myView);
 
     }
 

@@ -267,6 +267,11 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
         out.println("Waiting for enought players to start the match...");
     }
 
+    @Override
+    public PrintStream getPrintStream() {
+        return out;
+    }
+
     private void takeTurn() {
         int cmd = -1;
         ExecutorService opExecutor = Executors.newSingleThreadExecutor();

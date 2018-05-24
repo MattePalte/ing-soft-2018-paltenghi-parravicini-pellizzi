@@ -78,45 +78,37 @@ public class SocketHandler implements IRequestHandler, Runnable{
     }
 
 
-    @Override
     public void handle(PlaceDieRequest aRequest) {
 
     }
 
-    @Override
     public void handle(UpdateRequest aRequest) {
 
     }
 
-    @Override
     public void handle(PlayToolCardRequest aRequest) {
 
     }
 
-    @Override
     public void handle(EndTurnRequest aRequest) {
 
     }
 
-    @Override
     public void handle(ChoosePatternRequest aRequest) {
 
     }
 
-    @Override
     public void handle(JoinTheGameRequest aRequest) {
 
     }
 
 
-    @Override
     public void handle(InformationRequest aRequest) throws Exception {
 
         toClient.writeObject(new InformationResponse(getAvailableGames()));
         toClient.flush();
     }
 
-    @Override
     public void handle(CreationGameRequest aRequest) throws Exception {
         hostedGames.put(new Game(aRequest.getNumberOfPlayer()), null);
         toClient.writeObject(new CreationGameResponse());
@@ -128,7 +120,6 @@ public class SocketHandler implements IRequestHandler, Runnable{
         return new ArrayList<>(hostedGames.keySet());
     }
 
-    @Override
     public void visit(AbstractRequest aRequest) throws Exception {
         aRequest.accept(this);
     }

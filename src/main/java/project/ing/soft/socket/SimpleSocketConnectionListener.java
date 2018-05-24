@@ -1,25 +1,33 @@
 package project.ing.soft.socket;
 
 
+import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.GameController;
+import project.ing.soft.controller.IController;
+import project.ing.soft.socket.request.ClientConnectionRequestHandler;
+import project.ing.soft.view.IView;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 
-public class SimpleSocketConnectionListener extends Thread {
+public class SimpleSocketConnectionListener extends Thread implements IAccessPoint{
     private int     localPort;
     private PrintStream log;
-    private List<GameController> hostedGames;
+    private Map<String, GameController> hostedGames;
     private ServerSocket aServerSocket;
+    private ExecutorService clientAcceptor = Executors.newCachedThreadPool();
+    private ExecutorService ex = Executors.newCachedThreadPool();
 
-    public SimpleSocketConnectionListener(int localPort, List<GameController> hostedGames) {
+
+    public SimpleSocketConnectionListener(int localPort, Map<String, GameController> hostedGames) {
         this.localPort    = localPort;
         this.log = new PrintStream(System.out);
         this.hostedGames = hostedGames;
@@ -27,7 +35,6 @@ public class SimpleSocketConnectionListener extends Thread {
 
     @Override
     public void run(){
-        ExecutorService ex = Executors.newCachedThreadPool();
         try {
             aServerSocket = new ServerSocket(localPort);
             log.println( "Server is up and waiting for connections on port "+ localPort);
@@ -43,24 +50,7 @@ public class SimpleSocketConnectionListener extends Thread {
                 Socket spilledSocket = aServerSocket.accept();
                 log.println("Server received a connection from "+ spilledSocket.getRemoteSocketAddress());
 
-                //when connection is established a game is directly chosen from the list of available ones
-                ArrayList<GameController> gamesThatNeedParticipants = hostedGames.stream()
-                        .filter (GameController::notAlreadyStarted)
-                        .collect(Collectors.toCollection(ArrayList::new));
-                GameController selectedGame;
-
-                if (gamesThatNeedParticipants.isEmpty()){
-                    selectedGame = new GameController(2, UUID.randomUUID().toString());
-                    hostedGames.add( selectedGame);
-                }else {
-                    selectedGame = gamesThatNeedParticipants.get(0);
-
-
-                }
-
-                ViewProxyOverSocket viewProxy = new ViewProxyOverSocket(spilledSocket);
-                viewProxy.attachController(selectedGame);
-                ex.submit(viewProxy);
+                clientAcceptor.submit(new ClientConnectionRequestHandler(spilledSocket, this));
 
             } catch (Exception e) {
                 log.println( "error was thrown while waiting for clients");
@@ -90,7 +80,7 @@ public class SimpleSocketConnectionListener extends Thread {
     //sample of usage of the class
     //No more than an instance of this class should run in a server.
     public static void main(String[] args) {
-        ArrayList<GameController> hostedGames = new ArrayList<>();
+        HashMap<String, GameController> hostedGames = new HashMap<>();
 
         SimpleSocketConnectionListener serverThread = new SimpleSocketConnectionListener(3000, hostedGames);
         serverThread.start();
@@ -103,5 +93,31 @@ public class SimpleSocketConnectionListener extends Thread {
         }while(!input.next().startsWith("q") && !serverThread.isInterrupted());
 
         serverThread.interrupt();
+    }
+
+    @Override
+    public IController connect(String nickname, IView clientView) throws Exception {
+        //when connection is established a game is directly chosen from the list of available ones
+        ArrayList<GameController> gamesThatNeedParticipants = hostedGames.values().stream()
+                .filter (GameController::notAlreadyStarted)
+                .collect(Collectors.toCollection(ArrayList::new));
+        GameController selectedGame;
+
+        if (gamesThatNeedParticipants.isEmpty()){
+            selectedGame = new GameController(2, UUID.randomUUID().toString());
+            hostedGames.put(UUID.randomUUID().toString(), selectedGame);
+        }else {
+            selectedGame = gamesThatNeedParticipants.get(0);
+        }
+        //selectedGame.joinTheGame(nickname, clientView);
+        clientView.attachController(selectedGame);
+        ex.submit((ViewProxyOverSocket)clientView);
+
+        return selectedGame;
+    }
+
+    @Override
+    public IController reconnect(String nickname, String code, IView clientView) throws RemoteException {
+        return null;
     }
 }

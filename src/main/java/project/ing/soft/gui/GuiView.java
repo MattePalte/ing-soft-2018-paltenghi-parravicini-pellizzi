@@ -635,6 +635,11 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
     }
 
+    @Override
+    public PrintStream getPrintStream() {
+        return out;
+    }
+
     private String getTime() {
         Calendar c = Calendar.getInstance(); //automatically set to current time
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
@@ -907,9 +912,9 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
     public void btnSocketConnectionOnClick() throws Exception {
         setName();
-        ControllerProxyOverSocket controllerProxy = new ControllerProxyOverSocket(HOST, PORT);
-        controllerProxy.start();
-        myController = (IController) controllerProxy;
+        //ControllerProxyOverSocket controllerProxy = new ControllerProxyOverSocket(HOST, PORT);
+        //controllerProxy.start();
+        //myController = (IController) controllerProxy;
         System.out.println("ControllerProxy created");
         setController();
         btnSocketConnection.setText("GameController Obtained");
@@ -931,7 +936,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         // attach the controller to the GuiView
         this.attachController(myController);
         this.run(); //TODO: useless method?
-        myController.joinTheGame(ownerNameOfTheView, this);
+        //myController.joinTheGame(ownerNameOfTheView, this);
         btnRmiConnection.setDisable(true);
         btnSocketConnection.setDisable(true);
     }

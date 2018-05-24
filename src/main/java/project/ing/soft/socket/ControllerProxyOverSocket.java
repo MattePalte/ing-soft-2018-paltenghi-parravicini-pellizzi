@@ -25,8 +25,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 
 public class ControllerProxyOverSocket extends Thread implements IResponseHandler ,IController, Runnable {
-    private int         port;
-    private String      host;
+    private Socket clientSocket;
 
     private ObjectInputStream  fromServer;
     private ObjectOutputStream toServer;
@@ -37,9 +36,11 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
     private final ArrayList<AbstractRequest> toAckList;
 
 
-    public ControllerProxyOverSocket(String host, int port){
-        this.host = host;
-        this.port = port;
+    public ControllerProxyOverSocket(IView view, Socket clientSocket, ObjectOutputStream oos, ObjectInputStream ois){
+        this.view = view;
+        this.clientSocket = clientSocket;
+        this.toServer = oos;
+        this.fromServer = ois;
         this.logger = new PrintWriter(System.out);
         this.toSendList = new ConcurrentLinkedQueue<>();
         this.toAckList  = new ArrayList<>();
@@ -50,20 +51,19 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
     @Override
     public void run() {
 
-        try(Socket aSocket = new Socket()) {
-            aSocket.connect(new InetSocketAddress(host, port));
+        try {
             //to support complete asynchronous operation between client and server
-            aSocket.setSoTimeout(500);
+            clientSocket.setSoTimeout(500);
 
             logger.println("Connected to the server");
             logger.flush();
 
-            toServer = new ObjectOutputStream(aSocket.getOutputStream());
+            /*toServer = new ObjectOutputStream(clientSocket.getOutputStream());
             toServer.flush();
-            fromServer = new ObjectInputStream(aSocket.getInputStream());
+            fromServer = new ObjectInputStream(clientSocket.getInputStream());*/
 
 
-            while( !aSocket.isClosed()){
+            while( !clientSocket.isClosed()){
 
                 try {
 
@@ -125,11 +125,11 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
     }
 
 
-    @Override
     public void visit(IResponse aResponse) {
         logger.println( "Received a response " + aResponse.getClass());
         aResponse.accept(this);
     }
+
 
     @Override
     public void handle(InformationResponse aResponse) {
@@ -233,12 +233,6 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
     }
 
     @Override
-    public void joinTheGame(String nickname, IView view) throws Exception {
-        this.view = view;
-        addToQueue(new JoinTheGameRequest(nickname));
-    }
-
-    @Override
     public void chooseDie(Die aDie) {
         // TODO: implement method and create request
     }
@@ -247,5 +241,6 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
     public String getControllerSecurityCode() {
         throw new UnsupportedOperationException();
     }
+
 }
 
