@@ -10,45 +10,25 @@ import project.ing.soft.model.Player;
 
 import java.util.ArrayList;
 
-public class TaglierinaManuale extends SingleInterationToolcard {
+public class TaglierinaManuale extends ToolCard {
     private Die dieFromRoundTracker;
     private ArrayList<Coordinate> diceChosen;
     private ArrayList<Coordinate> moveTo;
-
-    public void setDieFromRoundTracker(Die dieFromRoundTracker) {
-        this.dieFromRoundTracker = dieFromRoundTracker;
-    }
-
-    public void setDiceChosen(ArrayList<Coordinate> diceChosen){
-        this.diceChosen = diceChosen;
-    }
-
-    public void setMoveTo(ArrayList<Coordinate> moveTo){
-        this.moveTo = moveTo;
-    }
 
     public TaglierinaManuale() {
         super("Taglierina manuale", "Muovi fino a due dadi dello\n" +
                 "stesso colore di un solo dado sul Tracciato dei Round\n" +
                 "Devi rispettare tutte le restrizioni di piazzamento", Colour.BLUE,
                 "toolcard/30%/toolcards-13.png");
-    }
 
-    @Override
-    public void applyFirst(Player p, IGameManager m) throws ToolCardApplicationException {
-        try {
-            checkParameters(p, m);
-            p.moveDice(diceChosen, moveTo, true, true, true);
-        }catch(Exception e){
-            throw new ToolCardApplicationException(e);
-        }
     }
 
     @Override
     public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
         WindowPattern pattern = m.getCurrentPlayer().getPattern();
         Die[][] placedDice = m.getCurrentPlayer().getPlacedDice();
-
+        if(diceChosen == null || moveTo == null )
+            throw new MalformedToolCardException("The Toolcard wasn't filled");
         validateDie(dieFromRoundTracker);
         validatePresenceOfDieIn(dieFromRoundTracker, m.getRoundTracker().getDiceLeftFromRound());
         if(diceChosen.size() > 2)
@@ -62,7 +42,22 @@ public class TaglierinaManuale extends SingleInterationToolcard {
     }
 
     @Override
-    public void fillFirst(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException {
-        visitor.fill(this);
+    public void fill(IToolCardParametersAcquirer acquirer) throws UserInterruptActionException, InterruptedException {
+        diceChosen = new ArrayList<>();
+        moveTo = new ArrayList<>();
+
+        dieFromRoundTracker = acquirer.getDieFromRound("Choose a color from the round tracker: ");
+
+        diceChosen.add(acquirer.getCoordinate("Choose the position of a " + dieFromRoundTracker.getColour() + " placed die in your pattern"));
+        moveTo.add(acquirer.getCoordinate("Choose where you want to move the die you have just chosen"));
+        diceChosen.add(acquirer.getCoordinate("Choose the position of a " + dieFromRoundTracker.getColour() + " placed die in your pattern"));
+        moveTo.add(acquirer.getCoordinate("Choose where you want to move the die you have just chosen"));
+
+
+    }
+
+    @Override
+    public void apply(Player p, IGameManager m) throws Exception {
+        p.moveDice(diceChosen, moveTo, true, true, true);
     }
 }

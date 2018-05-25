@@ -9,47 +9,17 @@ import project.ing.soft.model.Player;
 
 import java.util.List;
 
-public class Lathekin extends SingleInterationToolcard {
+public class Lathekin extends ToolCard {
 
     private Coordinate firstDieStartPosition;
     private Coordinate firstDieEndPosition;
     private Coordinate secondDieStartPosition;
     private Coordinate secondDieEndPosition;
 
-    public void setFirstDieStartPosition(Coordinate firstDieStartPosition) {
-        this.firstDieStartPosition = firstDieStartPosition;
-    }
-
-    public void setFirstDieEndPosition(Coordinate firstDieEndPosition) {
-        this.firstDieEndPosition = firstDieEndPosition;
-    }
-
-    public void setSecondDieStartPosition(Coordinate secondDieStartPosition) {
-        this.secondDieStartPosition = secondDieStartPosition;
-    }
-
-    public void setSecondDieEndPosition(Coordinate secondDieEndPosition) {
-        this.secondDieEndPosition = secondDieEndPosition;
-    }
-
     public Lathekin() {
         super("Lathekin", "Muovi esattamente due dadi,\n" +
                 "rispettando tutte le restrizioni di piazzamento", Colour.YELLOW,
                 "toolcard/30%/toolcards-5.png");
-    }
-
-    @Override
-    public void applyFirst(Player p, IGameManager m) throws ToolCardApplicationException {
-
-        try{
-            checkParameters(p,m);
-            p.moveDice( List.of(firstDieStartPosition,secondDieStartPosition),
-                    List.of(firstDieEndPosition, secondDieEndPosition),
-                    true, true, true);
-        }catch(Exception e){
-            throw new ToolCardApplicationException(e);
-        }
-
     }
 
     @Override
@@ -62,7 +32,18 @@ public class Lathekin extends SingleInterationToolcard {
     }
 
     @Override
-    public void fillFirst(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException {
-        visitor.fill(this);
+    public void fill(IToolCardParametersAcquirer acquirer) throws UserInterruptActionException, InterruptedException {
+        firstDieStartPosition  = acquirer.getCoordinate("Enter which is the first die you want to move");
+        firstDieEndPosition    = acquirer.getCoordinate("Enter the position in which do you want to move the die");
+        secondDieStartPosition = acquirer.getCoordinate("Enter which is the second die you want to move");
+        secondDieEndPosition   = acquirer.getCoordinate("Enter the position in which do you want to move the die");
+    }
+
+    @Override
+    public void apply(Player p, IGameManager m) throws Exception {
+            p.moveDice( List.of(firstDieStartPosition,secondDieStartPosition),
+                    List.of(firstDieEndPosition, secondDieEndPosition),
+                    true, true, true);
+
     }
 }

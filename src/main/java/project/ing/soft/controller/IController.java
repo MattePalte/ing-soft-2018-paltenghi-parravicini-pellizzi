@@ -10,8 +10,7 @@ import java.rmi.Remote;
 public interface IController extends Remote{
     void requestUpdate()                                                    throws Exception;
     void placeDie(String nickname, Die aDie, int rowIndex, int colIndex)    throws Exception;
-    void firstPhaseToolCard(String nickname, ToolCard aToolCard)                  throws Exception;
-    void secondPhaseToolCard(String nickname, ToolCard aToolCard)                  throws Exception;
+    void PlayToolCard(String nickname, ToolCard aToolCard)                  throws Exception;
     void endTurn(String nickname)                                           throws Exception;
     void choosePattern(String nickname, WindowPatternCard windowCard, Boolean side) throws Exception;
     String getControllerSecurityCode()                                      throws Exception;

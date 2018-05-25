@@ -8,12 +8,8 @@ import project.ing.soft.model.Colour;
 import project.ing.soft.model.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
 
-public class TamponeDiamantato extends SingleInterationToolcard {
+public class TamponeDiamantato extends ToolCard {
     private Die chosenDie;
-
-    public void setChosenDie(Die chosenDie){
-        this.chosenDie = chosenDie;
-    }
 
     public TamponeDiamantato() {
         super("Tampone diamantato", "Dopo aver scelto un dado, giralo sulla faccia opposta\n" +
@@ -21,16 +17,6 @@ public class TamponeDiamantato extends SingleInterationToolcard {
                 "toolcard/30%/toolcards-11.png");
     }
 
-    @Override
-    public void applyFirst(Player p, IGameManager m) throws ToolCardApplicationException {
-        try{
-            checkParameters(p, m);
-            m.removeFromDraft(chosenDie);
-            m.addToDraft(chosenDie.flipDie());
-        }catch(Exception e){
-            throw new ToolCardApplicationException(e);
-        }
-    }
 
     @Override
     public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
@@ -39,7 +25,15 @@ public class TamponeDiamantato extends SingleInterationToolcard {
     }
 
     @Override
-    public void fillFirst(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException {
-        visitor.fill(this);
+    public void fill(IToolCardParametersAcquirer acquirer) throws UserInterruptActionException, InterruptedException {
+        chosenDie = acquirer.getDieFromDraft("Choose a die from the draft pool: ");
+    }
+
+    @Override
+    public void apply(Player p, IGameManager m) throws ToolCardApplicationException {
+
+        m.removeFromDraft(chosenDie);
+        m.addToDraft(chosenDie.flipDie());
+
     }
 }

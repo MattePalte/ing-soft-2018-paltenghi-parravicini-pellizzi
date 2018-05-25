@@ -213,13 +213,8 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
     }
 
     @Override
-    public void firstPhaseToolCard(String nickname, ToolCard aToolCard) throws Exception {
+    public void PlayToolCard(String nickname, ToolCard aToolCard) throws Exception {
         addToQueue(new PlayToolCardRequest(nickname, aToolCard));
-    }
-
-    @Override
-    public void secondPhaseToolCard(String nickname, ToolCard aToolCard) throws Exception {
-
     }
 
     @Override

@@ -7,21 +7,11 @@ import project.ing.soft.model.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
 import project.ing.soft.model.Colour;
 
-public class Martelletto extends SingleInterationToolcard {
+public class Martelletto extends ToolCard {
     public Martelletto() {
         super("Martelletto", "Tira nuovamente tutti i dadi della Riserva Questa carta può essera usata\n" +
                 "solo durante il tuo secondo turno, prima di scegliere il secondo dado", Colour.BLUE,
                 "toolcard/30%/toolcards-8.png");
-    }
-
-    @Override
-    public void applyFirst(Player p, IGameManager m) throws ToolCardApplicationException {
-        try {
-            checkParameters(p,m);
-            m.rollDraftPool();
-        }catch(Exception e){
-            throw new ToolCardApplicationException(e);
-        }
     }
 
     @Override
@@ -30,9 +20,13 @@ public class Martelletto extends SingleInterationToolcard {
             throw new MalformedToolCardException("This is not your second turn in this round");
     }
 
-    // Nothing to be filled here
     @Override
-    public void fillFirst(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException {
-        visitor.fill(this);
+    public void fill(IToolCardParametersAcquirer acquirer) throws InterruptedException, UserInterruptActionException {
+        //this ToolCard doesn't need any data
+    }
+
+    @Override
+    public void apply(Player p, IGameManager m) {
+        m.rollDraftPool();
     }
 }

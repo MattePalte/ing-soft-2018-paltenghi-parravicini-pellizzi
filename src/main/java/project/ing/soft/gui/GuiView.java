@@ -54,7 +54,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class GuiView extends UnicastRemoteObject implements IView, IEventHandler, IToolCardFiller,  Serializable{
+public class GuiView extends UnicastRemoteObject implements IView, IEventHandler, IToolCardParametersAcquirer,  Serializable{
     private IGameManager localCopyOfTheStatus;
     private String ownerNameOfTheView;
     private transient IController myController;
@@ -269,7 +269,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
     //region Event Responding
     @Override
-    public void respondTo(PlaceThisDieEvent event) {
+    public void respondTo(ToolcardActionRequestEvent event) {
         // PRE-SETUP
         initializeButtons();
         endingOperation();
@@ -284,37 +284,17 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
                     }
                     @Override
                     public void run() {
-                        Coordinate chosenPosition = null;
-                        Die toBePlaced = event.getToBePlaced();
-                        ArrayList<Coordinate> compatiblePositions = event.getCompatiblePositions(toBePlaced);
-
                         try {
-                            if (event.getIsValueChoosable()) {
-                                int[] values = {1,2,3,4,5,6};
-                                showPickValues("You draft this die: " + toBePlaced + " Choose the die value", values);
-                                int newValue = getValue();
-                                toBePlaced = new Die(newValue, toBePlaced.getColour());
-                                myController.chooseDie(toBePlaced);
-                                // Needed to let player see the die chosen in the draftpool even if the modelChangedEvent has not been handled yet
-                                localCopyOfTheStatus.addToDraft(toBePlaced);
-                            }
-                        } catch(Exception e){
-                            displayError(e);
-                        }
 
-                        if(!compatiblePositions.isEmpty()) {
-                            try {
-                                showPickCoordinate("Choose a position where to place this die: " + toBePlaced);
-                                //TODO: enable restriction to compatible position only
-                                chosenPosition = getCoord();
-                            } catch (InterruptedException e) {
-                                displayError(e);
-                            }
-                            try {
-                                myController.placeDie(ownerNameOfTheView, toBePlaced, chosenPosition.getRow(), chosenPosition.getCol());
-                            } catch (Exception e) {
-                                displayError(e);
-                            }
+                            ToolCard chosenToolCard = event.getCard();
+                            chosenToolCard.fill(gView);
+                            gView.myController.PlayToolCard(ownerNameOfTheView, chosenToolCard);
+                        } catch (InterruptedException e) {
+                            displayError(e);
+                            out.println("Interrupted play toolcard of " + ownerNameOfTheView);
+                        } catch (Exception e) {
+                            displayError(e);
+                            btnPlayToolCard.setDisable(false);
                         }
                     }
                 }
@@ -518,7 +498,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
             });
         }
     }
-    private synchronized void drawValues(Scene scene, String idPane, int[] values) {
+    private synchronized void drawValues(Scene scene, String idPane, Integer... values) {
         GridPane pane = (GridPane) scene.lookup("#" + idPane);
         pane.getChildren().clear();
         for (int pos = 0 ; pos < values.length; pos++) {
@@ -739,8 +719,8 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
                         showPickToolCardIndex("Choose a toolcard to use");
                         Integer chosenIndex = getValue();
                         ToolCard chosenToolCard = localCopyOfTheStatus.getToolCards().get(chosenIndex);
-                        chosenToolCard.fillFirst(gView);
-                        gView.myController.firstPhaseToolCard(ownerNameOfTheView, chosenToolCard);
+                        chosenToolCard.fill(gView);
+                        gView.myController.PlayToolCard(ownerNameOfTheView, chosenToolCard);
                     } catch (InterruptedException e) {
                         displayError(e);
                         out.println("Interrupted play toolcard of " + ownerNameOfTheView);
@@ -862,7 +842,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     public synchronized void showPickDieRound(String message) {
         enableOnly(ID_ROUNDTRACKER,message);
     }
-    public synchronized void showPickValues(String message, int[] values) {
+    public synchronized void showPickValues(String message, Integer... values) {
         Platform.runLater(new Runnable() {
             @Override public void run() {
                 FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/chose_value.fxml"));
@@ -942,15 +922,39 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     }
     //endregion
 
+    //region parameter acquirer
+
+    @Override
+    public Die getDieFromDraft(String message) throws InterruptedException, UserInterruptActionException {
+        showPickDieDraft(message);
+        return getDie();
+    }
+
+    @Override
+    public Die getDieFromRound(String message) throws InterruptedException, UserInterruptActionException {
+        
+        showPickDieRound(message);
+        return getDie();
+    }
+
+    @Override
+    public Coordinate getCoordinate(String message) throws InterruptedException, UserInterruptActionException {
+
+        showPickCoordinate(message);
+        return getCoord();
+    }
+
+    @Override
+    public int getValue(String message, Integer... values) throws InterruptedException, UserInterruptActionException {
+        showPickValues(message, values);
+        return getValue();
+    }
+
+
+    //endregion
+
     private void displayError(Exception ex){
         //TODO: display graphical effor messagebox
-        /*out.println("Error:"+ex.getMessage());
-        Scanner input = new Scanner(System.in);
-
-        out.println("Do you need stack trace? [y/n]");
-
-        if(input.next().startsWith("y"))
-            ex.printStackTrace();*/
         ex.printStackTrace();
         Platform.runLater(new Runnable() {
             @Override public void run() {
@@ -963,181 +967,5 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         });
     }
 
-    //region IToolCardFiller
-    @Override
-    public void fill(AlesatoreLaminaRame aToolcard) throws InterruptedException {
-        try {
-            showPickCoordinate("Select the die you want to move:");
-            Coordinate startPos = getCoord();
-            aToolcard.setStartPosition(startPos);
-            showPickCoordinate("Enter an empty cell's position to move it");
-            Coordinate endPos = getCoord();
-            aToolcard.setEndPosition(endPos);
-        } catch (InterruptedException e) {
-            displayError(e);
-            throw e;
-        }
-
-    }
-
-    @Override
-    public void fill(DiluentePastaSalda aToolcard) throws InterruptedException, UserInterruptActionException {
-        try {
-            showPickDieDraft("Choose a die to take back to the dicebag: ");
-            Die chosenDie = getDie();
-            aToolcard.setChosenDie(chosenDie);
-        } catch (InterruptedException e) {
-            displayError(e);
-            throw e;
-        }
-    }
-
-    @Override
-    public void fill(Lathekin aToolcard) throws InterruptedException, UserInterruptActionException {
-        try {
-            showPickCoordinate("Enter which is the first die you want to move");
-            Coordinate firstStart = getCoord();
-            showPickCoordinate("Enter an empty cell's position to move it");
-            Coordinate firstEnd = getCoord();
-            showPickCoordinate("Enter which is the second die you want to move");
-            Coordinate secondStart = getCoord();
-            showPickCoordinate("Enter an empty cell's position to move it");
-            Coordinate secondEnd = getCoord();
-            aToolcard.setFirstDieStartPosition(firstStart);
-            aToolcard.setFirstDieEndPosition(firstEnd);
-            aToolcard.setSecondDieStartPosition(secondStart);
-            aToolcard.setSecondDieEndPosition(secondEnd);
-        } catch (InterruptedException e) {
-            displayError(e);
-            throw e;
-        }
-    }
-
-    @Override
-    public void fill(Martelletto aToolcard) throws InterruptedException, UserInterruptActionException {
-        // it doesn't need parameters
-    }
-
-    @Override
-    public void fill(PennelloPastaSalda aToolcard) throws InterruptedException, UserInterruptActionException {
-        try {
-            showPickDieDraft("Choose a die to roll");
-            Die chosenDie = getDie();
-            aToolcard.setToRoll(chosenDie);
-        } catch (InterruptedException e) {
-            displayError(e);
-            throw e;
-        }
-    }
-
-    @Override
-    public void fill(PennelloPerEglomise aToolcard) throws InterruptedException, UserInterruptActionException {
-        try {
-            showPickCoordinate("Enter which die you want to move");
-            Coordinate startPosition = getCoord();
-            aToolcard.setStartPosition(startPosition);
-            showPickCoordinate("Enter an empty cell's position to move it");
-            Coordinate endPosition = getCoord();
-            aToolcard.setEndPosition(endPosition);
-        } catch (InterruptedException e) {
-            displayError(e);
-            throw e;
-        }
-    }
-
-    @Override
-    public void fill(PinzaSgrossatrice aToolcard) throws InterruptedException, UserInterruptActionException {
-        try {
-            int[] values = {-1, +1};
-            showPickValues("", values);
-            int chosenValue = getValue();
-            aToolcard.setToBeIncreased(chosenValue==1);
-            showPickDieDraft("Choose a die from draft pool, then you can increase or decrease its value ");
-            Die chosenDie = getDie();
-            aToolcard.setChoosenDie(chosenDie);
-        } catch (InterruptedException e) {
-            displayError(e);
-            throw e;
-        }
-    }
-
-    @Override
-    public void fill(RigaSughero aToolcard) throws InterruptedException, UserInterruptActionException {
-        try {
-            showPickDieDraft("Choose a die from the draftpool: ");
-            Die chosenDie = getDie();
-            aToolcard.setChosenDie(chosenDie);
-            showPickCoordinate("Choose a position away from other dice: ");
-            Coordinate coord = getCoord();
-            aToolcard.setPosition(coord);
-        } catch (InterruptedException e) {
-            displayError(e);
-            throw e;
-        }
-    }
-
-    @Override
-    public void fill(StripCutter aToolcard) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void fill(TaglierinaManuale aToolcard) throws InterruptedException, UserInterruptActionException {
-        ArrayList<Coordinate> positions = null;
-        ArrayList<Coordinate> moveTo = null;
-        try {
-            showPickDieRound("Choose a die from the roundtracker: ");
-            Die chosenDieRound = getDie();
-            aToolcard.setDieFromRoundTracker(chosenDieRound);
-            positions = new ArrayList<>();
-            moveTo = new ArrayList<>();
-            for(int i = 0; i < 2; i++){
-                showPickCoordinate("Choose the position of a " + chosenDieRound.getColour() + " placed die in your pattern");
-                Coordinate startPosition = getCoord();
-                showPickCoordinate("Choose where you want to move the die you have just chosen");
-                Coordinate endPosition = getCoord();
-                positions.add(startPosition);
-                moveTo.add(endPosition);
-            }
-            aToolcard.setDiceChosen(positions);
-            aToolcard.setMoveTo(moveTo);
-        } catch (InterruptedException e) {
-            displayError(e);
-            throw e;
-        }
-    }
-
-    @Override
-    public void fill(TaglierinaCircolare aToolcard) throws InterruptedException, UserInterruptActionException {
-        try {
-            showPickDieDraft("Chose from Draft:");
-            Die dieDraft = getDie();
-            aToolcard.setDieFromDraft(dieDraft);
-            showPickDieRound("Chose from RoundTracker:");
-            Die dieRound = getDie();
-            aToolcard.setDieFromRoundTracker(dieRound);
-        } catch (InterruptedException e) {
-            displayError(e);
-            throw e;
-        }
-    }
-
-    @Override
-    public void fill(TamponeDiamantato aToolcard) throws InterruptedException, UserInterruptActionException {
-        try {
-            showPickDieDraft("Choose a die from the draftpool: ");
-            Die chosenDie = getDie();
-            aToolcard.setChosenDie(chosenDie);
-        } catch (InterruptedException e) {
-            displayError(e);
-            throw e;
-        }
-    }
-
-    @Override
-    public void fill(TenagliaRotelle aToolcard) throws InterruptedException, UserInterruptActionException {
-        // it doesn't need parameters
-    }
-    //endregion
 }
 

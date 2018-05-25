@@ -5,7 +5,6 @@ import project.ing.soft.model.*;
 import project.ing.soft.model.cards.objectives.ObjectiveCard;
 import project.ing.soft.model.cards.objectives.privates.PrivateObjective;
 import project.ing.soft.model.cards.objectives.publics.PublicObjective;
-import project.ing.soft.model.cards.toolcards.MultipleInteractionToolcard;
 import project.ing.soft.model.cards.toolcards.ToolCard;
 import project.ing.soft.model.gamemanager.events.*;
 import project.ing.soft.exceptions.GameInvalidException;
@@ -269,10 +268,6 @@ public class GameManagerMulti implements IGameManager, Serializable {
     }
 
 
-    @Override
-    public void setUnrolledDie(Die aDie){
-        unrolledDie = aDie;
-    }
 
     @Override
     public void requestUpdate() {
@@ -316,30 +311,38 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
     }
 
+    /**
+     * has to pay the ToolCard.
+     * @param aToolCard to be
+     */
     @Override
-    public void firstPhaseToolCard(ToolCard aToolCard) throws Exception{
-        //Because apply effect embed some test of the fields passed with the toolcard itself
+    public void payToolCard(ToolCard aToolCard) {
+
         int actualFavours = favours.get(getCurrentPlayer().getName());
+        if  (actualFavours < toolCardCost.get(aToolCard.getTitle()))
+            return;
 
-        if(actualFavours < toolCardCost.get(aToolCard.getTitle()))
-            throw new RuleViolatedException("Ehi! You don't have enough favours to do that, poor man!!");
-
-        aToolCard.applyFirst(getCurrentPlayer(), this);
 
         favours.replace(getCurrentPlayer().getName(), actualFavours - toolCardCost.get(aToolCard.getTitle()));
         toolCardCost.replace(aToolCard.getTitle(), 2);
-
-
-        getCurrentPlayer().update(new ModelChangedEvent(new GameManagerMulti(this)));
-        if(!(aToolCard instanceof MultipleInteractionToolcard)) {
-            // If a single interaction is needed, send new TurnStartedEvent, otherwise, the toolcard itself will call it due to operation requests
-            getCurrentPlayer().update(new MyTurnStartedEvent());
-        }
     }
+
+    /**
+     * Can play ToolCard method has to ensure you have enough favour to use the ToolCard
+     * @param aToolCard that has to be checked
+     * @throws RuleViolatedException reason for which the test failed
+     */
     @Override
-    public void secondPhaseToolCard(ToolCard aToolCard) throws Exception {
-
+    public void canPayToolCard(ToolCard aToolCard) throws RuleViolatedException {
+        if (favours.get(getCurrentPlayer().getName()) < toolCardCost.get(aToolCard.getTitle()))
+            throw new RuleViolatedException("Ehi! You don't have enough favours to do that, poor man!!");
     }
+
+    @Override
+    public void playToolCard(ToolCard aToolCard) throws Exception{
+        aToolCard.play(getCurrentPlayer(), this);
+    }
+
 
     @Override
     public void endTurn(boolean timeoutOccurred) throws GameInvalidException {

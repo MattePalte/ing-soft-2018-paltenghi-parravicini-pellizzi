@@ -21,7 +21,7 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
 
-public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHandler, IToolCardFiller, Serializable {
+public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHandler, IToolCardParametersAcquirer, Serializable {
     private IGameManager localCopyOfTheStatus;
     private IController  controller;
     private String ownerNameOfTheView;
@@ -87,57 +87,12 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     }
 
     @Override
-    public void respondTo(PlaceThisDieEvent event){
+    public void respondTo(ToolcardActionRequestEvent event){
         eventWaitingForInput = turnExecutor.submit(() -> {
-            Coordinate chosenPosition = null;
-            Die toBePlaced = event.getToBePlaced();
-            ArrayList<Coordinate> compatiblePositions = event.getCompatiblePositions(toBePlaced);
-
-            try {
-                if (event.getIsValueChoosable()) {
-                    System.out.println("You draft this die: " + toBePlaced + " Choose the die value");
-                    int newValue = waitForUserInput(1, 6);
-                    toBePlaced = new Die(newValue, toBePlaced.getColour());
-                    System.out.println("Die to be placed: " + toBePlaced);
-                    controller.chooseDie(toBePlaced);
-                    // Needed to let player see the die chosen in the draftpool even if the modelChangedEvent has not been handled yet
-                    localCopyOfTheStatus.addToDraft(toBePlaced);
-                }
-            } catch (UserInterruptActionException e) {
-                System.out.println("You didn't choose the die value. The die has been rolled");
-            } catch (InterruptedException e) {
-                System.out.println("Timeout expired. Your turn ended");
-                return;
-            } catch(Exception e){
-                displayError(e);
-            }
-
-            compatiblePositions = event.getCompatiblePositions(toBePlaced);
-
-            if(!compatiblePositions.isEmpty()) {
-                do {
-                    try {
-                        out.println("Choose a position where to place this die: " + toBePlaced);
-                        chosenPosition = (Coordinate) chooseFrom(compatiblePositions);
-                    } catch (UserInterruptActionException e) {
-                        chosenPosition = null;
-                        out.println("You must choose where to place this die: " + toBePlaced);
-                    } catch (InterruptedException e) {
-                        out.println("Timeout expired. Your turn ended.");
-                        return;
-                    }
-                }
-                while (chosenPosition == null);
-                try {
-                    controller.placeDie(ownerNameOfTheView, toBePlaced, chosenPosition.getRow(), chosenPosition.getCol());
-                } catch (Exception e) {
-                    displayError(e);
-                    update(new MyTurnStartedEvent());
-                }
-            }
-            else{
-                update(new MyTurnStartedEvent());
-            }
+            ToolCard aToolCard = event.getCard();
+            aToolCard.fill(this);
+            controller.PlayToolCard(ownerNameOfTheView, aToolCard);
+            return true;
         });
     }
 
@@ -318,9 +273,9 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                     case 1:
                         out.println("Choose a toolcard: ");
                         ToolCard aToolCard =  (ToolCard) chooseFrom(localCopyOfTheStatus.getToolCards());
-                        aToolCard.fillFirst(this);
+                        aToolCard.fill(this);
                         fut = opExecutor.submit(() -> {
-                            controller.firstPhaseToolCard(ownerNameOfTheView, aToolCard);
+                            controller.PlayToolCard(ownerNameOfTheView, aToolCard);
                             return true;
                         });
                         fut.get();
@@ -446,127 +401,29 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
     }
 
+    //region parameters acquirer
     @Override
-    public void fill(AlesatoreLaminaRame aToolcard) throws InterruptedException, UserInterruptActionException {
-        out.println(aToolcard);
-        aToolcard.setStartPosition(chooseDieCoordinate("Enter which die you want to move"));
-        aToolcard.setEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
-
+    public Die getDieFromDraft(String message) throws InterruptedException, UserInterruptActionException {
+        out.println(message);
+        return (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
     }
 
     @Override
-    public void fill(DiluentePastaSalda aToolcard) throws InterruptedException, UserInterruptActionException {
-        out.println(aToolcard);
-        out.println("Choose a die to take back to the dicebag: ");
-        Die chosenDie = (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
-        aToolcard.setChosenDie(chosenDie);
+    public Die getDieFromRound(String message) throws InterruptedException, UserInterruptActionException {
+        out.println(message);
+        return (Die) chooseFrom(localCopyOfTheStatus.getRoundTracker().getDiceLeftFromRound());
     }
 
     @Override
-    public void fill(Lathekin aToolcard) throws InterruptedException, UserInterruptActionException {
-        out.println(aToolcard);
-        aToolcard.setFirstDieStartPosition(chooseDieCoordinate("Enter which is the first die you want to move"));
-        aToolcard.setFirstDieEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
-        aToolcard.setSecondDieStartPosition(chooseDieCoordinate("Enter which is the second die you want to move"));
-        aToolcard.setSecondDieEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
+    public Coordinate getCoordinate(String message) throws InterruptedException, UserInterruptActionException {
 
+        return chooseDieCoordinate(message);
     }
 
     @Override
-    public void fill(Martelletto aToolcard) throws InterruptedException, UserInterruptActionException {
-
+    public int getValue(String message, Integer... values) throws InterruptedException, UserInterruptActionException {
+        out.println(message);
+        return chooseIndexFrom( Arrays.asList(values) );
     }
-
-    @Override
-    public void fill(PennelloPastaSalda aToolcard) throws InterruptedException, UserInterruptActionException {
-        out.println(aToolcard);
-        Die chosenDie;
-        chosenDie =  (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
-        aToolcard.setToRoll(chosenDie);
-
-    }
-
-    @Override
-    public void fill(PennelloPerEglomise aToolcard) throws InterruptedException, UserInterruptActionException {
-        out.println(aToolcard);
-        aToolcard.setStartPosition(chooseDieCoordinate("Enter which die you want to move"));
-        aToolcard.setEndPosition(chooseDieCoordinate("Enter an empty cell's position to move it"));
-    }
-
-    @Override
-    public void fill(PinzaSgrossatrice aToolcard) throws InterruptedException, UserInterruptActionException {
-        out.println(aToolcard);
-        Die chosenDie;
-        boolean toBeIncreased;
-        chosenDie =  (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
-        aToolcard.setChoosenDie(chosenDie);
-        toBeIncreased = (chooseIndexFrom(List.of("Decrease its value", "Increase its value")) == 1);
-        aToolcard.setToBeIncreased(toBeIncreased);
-
-    }
-
-    @Override
-    public void fill(RigaSughero aToolcard) throws InterruptedException, UserInterruptActionException {
-        out.println(aToolcard);
-        out.println("Choose a die from the draftpool: ");
-        Die chosenDie = (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
-        aToolcard.setChosenDie(chosenDie);
-        Coordinate chosenPosition = chooseDieCoordinate("Choose a position away from other dice: ");
-        aToolcard.setPosition(chosenPosition);
-
-    }
-
-    @Override
-    public void fill(StripCutter aToolcard) {
-
-    }
-
-    @Override
-    public void fill(TaglierinaManuale aToolcard) throws InterruptedException, UserInterruptActionException {
-        ArrayList<Coordinate> positions = null;
-        ArrayList<Coordinate> moveTo = null;
-
-        out.println(aToolcard);
-        out.println("Choose a die from the roundtracker: ");
-        Die chosenDie = (Die) chooseFrom(localCopyOfTheStatus.getRoundTracker().getDiceLeftFromRound());
-        aToolcard.setDieFromRoundTracker(chosenDie);
-        positions = new ArrayList<>();
-        moveTo = new ArrayList<>();
-        for(int i = 0; i < 2; i++){
-            positions.add(chooseDieCoordinate("Choose the position of a " + chosenDie.getColour() + " placed die in your pattern"));
-            moveTo.add(chooseDieCoordinate("Choose where you want to move the die you have just chosen"));
-        }
-        aToolcard.setDiceChosen(positions);
-        aToolcard.setMoveTo(moveTo);
-        //TODO: find a way to let players choose to select just one die
-
-    }
-
-    @Override
-    public void fill(TaglierinaCircolare aToolcard) throws InterruptedException, UserInterruptActionException {
-        out.println(aToolcard);
-        Die chosenDieFromDraft;
-        Die chosenDieFromRoundTracker;
-        out.println("Chose from Draft:");
-        chosenDieFromDraft =  (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
-        aToolcard.setDieFromDraft(chosenDieFromDraft);
-        out.println("Chose from RoundTracker:");
-        chosenDieFromRoundTracker =  (Die) chooseFrom(localCopyOfTheStatus.getRoundTracker().getDiceLeftFromRound());
-        aToolcard.setDieFromRoundTracker(chosenDieFromRoundTracker);
-
-    }
-
-    @Override
-    public void fill(TamponeDiamantato aToolcard) throws InterruptedException, UserInterruptActionException {
-        out.println(aToolcard);
-        out.println("Choose a die from the draftpool: ");
-        Die chosenDie = (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
-        aToolcard.setChosenDie(chosenDie);
-
-    }
-
-    @Override
-    public void fill(TenagliaRotelle aToolcard) throws InterruptedException, UserInterruptActionException {
-
-    }
+    //endregion
 }

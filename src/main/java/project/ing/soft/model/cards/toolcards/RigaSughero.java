@@ -8,17 +8,9 @@ import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Player;
 
-public class RigaSughero extends SingleInterationToolcard {
+public class RigaSughero extends ToolCard {
     private Die chosenDieFromDraft;
     private Coordinate chosenPosition;
-
-    public void setChosenDie(Die aDie){
-        this.chosenDieFromDraft = aDie;
-    }
-
-    public void setPosition(Coordinate position){
-        this.chosenPosition = position;
-    }
 
     public RigaSughero() {
         super("Riga di sughero", "Dopo aver scelto un dado,\n" +
@@ -27,16 +19,6 @@ public class RigaSughero extends SingleInterationToolcard {
                 "toolcard/30%/toolcards-10.png");
     }
 
-    @Override
-    public void applyFirst(Player p, IGameManager m) throws ToolCardApplicationException{
-        try{
-            checkParameters(p, m);
-            p.placeDie(chosenDieFromDraft, chosenPosition.getRow(), chosenPosition.getCol(), false);
-            m.removeFromDraft(chosenDieFromDraft);
-        }catch(Exception e){
-            throw new ToolCardApplicationException(e);
-        }
-    }
 
     @Override
     public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
@@ -50,7 +32,16 @@ public class RigaSughero extends SingleInterationToolcard {
     }
 
     @Override
-    public void fillFirst(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException {
-        visitor.fill(this);
+    public void fill(IToolCardParametersAcquirer acquirer) throws UserInterruptActionException, InterruptedException {
+        chosenDieFromDraft = acquirer.getDieFromDraft("Choose a die from the draft pool");
+        chosenPosition     = acquirer.getCoordinate("Choose a position away from other dice: ");
+    }
+
+    @Override
+    public void apply(Player p, IGameManager m) throws Exception{
+
+        p.placeDie(chosenDieFromDraft, chosenPosition.getRow(), chosenPosition.getCol(), false);
+        m.removeFromDraft(chosenDieFromDraft);
+
     }
 }

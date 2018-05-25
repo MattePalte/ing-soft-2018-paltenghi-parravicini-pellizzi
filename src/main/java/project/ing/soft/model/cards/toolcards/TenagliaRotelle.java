@@ -7,7 +7,7 @@ import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.model.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
 
-public class TenagliaRotelle extends SingleInterationToolcard {
+public class TenagliaRotelle extends ToolCard {
 
     public TenagliaRotelle() {
         super("Tenaglia a rotelle", "Dopo il tuo primo turno scegli immediatamente un altro dado\n" +
@@ -15,15 +15,6 @@ public class TenagliaRotelle extends SingleInterationToolcard {
                 "toolcard/30%/toolcards-9.png");
     }
 
-    @Override
-    public void applyFirst(Player p, IGameManager m) throws ToolCardApplicationException {
-        try {
-            checkParameters(p, m);
-            m.samePlayerAgain();
-        }catch(Exception e){
-            throw new ToolCardApplicationException(e);
-        }
-    }
 
     @Override
     public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
@@ -32,9 +23,14 @@ public class TenagliaRotelle extends SingleInterationToolcard {
             throw new MalformedToolCardException("You can't play this toolcard: you can only use this during your first turn in the round");
     }
 
-    // Nothing to fill
+
     @Override
-    public void fillFirst(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException {
-        visitor.fill(this);
+    public void fill(IToolCardParametersAcquirer acquirer) throws UserInterruptActionException, InterruptedException {
+        // No parameters need to be collected
+    }
+
+    @Override
+    public void apply(Player p, IGameManager m) {
+        m.samePlayerAgain();
     }
 }

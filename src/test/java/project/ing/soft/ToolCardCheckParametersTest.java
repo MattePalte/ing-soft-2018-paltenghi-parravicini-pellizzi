@@ -1,5 +1,7 @@
 package project.ing.soft;
 
+import org.junit.Assert;
+import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.*;
 import project.ing.soft.model.cards.toolcards.*;
 import project.ing.soft.model.cards.WindowPattern;
@@ -13,6 +15,8 @@ import java.util.List;
 import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class ToolCardCheckParametersTest {
@@ -42,145 +46,191 @@ public class ToolCardCheckParametersTest {
 
     @Test
     // check if a well formed PinzaSgrossatrice toolcard doesn't throw the exception
-    public void pinzaSgrossatriceOkTest() {
+    public void pinzaSgrossatriceOkTest() throws UserInterruptActionException, InterruptedException {
         Die rndDie = randomDie();
         boolean isExHappend = false;
         pinzaSgrossatrice = new PinzaSgrossatrice();
-        pinzaSgrossatrice.setToBeIncreased(randomBoolean());
-        pinzaSgrossatrice.setChoosenDie(rndDie);
+
+        IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
+
+        when(param.getValue(any(String.class), anyInt(), anyInt() ))
+                .then(args -> randomBoolean() ? -1 : 1 );
+
+        when(param.getDieFromDraft(any(String.class)))
+                .then(args -> rndDie);
+
         when(stubModel.getDraftPool()).thenReturn(List.of(rndDie));
         try {
+            pinzaSgrossatrice.fill(param);
             pinzaSgrossatrice.checkParameters(stubPlayer,stubModel);
         } catch (MalformedToolCardException e) {
             isExHappend = true;
         }
-        assertEquals(false, isExHappend);
+        Assert.assertFalse( isExHappend);
     }
+
 
     @Test
     // MalformedToolCardException thrown for one of them:
     // - not setted die
     // - no die in draft
-    public void pinzaSgrossatriceKoTest() {
+    public void pinzaSgrossatriceKoTest() throws UserInterruptActionException, InterruptedException {
         Die rndDie = randomDie();
 
         boolean isExHappend = false;
         pinzaSgrossatrice = new PinzaSgrossatrice();
-        pinzaSgrossatrice.setToBeIncreased(randomBoolean());
+
+        IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
+        when(param.getValue(anyString(), anyInt(), anyInt()))
+                .then(args-> randomBoolean() ? +1 : -1);
+
         when(stubModel.getDraftPool()).thenReturn(List.of(rndDie));
         try {
+            pinzaSgrossatrice.fill(param);
             pinzaSgrossatrice.checkParameters(stubPlayer,stubModel);
         } catch (MalformedToolCardException e) {
             isExHappend = true;
         }
-        assertEquals(true, isExHappend);
+        Assert.assertTrue( isExHappend);
 
         isExHappend = false;
         pinzaSgrossatrice = new PinzaSgrossatrice();
-        pinzaSgrossatrice.setToBeIncreased(randomBoolean());
-        pinzaSgrossatrice.setChoosenDie(rndDie);
+
+        param = mock(IToolCardParametersAcquirer.class);
+        when(param.getValue(anyString(), anyInt(), anyInt()))
+                .then(args-> randomBoolean() ? 1 : -1);
+
+        when(param.getDieFromDraft(anyString()))
+                .then(args-> rndDie);
+
         when(stubModel.getDraftPool()).thenReturn(List.of());
         try {
+
+
             pinzaSgrossatrice.checkParameters(stubPlayer,stubModel);
         } catch (MalformedToolCardException e) {
             isExHappend = true;
         }
-        assertEquals(true, isExHappend);
+        Assert.assertTrue( isExHappend);
     }
 
     @Test
     // check if a well formed PennelloPerEglomise toolcard doesn't throw the exception
-    public void pennelloPerEglomiseOkTest() {
+    public void pennelloPerEglomiseOkTest() throws UserInterruptActionException, InterruptedException {
         boolean isExHappend = false;
         pennelloPerEglomise = new PennelloPerEglomise();
-        pennelloPerEglomise.setStartPosition(randomValidCoordinate());
-        pennelloPerEglomise.setEndPosition(randomValidCoordinate());
+
+        IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
+        when(param.getCoordinate(anyString()))
+                .then(args-> randomValidCoordinate())
+                .then(args-> randomValidCoordinate());
+
         try {
+            pennelloPerEglomise.fill(param);
             pennelloPerEglomise.checkParameters(stubPlayer,stubModel);
         } catch (MalformedToolCardException e) {
             isExHappend = true;
         }
-        assertEquals(false, isExHappend);
+        assertFalse( isExHappend);
     }
 
     @Test
     // MalformedToolCardException thrown for one of them:
     // - coordinate out of bound
-    public void pennelloPerEglomiseKoTest() {
+    public void pennelloPerEglomiseKoTest() throws UserInterruptActionException, InterruptedException {
         boolean isExHappend = false;
         pennelloPerEglomise = new PennelloPerEglomise();
         for(int i = 0; i < 60; i++){
             isExHappend = false;
             Coordinate c1 = listOfInvalidCoordinates().get(new Random().nextInt(listOfInvalidCoordinates().size()));
             Coordinate c2 = listOfInvalidCoordinates().get(new Random().nextInt(listOfInvalidCoordinates().size()));
-            pennelloPerEglomise.setStartPosition(c1);
-            pennelloPerEglomise.setEndPosition(c2);
+
+            IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
+            when(param.getCoordinate(anyString()))
+                    .then(args-> c1)
+                    .then(args-> c2);
+
             try {
+                pennelloPerEglomise.fill(param);
                 pennelloPerEglomise.checkParameters(stubPlayer,stubModel);
             } catch (MalformedToolCardException e) {
                 isExHappend = true;
             }
-            assertEquals(true, isExHappend);
+            assertTrue(isExHappend);
         }
     }
 
     @Test
     // check if a well formed alesatoreLaminaRame toolcard doesn't throw the exception
-    public void alesatoreLaminaRameOkTest() {
+    public void alesatoreLaminaRameOkTest() throws UserInterruptActionException, InterruptedException {
         boolean isExHappend = false;
         alesatoreLaminaRame = new AlesatoreLaminaRame();
-        alesatoreLaminaRame.setStartPosition(randomValidCoordinate());
-        alesatoreLaminaRame.setEndPosition(randomValidCoordinate());
+
+        IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
+        when(param.getCoordinate(anyString()))
+                .then(args-> randomValidCoordinate())
+                .then(args-> randomValidCoordinate());
+
         try {
+            alesatoreLaminaRame.fill(param);
             alesatoreLaminaRame.checkParameters(stubPlayer,stubModel);
         } catch (MalformedToolCardException e) {
             isExHappend = true;
         }
-        assertEquals(false, isExHappend);
+        assertFalse( isExHappend);
     }
 
     @Test
     // MalformedToolCardException thrown for one of them:
     // - coordinate out of bound
-    public void alesatoreLaminaRameKoTest() {
+    public void alesatoreLaminaRameKoTest() throws UserInterruptActionException, InterruptedException {
         boolean isExHappend = false;
         alesatoreLaminaRame = new AlesatoreLaminaRame();
         for(int i = 0; i < 60; i++){
             isExHappend = false;
             Coordinate c1 = listOfInvalidCoordinates().get(new Random().nextInt(listOfInvalidCoordinates().size()));
             Coordinate c2 = listOfInvalidCoordinates().get(new Random().nextInt(listOfInvalidCoordinates().size()));
-            alesatoreLaminaRame.setStartPosition(c1);
-            alesatoreLaminaRame.setEndPosition(c2);
+
+            IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
+            when(param.getCoordinate(anyString()))
+                    .then(args-> c1)
+                    .then(args-> c2);
+
+
             try {
+                alesatoreLaminaRame.fill(param);
                 alesatoreLaminaRame.checkParameters(stubPlayer,stubModel);
             } catch (MalformedToolCardException e) {
                 isExHappend = true;
             }
-            assertEquals(true, isExHappend);
+            assertTrue(isExHappend);
         }
     }
 
     @Test
     // check if a well formed lathekin toolcard doesn't throw the exception
-    public void lathekinTest() {
+    public void lathekinTest() throws UserInterruptActionException, InterruptedException {
         boolean isExHappend = false;
         lathekin = new Lathekin();
-        lathekin.setFirstDieStartPosition(randomValidCoordinate());
-        lathekin.setFirstDieEndPosition(randomValidCoordinate());
-        lathekin.setSecondDieStartPosition(randomValidCoordinate());
-        lathekin.setSecondDieEndPosition(randomValidCoordinate());
+
+        IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
+
+        doAnswer((invocation) -> randomValidCoordinate())
+                .when(param).getCoordinate(anyString());
+
         try {
+            lathekin.fill(param);
             lathekin.checkParameters(stubPlayer,stubModel);
         } catch (MalformedToolCardException e) {
             isExHappend = true;
         }
-        assertEquals(false, isExHappend);
+        Assert.assertFalse(isExHappend);
     }
 
     @Test
     // MalformedToolCardException thrown for one of them:
     // - coordinate out of bound
-    public void lathekinKoTest() {
+    public void lathekinKoTest() throws UserInterruptActionException, InterruptedException {
         boolean isExHappend = false;
         lathekin = new Lathekin();
         for(int i = 0; i < 60; i++){
@@ -190,97 +240,164 @@ public class ToolCardCheckParametersTest {
             Coordinate c3 = listOfInvalidCoordinates().get(new Random().nextInt(listOfInvalidCoordinates().size()));
             Coordinate c4 = listOfInvalidCoordinates().get(new Random().nextInt(listOfInvalidCoordinates().size()));
 
-            lathekin.setFirstDieStartPosition(c1);
-            lathekin.setFirstDieEndPosition(c2);
-            lathekin.setSecondDieStartPosition(c3);
-            lathekin.setSecondDieEndPosition(c4);
+            IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
+
+            when(param.getCoordinate(any(String.class)))
+                    .then( (args)-> c1)
+                    .then( (args)-> c2)
+                    .then( (args)-> c3)
+                    .then( (args)-> c4);
+
+
             try {
+                lathekin.fill(param);
                 lathekin.checkParameters(stubPlayer,stubModel);
             } catch (MalformedToolCardException e) {
                 isExHappend = true;
             }
-            assertEquals(true, isExHappend);
+            assertTrue(isExHappend);
         }
     }
 
     @Test
     // check if a well formed taglierinaCircolare toolcard doesn't throw the exception
-    public void taglierinaCircolareOkTest() {
+    public void taglierinaCircolareOkTest() throws InterruptedException, UserInterruptActionException {
         Die rndDieRoundTracker = randomDie();
         Die rndDieDraftPool = randomDie();
         boolean isExHappend = false;
         taglierinaCircolare = new TaglierinaCircolare();
-        taglierinaCircolare.setDieFromRoundTracker(rndDieRoundTracker);
+
+
         when(stubModel.getRoundTracker()).thenReturn(stubRoundTracker);
         ArrayList<Die> myDiceLeft = new ArrayList<>();
         myDiceLeft.add(rndDieRoundTracker);
         when(stubRoundTracker.getDiceLeftFromRound()).thenReturn(myDiceLeft);
-        taglierinaCircolare.setDieFromDraft(rndDieDraftPool);
+
         when(stubModel.getDraftPool()).thenReturn(List.of(rndDieDraftPool));
+
+        IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
+        when(param.getDieFromRound(anyString()))
+                .then( args -> rndDieRoundTracker);
+        when(param.getDieFromDraft(anyString()))
+                .then( args -> rndDieDraftPool);
+
+
         try {
+            taglierinaCircolare.fill(param);
             taglierinaCircolare.checkParameters(stubPlayer,stubModel);
         } catch (MalformedToolCardException e) {
             isExHappend = true;
         }
-        assertEquals(false, isExHappend);
+        assertFalse(isExHappend);
     }
+
 
     @Test
     // MalformedToolCardException thrown for one of them:
     // - the die selected is not in the draft pool
-    // TODO: - the die selected is not on the roundtracker
-    public void taglierinaCircolareKoTest() {
+    // - the die selected is not on the roundtracker
+    public void taglierinaCircolareKoTest() throws UserInterruptActionException, InterruptedException {
         Die rndDieRoundTracker = randomDie();
         Die rndDieDraftPool = randomDie();
         boolean isExHappend = false;
         taglierinaCircolare = new TaglierinaCircolare();
-        taglierinaCircolare.setDieFromRoundTracker(rndDieRoundTracker);
+        // - the die selected is not in the draft pool
         when(stubModel.getRoundTracker()).thenReturn(stubRoundTracker);
         ArrayList<Die> myDiceLeft = new ArrayList<>();
         myDiceLeft.add(rndDieRoundTracker);
         when(stubRoundTracker.getDiceLeftFromRound()).thenReturn(myDiceLeft);
-        taglierinaCircolare.setDieFromDraft(rndDieDraftPool);
         when(stubModel.getDraftPool()).thenReturn(List.of());
+
+        IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
+        when(param.getDieFromDraft(anyString()))
+                .then( args -> rndDieDraftPool);
+        when(param.getDieFromRound(anyString()))
+                .then( args -> rndDieRoundTracker);
+
         try {
+            taglierinaCircolare.fill(param);
             taglierinaCircolare.checkParameters(stubPlayer,stubModel);
         } catch (MalformedToolCardException e) {
             isExHappend = true;
         }
-        assertEquals(true, isExHappend);
+        assertTrue( isExHappend);
+
+        // - the die selected is not on the roundtracker
+        when(stubModel.getRoundTracker()).thenReturn(stubRoundTracker);
+        when(stubRoundTracker.getDiceLeftFromRound()).thenReturn(myDiceLeft);
+        Die aDie ;
+        do {
+         aDie= randomDie();
+        } while (myDiceLeft.contains(rndDieDraftPool));
+
+
+        param = mock(IToolCardParametersAcquirer.class);
+
+        Die aDieThatDoesNotBelongToRoundTracker = aDie;
+        when(param.getDieFromRound(anyString()))
+                .then( args -> aDieThatDoesNotBelongToRoundTracker);
+
+        Die aDieFromDraft = randomDie();
+        when(param.getDieFromDraft(anyString()))
+                .then( args -> aDieFromDraft);
+
+        when(stubModel.getDraftPool()).thenReturn(List.of(aDieFromDraft));
+
+        try {
+            taglierinaCircolare.fill(param);
+            taglierinaCircolare.checkParameters(stubPlayer,stubModel);
+        } catch (MalformedToolCardException e) {
+            isExHappend = true;
+        }
+        assertTrue( isExHappend);
     }
+
 
     @Test
     // check if a well formed pennelloPastaSalda toolcard doesn't throw the exception
-    public void pennelloPastaSaldaOkTest() {
+    public void pennelloPastaSaldaOkTest() throws UserInterruptActionException, InterruptedException {
         Die rndDie = randomDie();
         boolean isExHappend = false;
         pennelloPastaSalda = new PennelloPastaSalda();
-        pennelloPastaSalda.setToRoll(rndDie);
+
         when(stubModel.getDraftPool()).thenReturn(List.of(rndDie));
+
+        IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
+        when(param.getDieFromDraft(anyString()))
+                .then( args -> rndDie);
+
         try {
+            pennelloPastaSalda.fill(param);
             pennelloPastaSalda.checkParameters(stubPlayer,stubModel);
         } catch (MalformedToolCardException e) {
             isExHappend = true;
         }
-        assertEquals(false, isExHappend);
+        assertFalse(isExHappend);
     }
 
     @Test
     // MalformedToolCardException thrown for one of them:
     // - the die selected is not in the draft pool
-    public void pennelloPastaSaldaKoTest() {
+    public void pennelloPastaSaldaKoTest() throws UserInterruptActionException, InterruptedException {
         Die rndDie = randomDie();
         boolean isExHappend = false;
         pennelloPastaSalda = new PennelloPastaSalda();
-        pennelloPastaSalda.setToRoll(rndDie);
+
+        IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
+        when(param.getDieFromDraft(anyString()))
+                .then( args -> rndDie);
+
+
         when(stubModel.getDraftPool()).thenReturn(List.of());
         try {
+            pennelloPastaSalda.fill(param);
             pennelloPastaSalda.checkParameters(stubPlayer,stubModel);
         } catch (MalformedToolCardException e) {
             isExHappend = true;
         }
-        assertEquals(true, isExHappend);
+        Assert.assertTrue( isExHappend);
     }
+
 
     private Die randomDie(){
         return new Die(new Random().nextInt(5) + 1, randomValidColour());
@@ -316,3 +433,4 @@ public class ToolCardCheckParametersTest {
     }
 
 }
+
