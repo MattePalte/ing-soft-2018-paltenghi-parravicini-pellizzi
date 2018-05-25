@@ -4,7 +4,8 @@ package project.ing.soft.socket;
 import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.GameController;
 import project.ing.soft.controller.IController;
-import project.ing.soft.socket.request.ClientConnectionRequestHandler;
+import project.ing.soft.exceptions.NickNameAlreadyTakenException;
+import project.ing.soft.socket.request.ConnectionRequest.ClientConnectionRequestHandler;
 import project.ing.soft.view.IView;
 
 import java.io.*;
@@ -22,15 +23,17 @@ public class SimpleSocketConnectionListener extends Thread implements IAccessPoi
     private int     localPort;
     private PrintStream log;
     private Map<String, GameController> hostedGames;
+    private Map<String, GameController> playersInGame;
     private ServerSocket aServerSocket;
     private ExecutorService clientAcceptor = Executors.newCachedThreadPool();
     private ExecutorService ex = Executors.newCachedThreadPool();
 
 
-    public SimpleSocketConnectionListener(int localPort, Map<String, GameController> hostedGames) {
+    public SimpleSocketConnectionListener(int localPort, Map<String, GameController> hostedGames, Map<String, GameController> playersInGame) {
         this.localPort    = localPort;
         this.log = new PrintStream(System.out);
         this.hostedGames = hostedGames;
+        this.playersInGame = playersInGame;
     }
 
     @Override
@@ -81,8 +84,9 @@ public class SimpleSocketConnectionListener extends Thread implements IAccessPoi
     //No more than an instance of this class should run in a server.
     public static void main(String[] args) {
         HashMap<String, GameController> hostedGames = new HashMap<>();
+        HashMap<String, GameController> playersInGame = new HashMap<>();
 
-        SimpleSocketConnectionListener serverThread = new SimpleSocketConnectionListener(3000, hostedGames);
+        SimpleSocketConnectionListener serverThread = new SimpleSocketConnectionListener(3000, hostedGames, playersInGame);
         serverThread.start();
 
 
@@ -109,9 +113,16 @@ public class SimpleSocketConnectionListener extends Thread implements IAccessPoi
         }else {
             selectedGame = gamesThatNeedParticipants.get(0);
         }
-        //selectedGame.joinTheGame(nickname, clientView);
-        clientView.attachController(selectedGame);
-        ex.submit((ViewProxyOverSocket)clientView);
+
+        //check if the nickname is already taken in the selectedGame
+        if(playersInGame.containsKey(nickname))
+            throw new NickNameAlreadyTakenException("This nickname can't be used now");
+        else {
+            //selectedGame.joinTheGame(nickname, clientView);
+            playersInGame.put(nickname, selectedGame);
+            clientView.attachController(selectedGame);
+            ex.submit((ViewProxyOverSocket) clientView);
+        }
 
         return selectedGame;
     }

@@ -1,15 +1,21 @@
-package project.ing.soft.socket.request;
+package project.ing.soft.socket.request.ConnectionRequest;
 
+import org.apache.commons.codec.binary.Hex;
 import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.GameController;
 import project.ing.soft.controller.IController;
-import project.ing.soft.socket.response.ConnectionEstabilishedResponse;
-import project.ing.soft.socket.response.ConnectionRefusedResponse;
+import project.ing.soft.exceptions.NickNameAlreadyTakenException;
+import project.ing.soft.socket.response.ConnectionResponse.ConnectionEstabilishedResponse;
+import project.ing.soft.socket.response.ConnectionResponse.ConnectionRefusedResponse;
 import project.ing.soft.socket.ViewProxyOverSocket;
+import project.ing.soft.socket.response.ConnectionResponse.NickNameAlreadyTakenResponse;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.Callable;
 
 public class ClientConnectionRequestHandler implements Callable<Boolean>, ConnectionRequestHandler {
@@ -34,10 +40,31 @@ public class ClientConnectionRequestHandler implements Callable<Boolean>, Connec
             ConnectionRequest request = (ConnectionRequest)ois.readObject();
             request.accept(this);
 
+        } catch(NickNameAlreadyTakenException e){
+            oos.writeObject(new NickNameAlreadyTakenResponse(e));
+            clientSocket.close();
+            viewProxy.interrupt();
         } catch (Exception e) {
             oos.writeObject(new ConnectionRefusedResponse(e));
+            clientSocket.close();
+            viewProxy.interrupt();
         }
         return true;
+    }
+
+    private String computeDigest(String toCompute) {
+
+        MessageDigest md = null;
+        try {
+            md = MessageDigest.getInstance("MD5");
+            md.update(toCompute.getBytes());
+            byte[] digest = md.digest();
+            return new String(Hex.encodeHex(digest));
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println("A problem occurred trying to compute hash function: ");
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
@@ -45,7 +72,10 @@ public class ClientConnectionRequestHandler implements Callable<Boolean>, Connec
         viewProxy = new ViewProxyOverSocket(clientSocket, oos, ois);
         controller = accessPoint.connect(request.getNickname(), viewProxy);
         nickname = request.getNickname();
-        oos.writeObject(new ConnectionEstabilishedResponse());
+        String token = computeDigest(nickname + controller.getControllerSecurityCode());
+        //TODO: delete this print on definitive version
+        System.out.printf("Associated (%s, %s) token: %s\n", nickname, controller.getControllerSecurityCode(), token);
+        oos.writeObject(new ConnectionEstabilishedResponse(token));
         //TODO: connect must return a GameController instead of IController
         ((GameController)controller).joinTheGame(nickname, viewProxy);
     }

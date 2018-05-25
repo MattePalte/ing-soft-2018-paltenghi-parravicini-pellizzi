@@ -1,4 +1,4 @@
-package project.ing.soft.socket.request;
+package project.ing.soft.socket.request.ConnectionRequest;
 
 public class JoinTheGameRequest implements ConnectionRequest {
     private String nickname;

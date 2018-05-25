@@ -2,6 +2,7 @@ package project.ing.soft.socket;
 
 
 import project.ing.soft.accesspoint.APProxy;
+import project.ing.soft.exceptions.NickNameAlreadyTakenException;
 import project.ing.soft.view.ClientViewCLI;
 import project.ing.soft.view.LocalViewCli;
 
@@ -25,7 +26,7 @@ public class ClientExample extends Thread{
             APProxy AccessPointProxy = new APProxy(host, port);
             AccessPointProxy.connect(name, view);
 
-        }catch (Exception ex){
+        } catch (Exception ex){
             System.out.println("Error "+ex);
             ex.printStackTrace(System.out);
         }

@@ -1,5 +1,6 @@
 package project.ing.soft;
 
+import project.ing.soft.accesspoint.APProxy;
 import project.ing.soft.controller.IController;
 
 import project.ing.soft.socket.ControllerProxyOverSocket;
@@ -50,6 +51,10 @@ public class LaunchClient {
                 break;
             case "1":
                 try {
+                    LocalViewCli view = new LocalViewCli(name);
+                    APProxy AccessPointProxy = new APProxy(host, port);
+                    AccessPointProxy.connect(name, view);
+
                     //ControllerProxyOverSocket controllerProxy = new ControllerProxyOverSocket(host, port);
                     //controllerProxy.start();
                     // from now on we will use the controllerProxy as a real IController

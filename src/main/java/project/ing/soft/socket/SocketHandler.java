@@ -2,6 +2,7 @@ package project.ing.soft.socket;
 
 import project.ing.soft.model.Game;
 import project.ing.soft.socket.request.*;
+import project.ing.soft.socket.request.ConnectionRequest.JoinTheGameRequest;
 import project.ing.soft.socket.response.CreationGameResponse;
 import project.ing.soft.controller.IController;
 import project.ing.soft.socket.response.InformationResponse;

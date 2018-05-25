@@ -1,4 +1,4 @@
-package project.ing.soft.socket.response;
+package project.ing.soft.socket.response.ConnectionResponse;
 
 import java.io.Serializable;
 

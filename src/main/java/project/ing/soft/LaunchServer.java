@@ -18,13 +18,15 @@ import static java.lang.Thread.sleep;
 public class LaunchServer extends Thread{
     private Map<String, GameController> hostedGames;
     private Map<String, GameController> exportedGameControllers;
+    private Map<String, GameController> playersInGame;
     private static final String cmdForStartingRegistry = "start rmiregistry.exe -J-Djava.rmi.server.logCalls=true -J-Djava.rmi.server.useCodebaseOnly=false";
     private static final String classesRootpath =  GameController.class.getProtectionDomain().getCodeSource().getLocation().getPath().replace("%20", " ");
 
 
-    public LaunchServer(Map<String, GameController> hostedGames){
+    public LaunchServer(Map<String, GameController> hostedGames, Map<String, GameController> playersInGame){
         this.hostedGames = hostedGames;
         exportedGameControllers = new HashMap<>(hostedGames);
+        this.playersInGame = playersInGame;
     }
 
     @Override
@@ -128,11 +130,12 @@ public class LaunchServer extends Thread{
 
     public static void main(String[] args) {
         HashMap<String, GameController> hostedGames = new HashMap<>();
+        HashMap<String, GameController> playersInGame = new HashMap<>();
         //Start socket
-        SimpleSocketConnectionListener socketConnectionListener = new SimpleSocketConnectionListener(3000, hostedGames);
+        SimpleSocketConnectionListener socketConnectionListener = new SimpleSocketConnectionListener(3000, hostedGames, playersInGame);
         socketConnectionListener.start();
         //Start RMI
-        LaunchServer rmiConnectionListener = new LaunchServer(hostedGames);
+        LaunchServer rmiConnectionListener = new LaunchServer(hostedGames, playersInGame);
         rmiConnectionListener.start();
 
         Scanner input = new Scanner(System.in);
