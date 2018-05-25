@@ -124,7 +124,7 @@ public class GameController extends UnicastRemoteObject implements IController, 
             //if the game is started building a timeout
 
             if(gameManager.getStatus() == IGameManager.GAME_MANAGER_STATUS.ONGOING) {
-                logger.println("ciao");
+                logger.println("match started");
                 resetTurnEndAndStartTimer();
             }
         }

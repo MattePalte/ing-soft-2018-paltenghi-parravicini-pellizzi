@@ -1,6 +1,7 @@
 package project.ing.soft.socket;
 
 
+import project.ing.soft.Settings;
 import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.GameController;
 import project.ing.soft.controller.IController;
@@ -22,15 +23,16 @@ public class SimpleSocketConnectionListener extends Thread implements IAccessPoi
     private int     localPort;
     private PrintStream log;
     private Map<String, GameController> hostedGames;
+    private Map<String, GameController> playersInGame;
     private ServerSocket aServerSocket;
     private ExecutorService clientAcceptor = Executors.newCachedThreadPool();
     private ExecutorService ex = Executors.newCachedThreadPool();
 
-
-    public SimpleSocketConnectionListener(int localPort, Map<String, GameController> hostedGames) {
+    public SimpleSocketConnectionListener(int localPort, Map<String, GameController> hostedGames, Map<String, GameController> playersInGame) {
         this.localPort    = localPort;
         this.log = new PrintStream(System.out);
         this.hostedGames = hostedGames;
+        this.playersInGame = playersInGame;
     }
 
     @Override
@@ -81,8 +83,9 @@ public class SimpleSocketConnectionListener extends Thread implements IAccessPoi
     //No more than an instance of this class should run in a server.
     public static void main(String[] args) {
         HashMap<String, GameController> hostedGames = new HashMap<>();
+        HashMap<String, GameController> playersInGame = new HashMap<>();
 
-        SimpleSocketConnectionListener serverThread = new SimpleSocketConnectionListener(3000, hostedGames);
+        SimpleSocketConnectionListener serverThread = new SimpleSocketConnectionListener(Settings.port, hostedGames, playersInGame);
         serverThread.start();
 
 
@@ -97,23 +100,35 @@ public class SimpleSocketConnectionListener extends Thread implements IAccessPoi
 
     @Override
     public IController connect(String nickname, IView clientView) throws Exception {
-        //when connection is established a game is directly chosen from the list of available ones
-        ArrayList<GameController> gamesThatNeedParticipants = hostedGames.values().stream()
-                .filter (GameController::notAlreadyStarted)
-                .collect(Collectors.toCollection(ArrayList::new));
-        GameController selectedGame;
+        GameController gameToJoin = null;
+        synchronized (hostedGames) {
+            //when connection is established a game is directly chosen from the list of available ones
+            ArrayList<GameController> gamesThatNeedParticipants = hostedGames.values().stream()
+                    .filter(GameController::notAlreadyStarted)
+                    .collect(Collectors.toCollection(ArrayList::new));
 
-        if (gamesThatNeedParticipants.isEmpty()){
-            selectedGame = new GameController(2, UUID.randomUUID().toString());
-            hostedGames.put(UUID.randomUUID().toString(), selectedGame);
-        }else {
-            selectedGame = gamesThatNeedParticipants.get(0);
+            if (gamesThatNeedParticipants.isEmpty()) {
+                gameToJoin = new GameController(Settings.nrPlayersOfNewMatch, UUID.randomUUID().toString());
+                hostedGames.put(UUID.randomUUID().toString(), gameToJoin);
+            } else {
+                gameToJoin = gamesThatNeedParticipants.get(0);
+            }
+            //selectedGame.joinTheGame(nickname, clientView);
+            clientView.attachController(gameToJoin);
+            ex.submit((ViewProxyOverSocket) clientView);
+
+            //check if the nickname is already taken in the selectedGame
+            if(playersInGame.containsKey(nickname))
+                throw new UnsupportedOperationException();
+                //throw new NickNameAlreadyTakenException("This nickname can't be used now");
+            else {
+                //selectedGame.joinTheGame(nickname, clientView);
+                playersInGame.put(nickname, gameToJoin);
+                clientView.attachController(gameToJoin);
+                ex.submit((ViewProxyOverSocket) clientView);
+            }
         }
-        //selectedGame.joinTheGame(nickname, clientView);
-        clientView.attachController(selectedGame);
-        ex.submit((ViewProxyOverSocket)clientView);
-
-        return selectedGame;
+        return gameToJoin;
     }
 
     @Override

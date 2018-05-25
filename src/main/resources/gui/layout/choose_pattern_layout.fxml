@@ -57,6 +57,6 @@
         </HBox>
     </VBox>
     <stylesheets>
-        <URL value="@style.css"></URL>
+        <URL value="@../style.css"></URL>
     </stylesheets>
 </VBox>

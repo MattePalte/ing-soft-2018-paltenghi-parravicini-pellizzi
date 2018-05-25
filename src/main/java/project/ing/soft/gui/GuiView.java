@@ -23,6 +23,10 @@ import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Pair;
+import project.ing.soft.Settings;
+import project.ing.soft.accesspoint.APProxy;
+import project.ing.soft.accesspoint.APointRMI;
+import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Coordinate;
@@ -845,7 +849,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     public synchronized void showPickValues(String message, Integer... values) {
         Platform.runLater(new Runnable() {
             @Override public void run() {
-                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/chose_value.fxml"));
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/gui/layout/chose_value.fxml"));
                 Parent root1 = null;
                 try {
                     root1 = (Parent) fxmlLoader.load();
@@ -861,7 +865,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
             }
         });
     }
-
     public synchronized void showPickPattern() {
         // show the first pattern
         currentIndexPatternDisplayed = 0;
@@ -883,21 +886,28 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     public void btnRmiConnectionOnClick() throws Exception {
         setName();
         Registry registry = LocateRegistry.getRegistry();
-        // gets a reference for the remote controller
-        myController = (IController) registry.lookup("controller" + registry.list().length);
-        System.out.println("GameController retrieved by RMI");
+        // gets a reference for the remote accesspoint
+        IAccessPoint accessPoint = (IAccessPoint) registry.lookup("accesspoint");
+        IController controllerFromRMI = (IController) accessPoint.connect(ownerNameOfTheView, this);
+        System.out.println("Controller retrieved from AccessPoint");
+        this.attachController(controllerFromRMI);
+        System.out.println("Controller attached to the view");
         setController();
         btnRmiConnection.setText("GameController Obtained");
     }
 
     public void btnSocketConnectionOnClick() throws Exception {
         setName();
-        //ControllerProxyOverSocket controllerProxy = new ControllerProxyOverSocket(HOST, PORT);
-        //controllerProxy.start();
-        //myController = (IController) controllerProxy;
-        System.out.println("ControllerProxy created");
+        //TODO: not working
+        throw new UnsupportedOperationException("Socket non settato correttamente, perchè blocca l'interfaccia grafica");
+        /*IAccessPoint accessPoint = new APProxy(Settings.host, Settings.port);
+        ControllerProxyOverSocket controllerProxy = (ControllerProxyOverSocket) accessPoint.connect(ownerNameOfTheView, this);
+        controllerProxy.start();
+        System.out.println("ControllerProxy created by AccessPoint Proxy");
+        this.attachController(controllerProxy);
+        System.out.println("Controller attached to the view");
         setController();
-        btnSocketConnection.setText("GameController Obtained");
+        btnSocketConnection.setText("GameController Obtained");*/
     }
 
     private void setName() throws Exception {

@@ -1,5 +1,6 @@
 package project.ing.soft.accesspoint;
 
+import project.ing.soft.Settings;
 import project.ing.soft.controller.GameController;
 import project.ing.soft.controller.IController;
 import project.ing.soft.view.IView;
@@ -13,7 +14,7 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
 
     private final HashMap<String, GameController> hostedGameController;
 
-    protected APointRMI(HashMap<String,GameController> hostedGameController) throws RemoteException {
+    public APointRMI(HashMap<String,GameController> hostedGameController) throws RemoteException {
         this.hostedGameController = hostedGameController;
     }
 
@@ -28,20 +29,26 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
     @Override
     public IController connect(String nickname, IView clientView) throws RemoteException{
 
-        GameController gameToJoin;
+        GameController gameToJoin = null;
         synchronized (hostedGameController){
-            int players = 3;
 
-            gameToJoin = hostedGameController.values().stream()
-                    .filter (GameController::notAlreadyStarted )
-                    .findFirst().orElse(new GameController(players, UUID.randomUUID().toString()));
-
+            // search controller in already present game but not started
+            for (GameController controller : hostedGameController.values()) {
+                if (controller.notAlreadyStarted()){
+                    gameToJoin = controller;
+                }
+            }
+            // no match avaible for this new user, so create a brand new match only for him
+            if (gameToJoin == null){
+                String newCode = UUID.randomUUID().toString();
+                gameToJoin = new GameController(Settings.nrPlayersOfNewMatch, newCode);
+                hostedGameController.put(newCode, gameToJoin);
+            }
             try {
                 gameToJoin.joinTheGame(nickname, clientView);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
 
             //TODO: create PlayerController and return instead of GameControler
         }

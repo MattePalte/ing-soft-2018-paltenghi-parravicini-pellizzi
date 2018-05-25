@@ -1,7 +1,8 @@
 package project.ing.soft;
 
+import project.ing.soft.accesspoint.APointRMI;
+import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.GameController;
-import project.ing.soft.controller.IController;
 import project.ing.soft.socket.SimpleSocketConnectionListener;
 
 import java.io.File;
@@ -11,20 +12,21 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.lang.Thread.sleep;
 
 public class LaunchServer extends Thread{
-    private Map<String, GameController> hostedGames;
-    private Map<String, GameController> exportedGameControllers;
+
+    private final HashMap<String, GameController> hostedGames;
+    private final HashMap<String, GameController> playersInGame;
+
     private static final String cmdForStartingRegistry = "start rmiregistry.exe -J-Djava.rmi.server.logCalls=true -J-Djava.rmi.server.useCodebaseOnly=false";
     private static final String classesRootpath =  GameController.class.getProtectionDomain().getCodeSource().getLocation().getPath().replace("%20", " ");
 
 
-    public LaunchServer(Map<String, GameController> hostedGames){
+    public LaunchServer(HashMap<String, GameController> hostedGames, HashMap<String, GameController> playersInGame){
         this.hostedGames = hostedGames;
-        exportedGameControllers = new HashMap<>(hostedGames);
+        this.playersInGame = playersInGame;
     }
 
     @Override
@@ -82,37 +84,12 @@ public class LaunchServer extends Thread{
                 }
             }
 
-            while(!Thread.currentThread().isInterrupted()) {
 
-                // TODO: syncronize this and socket listener on hostedGames
-                if(exportedGameControllers.size()!=hostedGames.size()) {
-                    ArrayList<GameController> toAdd = new ArrayList<>(hostedGames.values());
-                    toAdd.removeAll(exportedGameControllers.values());
+            IAccessPoint uniqueRmiAP = new APointRMI(hostedGames);
 
-                    toAdd.forEach(game -> {
-                        try {
-                            registry.rebind("controller" + exportedGameControllers.size() + 1, game);
-                            System.out.println(" >>> GameController Exported");
-                            exportedGameControllers.put(UUID.randomUUID().toString(), game);
-                        } catch (RemoteException e) {
-                            e.printStackTrace();
-                        }
-                    });
-                }
+            registry.rebind("accesspoint", uniqueRmiAP);
+            System.out.println("AccessPoint RMI published on the registry");
 
-                ArrayList<IController> gamesThatNeedParticipants = hostedGames.values().stream()
-                        .filter (GameController::notAlreadyStarted )
-                        .collect(Collectors.toCollection(ArrayList::new));
-                GameController selectedGame;
-
-                if (gamesThatNeedParticipants.isEmpty()) {
-                    int players = 2;
-                    selectedGame = new GameController(players, UUID.randomUUID().toString());
-                    hostedGames.put(UUID.randomUUID().toString(), selectedGame);
-                    exportedGameControllers.put(UUID.randomUUID().toString(), selectedGame);
-                    registry.rebind("controller" + hostedGames.size(), selectedGame);
-                }
-            }
         } catch (RemoteException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -128,11 +105,12 @@ public class LaunchServer extends Thread{
 
     public static void main(String[] args) {
         HashMap<String, GameController> hostedGames = new HashMap<>();
+        HashMap<String, GameController> playersInGame = new HashMap<>();
         //Start socket
-        SimpleSocketConnectionListener socketConnectionListener = new SimpleSocketConnectionListener(3000, hostedGames);
+        SimpleSocketConnectionListener socketConnectionListener = new SimpleSocketConnectionListener(3000, hostedGames, playersInGame);
         socketConnectionListener.start();
         //Start RMI
-        LaunchServer rmiConnectionListener = new LaunchServer(hostedGames);
+        LaunchServer rmiConnectionListener = new LaunchServer(hostedGames, playersInGame);
         rmiConnectionListener.start();
 
         Scanner input = new Scanner(System.in);

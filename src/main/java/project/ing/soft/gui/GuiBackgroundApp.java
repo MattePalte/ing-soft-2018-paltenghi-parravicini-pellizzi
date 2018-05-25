@@ -1,16 +1,15 @@
 package project.ing.soft.gui;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import project.ing.soft.model.gamemanager.events.*;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.LinkedList;
-import java.util.Queue;
 
 public class GuiBackgroundApp extends Application {
 
@@ -22,7 +21,8 @@ public class GuiBackgroundApp extends Application {
     public void start(Stage aPrimaryStage) {
         this.primaryStage = aPrimaryStage;
         Parent root = null;
-        String sceneFile = "/gui_view_layout.fxml";
+        String sceneFile = "/gui/layout/gui_view_layout.fxml";
+        //String sceneFile = "/gui/layout/spalsh_layout.fxml";
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(sceneFile));
         try {
             root = (Parent)fxmlLoader.load();
@@ -35,11 +35,17 @@ public class GuiBackgroundApp extends Application {
         backBoneOfInterface.setOut(out);
         backBoneOfInterface.setPrimaryStage(aPrimaryStage);
         Scene scene = new Scene(root, 500, 600);
+        /*SplashController splashFxController = fxmlLoader.getController();
+        splashFxController.collectDimension(scene);*/
 
         this.primaryStage.setTitle("Sagrada - GUI");
         this.primaryStage.setScene(scene);
+
         this.primaryStage.setMaximized(true);
         this.primaryStage.show();
+
+
+
     }
 
 

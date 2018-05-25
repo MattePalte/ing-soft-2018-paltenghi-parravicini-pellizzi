@@ -1,5 +1,7 @@
 package project.ing.soft;
 
+import project.ing.soft.accesspoint.APProxy;
+import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.IController;
 
 import project.ing.soft.socket.ControllerProxyOverSocket;
@@ -14,16 +16,11 @@ import static java.lang.Thread.sleep;
 
 public class LaunchClient {
 
-    private static final String DEFAULT_IP = "127.0.0.1";
 
     public static void main(String[] args) throws Exception {
 
         //args[0] should be the ip address of the machine running the registry
-        Registry registry = LocateRegistry.getRegistry( args.length > 0 ? args[0] : DEFAULT_IP);
-
-        // default configuration for sockets
-        String host = "localhost";
-        int port    = 3000;
+        Registry registry = LocateRegistry.getRegistry( args.length > 0 ? args[0] : Settings.defaultIpForRMI);
 
         /* Use this if you want to list the bound objects
         for (String name : registry.list()) {
@@ -43,17 +40,14 @@ public class LaunchClient {
         System.out.println("[0] RMI");
         System.out.println("[1] Socket");
         IController controller = null;
+        IAccessPoint accessPoint = null;
         switch (scan.next()) {
             case "0":
-                // gets a reference for the remote controller
-                controller = (IController) registry.lookup("controller" + registryList.length);
+                accessPoint = (IAccessPoint) registry.lookup("accesspoint");
                 break;
             case "1":
                 try {
-                    //ControllerProxyOverSocket controllerProxy = new ControllerProxyOverSocket(host, port);
-                    //controllerProxy.start();
-                    // from now on we will use the controllerProxy as a real IController
-                    //controller = (IController) controllerProxy;
+                    accessPoint = new APProxy(Settings.host, Settings.port);
                 }catch (Exception ex){
                     System.out.println("Error "+ex);
                     ex.printStackTrace(System.out);
@@ -63,14 +57,16 @@ public class LaunchClient {
                 return;
         }
 
-        if (controller != null) {
+        if (accessPoint != null) {
             // create the CLI view
             // launch it
             // and attach the chosen controller (Rmi or Socket) to it
             IView view = new LocalViewCli(name);
             System.out.println("View created successfully");
+            controller = accessPoint.connect(name, view);
+            System.out.println("Controller retrieved from AccessPoint");
             view.attachController(controller);
-            //controller.joinTheGame(name , view);
+            System.out.println("Controller attached to the view");
         }
 
     }

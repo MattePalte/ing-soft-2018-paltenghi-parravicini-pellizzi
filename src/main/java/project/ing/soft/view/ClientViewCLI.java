@@ -20,6 +20,7 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
 
+@Deprecated
 public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventHandler, Serializable, IToolCardParametersAcquirer {
 
     private IGameManager localCopyOfTheStatus;
