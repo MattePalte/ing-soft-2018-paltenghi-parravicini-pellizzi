@@ -1,6 +1,5 @@
 package project.ing.soft.socket.request.ConnectionRequest;
 
-import org.apache.commons.codec.binary.Hex;
 import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.GameController;
 import project.ing.soft.controller.IController;
@@ -12,7 +11,6 @@ import project.ing.soft.socket.response.ConnectionResponse.NickNameAlreadyTakenR
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -52,6 +50,17 @@ public class ClientConnectionRequestHandler implements Callable<Boolean>, Connec
         return true;
     }
 
+    private String encodeHex(byte[] byteArray){
+        StringBuilder res = new StringBuilder();
+        for(byte b : byteArray){
+            String tmp = Integer.toHexString(b & 0xFF);
+            if(tmp.length() == 1)
+                res.append(0);
+            res.append(tmp);
+        }
+        return new String(res);
+    }
+
     private String computeDigest(String toCompute) {
 
         MessageDigest md = null;
@@ -59,7 +68,7 @@ public class ClientConnectionRequestHandler implements Callable<Boolean>, Connec
             md = MessageDigest.getInstance("MD5");
             md.update(toCompute.getBytes());
             byte[] digest = md.digest();
-            return new String(Hex.encodeHex(digest));
+            return new String(encodeHex(digest));
         } catch (NoSuchAlgorithmException e) {
             System.out.println("A problem occurred trying to compute hash function: ");
             e.printStackTrace();
