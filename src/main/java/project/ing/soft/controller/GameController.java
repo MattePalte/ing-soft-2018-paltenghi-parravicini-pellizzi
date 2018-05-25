@@ -150,19 +150,14 @@ public class GameController extends UnicastRemoteObject implements IController, 
     }
 
     @Override
-    public synchronized void firstPhaseToolCard(String nickname, ToolCard aToolCard) throws Exception {
+    public synchronized void PlayToolCard(String nickname, ToolCard aToolCard) throws Exception {
         if (!gameManager.getCurrentPlayer().getName().equals(nickname))
             throw new ActionNotPermittedException();
 
         if(turnEnded.get())
             throw new TimeoutOccurredException();
 
-        gameManager.firstPhaseToolCard(aToolCard);
-    }
-
-    @Override
-    public void secondPhaseToolCard(String nickname, ToolCard aToolCard) throws Exception {
-
+        gameManager.playToolCard(aToolCard);
     }
 
     //region end turn

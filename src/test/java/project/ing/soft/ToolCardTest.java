@@ -4,6 +4,7 @@ import org.junit.*;
 import project.ing.soft.exceptions.PatternConstraintViolatedException;
 import project.ing.soft.exceptions.PositionOccupiedException;
 import project.ing.soft.exceptions.RuleViolatedException;
+import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.*;
 import project.ing.soft.model.cards.WindowPattern;
 import project.ing.soft.model.cards.toolcards.*;
@@ -158,7 +159,7 @@ public class ToolCardTest {
 
 
     @Test
-    public void pinzaSgrossatriceTest(){
+    public void pinzaSgrossatriceTest() throws UserInterruptActionException, InterruptedException {
         PinzaSgrossatrice tested = new PinzaSgrossatrice();
         boolean exceptionThrown = false;
 
@@ -167,10 +168,19 @@ public class ToolCardTest {
         int randomValue = rndGen.nextInt(5) + 1;
         Die addedDie = new Die(randomValue, Colour.validColours().get(randomColourIndex));
         draftPoolStub.add(addedDie);
-        tested.setChoosenDie(addedDie);
-        tested.setToBeIncreased(true);
+
+        IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
+
+        doAnswer((invocation) -> 1
+        ).when(param).getValue(any(String.class), anyInt(), anyInt() );
+        Die finalAddedDie = addedDie;
+        doAnswer((invocation) -> finalAddedDie
+        ).when(param).getDieFromDraft(any(String.class) );
+
+
         try {
-            tested.applyFirst(playerStub, gameManagerStub);
+            tested.fill(param);
+            tested.play(playerStub, gameManagerStub);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -192,10 +202,20 @@ public class ToolCardTest {
         randomValue = rndGen.nextInt(5) + 2;
         addedDie = new Die(randomValue, Colour.validColours().get(randomColourIndex));
         draftPoolStub.add(addedDie);
-        tested.setChoosenDie(addedDie);
-        tested.setToBeIncreased(false);
+
+
+        param = mock(IToolCardParametersAcquirer.class);
+
+        doAnswer((invocation) -> -1
+        ).when(param).getValue(any(String.class), anyInt(), anyInt() );
+
+        Die finalAddedDie1 = addedDie;
+        doAnswer((invocation) -> finalAddedDie1
+        ).when(param).getDieFromDraft(any(String.class) );
+
         try{
-            tested.applyFirst(playerStub, gameManagerStub);
+            tested.fill(param);
+            tested.play(playerStub, gameManagerStub);
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -214,10 +234,17 @@ public class ToolCardTest {
         randomColourIndex = rndGen.nextInt(5);
         addedDie = new Die(1, Colour.validColours().get(randomColourIndex));
         draftPoolStub.add(addedDie);
-        tested.setChoosenDie(addedDie);
-        tested.setToBeIncreased(false);
+
+        doAnswer((invocation) -> -1
+        ).when(param).getValue(any(String.class), anyInt(), anyInt() );
+
+        Die finalAddedDie2 = addedDie;
+        doAnswer((invocation) -> finalAddedDie2
+        ).when(param).getDieFromDraft(any(String.class) );
+
         try {
-            tested.applyFirst(playerStub, gameManagerStub);
+            tested.fill(param);
+            tested.play(playerStub, gameManagerStub);
         } catch (Exception e) {
             exceptionThrown = true;
         }
@@ -230,10 +257,17 @@ public class ToolCardTest {
         randomColourIndex = rndGen.nextInt(5);
         addedDie = new Die(6, Colour.validColours().get(randomColourIndex));
         draftPoolStub.add(addedDie);
-        tested.setChoosenDie(addedDie);
-        tested.setToBeIncreased(true);
+        doAnswer((invocation) -> +1
+        ).when(param).getValue(any(String.class), anyInt(), anyInt() );
+
+        Die finalAddedDie3 = addedDie;
+        doAnswer((invocation) -> finalAddedDie3
+        ).when(param).getDieFromDraft(any(String.class) );
+
+
         try {
-            tested.applyFirst(playerStub, gameManagerStub);
+            tested.fill(param);
+            tested.play(playerStub, gameManagerStub);
         } catch (Exception e) {
             exceptionThrown = true;
         }
@@ -241,7 +275,7 @@ public class ToolCardTest {
     }
 
     @Test
-    public void pennelloEglomiseTest(){
+    public void pennelloEglomiseTest() throws UserInterruptActionException, InterruptedException {
         PennelloPerEglomise tested = new PennelloPerEglomise();
 
         Coordinate randomStartCoord = getRandomCoord();
@@ -250,10 +284,16 @@ public class ToolCardTest {
         int randomColourIndex = rndGen.nextInt(5);
         Die movedDie = new Die(randomValue, Colour.validColours().get(randomColourIndex));
         placedDiceStub[randomStartCoord.getRow()][randomStartCoord.getCol()] = movedDie;
-        tested.setStartPosition(randomStartCoord);
-        tested.setEndPosition(randomEndCoord);
+
+        IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
+
+        when(param.getCoordinate(anyString()))
+                .then(args -> randomStartCoord)
+                .then(args -> randomEndCoord);
+
         try {
-            tested.applyFirst(playerStub, gameManagerStub);
+            tested.fill(param);
+            tested.play(playerStub, gameManagerStub);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -263,7 +303,7 @@ public class ToolCardTest {
     }
 
     @Test
-    public void alesatoreLaminaRameTest(){
+    public void alesatoreLaminaRameTest() throws UserInterruptActionException, InterruptedException {
         AlesatoreLaminaRame tested = new AlesatoreLaminaRame();
 
         Coordinate randomStartCoord = getRandomCoord();
@@ -272,10 +312,16 @@ public class ToolCardTest {
         int randomColourIndex = rndGen.nextInt(5);
         Die movedDie = new Die(randomValue, Colour.validColours().get(randomColourIndex));
         placedDiceStub[randomStartCoord.getRow()][randomStartCoord.getCol()] = movedDie;
-        tested.setStartPosition(randomStartCoord);
-        tested.setEndPosition(randomEndCoord);
+
+        IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
+
+        when(param.getCoordinate(anyString()))
+                .then(args -> randomStartCoord)
+                .then(args -> randomEndCoord);
+
         try {
-            tested.applyFirst(playerStub, gameManagerStub);
+            tested.fill(param);
+            tested.play(playerStub, gameManagerStub);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -285,7 +331,7 @@ public class ToolCardTest {
     }
 
     @Test
-    public void lathekinTest(){
+    public void lathekinTest() throws UserInterruptActionException, InterruptedException {
         Lathekin tested = new Lathekin();
         LinkedList<Coordinate> randomStartCoord = new LinkedList<>();
         LinkedList<Coordinate> randomEndCoord = new LinkedList<>();
@@ -306,13 +352,19 @@ public class ToolCardTest {
         movedDice.add(new Die(rndGen.nextInt(6) + 1, Colour.validColours().get(rndGen.nextInt(5))));
         placedDiceStub[randomStartCoord.get(0).getRow()][randomStartCoord.get(0).getCol()] = movedDice.get(0);
         placedDiceStub[randomStartCoord.get(1).getRow()][randomStartCoord.get(1).getCol()] = movedDice.get(1);
-        tested.setFirstDieStartPosition(randomStartCoord.get(0));
-        tested.setFirstDieEndPosition(randomEndCoord.get(0));
-        tested.setSecondDieStartPosition(randomStartCoord.get(1));
-        tested.setSecondDieEndPosition(randomEndCoord.get(1));
+
+
+        IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
+
+        when(param.getCoordinate(any(String.class)))
+                .then( (args)-> randomStartCoord.get(0))
+                .then( (args)-> randomEndCoord.get(0))
+                .then( (args)-> randomStartCoord.get(1))
+                .then( (args)-> randomEndCoord.get(1));
 
         try {
-            tested.applyFirst(playerStub, gameManagerStub);
+            tested.fill(param);
+            tested.play(playerStub, gameManagerStub);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -326,7 +378,7 @@ public class ToolCardTest {
     }
 
     @Test
-    public void taglierinaCircolareTest(){
+    public void taglierinaCircolareTest() throws UserInterruptActionException, InterruptedException {
         TaglierinaCircolare tested = new TaglierinaCircolare();
 
         int randomColourIndex = rndGen.nextInt(5);
@@ -337,10 +389,17 @@ public class ToolCardTest {
         randomValue = rndGen.nextInt(6) + 1;
         Die fromDraftPool = new Die(randomValue, Colour.validColours().get(randomColourIndex));
         draftPoolStub.add(fromDraftPool);
-        tested.setDieFromDraft(fromDraftPool);
-        tested.setDieFromRoundTracker(fromRoundTracker);
+
+        IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
+
+        when(param.getDieFromDraft(anyString()))
+                .then( (args)-> fromDraftPool);
+        when(param.getDieFromRound(anyString()))
+                .then( (args)-> fromRoundTracker);
+
         try {
-            tested.applyFirst(playerStub, gameManagerStub);
+            tested.fill(param);
+            tested.play(playerStub, gameManagerStub);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -356,7 +415,7 @@ public class ToolCardTest {
 
         ArrayList<Die> oldDraftPool = new ArrayList<>(draftPoolStub);
         try {
-            tested.applyFirst(playerStub, gameManagerStub);
+            tested.play(playerStub, gameManagerStub);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -380,7 +439,7 @@ public class ToolCardTest {
         for(int i = 0; i < fullTurnListSize / 2; i++) {
             turnListStub.add(turnListStub.size() - (i), fstPlayer);
             try {
-                tested.applyFirst(playerStub, gameManagerStub);
+                tested.play(playerStub, gameManagerStub);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -390,8 +449,10 @@ public class ToolCardTest {
             Assert.assertEquals(fullTurnListSize, turnListStub.size());
             turnListStub.remove(1);
         }
+        IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
         try {
-            tested.applyFirst(playerStub, gameManagerStub);
+            tested.fill(param);
+            tested.play(playerStub, gameManagerStub);
         } catch (Exception e) {
             message = e.getCause().getMessage();
             exceptionThrown = true;
@@ -402,7 +463,7 @@ public class ToolCardTest {
     }
 
     @Test
-    public void rigaSugheroTest(){
+    public void rigaSugheroTest() throws UserInterruptActionException, InterruptedException {
         // TODO: check method. Exception die passed not in the list at line 464
         RigaSughero tested = new RigaSughero();
         boolean exceptionThrown = false;
@@ -413,12 +474,20 @@ public class ToolCardTest {
         Die dieToPlace = new Die(rndGen.nextInt(6) + 1, Colour.validColours().get(rndGen.nextInt(5)));
         Coordinate randomPosition = getRandomCoord();
         draftPoolStub.add(dieToPlace);
-        tested.setChosenDie(dieToPlace);
-        tested.setPosition(randomPosition);
+
+        IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
+
+        when(param.getDieFromDraft(anyString()))
+                .then( (args)-> dieToPlace);
+
+        when(param.getCoordinate(anyString()))
+                .then( (args)-> randomPosition);
+
         for(Die die : getAdjacents(randomPosition.getRow(), randomPosition.getCol()))
             System.out.println(die);
         try {
-            tested.applyFirst(playerStub, gameManagerStub);
+            tested.fill(param);
+            tested.play(playerStub, gameManagerStub);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -428,10 +497,19 @@ public class ToolCardTest {
         diceToTest = getRandomDice(posToTest.size());
         for(int i = 0; i < posToTest.size(); i++){
             draftPoolStub.add(diceToTest.get(i));
-            tested.setChosenDie(diceToTest.get(i));
-            tested.setPosition(posToTest.get(i));
+
+            param = mock(IToolCardParametersAcquirer.class);
+
+            int finalI = i;
+            when(param.getDieFromDraft(anyString()))
+                    .then( (args)-> diceToTest.get(finalI));
+
+            when(param.getCoordinate(anyString()))
+                    .then( (args)-> posToTest.get(finalI));
+
             try {
-                tested.applyFirst(playerStub, gameManagerStub);
+                tested.fill(param);
+                tested.play(playerStub, gameManagerStub);
             } catch (Exception e) {
                 exceptionThrown = true;
                 Assert.assertEquals(message, e.getCause().getMessage());
@@ -444,10 +522,19 @@ public class ToolCardTest {
 
         for(int i = 0; i < posToTest.size(); i++){
             draftPoolStub.add(diceToTest.get(i));
-            tested.setChosenDie(diceToTest.get(i));
-            tested.setPosition(posToTest.get(i));
+
+            param = mock(IToolCardParametersAcquirer.class);
+
+            int finalI = i;
+            when(param.getDieFromDraft(anyString()))
+                    .then( (args)->diceToTest.get(finalI));
+
+            when(param.getCoordinate(anyString()))
+                    .then( (args)-> posToTest.get(finalI));
+
             try {
-                tested.applyFirst(playerStub, gameManagerStub);
+                tested.fill(param);
+                tested.play(playerStub, gameManagerStub);
             } catch (Exception e) {
                 exceptionThrown = true;
                 Assert.assertEquals(message, e.getCause().getMessage());
@@ -456,10 +543,18 @@ public class ToolCardTest {
             Assert.assertFalse(exceptionThrown);
         }
 
-        tested.setChosenDie(dieToPlace);
-        tested.setPosition(randomPosition);
+        param = mock(IToolCardParametersAcquirer.class);
+
+
+        when(param.getDieFromDraft(anyString()))
+                .then( (args)-> dieToPlace);
+
+        when(param.getCoordinate(anyString()))
+                .then( (args)-> randomPosition);
+
         try {
-            tested.applyFirst(playerStub, gameManagerStub);
+            tested.fill(param);
+            tested.play(playerStub, gameManagerStub);
         } catch (Exception e) {
             exceptionThrown = true;
             Assert.assertEquals(message, e.getCause().getMessage());
@@ -468,15 +563,20 @@ public class ToolCardTest {
     }
 
     @Test
-    public void tamponeDiamantatoTest(){
+    public void tamponeDiamantatoTest() throws UserInterruptActionException, InterruptedException {
         TamponeDiamantato tested = new TamponeDiamantato();
 
         Die toFlip = new Die(rndGen.nextInt(6) + 1, Colour.validColours().get(rndGen.nextInt(5)));
         Die flipped = toFlip.flipDie();
         draftPoolStub.add(toFlip);
-        tested.setChosenDie(toFlip);
+        IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
+
+        when(param.getDieFromDraft(anyString()))
+                .then( (args)->toFlip);
+
         try {
-            tested.applyFirst(playerStub, gameManagerStub);
+            tested.fill(param);
+            tested.play(playerStub, gameManagerStub);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -487,7 +587,7 @@ public class ToolCardTest {
     }
 
     @Test
-    public void taglierinaManualeTest(){
+    public void taglierinaManualeTest() throws UserInterruptActionException, InterruptedException {
         TaglierinaManuale tested = new TaglierinaManuale();
 
         Die fromRoundTracker = new Die(rndGen.nextInt(6) + 1, Colour.validColours().get(rndGen.nextInt(5)));
@@ -497,7 +597,7 @@ public class ToolCardTest {
         Coordinate randomCoord;
 
         for(int i = 0; i < 2; i++){
-            diceToMove.add(new Die(rndGen.nextInt(6) + 1, fromRoundTracker.getColour()));
+            diceToMove.add(new Die( fromRoundTracker.getColour()).rollDie());
         }
         startPos.add(getRandomCoord());
         do{
@@ -515,11 +615,21 @@ public class ToolCardTest {
         for(int i = 0; i < diceToMove.size(); i++){
             placedDiceStub[startPos.get(i).getRow()][startPos.get(i).getCol()] = diceToMove.get(i);
         }
-        tested.setDieFromRoundTracker(fromRoundTracker);
-        tested.setDiceChosen(startPos);
-        tested.setMoveTo(endPos);
+
+        IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
+        when(param.getDieFromRound(anyString())).then(
+                (args)-> fromRoundTracker
+        );
+
+        when(param.getCoordinate(anyString()))
+                .then((args)-> startPos.get(0))
+                .then((args)-> endPos.get(0))
+                .then((args)-> startPos.get(1))
+                .then((args)-> endPos.get(1));
+
         try {
-            tested.applyFirst(playerStub, gameManagerStub);
+            tested.fill(param);
+            tested.play(playerStub, gameManagerStub);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -6,37 +6,20 @@ import project.ing.soft.model.Coordinate;
 import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Player;
+import project.ing.soft.model.gamemanager.events.ModelChangedEvent;
+import project.ing.soft.model.gamemanager.events.MyTurnStartedEvent;
 
 import java.util.List;
 
-public class AlesatoreLaminaRame extends SingleInterationToolcard {
+public class AlesatoreLaminaRame extends ToolCard {
 
     private Coordinate startPosition;
     private Coordinate endPosition;
-
-    public void setStartPosition(Coordinate startPosition) {
-        this.startPosition = startPosition;
-    }
-
-    public void setEndPosition(Coordinate endPosition) {
-        this.endPosition = endPosition;
-    }
 
     public AlesatoreLaminaRame() {
         super("Alesatore per lamina di rame", "Muovi un qualsiasi dado nella tua vetrata ignorando le restrizioni di valore\n" +
                 "Devi rispettare tutte le altre restrizioni di piazzamento", Colour.RED,
                 "toolcard/30%/toolcards-4.png");
-    }
-
-    @Override
-    public void applyFirst(Player p, IGameManager m) throws ToolCardApplicationException {
-        try {
-            checkParameters(p, m);
-            //TODO: doesn't have to check value, does it?
-            p.moveDice(List.of(startPosition), List.of(endPosition), true, true, true);
-        }catch(Exception e){
-            throw new ToolCardApplicationException(e);
-        }
     }
 
     @Override
@@ -47,7 +30,14 @@ public class AlesatoreLaminaRame extends SingleInterationToolcard {
     }
 
     @Override
-    public void fillFirst(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException {
-        visitor.fill(this);
+    public void fill(IToolCardParametersAcquirer acquirer) throws UserInterruptActionException, InterruptedException {
+        startPosition = acquirer.getCoordinate("Enter which die you want to move");
+        endPosition   = acquirer.getCoordinate("Enter an empty cell's position to move it");
     }
+
+    @Override
+    public void apply(Player p, IGameManager m) throws Exception {
+        p.moveDice(List.of(startPosition), List.of(endPosition), true, true, true);
+    }
+
 }

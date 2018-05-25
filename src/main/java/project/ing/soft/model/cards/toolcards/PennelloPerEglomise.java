@@ -8,18 +8,10 @@ import project.ing.soft.model.Player;
 
 import java.util.List;
 
-public class PennelloPerEglomise extends SingleInterationToolcard {
+public class PennelloPerEglomise extends ToolCard {
 
     private Coordinate startPosition;
     private Coordinate endPosition;
-
-    public void setStartPosition(Coordinate startPosition) {
-        this.startPosition = new Coordinate(startPosition);
-    }
-
-    public void setEndPosition(Coordinate endPosition) {
-        this.endPosition = new Coordinate(endPosition);
-    }
 
     public PennelloPerEglomise() {
         super("Pennello per Eglomise", "Muovi un qualsiasi dado nella tua vetrata ignorando le restrizioni di colore\n" +
@@ -27,15 +19,6 @@ public class PennelloPerEglomise extends SingleInterationToolcard {
                 "toolcard/30%/toolcards-3.png");
     }
 
-    @Override
-    public void applyFirst(Player p, IGameManager m) throws ToolCardApplicationException{
-        try{
-            checkParameters(p,m);
-            p.moveDice(List.of(startPosition), List.of(endPosition), false, true, true);
-        }catch(Exception e){
-            throw new ToolCardApplicationException(e);
-        }
-    }
 
     @Override
     public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
@@ -45,7 +28,14 @@ public class PennelloPerEglomise extends SingleInterationToolcard {
     }
 
     @Override
-    public void fillFirst(IToolCardFiller visitor) throws UserInterruptActionException, InterruptedException {
-        visitor.fill(this);
+    public void fill(IToolCardParametersAcquirer acquirer) throws UserInterruptActionException, InterruptedException {
+        startPosition = acquirer.getCoordinate("Enter which die you want to move");
+        endPosition   = acquirer.getCoordinate("Enter an empty cell's position to move it");
+
+    }
+
+    @Override
+    public void apply(Player p, IGameManager m) throws Exception{
+        p.moveDice(List.of(startPosition), List.of(endPosition), false, true, true);
     }
 }

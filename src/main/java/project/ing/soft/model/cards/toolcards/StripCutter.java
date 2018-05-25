@@ -15,10 +15,7 @@ public class StripCutter extends ToolCard {
                 "toolcard/30%/toolcards-14.png");
     }
 
-    @Override
-    public void applyFirst(Player p, IGameManager m) throws ToolCardApplicationException {
-        throw new ToolCardApplicationException(new UnsupportedOperationException());
-    }
+
 
     @Override
     public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
@@ -26,7 +23,11 @@ public class StripCutter extends ToolCard {
     }
 
     @Override
-    public void fillFirst(IToolCardFiller visitor) {
-        visitor.fill(this);
+    public void fill(IToolCardParametersAcquirer acquirer) {
+        throw new UnsupportedOperationException();
+    }
+    @Override
+    public void apply(Player p, IGameManager m) throws ToolCardApplicationException {
+        throw new ToolCardApplicationException(new UnsupportedOperationException());
     }
 }

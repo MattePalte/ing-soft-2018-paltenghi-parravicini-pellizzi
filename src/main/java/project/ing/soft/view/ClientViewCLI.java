@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
 
-public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventHandler, Serializable {
+public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventHandler, Serializable, IToolCardParametersAcquirer {
 
     private IGameManager localCopyOfTheStatus;
 
@@ -29,7 +29,7 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
 
     private transient PrintStream out;
     private transient NonBlockingScanner scanner;
-    private transient CliToolCardFiller aToolCardFiller;
+
 
     private transient ExecutorService threadPool;
     private final transient Queue<Event> eventsReceived;
@@ -50,7 +50,7 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
         this.out                  = new PrintStream(System.out);
         this.scanner              = new NonBlockingScanner(System.in);
         this.localCopyOfTheStatus = null;
-        this.aToolCardFiller      = new CliToolCardFiller( scanner, System.out, null);
+
         this.eventsReceived       = new LinkedList<>();
         this.threadPool           = Executors.newCachedThreadPool();
 
@@ -144,49 +144,6 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
     }
 
     @Override
-    public void respondTo(PlaceThisDieEvent event){
-        /*actualTurn.cancel(true);
-        actualTurn = threadPool.submit(() -> {
-            Coordinate chosenPosition = null;
-            Die toBePlaced = event.getToBePlaced();
-
-            try {
-                if (event.getIsValueChoosable()) {
-                    out.println("You draft a " + toBePlaced.getColour() + " die. Choose the die value");
-                    int newValue = waitForUserInput(1, 6);
-                    toBePlaced = new Die(newValue, toBePlaced.getColour());
-                    out.println("Die to be placed: ");
-                }
-            } catch (UserInterruptActionException e) {
-                out.println("You didn't choose the die value. The die has been rolled");
-            } catch (InterruptedException e) {
-                out.println("Timeout expired. Your turn ended");
-                return;
-            }
-            do {
-                try {
-                    out.println("Choose a position where to place this die: " + toBePlaced);
-                    chosenPosition = (Coordinate) chooseFrom(event.getCompatiblePositions());
-                } catch (UserInterruptActionException e) {
-                    chosenPosition = null;
-                    out.println("You must choose where to place this die: " + toBePlaced);
-                } catch (InterruptedException e) {
-                    out.println("Timeout expired. Your turn ended.");
-                    return;
-                }
-            }
-            while (chosenPosition == null);
-            try {
-                controller.placeDie(ownerNameOfTheView, toBePlaced, chosenPosition.getRow(), chosenPosition.getCol());
-            } catch (Exception e) {
-                displayError(e);
-            }
-            actualTurn = threadPool.submit(this::takeTurn);
-        });*/
-
-    }
-
-    @Override
     public void respondTo(ModelChangedEvent event) {
         localCopyOfTheStatus = event.getaGameCopy();
 
@@ -240,23 +197,16 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
                         Coordinate placePosition = chooseDieCoordinate("Enter where you want to place your die");
                         Die chosenDie = (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
 
-                        remoteOperation = threadPool.submit(() -> {
-                            controller.placeDie(ownerNameOfTheView, chosenDie, placePosition.getRow(), placePosition.getCol());
-                            return true;
-                        });
-                        remoteOperation.get();
+                        controller.placeDie(ownerNameOfTheView, chosenDie, placePosition.getRow(), placePosition.getCol());
                         break;
                     case 1:
                         out.println("Choose a toolcard: ");
                         ToolCard aToolCard =  (ToolCard) chooseFrom(localCopyOfTheStatus.getToolCards());
-                        aToolCardFiller.updateLocalCopyOfModel(localCopyOfTheStatus);
-                        aToolCardFiller.fill(aToolCard);
 
-                        remoteOperation = threadPool.submit(() -> {
-                            controller.firstPhaseToolCard(ownerNameOfTheView, aToolCard);
-                            return true;
-                        });
-                        remoteOperation.get();
+                        aToolCard.fill(this);
+
+
+                        controller.PlayToolCard(ownerNameOfTheView, aToolCard);
                         break;
                     case 2:
                         out.println("Public objectives: ");
@@ -282,8 +232,9 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
             catch(UserInterruptActionException e){
                 out.println("Operation aborted. Please select an action");
                 update(new MyTurnStartedEvent());
-            }catch(InterruptedException e){
+            }catch(InterruptedException ignored){
                 out.println("Timeout expired. Your turn ended. Too bad :(");
+                throw ignored;
             } catch (Exception e) {
                 displayError(e);
             }
@@ -292,6 +243,22 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
         while(cmd != 5 && cmd != 1 && cmd != 0 );
 
         return true;
+    }
+
+    @Override
+    public void respondTo(ToolcardActionRequestEvent event) {
+        out.println("Server request other parameter to complete the ToolCard");
+        ToolCard aToolCard = event.getCard();
+
+        try {
+            aToolCard.fill(this);
+            controller.PlayToolCard(ownerNameOfTheView, aToolCard);
+        } catch (InterruptedException | UserInterruptActionException ignored) {
+            //This happens when the thread is requested to stop
+        } catch (Exception ex) {
+            displayError(ex);
+        }
+
     }
 
     @Override
@@ -421,6 +388,33 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
     }
 //endregion
 
+    //region parameters acquirer
+
+    @Override
+    public Die getDieFromDraft(String message) throws InterruptedException, UserInterruptActionException {
+        out.println(message);
+        return (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
+    }
+
+    @Override
+    public Die getDieFromRound(String message) throws InterruptedException, UserInterruptActionException {
+        out.println(message);
+        return (Die) chooseFrom(localCopyOfTheStatus.getRoundTracker().getDiceLeftFromRound());
+    }
+
+    @Override
+    public Coordinate getCoordinate(String message) throws InterruptedException, UserInterruptActionException {
+
+        return chooseDieCoordinate(message);
+    }
+
+    @Override
+    public int getValue(String message, Integer... values) throws InterruptedException, UserInterruptActionException {
+        out.println(message);
+        return (int) chooseFrom(Arrays.asList(values));
+    }
+
+    //endregion
 
     public void stop(){
         if (eventDigester != null){

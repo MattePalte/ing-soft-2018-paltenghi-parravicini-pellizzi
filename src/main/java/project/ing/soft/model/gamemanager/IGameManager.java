@@ -1,5 +1,6 @@
 package project.ing.soft.model.gamemanager;
 
+import project.ing.soft.exceptions.RuleViolatedException;
 import project.ing.soft.model.cards.objectives.publics.PublicObjective;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Game;
@@ -37,23 +38,28 @@ public interface IGameManager extends Serializable {
     Die drawFromDicebag();
 
 
-    void setupPhase()                                   throws RemoteException, Exception;
-    void firstPhaseToolCard(ToolCard aToolCard)               throws Exception;
-    void secondPhaseToolCard(ToolCard aToolCard)               throws Exception;
-    void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception;
-    void removeFromDraft(Die aDie);
-    void addToDraft(Die aDie);
-    void bindPatternAndPlayer(String nickname, WindowPatternCard windowCard, Boolean side) throws Exception, GameInvalidException;
-    void endTurn(boolean timeoutOccurred)                throws Exception;
-    void swapWithRoundTracker(Die toAdd, Die toRemove);
-    void rollDraftPool();
+    void    setupPhase()                                   throws RemoteException, Exception;
 
-    void setUnrolledDie(Die aDie);
+    void    payToolCard(ToolCard toolCard);
+    void    canPayToolCard(ToolCard aToolCard) throws RuleViolatedException;
+    void    playToolCard(ToolCard aToolCard)               throws Exception;
 
-    void requestUpdate()                                throws RemoteException, Exception;
-    void addToDicebag(Die aDie);
-    void samePlayerAgain();
-    void chooseDie(Die aDie);
+    void    placeDie(Die aDie, int rowIndex, int colIndex) throws Exception;
+
+    void    removeFromDraft(Die aDie);
+    void    addToDraft(Die aDie);
+    void    bindPatternAndPlayer(String nickname, WindowPatternCard windowCard,
+                                 Boolean side) throws Exception, GameInvalidException;
+    void    endTurn(boolean timeoutOccurred)                throws Exception;
+
+
+
+    void    swapWithRoundTracker(Die toAdd, Die toRemove);
+    void    rollDraftPool();
+    void    requestUpdate()                                throws RemoteException, Exception;
+    void    addToDicebag(Die aDie);
+    void    samePlayerAgain();
+    void    chooseDie(Die aDie);
 
 
     enum GAME_MANAGER_STATUS{

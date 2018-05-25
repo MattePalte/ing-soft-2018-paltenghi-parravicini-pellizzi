@@ -281,7 +281,7 @@ public class GameManagerSingle {
         ArrayList<ToolCard> tmp = new ArrayList<>();
 
         tmp.add( new AlesatoreLaminaRame());
-        tmp.add( new DiluentePastaSalda());
+        tmp.add( new DiluentePerPastaSalda());
         tmp.add( new Lathekin());
         tmp.add( new Martelletto());
         tmp.add( new PennelloPastaSalda());
