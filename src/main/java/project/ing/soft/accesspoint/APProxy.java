@@ -1,10 +1,9 @@
 package project.ing.soft.accesspoint;
 
 import project.ing.soft.controller.IController;
-import project.ing.soft.exceptions.NickNameAlreadyTakenException;
 import project.ing.soft.socket.response.ConnectionResponse.*;
 import project.ing.soft.socket.ControllerProxyOverSocket;
-import project.ing.soft.socket.request.ConnectionRequest.JoinTheGameRequest;
+import project.ing.soft.socket.request.connectionrequest.JoinTheGameRequest;
 import project.ing.soft.view.IView;
 
 import java.io.*;

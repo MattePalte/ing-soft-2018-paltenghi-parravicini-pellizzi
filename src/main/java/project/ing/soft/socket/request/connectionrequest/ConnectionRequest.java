@@ -1,4 +1,4 @@
-package project.ing.soft.socket.request.ConnectionRequest;
+package project.ing.soft.socket.request.connectionrequest;
 
 import java.io.Serializable;
 

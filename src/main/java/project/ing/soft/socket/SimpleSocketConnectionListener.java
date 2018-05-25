@@ -5,7 +5,7 @@ import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.GameController;
 import project.ing.soft.controller.IController;
 import project.ing.soft.exceptions.NickNameAlreadyTakenException;
-import project.ing.soft.socket.request.ConnectionRequest.ClientConnectionRequestHandler;
+import project.ing.soft.socket.request.connectionrequest.ClientConnectionRequestHandler;
 import project.ing.soft.view.IView;
 
 import java.io.*;

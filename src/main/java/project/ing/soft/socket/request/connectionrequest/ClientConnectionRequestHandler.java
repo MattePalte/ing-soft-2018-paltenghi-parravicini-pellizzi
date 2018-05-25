@@ -1,4 +1,4 @@
-package project.ing.soft.socket.request.ConnectionRequest;
+package project.ing.soft.socket.request.connectionrequest;
 
 import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.GameController;
@@ -21,8 +21,6 @@ public class ClientConnectionRequestHandler implements Callable<Boolean>, Connec
     private IAccessPoint accessPoint;
     private ObjectOutputStream oos;
     private ObjectInputStream ois;
-    private IController controller;
-    private String nickname;
     private ViewProxyOverSocket viewProxy;
 
     public ClientConnectionRequestHandler(Socket clientSocket, IAccessPoint accessPoint){
@@ -68,7 +66,7 @@ public class ClientConnectionRequestHandler implements Callable<Boolean>, Connec
             md = MessageDigest.getInstance("MD5");
             md.update(toCompute.getBytes());
             byte[] digest = md.digest();
-            return new String(encodeHex(digest));
+            return encodeHex(digest);
         } catch (NoSuchAlgorithmException e) {
             System.out.println("A problem occurred trying to compute hash function: ");
             e.printStackTrace();
@@ -78,12 +76,15 @@ public class ClientConnectionRequestHandler implements Callable<Boolean>, Connec
 
     @Override
     public void handle(JoinTheGameRequest request) throws Exception{
+        IController controller;
+        String nickname;
+
         viewProxy = new ViewProxyOverSocket(clientSocket, oos, ois);
         controller = accessPoint.connect(request.getNickname(), viewProxy);
         nickname = request.getNickname();
         String token = computeDigest(nickname + controller.getControllerSecurityCode());
         //TODO: delete this print on definitive version
-        System.out.printf("Associated (%s, %s) token: %s\n", nickname, controller.getControllerSecurityCode(), token);
+        System.out.printf("Associated (%s, %s) token: %s%n", nickname, controller.getControllerSecurityCode(), token);
         oos.writeObject(new ConnectionEstabilishedResponse(token));
         //TODO: connect must return a GameController instead of IController
         ((GameController)controller).joinTheGame(nickname, viewProxy);
