@@ -48,6 +48,11 @@ public class Game implements Serializable{
         }
     }
 
+    public void remove(String nickname){
+        Optional<Player> toRemove = players.stream().filter(p -> p.getName().equals(nickname)).findFirst();
+        toRemove.ifPresent(p -> players.remove(p));
+    }
+
     /*
     @assignable nothing
     @ensures \result == (* number of players enrolled at the game now*)

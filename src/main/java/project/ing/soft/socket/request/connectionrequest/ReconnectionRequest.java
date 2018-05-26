@@ -11,6 +11,14 @@ public class ReconnectionRequest implements ConnectionRequest {
         this.gameToken = gameToken;
     }
 
+    public String getNickname(){
+        return nickname;
+    }
+
+    public String getGameToken(){
+        return gameToken;
+    }
+
     @Override
     public void accept(ClientConnectionRequestHandler handler) throws Exception {
         handler.handle(this);

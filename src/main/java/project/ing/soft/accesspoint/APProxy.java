@@ -1,6 +1,7 @@
 package project.ing.soft.accesspoint;
 
 import project.ing.soft.controller.IController;
+import project.ing.soft.socket.request.connectionrequest.ReconnectionRequest;
 import project.ing.soft.socket.response.ConnectionResponse.*;
 import project.ing.soft.socket.ControllerProxyOverSocket;
 import project.ing.soft.socket.request.connectionrequest.JoinTheGameRequest;
@@ -62,7 +63,24 @@ public class APProxy implements IAccessPoint, ConnectionResponseHandler {
 
     @Override
     public IController reconnect(String nickname, String code, IView clientView) throws RemoteException {
-        return null;
+        mySocket = new Socket();
+
+        try {
+            mySocket.connect(new InetSocketAddress(host, port));
+            view = clientView;
+            viewPrintStream = clientView.getPrintStream();
+            oos = new ObjectOutputStream(mySocket.getOutputStream());
+            ois = new ObjectInputStream(mySocket.getInputStream());
+            oos.writeObject(new ReconnectionRequest(nickname, code));
+            ConnectionResponse response = (ConnectionResponse) ois.readObject();
+            controllerProxy = new ControllerProxyOverSocket(view, mySocket, oos, ois);
+            view.attachController(controllerProxy);
+            controllerProxy.start();
+            response.accept(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return controllerProxy;
     }
 
     @Override
@@ -91,11 +109,16 @@ public class APProxy implements IAccessPoint, ConnectionResponseHandler {
         Scanner in = new Scanner(System.in);
         String nickname = in.nextLine();
         System.out.println("Your nickname is " + nickname);
+        try {
+            mySocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        controllerProxy.interrupt();
         ex.submit(() -> {
             connect(nickname, view);
             return true;
         });
-        //controllerProxy.interrupt();
     }
 
 }

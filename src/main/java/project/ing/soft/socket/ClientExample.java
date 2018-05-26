@@ -6,6 +6,8 @@ import project.ing.soft.exceptions.NickNameAlreadyTakenException;
 import project.ing.soft.view.ClientViewCLI;
 import project.ing.soft.view.LocalViewCli;
 
+import java.util.Scanner;
+
 
 public class ClientExample extends Thread{
     private String name;
@@ -21,10 +23,20 @@ public class ClientExample extends Thread{
     @Override
     public void run() {
         try {
-
+            System.out.println("[0] Connect to a new game");
+            System.out.println("[1] Reconnect to a previous game (token needed)");
+            Scanner in = new Scanner(System.in);
+            int choice = in.nextInt();
+            in.nextLine();
             LocalViewCli view = new LocalViewCli(name);
-            APProxy AccessPointProxy = new APProxy(host, port);
-            AccessPointProxy.connect(name, view);
+            APProxy accessPointProxy = new APProxy(host, port);
+            if(choice == 0)
+                accessPointProxy.connect(name, view);
+            else {
+                System.out.println("Insert the 32 chars code to connect to the game: ");
+                String code = in.nextLine();
+                accessPointProxy.reconnect(name, code, view);
+            }
 
         } catch (Exception ex){
             System.out.println("Error "+ex);
