@@ -8,48 +8,24 @@ import project.ing.soft.model.Player;
 import project.ing.soft.model.gamemanager.IGameManager;
 
 
-public class DiluentePerPastaSalda extends ToolCard {
-    private ToolCard state;
+public class DiluentePerPastaSalda extends ToolCardStateful {
 
 
     public DiluentePerPastaSalda() {
         super("Diluente per pasta salda", "Dopo aver scelto un dado, riponilo nel\n" +
                         "Sacchetto, poi pescane uno dal Sacchetto Scegli il valore del nuovo dado e\n" +
-                        "piazzalo, rispettando tutte le restrizioni di piazzamento", Colour.VIOLET,
-                "toolcard/30%/toolcards-12.png");
-
-        state = new DiluentePerPastaSaldaFirstPart(this);
+                        "piazzalo, rispettando tutte le restrizioni di piazzamento",
+                "toolcard/30%/toolcards-12.png",  Colour.VIOLET);
+        super.setState(new DiluentePerPastaSaldaFirstPart());
     }
 
-    void setState(ToolCard newState){
-        this.state = newState;
-    }
-
-    @Override
-    public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
-        state.checkParameters(p, m);
+    public DiluentePerPastaSalda(DiluentePerPastaSalda from) {
+        super(from);
     }
 
     @Override
-    public void fill(IToolCardParametersAcquirer acquirer) throws UserInterruptActionException, InterruptedException {
-        state.fill(acquirer);
+    public ToolCardStateful copy() {
+        return new DiluentePerPastaSalda(this);
     }
-
-    @Override
-    public void play(Player p, IGameManager m) throws ToolCardApplicationException {
-        state.play(p, m);
-    }
-
-    @Override
-    void apply(Player p, IGameManager m) throws Exception {
-        state.apply(p, m);
-    }
-
-    DiluentePerPastaSalda copy(){
-        DiluentePerPastaSalda copy = new DiluentePerPastaSalda();
-        copy.state = copy;
-        return copy;
-    }
-
 }
 

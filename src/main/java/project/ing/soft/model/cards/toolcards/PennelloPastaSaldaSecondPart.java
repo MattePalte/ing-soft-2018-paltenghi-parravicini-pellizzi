@@ -12,47 +12,44 @@ import project.ing.soft.model.gamemanager.events.ModelChangedEvent;
 import project.ing.soft.model.gamemanager.events.MyTurnStartedEvent;
 import project.ing.soft.model.gamemanager.events.ToolcardActionRequestEvent;
 
-public class PennelloPastaSaldaSecondPart extends ToolCard {
+import java.io.Serializable;
+
+public class PennelloPastaSaldaSecondPart implements IToolCardState, Serializable {
     private Die dieToBePlaced;
     private Coordinate cord;
 
     PennelloPastaSaldaSecondPart(Die dieToBePlaced) {
-        super("", "", Colour.WHITE, "");
         this.dieToBePlaced = dieToBePlaced;
     }
 
-    @Override
-    public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
+    public void checkParameters(ToolCardStateful ctx,Player p, IGameManager m) throws MalformedToolCardException {
         //check parameters integrity, otherwise send MalformedToolCardException
-        validateDie(dieToBePlaced);
-        validatePresenceOfDieIn(dieToBePlaced, m.getDraftPool());
+        ctx.validateDie(dieToBePlaced);
+        ctx.validatePresenceOfDieIn(dieToBePlaced, m.getDraftPool());
     }
 
-    @Override
-    public void fill(IToolCardParametersAcquirer acquirer) throws UserInterruptActionException, InterruptedException {
+
+    public void fill(ToolCardStateful ctx,IToolCardParametersAcquirer acquirer) throws UserInterruptActionException, InterruptedException {
         cord = acquirer.getCoordinate(String.format("Select where you want to place the die %s ", dieToBePlaced));
     }
 
-    @Override
-    public void play(Player p, IGameManager m) throws ToolCardApplicationException {
+    public void play(ToolCardStateful ctx,Player p, IGameManager m) throws ToolCardApplicationException {
         try{
-            checkParameters(p, m);
+            checkParameters(ctx, p, m);
 
             apply(p, m);
 
-            p.update(new ModelChangedEvent(m));
+            ctx.setState(new PennelloPastaSaldaFirstPart());
+            p.update(new ModelChangedEvent(m.copy()));
             p.update(new MyTurnStartedEvent());
         }catch (Exception ex){
+            p.update(new ToolcardActionRequestEvent(ctx.copy()));
             throw new ToolCardApplicationException(ex);
         }
     }
 
-    @Override
     public void apply(Player p, IGameManager m) throws Exception  {
-
-            m.removeFromDraft(dieToBePlaced);
-            p.placeDie(dieToBePlaced, cord.getRow(), cord.getCol(), true);
-            p.update(new ToolcardActionRequestEvent(this));
-
+        m.removeFromDraft(dieToBePlaced);
+        p.placeDie(dieToBePlaced, cord.getRow(), cord.getCol(), true);
     }
 }

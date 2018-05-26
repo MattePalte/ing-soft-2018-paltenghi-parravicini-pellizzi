@@ -23,9 +23,6 @@ import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Pair;
-import project.ing.soft.Settings;
-import project.ing.soft.accesspoint.APProxy;
-import project.ing.soft.accesspoint.APointRMI;
 import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.Colour;
@@ -41,7 +38,6 @@ import project.ing.soft.controller.IController;
 import project.ing.soft.model.gamemanager.events.*;
 import project.ing.soft.model.gamemanager.events.Event;
 import project.ing.soft.model.gamemanager.IGameManager;
-import project.ing.soft.socket.ControllerProxyOverSocket;
 import project.ing.soft.view.IView;
 
 import java.io.IOException;
@@ -292,7 +288,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
                             ToolCard chosenToolCard = event.getCard();
                             chosenToolCard.fill(gView);
-                            gView.myController.PlayToolCard(ownerNameOfTheView, chosenToolCard);
+                            gView.myController.playToolCard(ownerNameOfTheView, chosenToolCard);
                         } catch (InterruptedException e) {
                             displayError(e);
                             out.println("Interrupted play toolcard of " + ownerNameOfTheView);
@@ -724,7 +720,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
                         Integer chosenIndex = getValue();
                         ToolCard chosenToolCard = localCopyOfTheStatus.getToolCards().get(chosenIndex);
                         chosenToolCard.fill(gView);
-                        gView.myController.PlayToolCard(ownerNameOfTheView, chosenToolCard);
+                        gView.myController.playToolCard(ownerNameOfTheView, chosenToolCard);
                     } catch (InterruptedException e) {
                         displayError(e);
                         out.println("Interrupted play toolcard of " + ownerNameOfTheView);

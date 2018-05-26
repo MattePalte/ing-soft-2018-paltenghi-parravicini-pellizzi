@@ -1,27 +1,67 @@
 package project.ing.soft.model.cards.toolcards;
 
 import project.ing.soft.exceptions.*;
-import project.ing.soft.model.Colour;
-import project.ing.soft.model.Coordinate;
-import project.ing.soft.model.Die;
-import project.ing.soft.model.Player;
+import project.ing.soft.model.*;
 import project.ing.soft.model.cards.Card;
 import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.model.gamemanager.events.ModelChangedEvent;
-import project.ing.soft.model.gamemanager.events.MyTurnEndedEvent;
 import project.ing.soft.model.gamemanager.events.MyTurnStartedEvent;
-import project.ing.soft.model.gamemanager.events.ToolcardActionRequestEvent;
 
 
 import java.io.Serializable;
 import java.util.List;
 
-public abstract class ToolCard extends Card implements Serializable{
-    protected Colour colour;
+/**
+ * The ToolCard class defines general behaviour of the play ToolCard action.
+ * It's responsible of carrying information alongside the network and define
+ * operations that can be performed with them.
+ * Compared to other cards (Objectives, patternCards) it's not static.
+ */
+public abstract class ToolCard implements Serializable, Card {
 
-    public ToolCard(String aTitle,String description, Colour aColour, String resourcePath){
-        super(aTitle, description, resourcePath);
-        this.colour = aColour;
+    private String title;
+    private String description;
+    private String imgPath;
+    private Colour colour;
+
+    /**
+     * ToolCard default constructor
+     * @param title of the ToolCard
+     * @param description human-readable description of the function that would be applied
+     * @param imgPath path of the image that graphically represent the card
+     * @param colour color of the die that has to be paid in order to play this ToolCard in a solo-fashion game
+     */
+    public ToolCard(String title, String description, String imgPath, Colour colour) {
+        this.title       = title;
+        this.description = description;
+        this.imgPath     = imgPath;
+        this.colour      = colour;
+    }
+
+    /**
+     * Copy constructor for ToolCard
+     * @param from a ToolCard to copy from
+     */
+    public ToolCard(ToolCard from){
+        this.title       = from.title;
+        this.description = from.description;
+        this.imgPath     = from.imgPath;
+        this.colour      = from.colour;
+    }
+
+    @Override
+    public String getTitle() {
+        return title;
+    }
+
+    @Override
+    public String getImgPath() {
+        return imgPath;
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
     }
 
     public Colour getColour(){
@@ -42,7 +82,7 @@ public abstract class ToolCard extends Card implements Serializable{
      * Methods that redefine this method has to redefine event raised
      * @param p current player
      * @param m model
-     * @throws ToolCardApplicationException describes the reason that
+     * @throws ToolCardApplicationException describes the reason that cause an error
      */
     public void play(Player p, IGameManager m) throws ToolCardApplicationException
     {
@@ -54,7 +94,7 @@ public abstract class ToolCard extends Card implements Serializable{
 
             m.payToolCard(this);
 
-            p.update(new ModelChangedEvent(m));
+            p.update(new ModelChangedEvent(m.copy()));
             p.update(new MyTurnStartedEvent());
         }catch (Exception ex){
             throw new ToolCardApplicationException(ex);
@@ -101,4 +141,11 @@ public abstract class ToolCard extends Card implements Serializable{
             throw new MalformedToolCardException(this.getTitle() + ": the die passed is not in the list (draft or roundtracker)");
     }
 
+    @Override
+    public String toString() {
+        StringBoxBuilder aBuilder = new StringBoxBuilder(new StringBoxBuilder.SINGLELINEROUNDEDCORNER(),Card.WIDTH_CARD, Card.HEIGHT_CARD);
+        aBuilder.appendInAboxToTop(getTitle());
+        aBuilder.appendToTop(getDescription());
+        return aBuilder.toString();
+    }
 }

@@ -59,7 +59,8 @@ public interface IGameManager extends Serializable {
     void    requestUpdate()                                throws RemoteException, Exception;
     void    addToDicebag(Die aDie);
     void    samePlayerAgain();
-    void    chooseDie(Die aDie);
+
+    IGameManager copy();
 
 
     enum GAME_MANAGER_STATUS{

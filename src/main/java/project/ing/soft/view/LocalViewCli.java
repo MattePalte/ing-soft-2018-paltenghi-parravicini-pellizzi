@@ -75,7 +75,6 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                 eventsReceived.add(aEvent);
                 eventsReceived.notifyAll();
             }
-            //aEvent.accept(this);
         }
     }
 
@@ -90,9 +89,13 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     public void respondTo(ToolcardActionRequestEvent event){
         eventWaitingForInput = turnExecutor.submit(() -> {
             ToolCard aToolCard = event.getCard();
-            aToolCard.fill(this);
-            controller.PlayToolCard(ownerNameOfTheView, aToolCard);
-            return true;
+            try {
+                aToolCard.fill(this);
+                controller.playToolCard(ownerNameOfTheView, aToolCard);
+            }catch(Exception ex){
+                displayError(ex);
+            }
+
         });
     }
 
@@ -154,11 +157,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
     @Override
     public void respondTo(MyTurnStartedEvent event) {
-        try {
-            controller.chooseDie(null);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
         actualTurn = turnExecutor.submit(() -> {
             try {
                 takeTurn();
@@ -275,7 +274,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                         ToolCard aToolCard =  (ToolCard) chooseFrom(localCopyOfTheStatus.getToolCards());
                         aToolCard.fill(this);
                         fut = opExecutor.submit(() -> {
-                            controller.PlayToolCard(ownerNameOfTheView, aToolCard);
+                            controller.playToolCard(ownerNameOfTheView, aToolCard);
                             return true;
                         });
                         fut.get();
@@ -423,7 +422,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     @Override
     public int getValue(String message, Integer... values) throws InterruptedException, UserInterruptActionException {
         out.println(message);
-        return chooseIndexFrom( Arrays.asList(values) );
+        return (Integer) chooseFrom( Arrays.asList(values) );
     }
     //endregion
 }

@@ -36,7 +36,6 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
     private ArrayList<Die>              diceBag;
     private ArrayList<Die>              draftPool;
-    private transient Die unrolledDie;
 
     private ArrayList<PublicObjective> publicObjectives;
 
@@ -68,7 +67,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
         // initialize empty draft pool
         draftPool = new ArrayList<>();
 
-        unrolledDie = null;
+
         // initialize Round Tracker obj
         rounds = new RoundTracker();
         // create dies and populate Die Bag
@@ -135,6 +134,10 @@ public class GameManagerMulti implements IGameManager, Serializable {
         this.toolCardCost       = new HashMap<>   (gameManagerMulti.toolCardCost);
         this.favours            = new HashMap<>   (gameManagerMulti.favours);
         this.status             = gameManagerMulti.status;
+    }
+    //
+    public IGameManager copy(){
+        return new GameManagerMulti(this);
     }
 
     @Override
@@ -297,15 +300,11 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
     @Override
     public void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception {
-        if(!draftPool.contains(aDie) && !aDie.equals(unrolledDie))
-            throw new RuleViolatedException("The die you want to place does not exist in the current turn");
+        if(aDie.getValue() == 0)
+            throw new RuleViolatedException("This die can't be placed!");
+
         getCurrentPlayer().placeDie(aDie,rowIndex,colIndex, true);
-        if(unrolledDie == null)
-            draftPool.remove(aDie);
-        else {
-            draftPool.remove(unrolledDie);
-            unrolledDie = null;
-        }
+
 
         deliverEvent(getCurrentPlayer(), new ModelChangedEvent(new GameManagerMulti(this)), new MyTurnStartedEvent());
 
@@ -374,8 +373,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
 
         Player next = getCurrentPlayer();
-        if(unrolledDie != null)
-            unrolledDie = null;
+
         broadcastEvents(new ModelChangedEvent(new GameManagerMulti(this)));
         next.update(new MyTurnStartedEvent());
     }
@@ -427,22 +425,6 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
     }
 
-    @Override
-    public void chooseDie(Die aDie) {
-        // Whenever this method is called with a null parameter, unset unrolledDie
-        if(aDie == null)
-            unrolledDie = null;
-        // If gamemanager didn't set an unrolledDie, so there's no need for the player to change a die, it return doing nothing
-        if(unrolledDie == null)
-            return;
-        // if the player chose a die with the same colour of unrolledDie, then change it and add it to the draftpool
-        if(aDie.getColour().equals(unrolledDie.getColour())) {
-            unrolledDie = new Die(aDie);
-            draftPool.add(unrolledDie);
-            getCurrentPlayer().update(new ModelChangedEvent(new GameManagerMulti(this)));
-        }
-    }
-
     private ArrayList<Player> createTurns(List<Player> players){
         // create p1 p2 p3
         ArrayList<Player> turn = new ArrayList<>(players);
@@ -462,5 +444,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
         diceBag = new ArrayList<> (diceBag.subList((2*currentGame.getNumberOfPlayers()) +1, diceBag.size()));
 
     }
+
+
 
 }

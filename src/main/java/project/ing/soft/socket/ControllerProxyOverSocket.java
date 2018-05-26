@@ -62,7 +62,6 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
             toServer.flush();
             fromServer = new ObjectInputStream(clientSocket.getInputStream());*/
 
-
             while( !clientSocket.isClosed()){
 
                 try {
@@ -213,7 +212,7 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
     }
 
     @Override
-    public void PlayToolCard(String nickname, ToolCard aToolCard) throws Exception {
+    public void playToolCard(String nickname, ToolCard aToolCard) throws Exception {
         addToQueue(new PlayToolCardRequest(nickname, aToolCard));
     }
 
@@ -225,11 +224,6 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
     @Override
     public void choosePattern(String nickname, WindowPatternCard windowCard, Boolean side) throws Exception {
         addToQueue(new ChoosePatternRequest(nickname, windowCard, side));
-    }
-
-    @Override
-    public void chooseDie(Die aDie) {
-        // TODO: implement method and create request
     }
 
     @Override

@@ -15,8 +15,8 @@ public class RigaSughero extends ToolCard {
     public RigaSughero() {
         super("Riga di sughero", "Dopo aver scelto un dado,\n" +
                 "piazzalo in una casella che non sia adiacente a un altro dado\n" +
-                "Devi rispettare tutte le restrizioni di piazzamento", Colour.YELLOW,
-                "toolcard/30%/toolcards-10.png");
+                "Devi rispettare tutte le restrizioni di piazzamento",
+                "toolcard/30%/toolcards-10.png", Colour.YELLOW);
     }
 
 

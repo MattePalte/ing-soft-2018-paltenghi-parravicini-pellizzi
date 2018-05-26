@@ -4,7 +4,9 @@ import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.Coordinate;
 import project.ing.soft.model.Die;
 
-public interface IToolCardParametersAcquirer {
+import java.io.Serializable;
+
+public interface IToolCardParametersAcquirer extends Serializable {
     Die getDieFromDraft(String message) throws InterruptedException, UserInterruptActionException;
     Die getDieFromRound(String message)  throws InterruptedException, UserInterruptActionException;
     Coordinate getCoordinate(String message) throws InterruptedException, UserInterruptActionException;

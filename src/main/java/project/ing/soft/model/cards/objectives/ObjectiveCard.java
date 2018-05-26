@@ -6,16 +6,35 @@ import project.ing.soft.model.Player;
 
 import java.io.Serializable;
 
-public abstract class ObjectiveCard extends Card implements Serializable{
+public abstract class ObjectiveCard implements Serializable, Card{
 
-    protected int points;
+    private String title;
+    private String description;
+    private String imgPath;
+    private int points;
 
-    public ObjectiveCard(String title, String description, String resourcePath, int points ){
-        super(title, description, resourcePath);
+    public ObjectiveCard(String title, String description, String imgPath, int points) {
+
+        this.title = title;
+        this.description = description;
+        this.imgPath = imgPath;
         this.points = points;
     }
 
+    @Override
+    public String getTitle() {
+        return title;
+    }
 
+    @Override
+    public String getImgPath() {
+        return imgPath;
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
+    }
 
     public int getPoints(){
         return points;

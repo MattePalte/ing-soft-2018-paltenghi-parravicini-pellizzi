@@ -10,55 +10,49 @@ import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.model.gamemanager.events.ModelChangedEvent;
 import project.ing.soft.model.gamemanager.events.ToolcardActionRequestEvent;
 
-public class PennelloPastaSaldaFirstPart extends ToolCard {
+import java.io.Serializable;
 
-    private PennelloPastaSalda father;
+public class PennelloPastaSaldaFirstPart implements IToolCardState, Serializable {
+
     private Die dieToRoll;
     private Die toPlace;
 
-    PennelloPastaSaldaFirstPart(PennelloPastaSalda father){
-       super( "","", Colour.WHITE, "" );
-       this.father = father;
-    }
 
-    @Override
-    public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
+    public void checkParameters(ToolCardStateful ctx,Player p, IGameManager m) throws MalformedToolCardException {
         //check parameters integrity, otherwise send MalformedToolCardException
-        validateDie(dieToRoll);
-        validatePresenceOfDieIn(dieToRoll, m.getDraftPool());
+        ctx.validateDie(dieToRoll);
+        ctx.validatePresenceOfDieIn(dieToRoll, m.getDraftPool());
     }
 
-    @Override
-    public void fill(IToolCardParametersAcquirer acquirer) throws UserInterruptActionException, InterruptedException {
+
+    public void fill(ToolCardStateful ctx,  IToolCardParametersAcquirer acquirer) throws UserInterruptActionException, InterruptedException {
         dieToRoll = acquirer.getDieFromDraft("Select a die in order to re-roll it");
     }
 
-    @Override
-    public void play(Player p, IGameManager m) throws ToolCardApplicationException {
+
+    public void play(ToolCardStateful ctx, Player p, IGameManager m) throws ToolCardApplicationException {
         try{
-            m.canPayToolCard(father);
-            checkParameters(p, m);
+            m.canPayToolCard(ctx);
+            checkParameters(ctx, p, m);
 
             apply(p, m);
 
-            m.payToolCard(father);
+            m.payToolCard(ctx);
 
-            ToolCard secondStage = new PennelloPastaSaldaSecondPart(toPlace);
-            father.setState(secondStage);
-            p.update(new ModelChangedEvent(m));
-            p.update(new ToolcardActionRequestEvent(secondStage));
+
+            ctx.setState(new PennelloPastaSaldaSecondPart(toPlace));
+            p.update(new ModelChangedEvent(m.copy()));
+            p.update(new ToolcardActionRequestEvent(ctx.copy()));
         }catch (Exception ex){
+            p.update(new ToolcardActionRequestEvent(ctx.copy()));
             throw new ToolCardApplicationException(ex);
         }
     }
 
     @Override
     public void apply(Player p, IGameManager m) {
-
             m.removeFromDraft(dieToRoll);
             toPlace = dieToRoll.rollDie();
             m.addToDraft(toPlace);
-
-
     }
 }

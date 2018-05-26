@@ -10,8 +10,8 @@ import project.ing.soft.model.Colour;
 public class Martelletto extends ToolCard {
     public Martelletto() {
         super("Martelletto", "Tira nuovamente tutti i dadi della Riserva Questa carta può essera usata\n" +
-                "solo durante il tuo secondo turno, prima di scegliere il secondo dado", Colour.BLUE,
-                "toolcard/30%/toolcards-8.png");
+                "solo durante il tuo secondo turno, prima di scegliere il secondo dado",
+                "toolcard/30%/toolcards-8.png", Colour.BLUE);
     }
 
     @Override

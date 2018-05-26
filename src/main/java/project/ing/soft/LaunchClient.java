@@ -8,6 +8,7 @@ import project.ing.soft.socket.ControllerProxyOverSocket;
 import project.ing.soft.view.IView;
 import project.ing.soft.view.LocalViewCli;
 
+import java.io.PrintStream;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Scanner;
@@ -18,39 +19,35 @@ public class LaunchClient {
 
 
     public static void main(String[] args) throws Exception {
-
-        //args[0] should be the ip address of the machine running the registry
-        Registry registry = LocateRegistry.getRegistry( args.length > 0 ? args[0] : Settings.defaultIpForRMI);
-
-        /* Use this if you want to list the bound objects
-        for (String name : registry.list()) {
-            System.out.println(name);
-        }
-        */
-        String[] registryList = registry.list();
-        for(String s : registryList)
-            System.out.println(s);
+        PrintStream out = new PrintStream(System.out);
 
         // ask for user name
         Scanner scan = new Scanner(System.in);
-        System.out.println("Enter your name:");
-        String name = scan.next();
+        out.println("Enter your name:");
+        String name = args.length > 0 ? args[0] : scan.next();
         // ask for RMI/Socket
-        System.out.println("Which type of connection do you want to use to communicate with the server:");
-        System.out.println("[0] RMI");
-        System.out.println("[1] Socket");
-        IController controller = null;
+        out.println("Which type of connection do you want to use to communicate with the server:");
+        out.println("[0] RMI");
+        out.println("[1] Socket");
+
         IAccessPoint accessPoint = null;
-        switch (scan.next()) {
+        switch (args.length > 1 ? args[1] : scan.next()) {
             case "0":
+
+                //args[0] should be the ip address of the machine running the registry
+                Registry registry = LocateRegistry.getRegistry( Settings.defaultIpForRMI);
+                out.println("Objects currently registered in the registry");
+                String[] registryList = registry.list();
+                for(String s : registryList)
+                    out.println(s);
                 accessPoint = (IAccessPoint) registry.lookup("accesspoint");
                 break;
             case "1":
                 try {
                     accessPoint = new APProxy(Settings.host, Settings.port);
                 }catch (Exception ex){
-                    System.out.println("Error "+ex);
-                    ex.printStackTrace(System.out);
+                    out.println("Error "+ex);
+                    ex.printStackTrace(out);
                 }
                 break;
             case "q":
@@ -62,11 +59,11 @@ public class LaunchClient {
             // launch it
             // and attach the chosen controller (Rmi or Socket) to it
             IView view = new LocalViewCli(name);
-            System.out.println("View created successfully");
-            controller = accessPoint.connect(name, view);
-            System.out.println("Controller retrieved from AccessPoint");
+            out.println("View created successfully");
+            IController controller = accessPoint.connect(name, view);
+            out.println("Controller retrieved from AccessPoint");
             view.attachController(controller);
-            System.out.println("Controller attached to the view");
+            out.println("Controller attached to the view");
         }
 
     }

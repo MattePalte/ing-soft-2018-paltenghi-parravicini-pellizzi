@@ -96,11 +96,6 @@ public class GameController extends UnicastRemoteObject implements IController, 
 
     }
 
-    @Override
-    public synchronized void chooseDie(Die aDie) {
-        gameManager.chooseDie(aDie);
-    }
-
     private TimerTask  buildStartTimeoutTask() {
         return new TimerTask() {
             @Override
@@ -164,7 +159,7 @@ public class GameController extends UnicastRemoteObject implements IController, 
     }
 
     @Override
-    public synchronized void PlayToolCard(String nickname, ToolCard aToolCard) throws Exception {
+    public synchronized void playToolCard(String nickname, ToolCard aToolCard) throws Exception {
         if (!gameManager.getCurrentPlayer().getName().equals(nickname))
             throw new ActionNotPermittedException();
 

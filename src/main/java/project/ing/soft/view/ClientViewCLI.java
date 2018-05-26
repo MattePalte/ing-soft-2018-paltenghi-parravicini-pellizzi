@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
 
-@Deprecated
+
 public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventHandler, Serializable, IToolCardParametersAcquirer {
 
     private IGameManager localCopyOfTheStatus;
@@ -207,7 +207,7 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
                         aToolCard.fill(this);
 
 
-                        controller.PlayToolCard(ownerNameOfTheView, aToolCard);
+                        controller.playToolCard(ownerNameOfTheView, aToolCard);
                         break;
                     case 2:
                         out.println("Public objectives: ");
@@ -253,7 +253,7 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
 
         try {
             aToolCard.fill(this);
-            controller.PlayToolCard(ownerNameOfTheView, aToolCard);
+            controller.playToolCard(ownerNameOfTheView, aToolCard);
         } catch (InterruptedException | UserInterruptActionException ignored) {
             //This happens when the thread is requested to stop
         } catch (Exception ex) {

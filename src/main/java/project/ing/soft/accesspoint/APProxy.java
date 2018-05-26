@@ -12,8 +12,10 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.rmi.RemoteException;
 import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class APProxy implements IAccessPoint, ConnectionResponseHandler {
 
@@ -35,30 +37,43 @@ public class APProxy implements IAccessPoint, ConnectionResponseHandler {
     @Override
     public IController connect(String nickname, IView clientView) throws RemoteException {
         mySocket = new Socket();
-
+        Future ft = null;
         try {
             mySocket.connect(new InetSocketAddress(host, port));
             view = clientView;
             viewPrintStream = clientView.getPrintStream();
             oos = new ObjectOutputStream(mySocket.getOutputStream());
             ois = new ObjectInputStream(mySocket.getInputStream());
-            ex.submit(() -> {
+            ft = ex.submit(() -> {
                 requestConnection(nickname);
                 return true;
             });
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return controllerProxy;
+        if( ft != null){
+
+            try {
+                ft.get();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+            return controllerProxy;
+        }
+        return null;
     }
 
     private void requestConnection(String nickname) throws Exception{
         oos.writeObject(new JoinTheGameRequest(nickname));
         ConnectionResponse response = (ConnectionResponse)ois.readObject();
+        response.accept(this);
+
         controllerProxy = new ControllerProxyOverSocket(view, mySocket, oos, ois);
         view.attachController(controllerProxy);
         controllerProxy.start();
-        response.accept(this);
+
     }
 
     @Override

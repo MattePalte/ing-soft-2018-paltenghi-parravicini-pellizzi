@@ -21,7 +21,7 @@ public class TokenCalculator {
     private static String encodeHex(byte[] byteArray){
         StringBuilder res = new StringBuilder();
         for(byte b : byteArray){
-            String tmp = Integer.toHexString(b & 0xFF);
+            String tmp = Integer.toHexString(b & 0xff);
             if(tmp.length() == 1)
                 res.append(0);
             res.append(tmp);

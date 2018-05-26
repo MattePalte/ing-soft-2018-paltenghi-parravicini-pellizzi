@@ -38,6 +38,7 @@ public class ViewProxyOverSocket implements IView,IRequestHandler, Runnable {
                 // Must do a requestQueue on which we have to synchronize readObject call
                 AbstractRequest aRequest = (AbstractRequest) fromClient.readObject();
                 this.visit(aRequest);
+                toClient.reset();
 
             }
         }catch (EOFException ignored){
@@ -118,7 +119,7 @@ public class ViewProxyOverSocket implements IView,IRequestHandler, Runnable {
 
     @Override
     public void handle(PlayToolCardRequest aRequest) throws Exception {
-        this.controller.PlayToolCard(aRequest.getNickname(), aRequest.getaToolCard());
+        this.controller.playToolCard(aRequest.getNickname(), aRequest.getaToolCard());
     }
 
     @Override

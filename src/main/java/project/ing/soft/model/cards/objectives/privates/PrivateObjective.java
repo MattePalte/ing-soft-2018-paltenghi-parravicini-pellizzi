@@ -5,7 +5,9 @@ import project.ing.soft.model.Colour;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Player;
 
-public class PrivateObjective extends ObjectiveCard {
+import java.io.Serializable;
+
+public class PrivateObjective extends ObjectiveCard implements Serializable {
 
     private Colour colour;
 

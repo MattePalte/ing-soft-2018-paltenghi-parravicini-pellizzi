@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.net.URL;
 
 public class Constraint implements Serializable {
-    private final int value; // 0 if no value constraint is applied
+    private final int value;     // 0 if no value constraint is applied
     private final Colour colour; // WHITE if no colour constraint is applied
 
     public Constraint(int aValue, Colour aColour) {
