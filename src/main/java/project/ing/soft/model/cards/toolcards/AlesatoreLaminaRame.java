@@ -6,8 +6,6 @@ import project.ing.soft.model.Coordinate;
 import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Player;
-import project.ing.soft.model.gamemanager.events.ModelChangedEvent;
-import project.ing.soft.model.gamemanager.events.MyTurnStartedEvent;
 
 import java.util.List;
 

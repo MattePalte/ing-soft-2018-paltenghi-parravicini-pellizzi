@@ -1,5 +1,6 @@
 package project.ing.soft.model.cards.objectives;
 
+import project.ing.soft.Settings;
 import project.ing.soft.model.StringBoxBuilder;
 import project.ing.soft.model.cards.Card;
 import project.ing.soft.model.Player;
@@ -48,7 +49,7 @@ public abstract class ObjectiveCard implements Serializable, Card{
 
     @Override
     public String toString() {
-        StringBoxBuilder aBuilder = new StringBoxBuilder(new StringBoxBuilder.DOUBLELINESQUAREANGLE(),Card.WIDTH_CARD, Card.HEIGHT_CARD);
+        StringBoxBuilder aBuilder = new StringBoxBuilder(new StringBoxBuilder.DOUBLELINESQUAREANGLE(),Settings.TEXT_CARD_WIDTH, Settings.TEXT_CARD_HEIGHT);
         aBuilder.appendInAboxToTop(getTitle());
         aBuilder.appendToTop(getDescription());
         aBuilder.prependInAboxToBottom("Punti: "+ getPoints());

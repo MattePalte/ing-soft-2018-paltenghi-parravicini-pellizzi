@@ -11,6 +11,9 @@ public class Settings {
     public static final String host = "localhost";
     public static final String defaultIpForRMI = "127.0.0.1";
 
+    public static final int TEXT_CARD_WIDTH = 29;
+    public static final int TEXT_CARD_HEIGHT = 12;
+
     public static int MATRIX_NR_ROW = 4;
     public static int MATRIX_NR_COL = 5;
     public static double MIN_SCREEN_SIZE = 1366;

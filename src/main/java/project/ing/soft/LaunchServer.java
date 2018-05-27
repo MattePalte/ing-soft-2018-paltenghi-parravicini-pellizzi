@@ -1,114 +1,116 @@
 package project.ing.soft;
 
 import project.ing.soft.accesspoint.APointRMI;
-import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.GameController;
-import project.ing.soft.exceptions.UserInterruptActionException;
-import project.ing.soft.model.Coordinate;
 import project.ing.soft.socket.SimpleSocketConnectionListener;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.*;
-import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
-import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static java.lang.Thread.sleep;
 
-public class LaunchServer extends Thread {
+public class LaunchServer {
 
     private final HashMap<String, GameController> hostedGames;
     private final HashMap<String, GameController> playersInGame;
+    private final LogManager manager;
+    private final PrintStream out;
+    private final Scanner in;
+    private final Map<String, Runnable> commands ;
+    private SimpleSocketConnectionListener socketConnectionListener;
+    private  APointRMI uniqueRmiAP;
 
+    public LaunchServer() {
+        hostedGames = new HashMap<>();
+        playersInGame = new HashMap<>();
 
-    public LaunchServer(HashMap<String, GameController> hostedGames, HashMap<String, GameController> playersInGame) {
-        this.hostedGames = hostedGames;
-        this.playersInGame = playersInGame;
-    }
+        manager  = LogManager.getLogManager();
 
-    @Override
-    public void run() {
+        out = new PrintStream(System.out);
+        in  = new Scanner(System.in);
 
-        APointRMI uniqueRmiAP = null;
-        try {
-            uniqueRmiAP = new APointRMI(hostedGames);
-            APointRMI.export(uniqueRmiAP);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-
-    }
-
-    public static void main(String[] args) {
-        LogManager manager = LogManager.getLogManager();
-
-        HashMap<String, GameController> hostedGames = new HashMap<>();
-        HashMap<String, GameController> playersInGame = new HashMap<>();
         //map of commands
+        commands = new HashMap<>();
+        // Populate commands map
+        commands.put("logAvailable", this::logAvailable);
+        commands.put("logEnable", this::logEnable);
+        commands.put("logDisable", this::logDisable);
+        commands.put("quit", this::quit);
+    }
 
+    private void logAvailable(){
 
+        out.println("Logger available:");
+        for (Enumeration<String> e = manager.getLoggerNames(); e.hasMoreElements();)
+            out.println(e.nextElement());
 
+    }
+
+    private void logEnable(){
+
+        out.println("Enter name of the logger to be enabled");
+        try {
+            manager.getLogger(in.nextLine()).setLevel(Level.ALL);
+        }catch(Exception ex){
+            out.println(ex.getMessage());
+        }
+    }
+
+    private void logDisable(){
+
+        out.println("Enter name of the logger to be disabled");
+        try {
+            manager.getLogger(in.nextLine()).setLevel(Level.OFF);
+        }catch(Exception ex){
+            out.println(ex.getMessage());
+        }
+    }
+
+    private void quit(){
+        socketConnectionListener.interrupt();
+        try {
+            APointRMI.unbind(uniqueRmiAP);
+        } catch (RemoteException|NotBoundException e) {
+            out.println(e);
+        }
+    }
+
+    public void run() {
         //Start socket
-        SimpleSocketConnectionListener socketConnectionListener = new SimpleSocketConnectionListener(3000, hostedGames, playersInGame);
+        socketConnectionListener = new SimpleSocketConnectionListener(3000, hostedGames, playersInGame);
         socketConnectionListener.start();
         //Start RMI
-        LaunchServer rmiConnectionListener = new LaunchServer(hostedGames, playersInGame);
-        rmiConnectionListener.start();
+        try {
+            uniqueRmiAP = new APointRMI(hostedGames);
+            APointRMI.bind(uniqueRmiAP);
+        } catch (IOException | InterruptedException e ) {
+            e.printStackTrace(out);
+        }
 
-        Map<String, Runnable> commands = new HashMap<>();
-        // Populate commands map
-        commands.put("logAvailable", () -> {
-            System.out.println("Logger available:");
-            for (Enumeration<String> e = manager.getLoggerNames(); e.hasMoreElements();)
-                System.out.println(e.nextElement());
-        });
-        commands.put("logEnable", () -> {
-            Scanner input = new Scanner(System.in);
-            System.out.println("Enter name of the logger to be enabled");
-            try {
-                manager.getLogger(input.nextLine()).setLevel(Level.ALL);
-            }catch(Exception ex){
-                System.out.println(ex.getMessage());
-            }
-        });
-        commands.put("logDisable", () -> {
-            Scanner input = new Scanner(System.in);
-            System.out.println("Enter name of the logger to be disabled");
-            try {
-                manager.getLogger(input.nextLine()).setLevel(Level.OFF);
-            }catch(Exception ex){
-                System.out.println(ex.getMessage());
-            }
-        });
-        commands.put("quit", () ->{
-            socketConnectionListener.interrupt();
-            rmiConnectionListener.interrupt();
-        });
-
-
-        Scanner input = new Scanner(System.in);
         String cmd ;
         do {
-            System.out.println("Commands available:");
-            for(String s : commands.keySet()){
-                System.out.println(s);
+            out.println("Commands available:");
+            for(String s : commands.keySet().stream().sorted().collect(Collectors.toList())){
+                out.println(s);
             }
-            cmd = input.nextLine();
+            cmd = in.nextLine();
             // Invoke some command
             commands.get(cmd).run();
 
 
         } while (!cmd.startsWith("quit"));
 
+    }
+
+    public static void main(String[] args) {
+        LaunchServer ls = new LaunchServer();
+        ls.run();
 
     }
 }

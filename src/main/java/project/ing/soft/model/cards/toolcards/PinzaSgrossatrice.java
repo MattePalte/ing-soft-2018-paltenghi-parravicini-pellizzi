@@ -1,7 +1,6 @@
 package project.ing.soft.model.cards.toolcards;
 
 import project.ing.soft.exceptions.RuleViolatedException;
-import project.ing.soft.exceptions.ToolCardApplicationException;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Colour;
 import project.ing.soft.exceptions.UserInterruptActionException;

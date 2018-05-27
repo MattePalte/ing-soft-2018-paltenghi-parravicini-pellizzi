@@ -1,11 +1,6 @@
 package project.ing.soft.model.cards.toolcards;
 
-import project.ing.soft.exceptions.ToolCardApplicationException;
 import project.ing.soft.model.Colour;
-import project.ing.soft.exceptions.UserInterruptActionException;
-import project.ing.soft.model.gamemanager.IGameManager;
-import project.ing.soft.model.Player;
-import project.ing.soft.exceptions.MalformedToolCardException;
 
 public class PennelloPastaSalda extends ToolCardStateful {
 

@@ -11,15 +11,11 @@ import project.ing.soft.model.cards.objectives.privates.PrivateObjective;
 import project.ing.soft.model.cards.WindowPatternCard;
 
 
-import project.ing.soft.model.gamemanager.events.MyTurnEndedEvent;
 import project.ing.soft.view.IView;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.rmi.RemoteException;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class Player implements Serializable{
     private final String            name;
@@ -349,7 +345,7 @@ public class Player implements Serializable{
 
     @Override
     public boolean equals(Object o) {
-        //if (this == o) return true
+        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Player player = (Player) o;
         return isPatternFlipped == player.isPatternFlipped &&

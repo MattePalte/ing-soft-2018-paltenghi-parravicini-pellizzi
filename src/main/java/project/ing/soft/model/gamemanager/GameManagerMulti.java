@@ -16,16 +16,12 @@ import project.ing.soft.model.cards.WindowPatternCard;
 import project.ing.soft.model.gamemanager.events.Event;
 
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+
 import java.io.Serializable;
-import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.List;
 import java.util.function.ToIntFunction;
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -151,6 +147,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
         this.rank               = new ArrayList<> (from.rank);
         this.toolCardCost       = new HashMap<>   (from.toolCardCost);
         this.favours            = new HashMap<>   (from.favours);
+        this.pointDescription   = from.pointDescription;
         this.setStatus(from.status);
 
     }
@@ -173,7 +170,11 @@ public class GameManagerMulti implements IGameManager, Serializable {
     }
     @Override
     public List<Player> getPlayerList() {
-        return currentGame.getPlayers().stream().sorted().collect(Collectors.toCollection(ArrayList :: new));
+        return currentGame
+                .getPlayers()
+                .stream()
+                .sorted(Comparator.comparing(Player::getName))
+                .collect(Collectors.toCollection(ArrayList :: new));
     }
     @Override
     public Player getCurrentPlayer() {

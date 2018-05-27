@@ -2,6 +2,7 @@ package project.ing.soft.controller;
 
 import project.ing.soft.exceptions.ActionNotPermittedException;
 import project.ing.soft.exceptions.GameFullException;
+import project.ing.soft.exceptions.GameInvalidException;
 import project.ing.soft.exceptions.TimeoutOccurredException;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Game;
@@ -20,6 +21,8 @@ import java.rmi.server.UnicastRemoteObject;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class GameController extends UnicastRemoteObject implements IController, Serializable {
@@ -27,7 +30,7 @@ public class GameController extends UnicastRemoteObject implements IController, 
 
     private transient IGameManager  gameManager;
     private transient Game          theGame;
-    private transient PrintStream   logger;
+    private transient Logger        log;
 
     private transient AtomicBoolean turnEnded;
     private transient Timer         timer;
@@ -41,7 +44,8 @@ public class GameController extends UnicastRemoteObject implements IController, 
     public GameController(int maxNumberOfPlayer, String id) throws RemoteException{
         this.theGame        = new Game(maxNumberOfPlayer);
         this.gameManager    = null;
-        this.logger         = new PrintStream(System.out);
+        this.log            = Logger.getLogger(Objects.toString(this));
+        this.log.setLevel(Level.OFF);
         this.turnEnded      = new AtomicBoolean(false);
         this.timer          = new Timer();
         this.id             = id;
@@ -55,7 +59,8 @@ public class GameController extends UnicastRemoteObject implements IController, 
         return this.gameManager == null;
     }
 
-    private void addPlayer(String playerName, IView view){
+    private synchronized void addPlayer(String playerName, IView view){
+
         if (view.getClass().getName().contains("sun")) {
             ViewProxyOverRmi proxyOverRmi = new ViewProxyOverRmi(view);
             new Thread(proxyOverRmi).start();
@@ -66,10 +71,11 @@ public class GameController extends UnicastRemoteObject implements IController, 
     }
 
     public synchronized void joinTheGame(String playerName, IView view) throws Exception {
+        log.log(Level.INFO,"Add player request received from {0} ", playerName);
+        List<String> playersNicknames = theGame.getPlayers().stream().map(Player::getName).collect(Collectors.toCollection(ArrayList::new));
 
-        List<String> playersNickname = theGame.getPlayers().stream().map(p -> p.getName()).collect(Collectors.toCollection(ArrayList::new));
-
-        if(playersNickname.contains(playerName)){
+        if(playersNicknames.contains(playerName)){
+            log.log(Level.INFO,  "{0} come back", playerName);
             // TODO: notify view that it's been removed from the game because of reconnection
             theGame.remove(playerName);
             addPlayer(playerName, view);
@@ -81,7 +87,7 @@ public class GameController extends UnicastRemoteObject implements IController, 
                 //is class com.sun.proxy.$Proxy1
                 addPlayer(playerName, view);
 
-                logger.println(playerName + " added to the match ;)");
+                log.log(Level.INFO,  "{0} added to the match ;)", playerName);
             } else {
                 throw new GameFullException(" wants to join the game... no space :(");
             }
@@ -103,15 +109,19 @@ public class GameController extends UnicastRemoteObject implements IController, 
                 try {
                     startGame();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.log(Level.SEVERE, "error during timer start routine", e);
                 }
             }
         };
     }
 
     private synchronized void startGame() throws Exception {
+        log.log(Level.INFO, "Game started");
         this.gameManager = GameManagerFactory.factory(theGame);
-        logger.println( "Setup starting");
+        if(gameManager == null) {
+            log.log(Level.SEVERE, "GameManagerFactory returned a null gameManager!!");
+            throw  new GameInvalidException("Game creation problem");
+        }
         gameManager.setupPhase();
     }
 
@@ -128,14 +138,17 @@ public class GameController extends UnicastRemoteObject implements IController, 
                 .findAny();
 
         if (player.isPresent() ) {
+            log.log(Level.INFO, "Player {0} recall choose pattern method", nickname);
             //bind the player and the pattern
             gameManager.bindPatternAndPlayer(nickname, windowCard, side);
             //if the game is started building a timeout
 
             if(gameManager.getStatus() == IGameManager.GAME_MANAGER_STATUS.ONGOING) {
-                logger.println("match started");
+                log.log(Level.INFO, "Match started");
                 resetTurnEndAndStartTimer();
             }
+        }else{
+            log.log(Level.INFO, "Somebody is trying to penetrate our program");
         }
 
     }
@@ -143,29 +156,38 @@ public class GameController extends UnicastRemoteObject implements IController, 
 
     @Override
     public synchronized void requestUpdate() throws Exception{
+        log.log(Level.INFO, "An model update was requested");
         gameManager.requestUpdate();
     }
 
     @Override
     public synchronized void placeDie(String nickname, Die aDie, int rowIndex, int colIndex) throws Exception {
-        if (!gameManager.getCurrentPlayer().getName().equals(nickname))
+        if (!gameManager.getCurrentPlayer().getName().equals(nickname)) {
+            log.log(Level.WARNING, "Place die called but player name {0} mismatch ", nickname);
             throw new ActionNotPermittedException();
-
-        if(turnEnded.get())
+        }
+        if(turnEnded.get()) {
+            log.log(Level.INFO, "Player {0} recall place die called but timer was already expired ", nickname);
             throw new TimeoutOccurredException();
+        }
 
+        log.log(Level.INFO, "Player {0} recall place die", nickname);
         gameManager.placeDie(aDie, rowIndex, colIndex);
 
     }
 
     @Override
     public synchronized void playToolCard(String nickname, ToolCard aToolCard) throws Exception {
-        if (!gameManager.getCurrentPlayer().getName().equals(nickname))
+        if (!gameManager.getCurrentPlayer().getName().equals(nickname)) {
+            log.log(Level.WARNING, "Play ToolCard called but player name {0} mismatch ", nickname);
             throw new ActionNotPermittedException();
+        }
 
-        if(turnEnded.get())
+        if(turnEnded.get()) {
+            log.log(Level.INFO, "Player {0} recalled play ToolCard but timer was already expired ", nickname);
             throw new TimeoutOccurredException();
-
+        }
+        log.log(Level.INFO, "Player {0} recall play ToolCard", nickname);
         gameManager.playToolCard(aToolCard);
     }
 
@@ -173,19 +195,24 @@ public class GameController extends UnicastRemoteObject implements IController, 
     @Override
     public synchronized void endTurn(String nickname) throws Exception {
 
-        if (!gameManager.getCurrentPlayer().getName().equals(nickname))
+        if (!gameManager.getCurrentPlayer().getName().equals(nickname)) {
+            log.log(Level.WARNING, "End turn called but player name {0} mismatch ", nickname);
             throw new ActionNotPermittedException();
+        }
 
         if(turnEnded.get()) {
+            log.log(Level.INFO, "Player {0} recalled end turn but timer was already expired ", nickname);
             throw new TimeoutOccurredException();
         }
 
+        log.log(Level.INFO, "Player {0} recall end turn", nickname);
         timeoutTask.cancel();
         endTurn(false);
 
     }
 
     private synchronized void endTurn(boolean timeoutOccurred) throws Exception {
+        log.log(Level.INFO, "End turn {0} ", timeoutOccurred ? "called" : "forced from timer");
         gameManager.endTurn(timeoutOccurred);
         resetTurnEndAndStartTimer();
 
@@ -208,13 +235,11 @@ public class GameController extends UnicastRemoteObject implements IController, 
             @Override
             public void run() {
                 turnEnded.set(true);
-                // if turnEnd == true
-                // esci senza far nulla
 
                 try {
                     endTurn(true);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.log(Level.SEVERE, "Error while resetting turn by timer action", e);
                 }
 
             }
@@ -231,7 +256,7 @@ public class GameController extends UnicastRemoteObject implements IController, 
         GameController that = (GameController) o;
         return Objects.equals(gameManager, that.gameManager) &&
                 Objects.equals(theGame, that.theGame) &&
-                Objects.equals(logger, that.logger) &&
+                Objects.equals(log, that.log) &&
                 Objects.equals(turnEnded, that.turnEnded) &&
                 Objects.equals(timer, that.timer) &&
                 Objects.equals(timeoutTask, that.timeoutTask);

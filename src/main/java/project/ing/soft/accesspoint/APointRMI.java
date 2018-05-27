@@ -13,11 +13,14 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
 
-
+    public static final String ACCESSPOINT = "accesspoint";
+    private final Logger log;
     private static final String cmdForStartingRegistry = "start rmiregistry.exe -J-Djava.rmi.server.logCalls=true -J-Djava.rmi.server.useCodebaseOnly=false";
     private static final String classesRootpath =  GameController.class.getProtectionDomain().getCodeSource().getLocation().getPath().replace("%20", " ");
 
@@ -25,10 +28,10 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
 
     public APointRMI(HashMap<String,GameController> hostedGameController) throws IOException, InterruptedException {
         this.hostedGameController = hostedGameController;
-
+        this.log = Logger.getLogger(Objects.toString(this));
     }
 
-    public static void export(APointRMI ap) throws IOException, InterruptedException {
+    public static void bind(APointRMI ap) throws IOException, InterruptedException {
         // BEFORE LAUNCHING THE SERVER AND CLIENT
         // launch this script from target/classes folder
         // start rmiregistry -J-Djava.rmi.server.logCalls=true -J-Djava.rmi.server.useCodebaseOnly=false
@@ -45,7 +48,7 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
         // start rmiregistry -J-Djava.rmi.server.logCalls=true -J-Djava.rmi.server.useCodebaseOnly=false -J-Djava.rmi.server.hostname=192.168.x.x
         // where 192.168.x.x is the internal ip of the machine hosting the registry
         // decomment this -> System.setProperty("java.rmi.server.hostname","192.168.x.x");
-        System.out.println("Starting rmi registry in "+ classesRootpath);
+        ap.log.log(Level.INFO,"Starting rmi registry in {0}", classesRootpath);
 
         //we start registry using another process
         //Notice that the process is actually started into a separate cmd than the one started with this process builder
@@ -70,25 +73,30 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
         rmiRegistryProcess.isAlive();
         Registry registry = LocateRegistry.getRegistry();
 
-        // Unbinding old games from registry
+        // Unbinding old ap from registry
         for(String s : registry.list()){
             try {
                 registry.unbind(s);
             } catch (NotBoundException e) {
-                e.printStackTrace();
+               ap.log.log(Level.SEVERE,"error while unbinding already present element in registry", e);
             }
         }
-        registry.rebind("accesspoint", ap);
-        System.out.println("AccessPoint RMI published on the registry");
+        registry.rebind(ACCESSPOINT, ap);
+        ap.log.log(Level.INFO,"AccessPoint RMI published on the registry");
+    }
+
+    public static void unbind(APointRMI ap) throws RemoteException, NotBoundException {
+        Registry registry = LocateRegistry.getRegistry();
+        registry.unbind(ACCESSPOINT);
     }
 
     /**
      * When a user connect to the server we provide him with a controller
      * chosen from hostedGameController list if it's present, or creating a new
      * GameController and adding it to the list
-     * @param nickname
+     * @param nickname of the player
      * @return GameController of a match
-     * @throws RemoteException
+     * @throws RemoteException if action does not end well.
      */
     @Override
     public IController connect(String nickname, IView clientView) throws RemoteException{

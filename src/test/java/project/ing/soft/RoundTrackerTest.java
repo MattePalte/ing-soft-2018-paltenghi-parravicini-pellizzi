@@ -8,6 +8,7 @@ import project.ing.soft.model.Die;
 import project.ing.soft.model.RoundTracker;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class RoundTrackerTest {
@@ -43,7 +44,7 @@ public class RoundTrackerTest {
         Assert.assertEquals(1 + randomTurns, roundTracker.getCurrentRound());
         Assert.assertEquals(diceToAdd, roundTracker.getDiceLeftFromRound().size());
         Assert.assertTrue(roundTracker.getDiceLeftFromRound().containsAll(toAdd));
-        ArrayList<Die> diceLeftFromRoundCopy = roundTracker.getDiceLeftFromRound();
+        List<Die> diceLeftFromRoundCopy = roundTracker.getDiceLeftFromRound();
         for(int i = 0; i < diceToAdd; i++){
             diceLeftFromRoundCopy.remove(roundTracker.getDiceLeftFromRound().get(i));
         }
@@ -80,7 +81,7 @@ public class RoundTrackerTest {
         // Verifying if copy contains all and only the dice from roundTracker
         Assert.assertTrue(roundTracker.getDiceLeftFromRound().containsAll(copy.getDiceLeftFromRound()));
 
-        ArrayList<Die> diceLeftFromRoundCopy = copy.getDiceLeftFromRound();
+        List<Die> diceLeftFromRoundCopy = copy.getDiceLeftFromRound();
         for(int i = 0; i < diceToAdd; i++){
             diceLeftFromRoundCopy.remove(roundTracker.getDiceLeftFromRound().get(i));
         }

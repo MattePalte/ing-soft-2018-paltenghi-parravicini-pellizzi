@@ -363,7 +363,7 @@ public class ToolCardCheckParametersTest {
             martelletto.checkParameters(stubPlayer, stubModel);
             Assert.fail();
         }catch (MalformedToolCardException e) {
-            Assert.assertEquals(e.getMessage() , "This is not your second turn in this round");
+            Assert.assertEquals("This is not your second turn in this round",e.getMessage()  );
         }
 
     }

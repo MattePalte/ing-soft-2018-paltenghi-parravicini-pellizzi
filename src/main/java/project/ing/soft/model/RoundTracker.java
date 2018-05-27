@@ -2,6 +2,7 @@ package project.ing.soft.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 public class RoundTracker implements Serializable{
     private int currentRound;
@@ -22,7 +23,7 @@ public class RoundTracker implements Serializable{
         return currentRound;
     }
 
-    public ArrayList<Die> getDiceLeftFromRound() {
+    public List<Die> getDiceLeftFromRound() {
         return new ArrayList<>(diceLeftFromRound);
     }
 
@@ -32,7 +33,7 @@ public class RoundTracker implements Serializable{
         diceLeftFromRound.add(toAdd);
     }
 
-    public void addDiceLeft(ArrayList<Die> list){
+    public void addDiceLeft(List<Die> list){
         diceLeftFromRound.addAll(list);
     }
 

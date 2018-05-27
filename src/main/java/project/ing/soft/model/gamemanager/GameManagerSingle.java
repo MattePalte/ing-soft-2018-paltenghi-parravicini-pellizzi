@@ -216,7 +216,7 @@ public class GameManagerSingle {
     }
 
     private ArrayList<Player> getTurn(){
-        ArrayList<Player> players = currentGame.getPlayers();
+        List<Player> players = currentGame.getPlayers();
 
         ArrayList<Player> turn = new ArrayList<>(players);
         turn.addAll(players.stream().sorted((p1, p2) -> players.indexOf(p1) >= players.indexOf(p2) ? 1 : -1).collect(Collectors.toList()));

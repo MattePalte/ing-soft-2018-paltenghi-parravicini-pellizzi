@@ -67,8 +67,8 @@ public class GameManagerFactory {
             toolCards.add( new TaglierinaCircolare());*/
             toolCards.add( new PennelloPastaSalda());
             toolCards.add( new DiluentePerPastaSalda());
-            toolCards.add( new Martelletto());
-           /* toolCards.add( new RigaSughero());
+            toolCards.add( new Martelletto());/*
+            toolCards.add( new RigaSughero());
             toolCards.add( new TaglierinaManuale());
             toolCards.add( new TamponeDiamantato());
             toolCards.add( new TenagliaRotelle());*/

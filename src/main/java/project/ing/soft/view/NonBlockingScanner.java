@@ -4,15 +4,18 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
-
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class NonBlockingScanner {
-   private BufferedReader br;
+    private BufferedReader br;
+    private Logger log;
 
     public NonBlockingScanner(InputStream in) {
         this.br = new BufferedReader(new InputStreamReader(in));
+        this.log = Logger.getLogger(Objects.toString(this));
 
     }
     private void waitForInputAvailable() throws IOException, InterruptedException {
@@ -31,7 +34,7 @@ public class NonBlockingScanner {
             waitForInputAvailable();
             return br.read();
         }catch (IOException e) {
-            e.printStackTrace();
+            log.log(Level.SEVERE, "error while reading", e);
             return -1;
         }
 
@@ -48,7 +51,7 @@ public class NonBlockingScanner {
                 waitForInputAvailable();
                 input = br.readLine();
             }catch (IOException e) {
-                e.printStackTrace();
+                log.log(Level.SEVERE, "error while reading", e);
             }
         } while ("".equals(input));
 

@@ -1,5 +1,6 @@
 package project.ing.soft.model.cards.toolcards;
 
+import project.ing.soft.Settings;
 import project.ing.soft.exceptions.*;
 import project.ing.soft.model.*;
 import project.ing.soft.model.cards.Card;
@@ -143,7 +144,7 @@ public abstract class ToolCard implements Serializable, Card {
 
     @Override
     public String toString() {
-        StringBoxBuilder aBuilder = new StringBoxBuilder(new StringBoxBuilder.SINGLELINEROUNDEDCORNER(),Card.WIDTH_CARD, Card.HEIGHT_CARD);
+        StringBoxBuilder aBuilder = new StringBoxBuilder(new StringBoxBuilder.SINGLELINEROUNDEDCORNER(),Settings.TEXT_CARD_WIDTH, Settings.TEXT_CARD_HEIGHT);
         aBuilder.appendInAboxToTop(getTitle());
         aBuilder.appendToTop(getDescription());
         return aBuilder.toString();
