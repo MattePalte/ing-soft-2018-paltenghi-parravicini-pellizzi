@@ -15,8 +15,14 @@ public class WindowPatternCard implements Serializable {
     private WindowPattern frontPattern;
     private WindowPattern rearPattern;
 
-    //@ requires title != null && description != null && frontPattern != null && rearPattern != null &&
-    //          rearPattern != frontPattern && rearPattern.toString() != frontPattern.toString()
+    /**
+     * requires title != null && description != null && frontPattern != null && rearPattern != null &&
+     *          rearPattern != frontPattern && rearPattern.toString() != frontPattern.toString()
+     * @param title
+     * @param frontPattern
+     * @param rearPattern
+     * @throws GameInvalidException
+     */
     private WindowPatternCard(String title, WindowPattern frontPattern, WindowPattern rearPattern) throws GameInvalidException {
         this.title          = title;
         this.frontPattern   = frontPattern;
@@ -62,7 +68,7 @@ public class WindowPatternCard implements Serializable {
             }
 
         } catch(Exception ex){
-            System.out.println("Error while loading window pattern cards from file");
+            //"Error while loading window pattern cards from file"
             patterns = new ArrayList<>();
         }
 

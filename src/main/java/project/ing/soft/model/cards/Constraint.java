@@ -6,10 +6,21 @@ import project.ing.soft.model.Colour;
 import java.io.Serializable;
 import java.net.URL;
 
+/**
+ * Immutable class that represent a x-y cell in WindowPattern
+ * Its representation consist of two fields
+ * value must be a number between 0 and 6
+ * color must be a @link{project.ing.soft.model.Colour}
+ */
 public class Constraint implements Serializable {
     private final int value;     // 0 if no value constraint is applied
     private final Colour colour; // WHITE if no colour constraint is applied
 
+    /**
+     * The Constraint class provides several ways of creating a constraint
+     * @param aValue a number between 0 and 6
+     * @param aColour an immutable object from @link{project.ing.soft.model.Colour}
+     */
     public Constraint(int aValue, Colour aColour) {
         this.value = aValue;
         this.colour = aColour;
@@ -62,9 +73,18 @@ public class Constraint implements Serializable {
             return "";
         String path = String.format("windowPattern/dice/constraint/%d.jpg", getValue());
         URL urlResource =  this.getClass().getClassLoader().getResource(path);
-        return urlResource.toString();
+        if(urlResource != null) {
+            return urlResource.toString();
+        }
+        return "";
     }
 
+    /**
+     * Factory function that returns a constraint from a "XY" string
+     * @param rep X must be a number between 0-6 , Y must be a character among "WBRGYV"
+     * @return a constraint
+     * @throws Colour.ColorNotFoundException if Y character does not fall nto range value
+     */
     public static Constraint fromEncoding(String rep) throws Colour.ColorNotFoundException {
        return new Constraint((int) rep.charAt(0) - (int) '0', Colour.valueOf(rep.charAt(1)));
     }

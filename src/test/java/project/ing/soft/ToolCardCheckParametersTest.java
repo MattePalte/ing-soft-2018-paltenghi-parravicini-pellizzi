@@ -1,6 +1,7 @@
 package project.ing.soft;
 
 import org.junit.Assert;
+import project.ing.soft.exceptions.ToolCardApplicationException;
 import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.*;
 import project.ing.soft.model.cards.toolcards.*;
@@ -352,6 +353,20 @@ public class ToolCardCheckParametersTest {
         assertTrue( isExHappend);
     }
 
+    @Test
+    public void martellettoKoTest(){
+        when(stubModel.getCurrentTurnList()).thenReturn(List.of(stubPlayer, stubPlayer));
+        when(stubModel.getPlayerList()).thenReturn(List.of(stubPlayer));
+        try{
+            Martelletto martelletto = new Martelletto();
+            martelletto.fill(mock(IToolCardParametersAcquirer.class));
+            martelletto.checkParameters(stubPlayer, stubModel);
+            Assert.fail();
+        }catch (MalformedToolCardException e) {
+            Assert.assertEquals(e.getMessage() , "This is not your second turn in this round");
+        }
+
+    }
 
     @Test
     // check if a well formed pennelloPastaSalda toolcard doesn't throw the exception

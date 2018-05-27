@@ -15,8 +15,8 @@ public class PinzaSgrossatrice extends ToolCard {
     private boolean toBeIncreased;
 
     public PinzaSgrossatrice() {
-        super("Pinza sgrossatrice", "Dopo aver scelto un dado,\n" +
-                "aumenta o diminuisci il valore del dado scelto di 1\n" +
+        super("Pinza sgrossatrice", "Dopo aver scelto un dado, \n" +
+                "aumenta o diminuisci il valore del dado scelto di 1. \n" +
                 "Non puoi cambiare un 6 in 1 o un 1 in 6" ,
                 "toolcard/30%/toolcards-2.png", Colour.VIOLET);
     }
@@ -41,7 +41,7 @@ public class PinzaSgrossatrice extends ToolCard {
         m.removeFromDraft(choosenDie);
         if ((choosenDie.getValue() == 6 && toBeIncreased) || (choosenDie.getValue() == 1 && !toBeIncreased))
             throw new RuleViolatedException("invalid operation: 6-> 1 or 1->6");
-        Die newDie = ( new Die(toBeIncreased ? choosenDie.getValue() + 1 : choosenDie.getValue() - 1, choosenDie.getColour()));
+        Die newDie = toBeIncreased ? choosenDie.increment() : choosenDie.decrement();
         m.addToDraft(newDie);
     }
 }

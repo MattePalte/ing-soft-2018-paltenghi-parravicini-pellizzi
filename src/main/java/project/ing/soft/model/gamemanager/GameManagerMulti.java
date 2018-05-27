@@ -16,10 +16,17 @@ import project.ing.soft.model.cards.WindowPatternCard;
 import project.ing.soft.model.gamemanager.events.Event;
 
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.List;
 import java.util.function.ToIntFunction;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class GameManagerMulti implements IGameManager, Serializable {
@@ -44,7 +51,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
     private Map<String, Integer>        favours;
     private Map<String, String>         pointDescription;
-
+    private transient Logger logger;
     //Constructor
     //@Signals Exception aGame.isValid() || aGame.numOfPlayers() <= 1 or aGame.numOfPlayers()> 4
     public GameManagerMulti(Game aGame,
@@ -54,14 +61,15 @@ public class GameManagerMulti implements IGameManager, Serializable {
                             List<WindowPatternCard> availableWindowPatternCards,
                             List<Die> dice
     ) throws GameInvalidException {
-
-
+        logger = Logger.getLogger(this.getClass().getCanonicalName()+aGame.getPlayers().stream().map(Player::getName).collect(Collectors.toList()).toString());
+        logger.setLevel(Level.OFF);
 
         if (!aGame.isValid() || aGame.getNumberOfPlayers() <= 1  || aGame.getNumberOfPlayers() > 4  ) {
-            status = GAME_MANAGER_STATUS.ENDED;
+            setStatus(GAME_MANAGER_STATUS.ENDED);
             throw new GameInvalidException("Game is not valid!");
         }
-        status = GAME_MANAGER_STATUS.WAITING_FOR_PATTERNCARD;
+
+        setStatus(GAME_MANAGER_STATUS.WAITING_FOR_PATTERNCARD);
 
         currentGame = new Game(aGame);
         // initialize empty draft pool
@@ -76,7 +84,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
         favours = new HashMap<>();
         //initialize hashMap rank
         rank = new ArrayList<>();
-        // initialize hashmap points description
+        // initialize hash map points description
         pointDescription = new HashMap<>();
         //initialize toolCards cost
         toolCardCost = new HashMap<>();
@@ -103,7 +111,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
                 limit(currentGame.getNumberOfPlayers()*2).collect(Collectors.toCollection(ArrayList::new));
 
         this.currentTurnList = createTurns(currentGame.getPlayers());
-
+        logger.log(Level.INFO, "created turns");
         // do 1, 2 operation for each player
         for (Player p : currentGame.getPlayers()) {
             // 1 - randomly distribute PrivateObjectiveCards
@@ -117,23 +125,34 @@ public class GameManagerMulti implements IGameManager, Serializable {
             }
             p.givePossiblePatternCard(new ArrayList<>(selectedPatternCards));
         }
+        logger.log(Level.INFO, "distributed cards");
     }
+
+    private void setStatus(GAME_MANAGER_STATUS status) {
+        logger.log(Level.INFO, "Game manager changed state from {0} to {1} ", new Object[]{this.status != null ? this.status.name(): "---", status.name()});
+        this.status = status;
+    }
+
     //Copy constructor
-    private GameManagerMulti(GameManagerMulti gameManagerMulti){
-        this.currentGame        = new Game(gameManagerMulti.currentGame);
-        this.diceBag            = new ArrayList<> (gameManagerMulti.diceBag);
-        this.draftPool          = new ArrayList<> (gameManagerMulti.draftPool);
-        this.rounds             = new RoundTracker(gameManagerMulti.rounds);
-        this.publicObjectives   = new ArrayList<> (gameManagerMulti.publicObjectives);
-        this.toolCards          = new ArrayList<> (gameManagerMulti.toolCards);
+    private GameManagerMulti(GameManagerMulti from){
+        from.logger.log(Level.INFO, "A game manager was cloned from this");
+        this.logger             = Logger.getLogger(Objects.toString(this));
+        this.logger.setLevel(Level.OFF);
+        this.currentGame        = new Game(from.currentGame);
+        this.diceBag            = new ArrayList<> (from.diceBag);
+        this.draftPool          = new ArrayList<> (from.draftPool);
+        this.rounds             = new RoundTracker(from.rounds);
+        this.publicObjectives   = new ArrayList<> (from.publicObjectives);
+        this.toolCards          = new ArrayList<> (from.toolCards);
         this.currentTurnList = new ArrayList<>();
-        for(Player p : gameManagerMulti.currentTurnList){
+        for(Player p : from.currentTurnList){
             this.currentTurnList.add(new Player(p));
         }
-        this.rank               = new ArrayList<> (gameManagerMulti.rank);
-        this.toolCardCost       = new HashMap<>   (gameManagerMulti.toolCardCost);
-        this.favours            = new HashMap<>   (gameManagerMulti.favours);
-        this.status             = gameManagerMulti.status;
+        this.rank               = new ArrayList<> (from.rank);
+        this.toolCardCost       = new HashMap<>   (from.toolCardCost);
+        this.favours            = new HashMap<>   (from.favours);
+        this.setStatus(from.status);
+
     }
     //
     public IGameManager copy(){
@@ -154,7 +173,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
     }
     @Override
     public List<Player> getPlayerList() {
-        return currentGame.getPlayers().stream().sorted((p1,p2) -> p1.getName().compareTo(p2.getName())).collect(Collectors.toCollection(ArrayList :: new));
+        return currentGame.getPlayers().stream().sorted().collect(Collectors.toCollection(ArrayList :: new));
     }
     @Override
     public Player getCurrentPlayer() {
@@ -191,6 +210,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
     @Override
     public void setupPhase() {
+        logger.log(Level.INFO, "Setup phase started");
         //distribute event for selecting a WindowPatternCard
         for(Player p : getPlayerList()) {
             deliverEvent(p, new ModelChangedEvent(new GameManagerMulti(this)),
@@ -201,6 +221,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
     @Override
     public void bindPatternAndPlayer(String nickname, WindowPatternCard windowCard, Boolean side) throws GameInvalidException {
+        logger.log(Level.INFO, "Player {0} chosen a pattern card", nickname);
         for (Player p : getPlayerList()){
             if (p.getName().equals(nickname)){
                 p.setPatternCard(windowCard);
@@ -213,7 +234,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
             if (p.getPatternCard() == null) return;
         }
         // if all have chosen their card start the match
-        status = GAME_MANAGER_STATUS.ONGOING;
+        setStatus(GAME_MANAGER_STATUS.ONGOING);
 
         drawDice();
         broadcastEvents(new FinishedSetupEvent(), new ModelChangedEvent(new GameManagerMulti(this)));
@@ -300,6 +321,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
     @Override
     public void placeDie(Die aDie, int rowIndex, int colIndex) throws Exception {
+        logger.log(Level.INFO, "Player {0} would like to place die {1} on ({2}, {3})", new Object[]{getCurrentPlayer().getName(),aDie,rowIndex, colIndex });
         if(aDie.getValue() == 0)
             throw new RuleViolatedException("This die can't be placed!");
 
@@ -317,6 +339,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
     @Override
     public void payToolCard(ToolCard aToolCard) {
 
+
         int actualFavours = favours.get(getCurrentPlayer().getName());
         if  (actualFavours < toolCardCost.get(aToolCard.getTitle()))
             return;
@@ -324,6 +347,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
         favours.replace(getCurrentPlayer().getName(), actualFavours - toolCardCost.get(aToolCard.getTitle()));
         toolCardCost.replace(aToolCard.getTitle(), 2);
+        logger.log(Level.INFO, "Player {0} paid the ToolCard: {1}", new Object[]{getCurrentPlayer().getName(),aToolCard.getTitle()});
     }
 
     /**
@@ -339,6 +363,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
     @Override
     public void playToolCard(ToolCard aToolCard) throws Exception{
+        logger.log(Level.INFO, "Player {0} would like to use the ToolCard: {1}", new Object[]{getCurrentPlayer().getName(),aToolCard.getTitle()});
         aToolCard.play(getCurrentPlayer(), this);
     }
 
@@ -347,6 +372,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
     public void endTurn(boolean timeoutOccurred) throws GameInvalidException {
         if (status == GAME_MANAGER_STATUS.ENDED) return;
 
+        logger.log(Level.INFO, "Player {0} ended the turn",getCurrentPlayer().getName());
         Player current = getCurrentPlayer();
         if(timeoutOccurred)
             current.update(new MyTurnEndedEvent());
@@ -355,19 +381,20 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
         if(currentTurnList.isEmpty() && rounds.getCurrentRound() == ROUNDS_NUMBER) {
 
-            status = GAME_MANAGER_STATUS.ENDED;
+            setStatus(GAME_MANAGER_STATUS.ENDED);
             countPlayersPoints();
             broadcastEvents(new GameFinishedEvent(new ArrayList<>(rank), new HashMap<>(pointDescription)));
             return;
         }else if(currentTurnList.isEmpty()){
-            System.out.println("End of round " + rounds.getCurrentRound());
+            logger.log(Level.INFO, "Round {0} finished.", rounds.getCurrentRound());
 
             currentGame.leftShiftPlayers();
             currentTurnList = createTurns(currentGame.getPlayers());
             rounds.addDiceLeft(draftPool);
             rounds.nextRound();
             draftPool.clear();
-            System.out.println("Round " + rounds.getCurrentRound() + " is beginning");
+            logger.log(Level.INFO, "Round {0} just started.", rounds.getCurrentRound());
+
             drawDice();
         }
 
@@ -394,14 +421,15 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
     @Override
     public void rollDraftPool(){
-        for(int i = 0; i < draftPool.size(); i++){
-            draftPool.add(i, draftPool.remove(i).rollDie());
-        }
+        draftPool = draftPool
+                .stream()
+                .map(Die::rollDie)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
     public void addToDicebag(Die aDie){
-        diceBag.add(aDie.rollDie());
+        diceBag.add(aDie);
         Collections.shuffle(diceBag);
     }
 
@@ -435,7 +463,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
         return turn; // result: p1 p2 p3 p3 p2 p1
     }
 
-    private void drawDice() throws GameInvalidException{
+    private void drawDice() throws GameInvalidException {
         if(!draftPool.isEmpty())
             throw new GameInvalidException("Panic");
 

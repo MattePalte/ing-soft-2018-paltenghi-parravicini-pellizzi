@@ -47,7 +47,7 @@ public class ViewProxyOverSocket implements IView,IRequestHandler, Runnable {
             log.println( "A class wasn't found "+ ex );
         } catch (Exception ex){
             log.println(  "An error occurred while writing/reading objects "+ ex);
-            ex.printStackTrace();
+            ex.printStackTrace(log);
         }finally {
             log.println("disconnected");
         }

@@ -14,7 +14,7 @@ public class TaglierinaCircolare extends ToolCard {
     private Die dieFromRoundTracker;
 
     public TaglierinaCircolare() {
-        super("Taglierina circolare", "Dopo aver scelto un dado,\n" +
+        super("Taglierina circolare", "Dopo aver scelto un dado, \n" +
                 "scambia quel dado con un dado sul Tracciato dei Round",
                 "toolcard/30%/toolcards-6.png", Colour.GREEN);
     }

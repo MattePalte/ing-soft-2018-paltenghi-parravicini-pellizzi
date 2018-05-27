@@ -16,8 +16,8 @@ public class TaglierinaManuale extends ToolCard {
     private ArrayList<Coordinate> moveTo;
 
     public TaglierinaManuale() {
-        super("Taglierina manuale", "Muovi fino a due dadi dello\n" +
-                "stesso colore di un solo dado sul Tracciato dei Round\n" +
+        super("Taglierina manuale", "Muovi fino a due dadi dello \n"+
+                "stesso colore di un solo dado sul Tracciato dei Round. \n" +
                 "Devi rispettare tutte le restrizioni di piazzamento",
                 "toolcard/30%/toolcards-13.png", Colour.BLUE);
 

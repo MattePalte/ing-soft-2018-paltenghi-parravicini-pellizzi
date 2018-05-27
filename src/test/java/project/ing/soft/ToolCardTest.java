@@ -415,6 +415,7 @@ public class ToolCardTest {
 
         ArrayList<Die> oldDraftPool = new ArrayList<>(draftPoolStub);
         try {
+            tested.fill(mock(IToolCardParametersAcquirer.class));
             tested.play(playerStub, gameManagerStub);
         } catch (Exception e) {
             e.printStackTrace();
@@ -456,7 +457,7 @@ public class ToolCardTest {
         } catch (Exception e) {
             message = e.getCause().getMessage();
             exceptionThrown = true;
-            Assert.assertEquals("You can't play this toolcard: you can only use this during your first turn in the round", message);
+            Assert.assertEquals("You can't play this ToolCard: you can only use this during your first turn in the round", message);
         }
         Assert.assertTrue(exceptionThrown);
 

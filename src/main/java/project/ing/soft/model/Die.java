@@ -40,6 +40,10 @@ public class Die implements Serializable {
         return this.value < FACES ? new Die(this.value + 1, this.colour) : this;
     }
 
+    public Die decrement() {
+        return this.value > 0     ? new Die(this.value - 1, this.colour) : this;
+    }
+
     public Die rollDie(){
         Random randGen = new Random();
         return new Die(randGen.nextInt(FACES) + 1, this.colour);
@@ -63,12 +67,15 @@ public class Die implements Serializable {
         return result;
     }
 
-    public String getImgPath(){
-        if(getColour() == Colour.WHITE || getValue() == 0)
+    public String getImgPath() {
+        if (getColour() == Colour.WHITE || getValue() == 0)
             return "";
         String path = String.format("windowPattern/dice/%s/%d.png", getColour().name().toLowerCase(), getValue());
-        URL urlResource =  this.getClass().getClassLoader().getResource(path);
-        return urlResource.toString();
+        URL urlResource = this.getClass().getClassLoader().getResource(path);
+        if (urlResource != null) {
+            return urlResource.toString();
+        }
+        return "";
     }
 
     @Override

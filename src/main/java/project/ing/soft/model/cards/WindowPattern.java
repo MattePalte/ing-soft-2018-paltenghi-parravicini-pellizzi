@@ -49,7 +49,10 @@ public class WindowPattern implements Serializable {
         StringBuilder aBuilder = new StringBuilder();
         String tmp;
 
-        aBuilder.append(this.title + " " + new String(new char[this.difficulty]).replace("\0", "*") + "\n");
+        aBuilder.append(this.title)
+                .append(" ")
+                .append(new String(new char[this.difficulty]).replace("\0", "*"))
+                .append("\n");
 
         for (int r = 0; r < height; r++) {
             for (int c = 0; c < width; c++) {
@@ -64,7 +67,7 @@ public class WindowPattern implements Serializable {
     }
 
     public static WindowPattern loadFromScanner(Scanner in) throws Colour.ColorNotFoundException {
-        String constraintRepr;
+        String constraintRepresentation;
         String title;
         int difficulty;
         int height;
@@ -81,8 +84,8 @@ public class WindowPattern implements Serializable {
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
 
-                constraintRepr = in.findInLine("[0-6][RYGBVW]");
-                constraints[row][col] = Constraint.fromEncoding(constraintRepr);
+                constraintRepresentation = in.findInLine("[0-6][RYGBVW]");
+                constraints[row][col] = Constraint.fromEncoding(constraintRepresentation);
             }
         }
         return new WindowPattern(width, height, constraints, title, difficulty);

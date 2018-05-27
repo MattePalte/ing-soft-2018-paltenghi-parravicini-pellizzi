@@ -17,7 +17,7 @@ public class Lathekin extends ToolCard {
     private Coordinate secondDieEndPosition;
 
     public Lathekin() {
-        super("Lathekin", "Muovi esattamente due dadi,\n" +
+        super("Lathekin", "Muovi esattamente due dadi, \n" +
                 "rispettando tutte le restrizioni di piazzamento",
                 "toolcard/30%/toolcards-5.png", Colour.YELLOW);
     }

@@ -1,7 +1,5 @@
 package project.ing.soft.model.cards.toolcards;
 
-import project.ing.soft.exceptions.ToolCardApplicationException;
-import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.model.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
@@ -9,7 +7,7 @@ import project.ing.soft.model.Colour;
 
 public class Martelletto extends ToolCard {
     public Martelletto() {
-        super("Martelletto", "Tira nuovamente tutti i dadi della Riserva Questa carta può essera usata\n" +
+        super("Martelletto", "Tira nuovamente tutti i dadi della Riserva Questa carta può essera usata \n" +
                 "solo durante il tuo secondo turno, prima di scegliere il secondo dado",
                 "toolcard/30%/toolcards-8.png", Colour.BLUE);
     }
@@ -21,7 +19,7 @@ public class Martelletto extends ToolCard {
     }
 
     @Override
-    public void fill(IToolCardParametersAcquirer acquirer) throws InterruptedException, UserInterruptActionException {
+    public void fill(IToolCardParametersAcquirer acquirer) {
         //this ToolCard doesn't need any data
     }
 
