@@ -14,7 +14,6 @@ import project.ing.soft.model.Player;
 import project.ing.soft.rmi.ViewProxyOverRmi;
 import project.ing.soft.view.IView;
 
-import java.io.PrintStream;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -35,7 +34,7 @@ public class GameController extends UnicastRemoteObject implements IController, 
     private transient AtomicBoolean turnEnded;
     private transient Timer         timer;
     private transient TimerTask     timeoutTask;
-    private transient final String id;
+    private final transient String id;
 
     private static final transient long TURN_TIMEOUT       = 60000;
     private static final transient long GAME_START_TIMEOUT = 60000;

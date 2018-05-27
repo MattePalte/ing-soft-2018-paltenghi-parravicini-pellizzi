@@ -2,6 +2,8 @@ package project.ing.soft;
 
 import project.ing.soft.accesspoint.APointRMI;
 import project.ing.soft.controller.GameController;
+import project.ing.soft.exceptions.UserInterruptActionException;
+import project.ing.soft.model.Coordinate;
 import project.ing.soft.socket.SimpleSocketConnectionListener;
 
 import java.io.IOException;
@@ -55,19 +57,32 @@ public class LaunchServer {
     private void logEnable(){
 
         out.println("Enter name of the logger to be enabled");
+        List<String> list = new ArrayList<>();
+        for (Enumeration<String> e = manager.getLoggerNames(); e.hasMoreElements();)
+           list.add(e.nextElement());
+
         try {
-            manager.getLogger(in.nextLine()).setLevel(Level.ALL);
-        }catch(Exception ex){
+            manager.getLogger((String)chooseFrom(list)).setLevel(Level.ALL);
+
+        }catch (UserInterruptActionException ex){
+            //no action need to be carried out
+        }catch (Exception ex){
             out.println(ex.getMessage());
         }
     }
 
     private void logDisable(){
 
-        out.println("Enter name of the logger to be disabled");
+        out.println("Enter name of the logger to be enabled");
+        List<String> list = new ArrayList<>();
+        for (Enumeration<String> e = manager.getLoggerNames(); e.hasMoreElements();)
+            list.add(e.nextElement());
+
         try {
-            manager.getLogger(in.nextLine()).setLevel(Level.OFF);
-        }catch(Exception ex){
+            manager.getLogger((String)chooseFrom(list)).setLevel(Level.OFF);
+        }catch (UserInterruptActionException ex){
+            //no action need to be carried out
+        }catch (Exception ex){
             out.println(ex.getMessage());
         }
     }
@@ -107,11 +122,54 @@ public class LaunchServer {
         } while (!cmd.startsWith("quit"));
 
     }
+    //region scanner operation
+    private int waitForUserInput(int lowerBound , int upperBound) throws UserInterruptActionException {
+        int ret = 0;
+        boolean err;
+        String str = null;
 
+        do{
+            err = false;
+            try{
+                str = in.nextLine();
+                ret = Integer.valueOf(str);
+            }
+            catch( NumberFormatException e){
+                err = true;
+            }
+            err = err || ret < lowerBound || ret > upperBound;
+
+            if(err){
+                if(str != null &&  str.startsWith("q"))
+                    throw new UserInterruptActionException();
+                out.println("You entered a value that does not fit into the correct interval. Enter q to interrupt the operation");
+
+            }
+        }while(err);
+
+        return ret;
+    }
+
+    private Object chooseFrom(List objs) throws UserInterruptActionException {
+        return objs.get(chooseIndexFrom(objs));
+    }
+
+    private int chooseIndexFrom(List objs) throws UserInterruptActionException {
+
+        out.println(String.format("Enter a number between 0 and %d to select:", objs.size()-1));
+        for (int i = 0; i < objs.size() ; i++) {
+            out.println(String.format("[%d] for %s", i, objs.get(i).toString()));
+        }
+        return waitForUserInput(0, objs.size()-1);
+
+    }
+    //endregion
     public static void main(String[] args) {
         LaunchServer ls = new LaunchServer();
         ls.run();
 
     }
+
+
 }
 

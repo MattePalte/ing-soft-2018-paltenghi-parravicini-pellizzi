@@ -1,5 +1,6 @@
 package project.ing.soft.model;
 
+import project.ing.soft.model.cards.Card;
 import project.ing.soft.model.cards.WindowPattern;
 import project.ing.soft.model.gamemanager.events.Event;
 import project.ing.soft.exceptions.PatternConstraintViolatedException;
@@ -184,7 +185,7 @@ public class Player implements Serializable{
     //      a pattern constraint is violated -> PatternConstraintViolatedException
     public void placeDie(Die aDie, int row, int col, boolean checkPresence) throws PositionOccupiedException, PatternConstraintViolatedException, RuleViolatedException {
 
-        if(hasPlacedADieInThisTurn)
+        if(getHasPlacedADieInThisTurn())
             throw new RuleViolatedException("Player can't place more than a die at turn.");
 
         checkPlaceDie                     (aDie, row, col, true, true, hasEverPlacedADie && checkPresence);
@@ -229,7 +230,7 @@ public class Player implements Serializable{
 
     public List<Coordinate> getCompatiblePositions(Die aDie){
         ArrayList<Coordinate> ret = new ArrayList<>();
-        if(hasPlacedADieInThisTurn)
+        if(getHasPlacedADieInThisTurn())
             return ret;
 
         for(int row = 0; row < placedDice.length; row++){
@@ -380,13 +381,17 @@ public class Player implements Serializable{
     @Override
     public String toString() {
         StringBuilder aBuilder =  new StringBuilder();
-        aBuilder.append("---------------------\n");
-        aBuilder.append(getName());
-        aBuilder.append("'s situation ...\n");
-        aBuilder.append("PrivObj : ");
-        aBuilder.append(myPrivateObjective.getTitle());
-        aBuilder.append("\n");
+        aBuilder.append("---------------------\n")
+                .append(getName())
+                .append("'s situation ...\n")
+                .append(Card.drawNear("Private objective : "+(myPrivateObjective == null ? "Not already assigned a private objective": myPrivateObjective.toString()),
+                        "Player game board: \n"+stringifyPlayerGameBoard()))
+                .append("---------------------\n");
+        return aBuilder.toString();
+    }
 
+    private String stringifyPlayerGameBoard() {
+        StringBuilder aBuilder = new StringBuilder();
         String tmp;
         if(getPattern() == null){
             aBuilder.append("Not already chosen a pattern card");
@@ -399,7 +404,7 @@ public class Player implements Serializable{
                     if (placedDice[r][c] != null) {
                         tmp = placedDice[r][c].toString();
                     } else {
-                        //else take the constrain representation intself
+                        //else take the constrain representation itself
                         tmp = constraintsMatrix[r][c].toString();
                     }
                     aBuilder.append(constraintsMatrix[r][c].getColour().colourBackground(tmp));
@@ -407,7 +412,6 @@ public class Player implements Serializable{
                 aBuilder.append("\n");
             }
         }
-        aBuilder.append("---------------------\n");
         return aBuilder.toString();
     }
 

@@ -11,11 +11,14 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.rmi.RemoteException;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class APProxy implements IAccessPoint, ConnectionResponseHandler {
 
@@ -28,16 +31,20 @@ public class APProxy implements IAccessPoint, ConnectionResponseHandler {
     private IView view;
     private PrintStream viewPrintStream;
     private ExecutorService ex = Executors.newFixedThreadPool(1);
+    private Logger log;
 
     public APProxy(String host, int port){
         this.host = host;
         this.port = port;
+        this.log  = Logger.getLogger(Objects.toString(this));
+        this.log.setLevel(Level.OFF);
     }
 
     @Override
-    public IController connect(String nickname, IView clientView) throws RemoteException {
+    public IController connect(String nickname, IView clientView) throws InterruptedException {
+        log.log(Level.INFO,"{0} request to connect", nickname);
         mySocket = new Socket();
-        Future ft = null;
+        Future ft;
         try {
             mySocket.connect(new InetSocketAddress(host, port));
             view = clientView;
@@ -48,24 +55,21 @@ public class APProxy implements IAccessPoint, ConnectionResponseHandler {
                 requestConnection(nickname);
                 return true;
             });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if( ft != null){
 
-            try {
-                ft.get();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
+
+            ft.get();
             return controllerProxy;
+        } catch (InterruptedException e) {
+            throw e;
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "error while connecting", e);
         }
+
         return null;
     }
 
-    private void requestConnection(String nickname) throws Exception{
+    private void requestConnection(String nickname) throws IOException, ClassNotFoundException {
+        log.log(Level.INFO,"{0} request to connect", nickname);
         oos.writeObject(new JoinTheGameRequest(nickname));
         ConnectionResponse response = (ConnectionResponse)ois.readObject();
         response.accept(this);
@@ -77,9 +81,9 @@ public class APProxy implements IAccessPoint, ConnectionResponseHandler {
     }
 
     @Override
-    public IController reconnect(String nickname, String code, IView clientView) throws RemoteException {
+    public IController reconnect(String nickname, String code, IView clientView) {
         mySocket = new Socket();
-
+        log.log(Level.INFO,"{0} requested to reconnect", nickname);
         try {
             mySocket.connect(new InetSocketAddress(host, port));
             view = clientView;
@@ -93,14 +97,15 @@ public class APProxy implements IAccessPoint, ConnectionResponseHandler {
             controllerProxy.start();
             response.accept(this);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.log(Level.SEVERE, "error while connecting", e);
         }
         return controllerProxy;
     }
 
     @Override
     public void handle(ConnectionEstabilishedResponse response) {
-        viewPrintStream.println("Connection estabilished. Please, wait for the game to start");
+        log.log(Level.INFO,"Connection request accepted");
+        viewPrintStream.println("Connection established. Please, wait for the game to start");
         viewPrintStream.println("Please remember to save this code to let you ask for reconnection in case of network problems");
         viewPrintStream.println("YOUR TOKEN TO ASK RECONNECTION IS: " + response.getToken());
     }
@@ -112,7 +117,7 @@ public class APProxy implements IAccessPoint, ConnectionResponseHandler {
         try {
             mySocket.close();
         } catch(IOException e){
-            e.printStackTrace();
+            log.log(Level.SEVERE, "error while closing the socket", e);
         }
 
     }
@@ -127,7 +132,7 @@ public class APProxy implements IAccessPoint, ConnectionResponseHandler {
         try {
             mySocket.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.log(Level.SEVERE, "error while closing the socket", e); e.printStackTrace();
         }
         controllerProxy.interrupt();
         ex.submit(() -> {

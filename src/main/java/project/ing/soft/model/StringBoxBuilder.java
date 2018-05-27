@@ -142,14 +142,16 @@ public class StringBoxBuilder {
             String two = drawNear(tmp +1, last, others );
 
             String[] ones = one.split("\\n");
-            String paddingOne = padding(ones[0].length());
+            int oneMaxLength = Arrays.stream(ones).mapToInt(String::length).max().orElse(0);
+            String paddingOne = padding(oneMaxLength);
             String[] twos = two.split("\\n");
-            String paddingTwo = padding(twos[0].length());
+            int twoMaxLength = Arrays.stream(ones).mapToInt(String::length).max().orElse(0);
+            String paddingTwo = padding(twoMaxLength);
             StringBuilder sb = IntStream
                     .range(0, Math.max(ones.length, twos.length))
                     .mapToObj(i ->
-                         (i < ones.length ? ones[i] : paddingOne) +
-                         (i < twos.length ? twos[i] : paddingTwo) +
+                         (i < ones.length ? ones[i]+padding(oneMaxLength-ones[i].length()) : paddingOne) +" "+
+                         (i < twos.length ? twos[i]+padding(twoMaxLength-twos[i].length()) : paddingTwo) +
                                 "\n"
                     )
                     .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append );
