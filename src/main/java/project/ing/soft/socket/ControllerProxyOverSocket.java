@@ -228,7 +228,7 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
 
     @Override
     public String getControllerSecurityCode() {
-        throw new UnsupportedOperationException();
+        return "fake-code-not-yet-implemented-in-proxy";
     }
 
 }

@@ -304,7 +304,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
             throw new RuleViolatedException("This die can't be placed!");
 
         getCurrentPlayer().placeDie(aDie,rowIndex,colIndex, true);
-
+        removeFromDraft(aDie);
 
         deliverEvent(getCurrentPlayer(), new ModelChangedEvent(new GameManagerMulti(this)), new MyTurnStartedEvent());
 

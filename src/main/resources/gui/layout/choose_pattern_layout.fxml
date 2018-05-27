@@ -1,62 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-
-<?import javafx.scene.text.Text?>
 <?import java.net.URL?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.geometry.Insets?>
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      prefHeight="400.0" prefWidth="600.0" alignment="CENTER">
-    <Text text="Sagrada" styleClass="title"></Text>
-    <Text fx:id="status" ></Text>
-
-    <GridPane fx:id="matrix" alignment="center" hgap="10" vgap="10">
-        <padding><Insets top="25" right="25" bottom="25" left="25"/></padding>
-
-        <Button id="pos00" GridPane.rowIndex="0" GridPane.columnIndex="0" />
-        <Button id="pos01" GridPane.rowIndex="0" GridPane.columnIndex="1" />
-        <Button id="pos02" GridPane.rowIndex="0" GridPane.columnIndex="2" />
-        <Button id="pos03" GridPane.rowIndex="0" GridPane.columnIndex="3" />
-        <Button id="pos04" GridPane.rowIndex="0" GridPane.columnIndex="4" />
-
-        <Button id="pos10" GridPane.rowIndex="1" GridPane.columnIndex="0" />
-        <Button id="pos11" GridPane.rowIndex="1" GridPane.columnIndex="1" />
-        <Button id="pos12" GridPane.rowIndex="1" GridPane.columnIndex="2" />
-        <Button id="pos13" GridPane.rowIndex="1" GridPane.columnIndex="3" />
-        <Button id="pos14" GridPane.rowIndex="1" GridPane.columnIndex="4" />
-
-        <Button id="pos20" GridPane.rowIndex="2" GridPane.columnIndex="0" />
-        <Button id="pos21" GridPane.rowIndex="2" GridPane.columnIndex="1" />
-        <Button id="pos22" GridPane.rowIndex="2" GridPane.columnIndex="2" />
-        <Button id="pos23" GridPane.rowIndex="2" GridPane.columnIndex="3" />
-        <Button id="pos24" GridPane.rowIndex="2" GridPane.columnIndex="4" />
-
-        <Button id="pos30" GridPane.rowIndex="3" GridPane.columnIndex="0" />
-        <Button id="pos31" GridPane.rowIndex="3" GridPane.columnIndex="1" />
-        <Button id="pos32" GridPane.rowIndex="3" GridPane.columnIndex="2" />
-        <Button id="pos33" GridPane.rowIndex="3" GridPane.columnIndex="3" />
-        <Button id="pos34" GridPane.rowIndex="3" GridPane.columnIndex="4" />
+<?import javafx.scene.control.Button?>
+<VBox alignment="CENTER" prefHeight="422.0" prefWidth="1366.0"
+      xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="project.ing.soft.gui.ChosePatternController">
 
 
-    </GridPane>
+        <Text fill="WHITE" stroke="BLACK" strokeLineCap="ROUND" strokeType="OUTSIDE" styleClass="big_title" text="Choose a pattern" />
+        <HBox alignment="CENTER" spacing="25">
+            <VBox fx:id="frontFirst" alignment="CENTER"/>
+            <VBox fx:id="rearFirst"  alignment="CENTER"/>
 
-    <VBox fx:id="choosePatternCard">
-        <HBox alignment="CENTER">
-            <Button fx:id="btnPrev" text="Prev"></Button>
-            <Button fx:id="btnNext" text="Next"></Button>
+            <ImageView fx:id="imgPrivateObjective" />
+
+            <VBox fx:id="frontSecond"  alignment="CENTER"/>
+            <VBox fx:id="rearSecond"  alignment="CENTER"/>
+
         </HBox>
-        <HBox alignment="CENTER">
-            <Text text="Favours :"></Text>
-            <TextField fx:id="favourField" disable="true"></TextField>
-            <Button fx:id="btnChoose" text="Choose this pattern" ></Button>
-        </HBox>
-    </VBox>
     <stylesheets>
-        <URL value="@../style.css"></URL>
+        <URL value="@../style.css" />
     </stylesheets>
 </VBox>

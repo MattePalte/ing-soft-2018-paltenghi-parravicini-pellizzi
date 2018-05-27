@@ -1,5 +1,6 @@
 package project.ing.soft.gui;
 
+import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -22,7 +23,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import javafx.util.Pair;
+import project.ing.soft.Settings;
 import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.Colour;
@@ -32,6 +35,7 @@ import project.ing.soft.model.Player;
 import project.ing.soft.model.cards.Constraint;
 import project.ing.soft.model.cards.WindowPattern;
 import project.ing.soft.model.cards.WindowPatternCard;
+import project.ing.soft.model.cards.objectives.privates.PrivateObjective;
 import project.ing.soft.model.cards.objectives.publics.PublicObjective;
 import project.ing.soft.model.cards.toolcards.*;
 import project.ing.soft.controller.IController;
@@ -68,8 +72,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
     //region Constants
     // default configuration for sockets
-    private final String HOST = "localhost";
-    private final int PORT = 3000;
     private Map<Colour, String> mapBgColour;
     private Map<Colour, String> mapDieColour;
     private final String STORNG_FOCUS = "#f47a42";
@@ -78,8 +80,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     private final String WHITE = "#fff";
     private final String CONSTRAIN_TEXT_COLOR = "#b8bab9";
     private final String FX_BACKGROUND = "-fx-background-color:";
-    private final int MATRIX_NR_ROW = 4;
-    private final int MATRIX_NR_COL = 5;
     private final int NR_TOOLCARD = 3;
     private double SCREEN_WIDTH;
     private double CELL_DIMENSION;
@@ -175,7 +175,8 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         mapDieColour.put(Colour.WHITE, "#ffffff");
 
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-        SCREEN_WIDTH = primaryScreenBounds.getWidth();
+        //SCREEN_WIDTH = primaryScreenBounds.getWidth();
+        SCREEN_WIDTH = Settings.MIN_SCREEN_SIZE;
         CELL_DIMENSION = SCREEN_WIDTH/23;
         SMALL_CELL_DIMENSION = CELL_DIMENSION/1.5;
 
@@ -218,7 +219,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     }
 
     //region Getter e Setter
-    public void setPrimaryStage(Stage primaryStage) {
+    public void setStage(Stage primaryStage) {
         this.primaryStage = primaryStage;
     }
 
@@ -229,6 +230,9 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     public void setOut(PrintStream out) {
         this.out = out;
     }
+    public void setOwnerNameOfTheView(String ownerNameOfTheView) {
+        this.ownerNameOfTheView = ownerNameOfTheView;
+    }
 
     public String getOwnerNameOfTheView() {
         return ownerNameOfTheView;
@@ -237,19 +241,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     //endregion
 
     //region GUI Elements
-    // PHASE 0 - OPEN CONNECTION
-    @FXML private Button btnGetController;
-    @FXML private Button btnRmiConnection;
-    @FXML private Button btnSocketConnection;
-    @FXML private Button btnJoin;
-    @FXML private TextField txtName;
     @FXML private TextField favourField;
-
-    // PHASE 1 - CHOOSE PATTERN CARD
-    @FXML private Button btnNext;
-    @FXML private Button btnPrev;
-    @FXML private Button btnChoose;
-    @FXML private VBox choosePatternCardBox;
 
     // TO DESPLAY INFO
     @FXML private Text status;
@@ -309,6 +301,9 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     @Override
     public void respondTo(FinishedSetupEvent event) {
         // nothing special to do
+        displayPrivateObjective(getPrimaryStage().getScene());
+        displayToolCard(getPrimaryStage().getScene());
+        displayPublicCard(getPrimaryStage().getScene());
     }
 
     @Override
@@ -329,18 +324,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
     @Override
     public void respondTo(PatternCardDistributedEvent event) {
-        // show log message
-        out.println("gestione di pattern card distributed");
-        // get info from event object
-        possiblePatterns = new ArrayList<>();
-        possiblePatterns.add(event.getOne().getFrontPattern());
-        possiblePatterns.add(event.getOne().getRearPattern());
-        possiblePatterns.add(event.getTwo().getFrontPattern());
-        possiblePatterns.add(event.getTwo().getRearPattern());
-        possiblePatternCard = new ArrayList<>();
-        possiblePatternCard.add(event.getOne());
-        possiblePatternCard.add(event.getTwo());
-        showPickPattern();
+        showPickPattern(event);
     }
 
     @Override
@@ -387,34 +371,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     }
 
     //region Draw Things
-    private synchronized void displayPatternCard(WindowPattern pattern, Scene scene){
-        for (int row = 0 ; row < pattern.getHeight(); row++) {
-            for (int col = 0 ; col < pattern.getWidth(); col++) {
-
-                Button currentCell = (Button) scene.lookup("#pos" + row + col);
-                Constraint constraint = pattern.getConstraintsMatrix()[row][col];
-                if (constraint != null && constraint.getImgPath() != "") {
-                    Image image = new Image(constraint.getImgPath());
-                    ImageView bg = new ImageView(image);
-                    bg.setFitHeight(CELL_DIMENSION);
-                    bg.setFitWidth(CELL_DIMENSION);
-                    bg.setPreserveRatio(true);
-                    bg.setSmooth(true);
-                    bg.setCache(true);
-                    currentCell.setGraphic(bg);
-                } else {
-                    ImageView bg = new ImageView();
-                    bg.setFitHeight(CELL_DIMENSION);
-                    bg.setFitWidth(CELL_DIMENSION);
-                    currentCell.setGraphic(bg);
-                }
-                if (constraint != null)
-                    currentCell.setStyle(FX_BACKGROUND + mapBgColour.get(constraint.getColour()));
-            }
-
-        }
-        favourField.setText(String.valueOf(pattern.getDifficulty()));
-    }
 
     private synchronized void drawMySituation() {
         WindowPattern wndPtrn = null;
@@ -447,6 +403,12 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
                         bg.setSmooth(true);
                         bg.setCache(true);
                         currentCell.setGraphic(bg);
+                    } else {
+                        ImageView bg = new ImageView();
+                        bg.setFitHeight(CELL_DIMENSION);
+                        bg.setFitWidth(CELL_DIMENSION);
+                        currentCell.setGraphic(bg);
+
                     }
                     currentCell.setStyle(FX_BACKGROUND + mapBgColour.get(constraint.getColour()));
                 } else {
@@ -628,43 +590,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     //endregion
 
     //region Fixed Button Handling
-    public void btnNextOnCLick(ActionEvent actionEvent) {
-        if (currentIndexPatternDisplayed < possiblePatterns.size()-1) {
-            currentIndexPatternDisplayed++;
-        } else {
-            currentIndexPatternDisplayed = 0;
-        }
-        // HOW TO GET stage from action event - add ActionEvent actionEvent as parameter
-        //Stage primaryStage = (Stage) ((Node)actionEvent.getSource()).getScene().getWindow();
-        Scene currentScene = (Scene) ((Node)actionEvent.getSource()).getScene();
-        displayPatternCard(possiblePatterns.get(currentIndexPatternDisplayed), currentScene);
-    }
-    public void btnPrevOnCLick(ActionEvent actionEvent) {
-        if (currentIndexPatternDisplayed > 0) {
-            currentIndexPatternDisplayed--;
-        } else {
-            currentIndexPatternDisplayed = possiblePatterns.size() - 1;
-        }
-        Scene currentScene = (Scene) ((Node)actionEvent.getSource()).getScene();
-        displayPatternCard(possiblePatterns.get(currentIndexPatternDisplayed), currentScene);
-    }
-    public void btnChooseOnCLick() throws Exception {
-        WindowPattern chosenPattern = possiblePatterns.get(currentIndexPatternDisplayed);
-        for (WindowPatternCard c : possiblePatternCard) {
-            if (c.getFrontPattern() == chosenPattern) {
-                myController.choosePattern(ownerNameOfTheView, c, false);
-                break;
-            }
-            if (c.getRearPattern() == chosenPattern) {
-                myController.choosePattern(ownerNameOfTheView, c, true);
-                break;
-            }
-        }
-        btnNext.setDisable(true);
-        btnPrev.setDisable(true);
-        btnChoose.setDisable(true);
-        return;
-    }
 
     public void btnPlaceDieOnCLick() throws Exception {
         // PRE-SETUP
@@ -682,10 +607,8 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
                 @Override
                 public void run() {
                     try {
-                        showPickCoordinate("Choose a position to place the Die");
-                        Coordinate chosenCoord = getCoord();
-                        showPickDieDraft("Chose a die to place");
-                        Die chosenDie = getDie();
+                        Coordinate chosenCoord = getCoordinate("Choose a position to place the Die");
+                        Die chosenDie = getDieFromDraft("Chose a die to place");
                         gView.disableAll();
                         gView.myController.placeDie(gView.getOwnerNameOfTheView(), chosenDie, chosenCoord.getRow(), chosenCoord.getCol());
                     } catch (InterruptedException e) {
@@ -756,8 +679,8 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     public synchronized void initializeButtons(){
         Scene scene = getPrimaryStage().getScene();
         // set button of pattern
-        for (int row = 0; row < MATRIX_NR_ROW; row++) {
-            for (int col = 0; col < MATRIX_NR_COL; col++) {
+        for (int row = 0; row < Settings.MATRIX_NR_ROW; row++) {
+            for (int col = 0; col < Settings.MATRIX_NR_COL; col++) {
                 Button currentCell = (Button) scene.lookup("#pos" + row + col);
                 int finalRow = row;
                 int finalCol = col;
@@ -833,15 +756,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
 
     //region Possile View Interface
-    public synchronized void showPickCoordinate(String message) {
-        enableOnly(ID_MATRIX,message);
-    }
-    public synchronized void showPickDieDraft(String message) {
-        enableOnly(ID_DRAFTPOOL,message);
-    }
-    public synchronized void showPickDieRound(String message) {
-        enableOnly(ID_ROUNDTRACKER,message);
-    }
     public synchronized void showPickValues(String message, Integer... values) {
         Platform.runLater(new Runnable() {
             @Override public void run() {
@@ -861,70 +775,46 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
             }
         });
     }
-    public synchronized void showPickPattern() {
-        // show the first pattern
-        currentIndexPatternDisplayed = 0;
-        displayPatternCard(possiblePatterns.get(currentIndexPatternDisplayed), getPrimaryStage().getScene());
+    public synchronized void showPickPattern(PatternCardDistributedEvent event) {
+        PrivateObjective privObj = null;
+        for (Player p : localCopyOfTheStatus.getPlayerList()) {
+            if (p.getName().equals(ownerNameOfTheView)) {
+                privObj = p.getPrivateObjective();
+                break;
+            }
+        }
+        Parent root = null;
+        String sceneFile = "/gui/layout/choose_pattern_layout.fxml";
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(sceneFile));
+        try {
+            root = (Parent)fxmlLoader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Problem loading the fxml");
+        }
+        ChosePatternController chosePatternFxController = fxmlLoader.getController();
+        chosePatternFxController.setGameController(myController);
+        chosePatternFxController.setPatternEvent(event);
+        chosePatternFxController.setPrivObj(privObj);
+        chosePatternFxController.setNick(ownerNameOfTheView);
+        Scene scene = new Scene(root);
+        chosePatternFxController.renderThings();
+        //primaryStage.setScene(scene);
+        // New window (Stage)
+        Stage newWindow = new Stage();
+        newWindow.setTitle("Chose pattern");
+        newWindow.setScene(scene);
+        chosePatternFxController.setStage(newWindow);
 
-        displayPrivateObjective(getPrimaryStage().getScene());
-        displayToolCard(getPrimaryStage().getScene());
-        displayPublicCard(getPrimaryStage().getScene());
+        //Center newly created scene
+        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
+        newWindow.setX((primScreenBounds.getWidth() - primaryStage.getWidth()) / 2);
+        newWindow.setY((primScreenBounds.getHeight() - primaryStage.getHeight()) / 2);
+
+        newWindow.show();
     }
     public synchronized void showPickToolCardIndex(String message) {
         enableOnly(ID_TOOLCARDBOX, message);
-    }
-    //endregion
-
-
-
-    //region Get GameController
-    //TODO: create a splash view
-    public void btnRmiConnectionOnClick() throws Exception {
-        setName();
-        Registry registry = LocateRegistry.getRegistry();
-        // gets a reference for the remote accesspoint
-        IAccessPoint accessPoint = (IAccessPoint) registry.lookup("accesspoint");
-        IController controllerFromRMI = (IController) accessPoint.connect(ownerNameOfTheView, this);
-        System.out.println("Controller retrieved from AccessPoint");
-        this.attachController(controllerFromRMI);
-        System.out.println("Controller attached to the view");
-        setController();
-        btnRmiConnection.setText("GameController Obtained");
-    }
-
-    public void btnSocketConnectionOnClick() throws Exception {
-        setName();
-        //TODO: not working
-        throw new UnsupportedOperationException("Socket non settato correttamente, perchè blocca l'interfaccia grafica");
-        /*IAccessPoint accessPoint = new APProxy(Settings.host, Settings.port);
-        ControllerProxyOverSocket controllerProxy = (ControllerProxyOverSocket) accessPoint.connect(ownerNameOfTheView, this);
-        controllerProxy.start();
-        System.out.println("ControllerProxy created by AccessPoint Proxy");
-        this.attachController(controllerProxy);
-        System.out.println("Controller attached to the view");
-        setController();
-        btnSocketConnection.setText("GameController Obtained");*/
-    }
-
-    private void setName() throws Exception {
-        // get user name
-        ownerNameOfTheView = txtName.getText();
-        if (ownerNameOfTheView.equals("")) {
-            Exception ex = new Exception("no name inserted");
-            displayError(ex);
-            throw ex;
-        }
-        System.out.println("Registered in the app with the name: " + ownerNameOfTheView);
-        txtName.setDisable(true);
-    }
-
-    private void setController() throws Exception{
-        // attach the controller to the GuiView
-        this.attachController(myController);
-        this.run(); //TODO: useless method?
-        //myController.joinTheGame(ownerNameOfTheView, this);
-        btnRmiConnection.setDisable(true);
-        btnSocketConnection.setDisable(true);
     }
     //endregion
 
@@ -932,21 +822,19 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
     @Override
     public Die getDieFromDraft(String message) throws InterruptedException, UserInterruptActionException {
-        showPickDieDraft(message);
+        enableOnly(ID_DRAFTPOOL,message);
         return getDie();
     }
 
     @Override
     public Die getDieFromRound(String message) throws InterruptedException, UserInterruptActionException {
-        
-        showPickDieRound(message);
+        enableOnly(ID_ROUNDTRACKER,message);
         return getDie();
     }
 
     @Override
     public Coordinate getCoordinate(String message) throws InterruptedException, UserInterruptActionException {
-
-        showPickCoordinate(message);
+        enableOnly(ID_MATRIX,message);
         return getCoord();
     }
 

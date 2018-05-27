@@ -1,6 +1,9 @@
 .title {
     -fx-font-size: 20px;
 }
+.big_title {
+    -fx-font-size: 50px;
+}
 
 #content {
     -fx-background-color: #c4c4c4;
