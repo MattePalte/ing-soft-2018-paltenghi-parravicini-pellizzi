@@ -10,6 +10,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 import project.ing.soft.Settings;
@@ -34,6 +35,7 @@ public class ChosePatternController {
     private PatternCardDistributedEvent event;
     private PrivateObjective privObj;
 
+    @FXML private Text txtTitle;
     @FXML private VBox frontFirst;
     @FXML private VBox rearFirst;
     @FXML private VBox frontSecond;
@@ -60,11 +62,17 @@ public class ChosePatternController {
         this.privObj = privObj;
     }
 
+    /**
+     * General method to render 4 possible pattern and display private objective.
+     * It should be called by the creator of this scene.
+     * It add to the title the nick name of current player
+     */
     public void renderThings(){
         /*Image img = new Image("gui/sagrada_small_splash.png");
         ivSplash.setImage(img);
         ivSplash.setFitWidth(startWidth);
         ivSplash.setFitHeight(startHeight);*/
+        txtTitle.setText(nick + " choose a pattern");
         populate(frontFirst, event.getOne().getFrontPattern());
         populate(rearFirst, event.getOne().getRearPattern());
         populate(frontSecond, event.getTwo().getFrontPattern());
@@ -97,7 +105,9 @@ public class ChosePatternController {
         }
     }
 
-
+    /**
+     * Method to display private objective
+     */
     private void displayObjective(){
         Image img = null;
         try {
@@ -112,6 +122,12 @@ public class ChosePatternController {
         imgPrivateObjective.setCache(true);
     }
 
+    /**
+     * Given a VBox it creates a GridPane representing a WindowPattern,
+     * then it add a button to choose that pattern card  and a number representing the value
+     * @param vBox
+     * @param pattern
+     */
     private void populate(VBox vBox, WindowPattern pattern){
         // Create Grid for matrix of this pattern
         GridPane gPane = new GridPane();
@@ -128,8 +144,12 @@ public class ChosePatternController {
                 stage.close();
             }
         });
+        // Create Text to show difficulty
+        Text txtFavour = new Text();
+        txtFavour.setText("Favour: "+pattern.getDifficulty());
         // Add new element to box
         vBox.getChildren().add(gPane);
+        vBox.getChildren().add(txtFavour);
         vBox.getChildren().add(btnChooseThis);
         for (int row = 0; row < Settings.MATRIX_NR_ROW; row++) {
             for (int col = 0; col < Settings.MATRIX_NR_COL; col++) {

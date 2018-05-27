@@ -1,5 +1,6 @@
 package project.ing.soft.socket;
 
+import project.ing.soft.controller.GameController;
 import project.ing.soft.controller.IController;
 import project.ing.soft.model.gamemanager.events.Event;
 import project.ing.soft.socket.request.*;
@@ -12,20 +13,23 @@ import java.net.Socket;
 
 
 public class ViewProxyOverSocket implements IView,IRequestHandler, Runnable {
-    private IController controller;
+    private GameController gameController;
     private Socket aSocket;
 
     private ObjectOutputStream toClient;
     private ObjectInputStream fromClient;
     private PrintStream log;
 
+    private String nickname;
 
-    public ViewProxyOverSocket(Socket aSocket, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+
+    public ViewProxyOverSocket(Socket aSocket, ObjectOutputStream oos, ObjectInputStream ois, String nickname) throws IOException {
         this.aSocket = aSocket;
         this.toClient   = oos;
         this.toClient.flush();
         this.fromClient = ois;
         this.log = new PrintStream(System.out);
+        this.nickname = nickname;
     }
 
     @Override
@@ -47,6 +51,7 @@ public class ViewProxyOverSocket implements IView,IRequestHandler, Runnable {
             log.println( "A class wasn't found "+ ex );
         } catch (Exception ex){
             log.println(  "An error occurred while writing/reading objects "+ ex);
+            gameController.markAsDisconnected(nickname);
             ex.printStackTrace(log);
         }finally {
             log.println("disconnected");
@@ -85,7 +90,7 @@ public class ViewProxyOverSocket implements IView,IRequestHandler, Runnable {
         }
     }
 
-    //region handle request. Pass request to the real controller
+    //region handle request. Pass request to the real gameController
     public void visit(AbstractRequest aRequest) throws Exception {
         log.println("Request received"+aRequest.getClass());
         try {
@@ -109,27 +114,27 @@ public class ViewProxyOverSocket implements IView,IRequestHandler, Runnable {
 
     @Override
     public void handle(PlaceDieRequest aRequest) throws Exception {
-        this.controller.placeDie(aRequest.getNickname(), aRequest.getTheDie(), aRequest.getRowIndex(), aRequest.getColIndex());
+        this.gameController.placeDie(aRequest.getNickname(), aRequest.getTheDie(), aRequest.getRowIndex(), aRequest.getColIndex());
     }
 
     @Override
     public void handle(UpdateRequest aRequest) throws Exception {
-        this.controller.requestUpdate();
+        this.gameController.requestUpdate();
     }
 
     @Override
     public void handle(PlayToolCardRequest aRequest) throws Exception {
-        this.controller.playToolCard(aRequest.getNickname(), aRequest.getaToolCard());
+        this.gameController.playToolCard(aRequest.getNickname(), aRequest.getaToolCard());
     }
 
     @Override
     public void handle(EndTurnRequest aRequest) throws Exception {
-        this.controller.endTurn(aRequest.getNickname());
+        this.gameController.endTurn(aRequest.getNickname());
     }
 
     @Override
     public void handle(ChoosePatternRequest aRequest) throws Exception {
-        this.controller.choosePattern(aRequest.getNickname(), aRequest.getWindowCard(), aRequest.getSide());
+        this.gameController.choosePattern(aRequest.getNickname(), aRequest.getWindowCard(), aRequest.getSide());
     }
 
 
@@ -139,7 +144,7 @@ public class ViewProxyOverSocket implements IView,IRequestHandler, Runnable {
     //region IView
     @Override
     public void attachController(IController gameController) {
-        this.controller = gameController;
+        this.gameController = (GameController) gameController;
     }
 
     @Override

@@ -31,7 +31,7 @@ public class Player implements Serializable{
     private transient IView         myView;
     private boolean                 hasPlacedADieInThisTurn;
     private boolean                 hasEverPlacedADie;
-
+    private boolean                 isConnected;
 
 
 
@@ -54,6 +54,7 @@ public class Player implements Serializable{
     public Player(Player pToBeCopied) {
         this.name                    = pToBeCopied.name;
         this.isPatternFlipped        = pToBeCopied.isPatternFlipped;
+        this.isConnected             = pToBeCopied.isConnected;
         this.myWindowPatternCard     = pToBeCopied.myWindowPatternCard;
         this.possiblePatternCards    = new ArrayList<>(pToBeCopied.possiblePatternCards);
         this.myPrivateObjective      = pToBeCopied.myPrivateObjective;
@@ -102,10 +103,15 @@ public class Player implements Serializable{
     public void setPrivateObjective(PrivateObjective myPrivateObjective) {
         this.myPrivateObjective = myPrivateObjective;
     }
-//endregion
+    public void setConnected(boolean connected) {
+        isConnected = connected;
+    }
+    //endregion
 
     //region getter
-
+    public boolean isConnected() {
+        return isConnected;
+    }
     //@assignable nothing
     public String getName() {
         return name;
@@ -332,6 +338,7 @@ public class Player implements Serializable{
                     ret++;
         return ret;
     }
+
     public void endTurn() {
         hasPlacedADieInThisTurn = false;
     }
@@ -347,6 +354,10 @@ public class Player implements Serializable{
 
     }
 
+    public void resetView(){
+        myView = null;
+    }
+
     //region object override
 
     @Override
@@ -356,6 +367,7 @@ public class Player implements Serializable{
         Player player = (Player) o;
         return isPatternFlipped == player.isPatternFlipped &&
                 hasPlacedADieInThisTurn == player.hasPlacedADieInThisTurn &&
+                isConnected == player.isConnected &&
                 hasEverPlacedADie == player.hasEverPlacedADie &&
                 Objects.equals(name, player.name) &&
                 Objects.equals(myWindowPatternCard, player.myWindowPatternCard) &&

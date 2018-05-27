@@ -303,7 +303,8 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
     private void broadcastEvents(Event ... events){
         for (Player subscriber : currentGame.getPlayers()) {
-            deliverEvent(subscriber, events);
+            if (subscriber.isConnected())
+                deliverEvent(subscriber, events);
         }
 
     }
@@ -455,6 +456,8 @@ public class GameManagerMulti implements IGameManager, Serializable {
     }
 
     public void updatePlayers(String nickname, IView view){
+        // Inject a new player object to replace player object of disconnected player
+        // do this both in turn list and game general list of players
         List<Player> oldList = currentGame.getPlayers();
         List<Player> playerInfoBackup = oldList.stream().filter(player -> player.getName().equals(nickname)).collect(Collectors.toCollection(ArrayList::new));
         Player toRemove = playerInfoBackup.get(0);
@@ -468,11 +471,27 @@ public class GameManagerMulti implements IGameManager, Serializable {
                 currentTurnList.remove(i+1);
             }
         }
-        toAdd.update(new ModelChangedEvent(this));
+        // Create a list of events to send in order
+        List<Event> eventsToSend = new ArrayList<>();
+        eventsToSend.add(new ModelChangedEvent(this));
         if(status == GAME_MANAGER_STATUS.WAITING_FOR_PATTERNCARD)
-            toAdd.update(new PatternCardDistributedEvent(toRemove.getPrivateObjective(), toRemove.getPossiblePatternCard().get(0), toRemove.getPossiblePatternCard().get(1)));
+            eventsToSend.add(new PatternCardDistributedEvent(toRemove.getPrivateObjective(), toRemove.getPossiblePatternCard().get(0), toRemove.getPossiblePatternCard().get(1)));
         if(status == GAME_MANAGER_STATUS.ONGOING && getCurrentPlayer().equals(toAdd))
-            toAdd.update(new MyTurnStartedEvent());
+            eventsToSend.add(new MyTurnStartedEvent());
+        // Send them in order with deliverEvent method to do stuff async
+        Event[] eventsArray = new Event[eventsToSend.size()];
+        eventsArray = eventsToSend.toArray(eventsArray);
+        deliverEvent(toAdd, eventsArray);
+    }
+
+    @Override
+    public void disconnectPlayer(String playerToDisconnect) {
+        for (Player p : getPlayerList()) {
+            if (p.getName().equals(playerToDisconnect)) {
+                p.setConnected(false);
+                p.resetView();
+            }
+        }
     }
 
     private ArrayList<Player> createTurns(List<Player> players){

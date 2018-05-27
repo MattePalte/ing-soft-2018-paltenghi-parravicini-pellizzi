@@ -1,5 +1,6 @@
 package project.ing.soft.view;
 
+import project.ing.soft.model.Player;
 import project.ing.soft.model.gamemanager.events.Event;
 import project.ing.soft.controller.IController;
 

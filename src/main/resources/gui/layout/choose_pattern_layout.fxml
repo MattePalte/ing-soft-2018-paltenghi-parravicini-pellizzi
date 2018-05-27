@@ -14,7 +14,7 @@
       fx:controller="project.ing.soft.gui.ChosePatternController">
 
 
-        <Text fill="WHITE" stroke="BLACK" strokeLineCap="ROUND" strokeType="OUTSIDE" styleClass="big_title" text="Choose a pattern" />
+        <Text fill="WHITE" stroke="BLACK" strokeLineCap="ROUND" strokeType="OUTSIDE" styleClass="big_title" fx:id="txtTitle" />
         <HBox alignment="CENTER" spacing="25">
             <VBox fx:id="frontFirst" alignment="CENTER"/>
             <VBox fx:id="rearFirst"  alignment="CENTER"/>

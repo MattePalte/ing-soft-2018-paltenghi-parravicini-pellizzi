@@ -54,8 +54,8 @@ public class ClientConnectionRequestHandler implements Callable<Boolean>, Connec
         IController controller;
         String nickname;
 
-        viewProxy = new ViewProxyOverSocket(clientSocket, oos, ois);
         nickname = request.getNickname();
+        viewProxy = new ViewProxyOverSocket(clientSocket, oos, ois, nickname);
         controller = accessPoint.connect(nickname, viewProxy);
         String token = TokenCalculator.computeDigest(nickname + controller.getControllerSecurityCode());
         //TODO: delete this print on definitive version
@@ -72,8 +72,8 @@ public class ClientConnectionRequestHandler implements Callable<Boolean>, Connec
         String nickname;
         String code;
 
-        viewProxy = new ViewProxyOverSocket(clientSocket, oos, ois);
         nickname = request.getNickname();
+        viewProxy = new ViewProxyOverSocket(clientSocket, oos, ois, nickname);
         code = request.getGameToken();
         controller = accessPoint.reconnect(nickname, code, viewProxy);
         oos.writeObject(new ConnectionEstabilishedResponse(code));

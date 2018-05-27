@@ -61,7 +61,8 @@ public class GameController extends UnicastRemoteObject implements IController, 
     private synchronized void addPlayer(String playerName, IView view){
 
         if (view.getClass().getName().contains("sun")) {
-            ViewProxyOverRmi proxyOverRmi = new ViewProxyOverRmi(view);
+            ViewProxyOverRmi proxyOverRmi = new ViewProxyOverRmi(view, playerName);
+            proxyOverRmi.attachController(this);
             new Thread(proxyOverRmi).start();
             theGame.add(new Player(playerName, proxyOverRmi));
         } else {
@@ -101,6 +102,10 @@ public class GameController extends UnicastRemoteObject implements IController, 
             timer.schedule(buildStartTimeoutTask(), TURN_TIMEOUT);
         }*/
 
+    }
+
+    public synchronized void markAsDisconnected(String playerName) {
+        gameManager.disconnectPlayer(playerName);
     }
 
     private TimerTask  buildStartTimeoutTask() {

@@ -44,7 +44,7 @@ public class Game implements Serializable{
     public void add(Player newPlayer) {
         if (players.size() < maxNumPlayer) {
             players.add(newPlayer);
-
+            newPlayer.setConnected(true);
         }
     }
 
