@@ -24,14 +24,11 @@ public class GuiBackgroundApp extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        /*GuiView viewFxController = fxmlLoader.getController();
-        PrintStream out = new PrintStream(System.out);
-        viewFxController.setOut(out);
-        viewFxController.setStage(stage);*/
+
         Scene scene = new Scene(root);
         SplashController splashFxController = fxmlLoader.getController();
-        splashFxController.collectDimension(scene);
         splashFxController.setStage(stage);
+        //splashFxController.collectDimension(scene);
 
         stage.setTitle("Sagrada - GUI");
         stage.setScene(scene);
