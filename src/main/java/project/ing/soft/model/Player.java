@@ -62,6 +62,11 @@ public class Player implements Serializable{
         this.hasEverPlacedADie       = pToBeCopied.hasEverPlacedADie;
     }
 
+    public Player(Player pToBeCopied, IView newView){
+        this(pToBeCopied);
+        this.myView = newView;
+    }
+
     public Player getMemento(){
         return new Player(this);
     }

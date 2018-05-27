@@ -79,6 +79,8 @@ public class GameController extends UnicastRemoteObject implements IController, 
             // TODO: notify view that it's been removed from the game because of reconnection
             theGame.remove(playerName);
             addPlayer(playerName, view);
+            if(gameManager != null && (gameManager.getStatus() == IGameManager.GAME_MANAGER_STATUS.ONGOING || gameManager.getStatus() == IGameManager.GAME_MANAGER_STATUS.WAITING_FOR_PATTERNCARD))
+                gameManager.updatePlayers(playerName, view);
         }
         else {
             if (theGame.getNumberOfPlayers() < theGame.getMaxNumPlayers()) {

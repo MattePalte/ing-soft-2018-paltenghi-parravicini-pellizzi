@@ -11,6 +11,7 @@ import project.ing.soft.model.cards.toolcards.ToolCard;
 import project.ing.soft.model.cards.WindowPatternCard;
 import project.ing.soft.model.Player;
 import project.ing.soft.model.RoundTracker;
+import project.ing.soft.view.IView;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
@@ -61,6 +62,8 @@ public interface IGameManager extends Serializable {
     void    samePlayerAgain();
 
     IGameManager copy();
+
+    void updatePlayers(String playerName, IView view);
 
 
     enum GAME_MANAGER_STATUS{

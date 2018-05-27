@@ -14,7 +14,7 @@ import project.ing.soft.model.cards.Card;
 import project.ing.soft.model.cards.WindowPatternCard;
 
 import project.ing.soft.model.gamemanager.events.Event;
-
+import project.ing.soft.view.IView;
 
 
 import java.io.Serializable;
@@ -452,6 +452,27 @@ public class GameManagerMulti implements IGameManager, Serializable {
         }
         currentTurnList.add(1, getCurrentPlayer());
 
+    }
+
+    public void updatePlayers(String nickname, IView view){
+        List<Player> oldList = currentGame.getPlayers();
+        List<Player> playerInfoBackup = oldList.stream().filter(player -> player.getName().equals(nickname)).collect(Collectors.toCollection(ArrayList::new));
+        Player toRemove = playerInfoBackup.get(0);
+        int indexBackup = oldList.indexOf(toRemove);
+        currentGame.remove(toRemove.getName());
+        Player toAdd = new Player(toRemove, view);
+        currentGame.add(toAdd, indexBackup);
+        for(int i = 0; i < currentTurnList.size(); i++){
+            if(currentTurnList.get(i).getName().equals(toAdd.getName())){
+                currentTurnList.add(i, toAdd);
+                currentTurnList.remove(i+1);
+            }
+        }
+        toAdd.update(new ModelChangedEvent(this));
+        if(status == GAME_MANAGER_STATUS.WAITING_FOR_PATTERNCARD)
+            toAdd.update(new PatternCardDistributedEvent(toRemove.getPrivateObjective(), toRemove.getPossiblePatternCard().get(0), toRemove.getPossiblePatternCard().get(1)));
+        if(status == GAME_MANAGER_STATUS.ONGOING && getCurrentPlayer().equals(toAdd))
+            toAdd.update(new MyTurnStartedEvent());
     }
 
     private ArrayList<Player> createTurns(List<Player> players){

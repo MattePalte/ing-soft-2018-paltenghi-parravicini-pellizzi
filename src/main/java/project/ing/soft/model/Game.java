@@ -48,6 +48,12 @@ public class Game implements Serializable{
         }
     }
 
+    public void add(Player newPlayer, int index){
+        if(players.size() < maxNumPlayer){
+            players.add(index, newPlayer);
+        }
+    }
+
     public void remove(String nickname){
         Optional<Player> toRemove = players.stream().filter(p -> p.getName().equals(nickname)).findFirst();
         toRemove.ifPresent(p -> players.remove(p));
