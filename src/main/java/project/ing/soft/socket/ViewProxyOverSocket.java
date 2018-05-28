@@ -9,7 +9,8 @@ import project.ing.soft.view.IView;
 
 import java.io.*;
 import java.net.Socket;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class ViewProxyOverSocket implements IView,IRequestHandler, Runnable {
@@ -18,18 +19,19 @@ public class ViewProxyOverSocket implements IView,IRequestHandler, Runnable {
 
     private ObjectOutputStream toClient;
     private ObjectInputStream fromClient;
-    private PrintStream log;
+    private Logger log;
 
     private String nickname;
 
 
     public ViewProxyOverSocket(Socket aSocket, ObjectOutputStream oos, ObjectInputStream ois, String nickname) throws IOException {
-        this.aSocket = aSocket;
-        this.toClient   = oos;
+        this.aSocket        = aSocket;
+        this.toClient       = oos;
         this.toClient.flush();
-        this.fromClient = ois;
-        this.log = new PrintStream(System.out);
-        this.nickname = nickname;
+        this.fromClient     = ois;
+        this.log            = Logger.getLogger(this.getClass().getCanonicalName()+"(" +nickname+")");
+        this.log.setLevel(Level.OFF);
+        this.nickname       = nickname;
     }
 
     @Override
@@ -45,70 +47,67 @@ public class ViewProxyOverSocket implements IView,IRequestHandler, Runnable {
                 toClient.reset();
 
             }
-        }catch (EOFException ignored){
-            log.println("EOFException occurred");
-        }catch (ClassNotFoundException ex) {
-            log.println( "A class wasn't found "+ ex );
-        } catch (Exception ex){
-            log.println(  "An error occurred while writing/reading objects "+ ex);
+        }catch (Exception ex){
+            log.log(Level.SEVERE,"Exception occurred", ex);
             gameController.markAsDisconnected(nickname);
-            ex.printStackTrace(log);
+
         }finally {
-            log.println("disconnected");
+            log.log(Level.INFO,"disconnected");
         }
 
     }
 
     @Override
     public PrintStream getPrintStream() {
-        return log;
+        return null;
     }
 
 
     public void interrupt() {
-        //super.interrupt()
 
         try {
             if(fromClient != null)
                 fromClient.close();
         } catch (IOException e) {
-            e.printStackTrace(log);
+            log.log(Level.SEVERE,"Error while closing ObjectInputStream",  e);
         }
 
         try {
             if(toClient != null)
                 toClient.close();
         } catch (IOException e) {
-            e.printStackTrace(log);
+            log.log(Level.SEVERE,"Error while closing ObjectOutputStream",  e);
         }
 
         try {
             if(aSocket != null)
                 aSocket.close();
         } catch (IOException e) {
-            e.printStackTrace(log);
+            log.log(Level.SEVERE,"Error while closing socket",  e);
         }
     }
 
     //region handle request. Pass request to the real gameController
     public void visit(AbstractRequest aRequest) throws Exception {
-        log.println("Request received"+aRequest.getClass());
+        log.log(Level.INFO, "Request {0} received {1}",new Object[]{aRequest.getId(), aRequest});
         try {
             aRequest.accept(this);
             toClient.writeObject(new AllRightResponse(aRequest.getId()));
+            log.log(Level.INFO, "Request {0} finished correctly",aRequest.getId());
         }catch (Exception ex){
             toClient.writeObject(new ExceptionalResponse(ex, aRequest.getId()));
+            log.log(Level.INFO, "Request {0} ended with error {1}",new Object[]{aRequest.getId(), ex});
         }
     }
 
 
     @Override
-    public void handle(InformationRequest aRequest) throws Exception {
+    public void handle(InformationRequest aRequest) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void handle(CreationGameRequest aRequest) throws Exception {
+    public void handle(CreationGameRequest aRequest){
         throw new UnsupportedOperationException();
     }
 
@@ -153,7 +152,7 @@ public class ViewProxyOverSocket implements IView,IRequestHandler, Runnable {
     }
 
     private void send(IResponse aResponse) throws IOException {
-        log.println("Forwarding a response "+ aResponse.getClass());
+        log.log(Level.INFO, "Forwarding a response {0} ", aResponse);
         toClient.writeObject(aResponse);
     }
 

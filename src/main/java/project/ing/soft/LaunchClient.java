@@ -13,6 +13,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Scanner;
 
+import static java.lang.Thread.getDefaultUncaughtExceptionHandler;
 import static java.lang.Thread.sleep;
 
 public class LaunchClient {
@@ -52,6 +53,8 @@ public class LaunchClient {
                 break;
             case "q":
                 return;
+                default:
+                    out .println("no action");
         }
 
         if (accessPoint != null) {

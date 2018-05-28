@@ -14,7 +14,6 @@ import project.ing.soft.model.RoundTracker;
 import project.ing.soft.view.IView;
 
 import java.io.Serializable;
-import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +38,7 @@ public interface IGameManager extends Serializable {
     Die drawFromDicebag();
 
 
-    void    setupPhase()                                   throws RemoteException, Exception;
+    void    setupPhase()                                   throws Exception;
 
     void    payToolCard(ToolCard toolCard);
     void    canPayToolCard(ToolCard aToolCard) throws RuleViolatedException;
@@ -57,7 +56,7 @@ public interface IGameManager extends Serializable {
 
     void    swapWithRoundTracker(Die toAdd, Die toRemove);
     void    rollDraftPool();
-    void    requestUpdate()                                throws RemoteException, Exception;
+    void    requestUpdate()                                throws  Exception;
     void    addToDicebag(Die aDie);
     void    samePlayerAgain();
 

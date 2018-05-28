@@ -3,7 +3,6 @@ package project.ing.soft;
 import project.ing.soft.accesspoint.APointRMI;
 import project.ing.soft.controller.GameController;
 import project.ing.soft.exceptions.UserInterruptActionException;
-import project.ing.soft.model.Coordinate;
 import project.ing.soft.socket.SimpleSocketConnectionListener;
 
 import java.io.IOException;
@@ -60,7 +59,7 @@ public class LaunchServer {
         List<String> list = new ArrayList<>();
         for (Enumeration<String> e = manager.getLoggerNames(); e.hasMoreElements();)
            list.add(e.nextElement());
-
+        list = list.stream().sorted().collect(Collectors.toList());
         try {
             manager.getLogger((String)chooseFrom(list)).setLevel(Level.ALL);
 
@@ -77,7 +76,7 @@ public class LaunchServer {
         List<String> list = new ArrayList<>();
         for (Enumeration<String> e = manager.getLoggerNames(); e.hasMoreElements();)
             list.add(e.nextElement());
-
+        list = list.stream().sorted().collect(Collectors.toList());
         try {
             manager.getLogger((String)chooseFrom(list)).setLevel(Level.OFF);
         }catch (UserInterruptActionException ex){

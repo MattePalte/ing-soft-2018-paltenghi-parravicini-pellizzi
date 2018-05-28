@@ -21,7 +21,8 @@ import java.util.List;
 import java.util.concurrent.*;
 
 
-public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventHandler, Serializable, IToolCardParametersAcquirer {
+public class ClientViewCLI extends UnicastRemoteObject
+        implements IView, IEventHandler, Serializable, IToolCardParametersAcquirer {
 
     private IGameManager localCopyOfTheStatus;
 
@@ -66,14 +67,12 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
             synchronized (eventsReceived) {
                 while (eventsReceived.isEmpty())
                     eventsReceived.wait();
+
                 toRespond = eventsReceived.remove();
             }
 
-            if (toRespond != null)
+            if (toRespond != null){
                 toRespond.accept(this);
-
-            synchronized (eventsReceived) {
-                eventsReceived.notifyAll();
             }
         }
 
@@ -115,43 +114,37 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
 
         out.println("Finished setup.. wait while the game start");
     }
-
-
     @Override
     public void respondTo(PatternCardDistributedEvent event) {
-        boolean err;
-        do {
-            err = false;
-            try {
-                out.println("This is your private objective: ");
-                out.println(event.getMyPrivateObjective());
-                WindowPatternCard aCard = (WindowPatternCard) chooseFrom(List.of(event.getOne(), event.getTwo()));
-                int isFront = chooseIndexFrom(List.of(aCard.getFrontPattern(), aCard.getRearPattern()));
+        if(actualTurn != null)
+            actualTurn.cancel(true);
 
-                out.println("Wait for other players to choose their pattern card.");
-                controller.choosePattern(ownerNameOfTheView, aCard, isFront == 1);
+        actualTurn = threadPool.submit(()-> {
+            boolean err;
+            do {
+                err = false;
+                try {
+                    out.println("This is your private objective: ");
+                    out.println(event.getMyPrivateObjective());
+                    WindowPatternCard aCard = (WindowPatternCard) chooseFrom(List.of(event.getOne(), event.getTwo()));
+                    int isFront = chooseIndexFrom(List.of(aCard.getFrontPattern(), aCard.getRearPattern()));
 
-            } catch (UserInterruptActionException ex) {
-                out.println("The game can't start until you select a window pattern");
-                err = true;
-            } catch (InterruptedException e) {
-                displayError(e);
+                    out.println("Wait for other players to choose their pattern card.");
+                    controller.choosePattern(ownerNameOfTheView, aCard, isFront == 1);
 
-            }catch (Exception otherException){
-                err = true;
-            }
-        }while (err);
-
+                } catch (UserInterruptActionException ex) {
+                    out.println("The game can't start until you select a window pattern");
+                    err = true;
+                } catch (Exception e) {
+                    displayError(e);
+                }
+            } while (err);
+            return true;
+        });
     }
-
     @Override
     public void respondTo(ModelChangedEvent event) {
         localCopyOfTheStatus = event.getaGameCopy();
-
-        if(actualTurn != null && !actualTurn.isDone()) {
-            actualTurn.cancel(true);
-            actualTurn = threadPool.submit(this:: takeTurn);
-        }
 
         out.println("Modello aggiornato!");
         if (!localCopyOfTheStatus.getCurrentPlayer().getName().equals(ownerNameOfTheView)) {
@@ -161,12 +154,15 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
     }
     @Override
     public void respondTo(MyTurnStartedEvent event) {
+        if(actualTurn != null ) {
+            actualTurn.cancel(true);
+        }
         actualTurn = threadPool.submit(this:: takeTurn);
     }
 
     private boolean takeTurn() throws InterruptedException {
         int cmd ;
-
+        boolean actionRequest ;
 
         List<String> commands = List.of("Place a die",
                 "Play a toolcard",
@@ -177,13 +173,13 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
 
 
         do{
+            actionRequest = false;
             displayMySituation();
             out.println("Take your turn " + localCopyOfTheStatus.getCurrentPlayer().getName());
 
-            try{
+            try {
                 cmd = chooseIndexFrom(commands);
-            }
-            catch(UserInterruptActionException e){
+            } catch (UserInterruptActionException e) {
                 cmd = -1;
             }
 
@@ -197,7 +193,6 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
                         out.println(localCopyOfTheStatus.getCurrentPlayer());
                         Coordinate placePosition = chooseDieCoordinate("Enter where you want to place your die");
                         Die chosenDie = (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
-
                         controller.placeDie(ownerNameOfTheView, chosenDie, placePosition.getRow(), placePosition.getCol());
                         break;
                     case 1:
@@ -205,8 +200,6 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
                         ToolCard aToolCard =  (ToolCard) chooseFrom(localCopyOfTheStatus.getToolCards());
 
                         aToolCard.fill(this);
-
-
                         controller.playToolCard(ownerNameOfTheView, aToolCard);
                         break;
                     case 2:
@@ -215,12 +208,12 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
                         break;
                     case 3:
                         displayMySituation();
+
                         break;
                     case 4:
                         out.println("You still have " + localCopyOfTheStatus.getFavours().get(localCopyOfTheStatus.getCurrentPlayer().getName()));
                         break;
                     case 5:
-
                         controller.endTurn(ownerNameOfTheView);
                         break;
 
@@ -248,18 +241,28 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
 
     @Override
     public void respondTo(ToolcardActionRequestEvent event) {
+        if(actualTurn!=null)
+            actualTurn.cancel(true);
+        actualTurn = threadPool.submit(()->toolCardAction(event));
+
+    }
+
+    private boolean toolCardAction(ToolcardActionRequestEvent event) {
         out.println("Server request other parameter to complete the ToolCard");
-        ToolCard aToolCard = event.getCard();
-
-        try {
-            aToolCard.fill(this);
-            controller.playToolCard(ownerNameOfTheView, aToolCard);
-        } catch (InterruptedException | UserInterruptActionException ignored) {
-            //This happens when the thread is requested to stop
-        } catch (Exception ex) {
-            displayError(ex);
-        }
-
+        boolean done = false;
+        do {
+            ToolCard aToolCard = event.getCard();
+            try {
+                aToolCard.fill(this);
+                controller.playToolCard(ownerNameOfTheView, aToolCard);
+                done = true;
+            } catch (UserInterruptActionException ignored) {
+                //This happens when the user stop the action
+            } catch (Exception ex) {
+                displayError(ex);
+            }
+        }while(!done);
+        return true;
     }
 
     @Override
@@ -405,7 +408,6 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
 
     @Override
     public Coordinate getCoordinate(String message) throws InterruptedException, UserInterruptActionException {
-
         return chooseDieCoordinate(message);
     }
 
@@ -418,17 +420,7 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
     //endregion
 
     public void stop(){
-        if (eventDigester != null){
-            eventDigester.cancel(true);
-        }
-
-        if(remoteOperation != null ){
-            remoteOperation.cancel(true);
-        }
-
-        if( actualTurn != null){
-            actualTurn.cancel(true);
-        }
+        threadPool.shutdown();
 
     }
 }

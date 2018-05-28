@@ -1,6 +1,5 @@
 package project.ing.soft.socket.response;
 
-import java.io.IOException;
 
 public interface IResponseHandler {
 

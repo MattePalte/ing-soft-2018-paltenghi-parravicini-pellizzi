@@ -2,8 +2,6 @@ package project.ing.soft.socket;
 
 
 import project.ing.soft.accesspoint.APProxy;
-import project.ing.soft.exceptions.NickNameAlreadyTakenException;
-import project.ing.soft.view.ClientViewCLI;
 import project.ing.soft.view.LocalViewCli;
 
 import java.util.Scanner;

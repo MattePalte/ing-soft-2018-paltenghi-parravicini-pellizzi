@@ -3,14 +3,12 @@ package project.ing.soft.model.cards.toolcards;
 import project.ing.soft.exceptions.MalformedToolCardException;
 import project.ing.soft.exceptions.ToolCardApplicationException;
 import project.ing.soft.exceptions.UserInterruptActionException;
-import project.ing.soft.model.Colour;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Player;
 import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.model.gamemanager.events.ModelChangedEvent;
 import project.ing.soft.model.gamemanager.events.ToolcardActionRequestEvent;
 
-import javax.tools.Tool;
 import java.io.Serializable;
 
 public class DiluentePerPastaSaldaFirstPart implements IToolCardState, Serializable {

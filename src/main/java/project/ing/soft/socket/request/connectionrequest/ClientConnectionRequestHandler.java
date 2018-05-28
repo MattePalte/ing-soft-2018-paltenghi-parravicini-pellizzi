@@ -5,16 +5,14 @@ import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.GameController;
 import project.ing.soft.controller.IController;
 import project.ing.soft.exceptions.NickNameAlreadyTakenException;
-import project.ing.soft.socket.response.ConnectionResponse.ConnectionEstabilishedResponse;
-import project.ing.soft.socket.response.ConnectionResponse.ConnectionRefusedResponse;
+import project.ing.soft.socket.response.connectionresponse.ConnectionEstabilishedResponse;
+import project.ing.soft.socket.response.connectionresponse.ConnectionRefusedResponse;
 import project.ing.soft.socket.ViewProxyOverSocket;
-import project.ing.soft.socket.response.ConnectionResponse.NickNameAlreadyTakenResponse;
+import project.ing.soft.socket.response.connectionresponse.NickNameAlreadyTakenResponse;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.Callable;
 
 public class ClientConnectionRequestHandler implements Callable<Boolean>, ConnectionRequestHandler {

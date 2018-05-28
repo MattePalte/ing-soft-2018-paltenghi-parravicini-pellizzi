@@ -25,7 +25,8 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
 
     private final HashMap<String, GameController> hostedGameController;
 
-    public APointRMI(HashMap<String,GameController> hostedGameController) throws IOException, InterruptedException {
+    public APointRMI(HashMap<String,GameController> hostedGameController) throws RemoteException {
+        super();
         this.hostedGameController = hostedGameController;
         this.log = Logger.getLogger(Objects.toString(this));
         this.log.setLevel(Level.OFF);
@@ -65,6 +66,7 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
         File log = new File("log.txt");
         pb.redirectErrorStream(true);
         pb.redirectOutput(ProcessBuilder.Redirect.appendTo(log));
+
         //start the rmi process
         Process rmiRegistryProcess = pb.start();
         //waiting for server start

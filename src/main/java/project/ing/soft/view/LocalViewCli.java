@@ -51,6 +51,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                         toRespond = eventsReceived.remove();
                     } catch (InterruptedException e) {
                         displayError(e);
+                        Thread.currentThread().interrupt();
                     }
                 }
                 if (toRespond != null)
@@ -89,12 +90,16 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     public void respondTo(ToolcardActionRequestEvent event){
         eventWaitingForInput = turnExecutor.submit(() -> {
             ToolCard aToolCard = event.getCard();
-            try {
-                aToolCard.fill(this);
-                controller.playToolCard(ownerNameOfTheView, aToolCard);
-            }catch(Exception ex){
-                displayError(ex);
-            }
+            boolean done = false;
+            do{
+                try {
+                    aToolCard.fill(this);
+                    controller.playToolCard(ownerNameOfTheView, aToolCard);
+                    done = true;
+                }catch(Exception ex){
+                    displayError(ex);
+                }
+            }while (!done);
 
         });
     }
@@ -127,8 +132,8 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
     @Override
     public void respondTo(PatternCardDistributedEvent event) {
-
-        while(true) {
+        boolean done = false;
+       do {
             try {
                 out.println("This is your private objective: ");
                 out.println(event.getMyPrivateObjective());
@@ -137,14 +142,13 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
                 out.println("Wait for other players to choose ther pattern card.");
                 controller.choosePattern(ownerNameOfTheView, aCard, isFront == 1);
-
-                return;
+                done = true;
             } catch (UserInterruptActionException ex) {
                 out.println("The game can't start until you select a window pattern");
             } catch (Exception e) {
                 displayError(e);
             }
-        }
+        } while(!done);
 
     }
 
@@ -252,6 +256,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                 cmd = -1;
             } catch (InterruptedException ignored) {
                 System.out.println("Timeout expired. Your turn ended");
+                Thread.currentThread().interrupt();
                 return;
             }
 
@@ -304,6 +309,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
                 update(new MyTurnStartedEvent());
             }catch(InterruptedException e){
                 out.println("Timeout expired. Your turn ended. Too bad :(");
+                Thread.currentThread().interrupt();
             } catch (Exception e) {
                 displayError(e);
                 cmd = -1;
@@ -359,7 +365,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
             err = err || ret < lowerBound || ret > upperBound;
 
             if(err){
-                if(in.startsWith("q"))
+                if(in != null && in.startsWith("q"))
                     throw new UserInterruptActionException();
                 out.println("You entered a value that does not fit into the correct interval. Enter q to interrupt the operation");
 

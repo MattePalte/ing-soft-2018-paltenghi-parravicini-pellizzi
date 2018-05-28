@@ -3,7 +3,6 @@ package project.ing.soft.model.cards.toolcards;
 import project.ing.soft.exceptions.MalformedToolCardException;
 import project.ing.soft.exceptions.ToolCardApplicationException;
 import project.ing.soft.exceptions.UserInterruptActionException;
-import project.ing.soft.model.Colour;
 import project.ing.soft.model.Coordinate;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Player;
@@ -52,7 +51,6 @@ public class DiluentePerPastaSaldaSecondPart implements IToolCardState, Serializ
             p.update(new ModelChangedEvent(m.copy()));
             p.update(new MyTurnStartedEvent());
         }catch (Exception ex){
-            p.update(new ToolcardActionRequestEvent(ctx.copy()));
             throw new ToolCardApplicationException(ex);
         }
     }

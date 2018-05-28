@@ -1,8 +1,8 @@
 package project.ing.soft.accesspoint;
 
 import project.ing.soft.controller.IController;
-import project.ing.soft.socket.request.connectionrequest.ReconnectionRequest;
-import project.ing.soft.socket.response.ConnectionResponse.*;
+import project.ing.soft.socket.request.connectionrequest.*;
+import project.ing.soft.socket.response.connectionresponse.*;
 import project.ing.soft.socket.ControllerProxyOverSocket;
 import project.ing.soft.socket.request.connectionrequest.JoinTheGameRequest;
 import project.ing.soft.view.IView;
@@ -10,10 +10,8 @@ import project.ing.soft.view.IView;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.rmi.RemoteException;
 import java.util.Objects;
 import java.util.Scanner;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;

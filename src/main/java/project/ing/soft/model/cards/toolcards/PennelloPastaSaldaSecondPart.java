@@ -42,7 +42,6 @@ public class PennelloPastaSaldaSecondPart implements IToolCardState, Serializabl
             p.update(new ModelChangedEvent(m.copy()));
             p.update(new MyTurnStartedEvent());
         }catch (Exception ex){
-            p.update(new ToolcardActionRequestEvent(ctx.copy()));
             throw new ToolCardApplicationException(ex);
         }
     }
