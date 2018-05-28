@@ -27,6 +27,7 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
 
     private String ownerNameOfTheView;
     private transient IController  controller;
+    private transient String token;
 
     private transient PrintStream out;
     private transient NonBlockingScanner scanner;
@@ -263,6 +264,14 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
     }
 
     @Override
+    public void respondTo(SetTokenEvent event) {
+        this.token = event.getToken();
+        out.println("Connection established. Please, wait for the game to start");
+        out.println("Please remember to save this code to let you ask for reconnection in case of network problems");
+        out.println("YOUR TOKEN TO ASK RECONNECTION IS: " + token);
+    }
+
+    @Override
     public void respondTo(MyTurnEndedEvent event){
         out.println("You had plenty of time and you didn't used.. the turn was ended by the server");
         actualTurn.cancel(true);
@@ -326,11 +335,6 @@ public class ClientViewCLI extends UnicastRemoteObject implements IView, IEventH
         out.println(ownerNameOfTheView + " started ");
         out.println("Waiting for enough players to start the match...");
 
-    }
-
-    @Override
-    public PrintStream getPrintStream() {
-        return out;
     }
 //endregion
 

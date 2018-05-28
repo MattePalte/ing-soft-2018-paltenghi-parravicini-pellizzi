@@ -11,7 +11,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 
-public class ViewProxyOverRmi implements IView, Runnable {
+public class ViewProxyOverRmi extends Thread implements IView {
 
     private final IView rmiView;
     private final ArrayList<Event> eventsToForward;
@@ -57,10 +57,5 @@ public class ViewProxyOverRmi implements IView, Runnable {
             //the update function raise an exception because the update couldn't be completed
             Thread.currentThread().interrupt();
         }
-    }
-
-    @Override
-    public PrintStream getPrintStream() throws Exception{
-        return rmiView.getPrintStream();
     }
 }

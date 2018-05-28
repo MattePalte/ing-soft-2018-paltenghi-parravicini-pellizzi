@@ -9,10 +9,10 @@ import project.ing.soft.view.IView;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 
 
-
-public class ViewProxyOverSocket implements IView,IRequestHandler, Runnable {
+public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler {
     private GameController gameController;
     private Socket aSocket;
 
@@ -49,21 +49,18 @@ public class ViewProxyOverSocket implements IView,IRequestHandler, Runnable {
             log.println("EOFException occurred");
         }catch (ClassNotFoundException ex) {
             log.println( "A class wasn't found "+ ex );
+        } catch(SocketException e){
+            log.printf("User %s disconnected%n", nickname);
+            gameController.markAsDisconnected(nickname);
         } catch (Exception ex){
             log.println(  "An error occurred while writing/reading objects "+ ex);
-            gameController.markAsDisconnected(nickname);
+            //gameController.markAsDisconnected(nickname);
             ex.printStackTrace(log);
         }finally {
             log.println("disconnected");
         }
 
     }
-
-    @Override
-    public PrintStream getPrintStream() {
-        return log;
-    }
-
 
     public void interrupt() {
         //super.interrupt()

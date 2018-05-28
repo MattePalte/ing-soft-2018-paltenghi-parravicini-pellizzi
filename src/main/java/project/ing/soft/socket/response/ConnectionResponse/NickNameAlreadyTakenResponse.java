@@ -15,7 +15,7 @@ public class NickNameAlreadyTakenResponse implements ConnectionResponse {
     }
 
     @Override
-    public void accept(ConnectionResponseHandler handler) {
+    public void accept(ConnectionResponseHandler handler) throws Exception {
         handler.handle(this);
     }
 }

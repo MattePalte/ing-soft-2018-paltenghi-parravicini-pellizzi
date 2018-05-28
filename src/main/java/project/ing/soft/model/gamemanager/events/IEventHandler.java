@@ -10,4 +10,5 @@ public interface IEventHandler {
     void respondTo(ModelChangedEvent            event);
     void respondTo(MyTurnEndedEvent             event);
     void respondTo(ToolcardActionRequestEvent   event);
+    void respondTo(SetTokenEvent                event);
 }

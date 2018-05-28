@@ -3,6 +3,7 @@ package project.ing.soft.accesspoint;
 import project.ing.soft.Settings;
 import project.ing.soft.controller.GameController;
 import project.ing.soft.controller.IController;
+import project.ing.soft.rmi.ViewProxyOverRmi;
 import project.ing.soft.view.IView;
 
 import java.io.File;
@@ -78,7 +79,7 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
             try {
                 registry.unbind(s);
             } catch (NotBoundException e) {
-               ap.log.log(Level.SEVERE,"error while unbinding already present element in registry", e);
+                ap.log.log(Level.SEVERE,"error while unbinding already present element in registry", e);
             }
         }
         registry.rebind(ACCESSPOINT, ap);
@@ -120,8 +121,11 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
                 log.log(Level.INFO,"No game looking for player was found. A new game was created");
             }
             try {
-
-                gameToJoin.joinTheGame(nickname, clientView);
+                ViewProxyOverRmi proxyOverRmi = new ViewProxyOverRmi(clientView, nickname);
+                new Thread(proxyOverRmi).start();
+                //proxyOverRmi.attachController(gameToJoin);
+                clientView.attachController(gameToJoin);
+                gameToJoin.joinTheGame(nickname, proxyOverRmi);
                 log.log(Level.INFO,"{0} was connected to a game", nickname);
 
 

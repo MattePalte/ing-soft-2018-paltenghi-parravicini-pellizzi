@@ -31,16 +31,22 @@ public class ClientConnectionRequestHandler implements Callable<Boolean>, Connec
 
     @Override
     public Boolean call() throws Exception{
+        boolean nicknameAlreadyTaken;
         try {
             ois = new ObjectInputStream(clientSocket.getInputStream());
             oos = new ObjectOutputStream(clientSocket.getOutputStream());
-            ConnectionRequest request = (ConnectionRequest)ois.readObject();
-            request.accept(this);
+            do {
+                try {
+                    nicknameAlreadyTaken = false;
+                    ConnectionRequest request = (ConnectionRequest) ois.readObject();
+                    request.accept(this);
+                } catch(NickNameAlreadyTakenException e){
+                    oos.writeObject(new NickNameAlreadyTakenResponse(e));
+                    //viewProxy.interrupt();
+                    nicknameAlreadyTaken = true;
+                }
+            } while (nicknameAlreadyTaken);
 
-        } catch(NickNameAlreadyTakenException e){
-            oos.writeObject(new NickNameAlreadyTakenResponse(e));
-            clientSocket.close();
-            viewProxy.interrupt();
         } catch (Exception e) {
             oos.writeObject(new ConnectionRefusedResponse(e));
             clientSocket.close();
@@ -60,14 +66,15 @@ public class ClientConnectionRequestHandler implements Callable<Boolean>, Connec
         String token = TokenCalculator.computeDigest(nickname + controller.getControllerSecurityCode());
         //TODO: delete this print on definitive version
         System.out.printf("Associated (%s, %s) token: %s%n", nickname, controller.getControllerSecurityCode(), token);
-        oos.writeObject(new ConnectionEstabilishedResponse(token));
         //TODO: connect must return a GameController instead of IController
+        // Notify everything went well
+        oos.writeObject(new ConnectionEstabilishedResponse(token));
+        // can't send response after jointhegame, because if the game starts, the first event sent is a EventResponse, while the client is waiting for a ConnectionResponse
         ((GameController)controller).joinTheGame(nickname, viewProxy);
     }
 
     @Override
     public void handle(ReconnectionRequest request) throws Exception{
-        // TODO: implement method
         IController controller;
         String nickname;
         String code;
@@ -76,8 +83,10 @@ public class ClientConnectionRequestHandler implements Callable<Boolean>, Connec
         viewProxy = new ViewProxyOverSocket(clientSocket, oos, ois, nickname);
         code = request.getGameToken();
         controller = accessPoint.reconnect(nickname, code, viewProxy);
+        // Notify everything went well
         oos.writeObject(new ConnectionEstabilishedResponse(code));
         ((GameController) controller).joinTheGame(nickname, viewProxy);
+
     }
 
 

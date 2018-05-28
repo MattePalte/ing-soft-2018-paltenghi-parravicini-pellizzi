@@ -1,12 +1,13 @@
 package project.ing.soft.socket;
 
 
-import project.ing.soft.accesspoint.APProxy;
+import project.ing.soft.accesspoint.APProxySocket;
 import project.ing.soft.exceptions.NickNameAlreadyTakenException;
-import project.ing.soft.view.ClientViewCLI;
 import project.ing.soft.view.LocalViewCli;
 
+import java.io.IOException;
 import java.util.Scanner;
+import java.util.logging.Level;
 
 
 public class ClientExample extends Thread{
@@ -29,9 +30,24 @@ public class ClientExample extends Thread{
             int choice = in.nextInt();
             in.nextLine();
             LocalViewCli view = new LocalViewCli(name);
-            APProxy accessPointProxy = new APProxy(host, port);
+            APProxySocket accessPointProxy = new APProxySocket(host, port);
+            boolean nicknameAlreadyTaken;
             if(choice == 0)
-                accessPointProxy.connect(name, view);
+                // Looping in case of nickname collision
+                do {
+                    try {
+                        nicknameAlreadyTaken = false;
+                        accessPointProxy.connect(name, view);
+                    } catch (NickNameAlreadyTakenException e) {
+                        System.out.println(e.getMessage());
+                        System.out.println("Please, select another nickname");
+                        name = in.nextLine();
+                        System.out.println("Your nickname is " + name);
+                        // Create a new view with the up-to-date name. The view is started after this method ends
+                        view = new LocalViewCli(name);
+                        nicknameAlreadyTaken = true;
+                    }
+                } while(nicknameAlreadyTaken);
             else {
                 System.out.println("Insert the 32 chars code to connect to the game: ");
                 String code = in.nextLine();

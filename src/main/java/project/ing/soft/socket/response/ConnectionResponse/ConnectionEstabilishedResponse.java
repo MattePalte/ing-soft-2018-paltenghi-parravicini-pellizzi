@@ -3,6 +3,8 @@ package project.ing.soft.socket.response.ConnectionResponse;
 import project.ing.soft.socket.response.ConnectionResponse.ConnectionResponse;
 import project.ing.soft.socket.response.ConnectionResponse.ConnectionResponseHandler;
 
+import java.io.IOException;
+
 public class ConnectionEstabilishedResponse implements ConnectionResponse {
 
     private String playerToken;
@@ -16,7 +18,7 @@ public class ConnectionEstabilishedResponse implements ConnectionResponse {
     }
 
     @Override
-    public void accept(ConnectionResponseHandler handler) {
+    public void accept(ConnectionResponseHandler handler) throws IOException {
         handler.handle(this);
     }
 }

@@ -1,8 +1,13 @@
 package project.ing.soft.socket.response.ConnectionResponse;
 
-public interface ConnectionResponseHandler {
-    void handle(ConnectionEstabilishedResponse response);
-    void handle(ConnectionRefusedResponse response);
+import project.ing.soft.exceptions.ConnectionRefusedException;
+import project.ing.soft.exceptions.NickNameAlreadyTakenException;
 
-    void handle(NickNameAlreadyTakenResponse response);
+import java.io.IOException;
+
+public interface ConnectionResponseHandler {
+    void handle(ConnectionEstabilishedResponse response) throws IOException;
+    void handle(ConnectionRefusedResponse response) throws ConnectionRefusedException, Exception;
+
+    void handle(NickNameAlreadyTakenResponse response) throws NickNameAlreadyTakenException, Exception;
 }

@@ -110,7 +110,7 @@ public class Player implements Serializable{
 
     //region getter
     public boolean isConnected() {
-        return isConnected;
+        return myView != null;
     }
     //@assignable nothing
     public String getName() {
@@ -355,6 +355,8 @@ public class Player implements Serializable{
     }
 
     public void resetView(){
+        if(myView != null)
+            ((Thread) myView).interrupt();
         myView = null;
     }
 

@@ -284,9 +284,8 @@ public class GameManagerMulti implements IGameManager, Serializable {
         rank.sort(Comparator
                 .comparingInt((ToIntFunction<Pair<Player, Integer>>) Pair::getValue)
                 .thenComparingInt((Pair<Player, Integer> p)-> p.getKey().countPrivateObjectivesPoints() )
-                .thenComparingInt((Pair<Player, Integer> p)-> favours.get(p.getKey().getName()))
+                .thenComparingInt((Pair<Player, Integer> p)-> favours.get(p.getKey().getName())).reversed()
                 .thenComparingInt( (Pair<Player, Integer> p) -> currentGame.getPlayers().indexOf(p.getKey()))
-                .reversed()
         );
 
         return rank;
@@ -303,8 +302,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
     private void broadcastEvents(Event ... events){
         for (Player subscriber : currentGame.getPlayers()) {
-            if (subscriber.isConnected())
-                deliverEvent(subscriber, events);
+            deliverEvent(subscriber, events);
         }
 
     }
@@ -371,6 +369,12 @@ public class GameManagerMulti implements IGameManager, Serializable {
     }
 
 
+    private void endGame(){
+        setStatus(GAME_MANAGER_STATUS.ENDED);
+        countPlayersPoints();
+        broadcastEvents(new GameFinishedEvent(new ArrayList<>(rank), new HashMap<>(pointDescription)));
+    }
+
     @Override
     public void endTurn(boolean timeoutOccurred) throws GameInvalidException {
         if (status == GAME_MANAGER_STATUS.ENDED) return;
@@ -381,12 +385,18 @@ public class GameManagerMulti implements IGameManager, Serializable {
             deliverEvent(current, new MyTurnEndedEvent());
         current.endTurn();
         currentTurnList.remove(0);
+        // if a single player is online, end the game due to insufficiency of players
+        if(getPlayerList().stream().filter(Player :: isConnected).count() == 1){
+            endGame();
+            return;
+        }
+       // Making all disconnected players jump its turn
+        while(currentTurnList.size() > 0 && !currentTurnList.get(0).isConnected()){
+            currentTurnList.remove(0);
+        }
 
         if(currentTurnList.isEmpty() && rounds.getCurrentRound() == ROUNDS_NUMBER) {
-
-            setStatus(GAME_MANAGER_STATUS.ENDED);
-            countPlayersPoints();
-            broadcastEvents(new GameFinishedEvent(new ArrayList<>(rank), new HashMap<>(pointDescription)));
+            endGame();
             return;
         }else if(currentTurnList.isEmpty()){
             logger.log(Level.INFO, "Round {0} finished.", rounds.getCurrentRound());
@@ -463,7 +473,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
         List<Player> playerInfoBackup = oldList.stream().filter(player -> player.getName().equals(nickname)).collect(Collectors.toCollection(ArrayList::new));
         Player toRemove = playerInfoBackup.get(0);
         int indexBackup = oldList.indexOf(toRemove);
-        currentGame.remove(toRemove.getName());
+        currentGame.remove(nickname);
         Player toAdd = new Player(toRemove, view);
         currentGame.add(toAdd, indexBackup);
         for(int i = 0; i < currentTurnList.size(); i++){
@@ -488,9 +498,10 @@ public class GameManagerMulti implements IGameManager, Serializable {
     @Override
     public void disconnectPlayer(String playerToDisconnect) {
         for (Player p : getPlayerList()) {
-            if (p.getName().equals(playerToDisconnect)) {
+            if (p.getName().equals(playerToDisconnect) && p.isConnected()) {
                 p.setConnected(false);
                 p.resetView();
+                System.out.println("Player disconnected now");
             }
         }
     }
