@@ -35,7 +35,7 @@ public class LaunchClient {
             case "0":
 
                 //args[0] should be the ip address of the machine running the registry
-                Registry registry = LocateRegistry.getRegistry( Settings.defaultIpForRMI);
+                Registry registry = LocateRegistry.getRegistry( Settings.instance().getDefaultIpForRMI());
                 out.println("Objects currently registered in the registry");
                 String[] registryList = registry.list();
                 for(String s : registryList)
@@ -44,7 +44,7 @@ public class LaunchClient {
                 break;
             case "1":
                 try {
-                    accessPoint = new APProxy(Settings.host, Settings.port);
+                    accessPoint = new APProxy(Settings.instance().getHost(), Settings.instance().getPort());
                 }catch (Exception ex){
                     out.println("Error "+ex);
                     ex.printStackTrace(out);

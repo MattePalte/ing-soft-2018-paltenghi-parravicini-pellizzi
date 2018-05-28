@@ -99,7 +99,7 @@ public class SplashController {
         IAccessPoint accessPoint = null;
         String nick = txtName.getText();
         try {
-            Registry registry = LocateRegistry.getRegistry( Settings.defaultIpForRMI);
+            Registry registry = LocateRegistry.getRegistry( Settings.instance().getDefaultIpForRMI());
             System.out.println("Objects currently registered in the registry");
             String[] registryList = registry.list();
             for(String s : registryList)
@@ -117,7 +117,7 @@ public class SplashController {
     public void connectSocket(){
         IAccessPoint accessPoint = null;
         String nick = txtName.getText();
-        accessPoint = new APProxy(Settings.host, Settings.port);
+        accessPoint = new APProxy(Settings.instance().getHost(), Settings.instance().getPort());
         System.out.println("1) AccessPoint Proxy created and connected");
         Scene scene = createGameView(nick, accessPoint);
         changeScene(scene);

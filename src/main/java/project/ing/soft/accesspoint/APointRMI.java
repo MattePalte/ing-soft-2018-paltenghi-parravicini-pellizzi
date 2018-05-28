@@ -115,7 +115,7 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
             if (gameToJoin == null){
 
                 String newCode = UUID.randomUUID().toString();
-                gameToJoin = new GameController(Settings.nrPlayersOfNewMatch, newCode);
+                gameToJoin = new GameController(Settings.instance().getNrPlayersOfNewMatch(), newCode);
                 hostedGameController.put(newCode, gameToJoin);
                 log.log(Level.INFO,"No game looking for player was found. A new game was created");
             }

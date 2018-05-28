@@ -87,7 +87,7 @@ public class SimpleSocketConnectionListener extends Thread implements IAccessPoi
         HashMap<String, GameController> hostedGames = new HashMap<>();
         HashMap<String, GameController> playersInGame = new HashMap<>();
 
-        SimpleSocketConnectionListener serverThread = new SimpleSocketConnectionListener(Settings.port, hostedGames, playersInGame);
+        SimpleSocketConnectionListener serverThread = new SimpleSocketConnectionListener(Settings.instance().getPort(), hostedGames, playersInGame);
         serverThread.start();
 
 
@@ -110,7 +110,7 @@ public class SimpleSocketConnectionListener extends Thread implements IAccessPoi
                     .collect(Collectors.toCollection(ArrayList::new));
 
             if (gamesThatNeedParticipants.isEmpty()) {
-                gameToJoin = new GameController(Settings.nrPlayersOfNewMatch, UUID.randomUUID().toString());
+                gameToJoin = new GameController(Settings.instance().getNrPlayersOfNewMatch(), UUID.randomUUID().toString());
                 hostedGames.put(UUID.randomUUID().toString(), gameToJoin);
             } else {
                 gameToJoin = gamesThatNeedParticipants.get(0);

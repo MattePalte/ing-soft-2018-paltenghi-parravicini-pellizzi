@@ -116,7 +116,7 @@ public class ChosePatternController {
             img = new Image("objectives/private/30%/objectives-12.png");
         }
         imgPrivateObjective.setImage(img);
-        imgPrivateObjective.setFitHeight(Settings.CARD_HEIGHT);
+        imgPrivateObjective.setFitHeight(Settings.instance().getCARD_HEIGHT());
         imgPrivateObjective.setPreserveRatio(true);
         imgPrivateObjective.setSmooth(true);
         imgPrivateObjective.setCache(true);
@@ -151,27 +151,27 @@ public class ChosePatternController {
         vBox.getChildren().add(gPane);
         vBox.getChildren().add(txtFavour);
         vBox.getChildren().add(btnChooseThis);
-        for (int row = 0; row < Settings.MATRIX_NR_ROW; row++) {
-            for (int col = 0; col < Settings.MATRIX_NR_COL; col++) {
+        for (int row = 0; row < Settings.instance().getMATRIX_NR_ROW(); row++) {
+            for (int col = 0; col < Settings.instance().getMATRIX_NR_ROW(); col++) {
                 Button currentCell = new Button();
                 Constraint constraint = pattern.getConstraintsMatrix()[row][col];
                 if (constraint != null && constraint.getImgPath() != "") {
                     Image image = new Image(constraint.getImgPath());
                     ImageView bg = new ImageView(image);
-                    bg.setFitHeight(Settings.CELL_DIMENSION);
-                    bg.setFitWidth(Settings.CELL_DIMENSION);
+                    bg.setFitHeight(Settings.instance().getCELL_DIMENSION());
+                    bg.setFitWidth(Settings.instance().getCELL_DIMENSION());
                     bg.setPreserveRatio(true);
                     bg.setSmooth(true);
                     bg.setCache(true);
                     currentCell.setGraphic(bg);
                 } else {
                     ImageView bg = new ImageView();
-                    bg.setFitHeight(Settings.CELL_DIMENSION);
-                    bg.setFitWidth(Settings.CELL_DIMENSION);
+                    bg.setFitHeight(Settings.instance().getCELL_DIMENSION());
+                    bg.setFitWidth(Settings.instance().getCELL_DIMENSION());
                     currentCell.setGraphic(bg);
                 }
                 if (constraint != null)
-                    currentCell.setStyle("-fx-background-color:" + Settings.getMapBgColour().get(constraint.getColour()));
+                    currentCell.setStyle("-fx-background-color:" + Settings.instance().getMapBgColour().get(constraint.getColour()));
                 gPane.add(currentCell, col, row);
             }
         }

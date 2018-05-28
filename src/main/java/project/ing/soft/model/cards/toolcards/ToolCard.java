@@ -144,7 +144,7 @@ public abstract class ToolCard implements Serializable, Card {
 
     @Override
     public String toString() {
-        StringBoxBuilder aBuilder = new StringBoxBuilder(new StringBoxBuilder.SINGLELINEROUNDEDCORNER(),Settings.TEXT_CARD_WIDTH, Settings.TEXT_CARD_HEIGHT);
+        StringBoxBuilder aBuilder = new StringBoxBuilder(new StringBoxBuilder.SINGLELINEROUNDEDCORNER(),Settings.instance().getTEXT_CARD_WIDTH(), Settings.instance().getTEXT_CARD_HEIGHT());
         aBuilder.appendInAboxToTop(getTitle());
         aBuilder.appendToTop(getDescription());
         return aBuilder.toString();

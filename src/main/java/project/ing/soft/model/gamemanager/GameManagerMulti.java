@@ -239,7 +239,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
         drawDice();
         broadcastEvents(new FinishedSetupEvent(), new ModelChangedEvent(new GameManagerMulti(this)));
-        getCurrentPlayer().update(new MyTurnStartedEvent());
+        deliverEvent(getCurrentPlayer(), new MyTurnStartedEvent());
     }
 
     @Override
@@ -310,6 +310,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
     }
 
     private void deliverEvent(Player p, Event ...events ){
+        if (!p.isConnected()) return;
         for(Event event: events) {
             p.update(event);
         }
@@ -377,7 +378,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
         logger.log(Level.INFO, "Player {0} ended the turn",getCurrentPlayer().getName());
         Player current = getCurrentPlayer();
         if(timeoutOccurred)
-            current.update(new MyTurnEndedEvent());
+            deliverEvent(current, new MyTurnEndedEvent());
         current.endTurn();
         currentTurnList.remove(0);
 
@@ -404,7 +405,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
         Player next = getCurrentPlayer();
 
         broadcastEvents(new ModelChangedEvent(new GameManagerMulti(this)));
-        next.update(new MyTurnStartedEvent());
+        deliverEvent(next, new MyTurnStartedEvent());
     }
     @Override
     public Map<String, Integer> getFavours(){

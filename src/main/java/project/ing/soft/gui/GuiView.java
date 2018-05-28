@@ -176,7 +176,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
         //SCREEN_WIDTH = primaryScreenBounds.getWidth();
-        SCREEN_WIDTH = Settings.MIN_SCREEN_SIZE;
+        SCREEN_WIDTH = Settings.instance().getMIN_SCREEN_SIZE();
         CELL_DIMENSION = SCREEN_WIDTH/23;
         SMALL_CELL_DIMENSION = CELL_DIMENSION/1.5;
 
@@ -679,8 +679,8 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     public synchronized void initializeButtons(){
         Scene scene = getPrimaryStage().getScene();
         // set button of pattern
-        for (int row = 0; row < Settings.MATRIX_NR_ROW; row++) {
-            for (int col = 0; col < Settings.MATRIX_NR_COL; col++) {
+        for (int row = 0; row < Settings.instance().getMATRIX_NR_ROW(); row++) {
+            for (int col = 0; col < Settings.instance().getMATRIX_NR_COL(); col++) {
                 Button currentCell = (Button) scene.lookup("#pos" + row + col);
                 int finalRow = row;
                 int finalCol = col;
