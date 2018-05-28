@@ -1,7 +1,4 @@
-package project.ing.soft.socket.response.ConnectionResponse;
-
-import project.ing.soft.socket.response.ConnectionResponse.ConnectionResponse;
-import project.ing.soft.socket.response.ConnectionResponse.ConnectionResponseHandler;
+package project.ing.soft.socket.response.connectionresponse;
 
 public class ConnectionRefusedResponse implements ConnectionResponse {
 

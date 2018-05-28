@@ -45,6 +45,7 @@ public class LaunchServer {
         commands.put("quit", this::quit);
     }
 
+    //region commands
     private void logAvailable(){
 
         out.println("Logger available:");
@@ -121,6 +122,7 @@ public class LaunchServer {
         } while (!cmd.startsWith("quit"));
 
     }
+    //endregion
     //region scanner operation
     private int waitForUserInput(int lowerBound , int upperBound) throws UserInterruptActionException {
         int ret = 0;

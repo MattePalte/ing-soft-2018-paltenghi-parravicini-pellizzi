@@ -5,7 +5,7 @@ import project.ing.soft.exceptions.ConnectionRefusedException;
 import project.ing.soft.exceptions.NickNameAlreadyTakenException;
 import project.ing.soft.model.gamemanager.events.SetTokenEvent;
 import project.ing.soft.socket.request.connectionrequest.ReconnectionRequest;
-import project.ing.soft.socket.response.ConnectionResponse.*;
+import project.ing.soft.socket.response.connectionresponse.*;
 import project.ing.soft.socket.ControllerProxyOverSocket;
 import project.ing.soft.socket.request.connectionrequest.JoinTheGameRequest;
 import project.ing.soft.view.IView;
@@ -13,13 +13,7 @@ import project.ing.soft.view.IView;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.rmi.RemoteException;
 import java.util.Objects;
-import java.util.Scanner;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,12 +23,11 @@ public class APProxySocket implements IAccessPoint, ConnectionResponseHandler {
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
     private IView view;
-    private ExecutorService ex = Executors.newFixedThreadPool(1);
     private Logger log;
 
     public APProxySocket(String host, int port){
         this.log  = Logger.getLogger(Objects.toString(this));
-        //this.log.setLevel(Level.OFF);
+        this.log.setLevel(Level.OFF);
 
         mySocket = new Socket();
         try {

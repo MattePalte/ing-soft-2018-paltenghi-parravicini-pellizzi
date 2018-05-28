@@ -1,4 +1,4 @@
-package project.ing.soft.socket.response.ConnectionResponse;
+package project.ing.soft.socket.response.connectionresponse;
 
 import project.ing.soft.exceptions.NickNameAlreadyTakenException;
 

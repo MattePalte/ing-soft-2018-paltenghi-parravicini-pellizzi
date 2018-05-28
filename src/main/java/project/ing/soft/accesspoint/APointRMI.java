@@ -129,8 +129,6 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
                 clientView.attachController(gameToJoin);
                 gameToJoin.joinTheGame(nickname, proxyOverRmi);
                 log.log(Level.INFO,"{0} was connected to a game", nickname);
-
-
             } catch (Exception e) {
                 log.log(Level.SEVERE, "An error was thrown while joining the game", e);
             }

@@ -91,6 +91,7 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
         } catch(IOException ignored) {
             logger.log(Level.SEVERE, "Error while closing ObjectOutputStream", ignored);
         }
+        super.interrupt();
     }
 
     private void flushEvents(){
