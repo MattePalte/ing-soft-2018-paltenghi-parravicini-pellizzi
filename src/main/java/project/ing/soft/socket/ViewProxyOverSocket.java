@@ -13,7 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-public class ViewProxyOverSocket implements IView,IRequestHandler, Runnable {
+public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler {
     private GameController gameController;
     private Socket aSocket;
 
@@ -57,10 +57,6 @@ public class ViewProxyOverSocket implements IView,IRequestHandler, Runnable {
 
     }
 
-    @Override
-    public PrintStream getPrintStream() {
-        return null;
-    }
 
 
     public void interrupt() {

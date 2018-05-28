@@ -44,7 +44,6 @@ public class Game implements Serializable{
     public void add(Player newPlayer) {
         if (players.size() < maxNumPlayer) {
             players.add(newPlayer);
-            newPlayer.setConnected(true);
         }
     }
 
@@ -56,7 +55,11 @@ public class Game implements Serializable{
 
     public void remove(String nickname){
         Optional<Player> toRemove = players.stream().filter(p -> p.getName().equals(nickname)).findFirst();
-        toRemove.ifPresent(p -> players.remove(p));
+        toRemove.ifPresent(p -> {
+            p.resetView();
+            // this remove is needed because otherwise the player in the turnList is not up-to-date (example: placedDice matrix showed is the old one
+            players.remove(p);
+        });
     }
 
     /*

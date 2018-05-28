@@ -62,6 +62,7 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     private IGameManager localCopyOfTheStatus;
     private String ownerNameOfTheView;
     private transient IController myController;
+    private transient String token;
     private boolean stopResponding = false;
     private transient PrintStream out;
     private final transient Queue<Event> eventsReceived;
@@ -291,6 +292,12 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
                     }
                 }
         );
+    }
+
+    @Override
+    public void respondTo(SetTokenEvent event) {
+        this.token = event.getToken();
+        //TODO: Signal to user which is its token
     }
 
     @Override
@@ -575,11 +582,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     @Override
     public void run() {
 
-    }
-
-    @Override
-    public PrintStream getPrintStream() {
-        return out;
     }
 
     private String getTime() {

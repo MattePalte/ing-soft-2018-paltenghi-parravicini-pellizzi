@@ -1,9 +1,8 @@
-package project.ing.soft.socket;
+package project.ing.soft.accesspoint;
 
 
 import project.ing.soft.Settings;
 import project.ing.soft.TokenCalculator;
-import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.GameController;
 import project.ing.soft.controller.IController;
 import project.ing.soft.exceptions.ActionNotPermittedException;
@@ -16,23 +15,21 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 
-public class SimpleSocketConnectionListener extends Thread implements IAccessPoint {
+public class APSocket extends Thread implements IAccessPoint {
     private int localPort;
     private PrintStream log;
     private final Map<String, GameController> hostedGames;
     private final Map<String, GameController> playersInGame;
     private ServerSocket aServerSocket;
     private ExecutorService clientAcceptor = Executors.newCachedThreadPool();
-    private ExecutorService ex = Executors.newCachedThreadPool();
 
-    public SimpleSocketConnectionListener(int localPort, Map<String, GameController> hostedGames, Map<String, GameController> playersInGame) {
+    public APSocket(int localPort, Map<String, GameController> hostedGames, Map<String, GameController> playersInGame) {
         this.localPort = localPort;
         this.log = new PrintStream(System.out);
         this.hostedGames = hostedGames;
@@ -64,7 +61,7 @@ public class SimpleSocketConnectionListener extends Thread implements IAccessPoi
 
             }
         }
-        ex.shutdown();
+        clientAcceptor.shutdown();
     }
 
     @Override
@@ -87,7 +84,7 @@ public class SimpleSocketConnectionListener extends Thread implements IAccessPoi
         HashMap<String, GameController> hostedGames = new HashMap<>();
         HashMap<String, GameController> playersInGame = new HashMap<>();
 
-        SimpleSocketConnectionListener serverThread = new SimpleSocketConnectionListener(Settings.instance().getPort(), hostedGames, playersInGame);
+        APSocket serverThread = new APSocket(Settings.instance().getPort(), hostedGames, playersInGame);
         serverThread.start();
 
 
@@ -123,7 +120,7 @@ public class SimpleSocketConnectionListener extends Thread implements IAccessPoi
                 //selectedGame.joinTheGame(nickname, clientView);
                 playersInGame.put(nickname, gameToJoin);
                 clientView.attachController(gameToJoin);
-                ex.submit((ViewProxyOverSocket) clientView);
+                ((Thread)clientView).start();
             }
         }
         return gameToJoin;
@@ -139,7 +136,7 @@ public class SimpleSocketConnectionListener extends Thread implements IAccessPoi
         if(!checkToken(nickname, code))
             throw new CodeInvalidException("The code you have inserted is not valid");
         clientView.attachController(gameToJoin);
-        ex.submit((ViewProxyOverSocket) clientView);
+        ((Thread)clientView).start();
         return gameToJoin;
     }
 

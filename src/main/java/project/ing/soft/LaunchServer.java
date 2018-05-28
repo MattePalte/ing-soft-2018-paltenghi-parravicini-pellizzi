@@ -3,7 +3,7 @@ package project.ing.soft;
 import project.ing.soft.accesspoint.APointRMI;
 import project.ing.soft.controller.GameController;
 import project.ing.soft.exceptions.UserInterruptActionException;
-import project.ing.soft.socket.SimpleSocketConnectionListener;
+import project.ing.soft.accesspoint.APSocket;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -24,7 +24,7 @@ public class LaunchServer {
     private final PrintStream out;
     private final Scanner in;
     private final Map<String, Runnable> commands ;
-    private SimpleSocketConnectionListener socketConnectionListener;
+    private APSocket socketConnectionListener;
     private  APointRMI uniqueRmiAP;
 
     public LaunchServer() {
@@ -97,7 +97,7 @@ public class LaunchServer {
 
     public void run() {
         //Start socket
-        socketConnectionListener = new SimpleSocketConnectionListener(3000, hostedGames, playersInGame);
+        socketConnectionListener = new APSocket(3000, hostedGames, playersInGame);
         socketConnectionListener.start();
         //Start RMI
         try {

@@ -59,15 +59,7 @@ public class GameController extends UnicastRemoteObject implements IController, 
     }
 
     private synchronized void addPlayer(String playerName, IView view){
-
-        if (view.getClass().getName().contains("sun")) {
-            ViewProxyOverRmi proxyOverRmi = new ViewProxyOverRmi(view, playerName);
-            proxyOverRmi.attachController(this);
-            new Thread(proxyOverRmi).start();
-            theGame.add(new Player(playerName, proxyOverRmi));
-        } else {
             theGame.add(new Player(playerName, view));
-        }
     }
 
     public synchronized void joinTheGame(String playerName, IView view) throws Exception {
@@ -79,14 +71,12 @@ public class GameController extends UnicastRemoteObject implements IController, 
             // TODO: notify view that it's been removed from the game because of reconnection
             theGame.remove(playerName);
             addPlayer(playerName, view);
+            System.out.println("Player connected again");
             if(gameManager != null && (gameManager.getStatus() == IGameManager.GAME_MANAGER_STATUS.ONGOING || gameManager.getStatus() == IGameManager.GAME_MANAGER_STATUS.WAITING_FOR_PATTERNCARD))
                 gameManager.updatePlayers(playerName, view);
         }
         else {
             if (theGame.getNumberOfPlayers() < theGame.getMaxNumPlayers()) {
-                //When the player it's actually instantiated the class is inspected
-                //from observations in debugging we observed that the stub object created by rmi
-                //is class com.sun.proxy.$Proxy1
                 addPlayer(playerName, view);
 
                 log.log(Level.INFO,  "{0} added to the match ;)", playerName);
@@ -105,7 +95,8 @@ public class GameController extends UnicastRemoteObject implements IController, 
     }
 
     public synchronized void markAsDisconnected(String playerName) {
-        gameManager.disconnectPlayer(playerName);
+        if(gameManager != null)
+            gameManager.disconnectPlayer(playerName);
     }
 
     private TimerTask  buildStartTimeoutTask() {

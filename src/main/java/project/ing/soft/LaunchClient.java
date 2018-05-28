@@ -1,10 +1,9 @@
 package project.ing.soft;
 
-import project.ing.soft.accesspoint.APProxy;
+import project.ing.soft.accesspoint.APProxySocket;
 import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.IController;
 
-import project.ing.soft.socket.ControllerProxyOverSocket;
 import project.ing.soft.view.IView;
 import project.ing.soft.view.LocalViewCli;
 
@@ -45,7 +44,7 @@ public class LaunchClient {
                 break;
             case "1":
                 try {
-                    accessPoint = new APProxy(Settings.instance().getHost(), Settings.instance().getPort());
+                    accessPoint = new APProxySocket(Settings.instance().getHost(), Settings.instance().getPort());
                 }catch (Exception ex){
                     out.println("Error "+ex);
                     ex.printStackTrace(out);

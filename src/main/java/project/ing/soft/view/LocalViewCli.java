@@ -32,6 +32,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     private transient Future actualTurn;
     private transient Future eventWaitingForInput;
     private transient Thread eventHandler;
+    private transient String token;
 
     public LocalViewCli(String ownerNameOfTheView) throws RemoteException {
         // getCurrentPlayer da solo il giocatore di turno non il giocatore della view
@@ -84,6 +85,14 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
         String time = dateFormat.format(c.getTime()).toString();
         return time;
+    }
+
+    @Override
+    public void respondTo(SetTokenEvent event){
+        this.token = event.getToken();
+        out.println("Connection established. Please, wait for the game to start");
+        out.println("Please remember to save this code to let you ask for reconnection in case of network problems");
+        out.println("YOUR TOKEN TO ASK RECONNECTION IS: " + token);
     }
 
     @Override
@@ -223,11 +232,6 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     public void run() {
         out.println(ownerNameOfTheView + " started ");
         out.println("Waiting for enought players to start the match...");
-    }
-
-    @Override
-    public PrintStream getPrintStream() {
-        return out;
     }
 
     private void takeTurn() {

@@ -23,7 +23,7 @@ public class Settings {
     private int CELL_DIMENSION = 30;
     private int CARD_HEIGHT = 200;
     private Color BG_SCENE_COLOR = Color.BLACK;
-    private HashMap mapBgColour;
+    private HashMap<Colour, String> mapBgColour;
 
     private Settings() {
         mapBgColour = new HashMap<>();

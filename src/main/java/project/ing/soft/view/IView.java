@@ -11,7 +11,4 @@ public interface IView extends Remote{
     void update(Event event) throws IOException;
     void attachController(IController gameController) throws IOException;
     void run() throws IOException;
-    PrintStream getPrintStream() throws Exception;
-
-
 }

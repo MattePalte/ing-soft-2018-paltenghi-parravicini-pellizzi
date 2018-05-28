@@ -1,8 +1,5 @@
 package project.ing.soft.gui;
 
-import javafx.animation.FadeTransition;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
@@ -10,25 +7,19 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import project.ing.soft.Settings;
-import project.ing.soft.accesspoint.APProxy;
+import project.ing.soft.accesspoint.APProxySocket;
 import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.IController;
-import project.ing.soft.view.IView;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class SplashController {
 
@@ -117,7 +108,7 @@ public class SplashController {
     public void connectSocket(){
         IAccessPoint accessPoint = null;
         String nick = txtName.getText();
-        accessPoint = new APProxy(Settings.instance().getHost(), Settings.instance().getPort());
+        accessPoint = new APProxySocket(Settings.instance().getHost(), Settings.instance().getPort());
         System.out.println("1) AccessPoint Proxy created and connected");
         Scene scene = createGameView(nick, accessPoint);
         changeScene(scene);
