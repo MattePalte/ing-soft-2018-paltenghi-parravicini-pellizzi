@@ -1,12 +1,14 @@
 package project.ing.soft.socket.request.connectionrequest;
 
-public class ReconnectionRequest implements ConnectionRequest {
+import project.ing.soft.accesspoint.APointSocket;
+
+public class APReconnectRequest implements ConnectionRequest {
 
     private String nickname;
 
     private String gameToken;
 
-    public ReconnectionRequest(String nickname, String gameToken){
+    public APReconnectRequest(String nickname, String gameToken){
         this.nickname = nickname;
         this.gameToken = gameToken;
     }
@@ -20,7 +22,7 @@ public class ReconnectionRequest implements ConnectionRequest {
     }
 
     @Override
-    public void accept(ClientConnectionRequestHandler handler) throws Exception {
+    public void accept(APointSocket handler) throws Exception {
         handler.handle(this);
     }
 }

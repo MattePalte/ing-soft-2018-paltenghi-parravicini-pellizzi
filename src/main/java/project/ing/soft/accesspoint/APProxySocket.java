@@ -4,10 +4,10 @@ import project.ing.soft.controller.IController;
 import project.ing.soft.exceptions.ConnectionRefusedException;
 import project.ing.soft.exceptions.NickNameAlreadyTakenException;
 import project.ing.soft.model.gamemanager.events.SetTokenEvent;
-import project.ing.soft.socket.request.connectionrequest.ReconnectionRequest;
+import project.ing.soft.socket.request.connectionrequest.APReconnectRequest;
 import project.ing.soft.socket.response.connectionresponse.*;
 import project.ing.soft.socket.ControllerProxyOverSocket;
-import project.ing.soft.socket.request.connectionrequest.JoinTheGameRequest;
+import project.ing.soft.socket.request.connectionrequest.APConnectRequest;
 import project.ing.soft.view.IView;
 
 import java.io.*;
@@ -45,7 +45,7 @@ public class APProxySocket implements IAccessPoint, ConnectionResponseHandler {
         ControllerProxyOverSocket controllerProxy;
 
         log.log(Level.INFO,"{0} request to connect", nickname);
-        oos.writeObject(new JoinTheGameRequest(nickname));
+        oos.writeObject(new APConnectRequest(nickname));
         ConnectionResponse response = (ConnectionResponse)ois.readObject();
         view = clientView;
         response.accept(this);
@@ -61,7 +61,7 @@ public class APProxySocket implements IAccessPoint, ConnectionResponseHandler {
         ControllerProxyOverSocket controllerProxy = null;
         log.log(Level.INFO,"{0} requested to reconnect", nickname);
         try {
-            oos.writeObject(new ReconnectionRequest(nickname, code));
+            oos.writeObject(new APReconnectRequest(nickname, code));
             ConnectionResponse response = (ConnectionResponse) ois.readObject();
             view = clientView;
             response.accept(this);
@@ -77,7 +77,6 @@ public class APProxySocket implements IAccessPoint, ConnectionResponseHandler {
     @Override
     public void handle(ConnectionEstabilishedResponse response) throws IOException {
         log.log(Level.INFO,"Connection request accepted");
-        view.update(new SetTokenEvent(response.getToken()));
     }
 
     @Override

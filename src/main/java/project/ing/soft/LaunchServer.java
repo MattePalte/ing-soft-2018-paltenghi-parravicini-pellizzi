@@ -1,9 +1,10 @@
 package project.ing.soft;
 
 import project.ing.soft.accesspoint.APointRMI;
+import project.ing.soft.accesspoint.AccessPointReal;
 import project.ing.soft.controller.GameController;
 import project.ing.soft.exceptions.UserInterruptActionException;
-import project.ing.soft.accesspoint.APSocket;
+import project.ing.soft.accesspoint.SocketListener;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -24,7 +25,7 @@ public class LaunchServer {
     private final PrintStream out;
     private final Scanner in;
     private final Map<String, Runnable> commands ;
-    private APSocket socketConnectionListener;
+    private SocketListener SocketListener;
     private  APointRMI uniqueRmiAP;
 
     public LaunchServer() {
@@ -88,7 +89,7 @@ public class LaunchServer {
     }
 
     private void quit(){
-        socketConnectionListener.interrupt();
+        SocketListener.interrupt();
         try {
             APointRMI.unbind(uniqueRmiAP);
         } catch (RemoteException|NotBoundException e) {
@@ -97,12 +98,15 @@ public class LaunchServer {
     }
 
     public void run() {
-        //Start socket
-        socketConnectionListener = new APSocket(3000, hostedGames, playersInGame);
-        socketConnectionListener.start();
-        //Start RMI
+        // Create real AccessPoint server-side
+        AccessPointReal accessPointReal = new AccessPointReal(hostedGames,playersInGame);
+
+        // Create AccessPoint for Socket and start its socket listener
+        SocketListener = new SocketListener(Settings.instance().getPort(), accessPointReal);
+        SocketListener.start();
+        // Create AccessPoint for RMI and start it
         try {
-            uniqueRmiAP = new APointRMI(hostedGames);
+            uniqueRmiAP = new APointRMI(accessPointReal);
             APointRMI.bind(uniqueRmiAP);
         } catch (IOException | InterruptedException e ) {
             e.printStackTrace(out);

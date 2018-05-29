@@ -21,14 +21,13 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
 
     private static final String ACCESSPOINT = "accesspoint";
     private final transient Logger log;
+    private final AccessPointReal accessPointReal;
     private static final String CMD_FOR_STARTING_REGISTRY = "start rmiregistry.exe -J-Djava.rmi.server.logCalls=true -J-Djava.rmi.server.useCodebaseOnly=false";
     private static final String CLASSES_ROOTPATH =  GameController.class.getProtectionDomain().getCodeSource().getLocation().getPath().replace("%20", " ");
 
-    private final HashMap<String, GameController> hostedGameController;
-
-    public APointRMI(HashMap<String,GameController> hostedGameController) throws RemoteException {
+    public APointRMI(AccessPointReal accessPointReal) throws RemoteException {
         super();
-        this.hostedGameController = hostedGameController;
+        this.accessPointReal = accessPointReal;
         this.log = Logger.getLogger(Objects.toString(this));
         this.log.setLevel(Level.OFF);
     }
@@ -103,48 +102,19 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
      * @throws RemoteException if action does not end well.
      */
     @Override
-    public IController connect(String nickname, IView clientView) throws RemoteException{
+    public IController connect(String nickname, IView clientView) throws Exception{
         log.log(Level.INFO,"{0} request to connect", nickname);
-        GameController gameToJoin = null;
-        synchronized (hostedGameController){
-
-            // search controller in already present game but not started
-            for (GameController controller : hostedGameController.values()) {
-                if (controller.notAlreadyStarted()){
-                    gameToJoin = controller;
-                }
-            }
-            // no match available for this new user, so create a brand new match only for him
-            if (gameToJoin == null){
-
-                String newCode = UUID.randomUUID().toString();
-                gameToJoin = new GameController(Settings.instance().getNrPlayersOfNewMatch(), newCode);
-                hostedGameController.put(newCode, gameToJoin);
-                log.log(Level.INFO,"No game looking for player was found. A new game was created");
-            }
-            try {
-                ViewProxyOverRmi proxyOverRmi = new ViewProxyOverRmi(clientView, nickname);
-                new Thread(proxyOverRmi).start();
-                //proxyOverRmi.attachController(gameToJoin);
-                clientView.attachController(gameToJoin);
-                gameToJoin.joinTheGame(nickname, proxyOverRmi);
-                log.log(Level.INFO,"{0} was connected to a game", nickname);
-            } catch (Exception e) {
-                log.log(Level.SEVERE, "An error was thrown while joining the game", e);
-            }
-
-            //TODO: create PlayerController and return instead of GameControler
-        }
-        return gameToJoin;
+        ViewProxyOverRmi proxyOverRmi = new ViewProxyOverRmi(clientView, nickname);
+        IController newController = accessPointReal.connect(nickname, proxyOverRmi);
+        // POST CONNECT ->
+        proxyOverRmi.start();
+        return newController;
     }
 
     @Override
-    public IController reconnect(String nickname, String code, IView clientView) throws RemoteException {
+    public IController reconnect(String nickname, String code, IView clientView) throws Exception {
         log.log(Level.INFO,"{0} requested to reconnect", nickname);
-        GameController gameToReconnect;
-        synchronized (hostedGameController) {
-            gameToReconnect = hostedGameController.get(code);
-        }
+        IController gameToReconnect = accessPointReal.reconnect(nickname, code, clientView);
         return gameToReconnect;
     }
 }

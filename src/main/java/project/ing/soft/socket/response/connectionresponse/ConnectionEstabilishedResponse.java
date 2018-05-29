@@ -4,15 +4,7 @@ import java.io.IOException;
 
 public class ConnectionEstabilishedResponse implements ConnectionResponse {
 
-    private String playerToken;
-
-    public ConnectionEstabilishedResponse(String playerToken){
-        this.playerToken = playerToken;
-
-    }
-
-    public String getToken(){
-        return playerToken;
+    public ConnectionEstabilishedResponse() {
     }
 
     @Override
