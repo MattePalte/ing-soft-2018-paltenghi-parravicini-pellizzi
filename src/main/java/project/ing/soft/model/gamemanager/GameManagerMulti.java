@@ -450,7 +450,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
     public Die drawFromDicebag(){
         Die ret;
 
-        ret = diceBag.remove(new Random().nextInt(diceBag.size()));
+        ret = diceBag.remove(new Random().nextInt(diceBag.size())).rollDie();
         return ret;
     }
 
