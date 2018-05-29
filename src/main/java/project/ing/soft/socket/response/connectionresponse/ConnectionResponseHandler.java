@@ -10,4 +10,5 @@ public interface ConnectionResponseHandler {
     void handle(ConnectionRefusedResponse response) throws Exception;
 
     void handle(NickNameAlreadyTakenResponse response) throws Exception;
+
 }

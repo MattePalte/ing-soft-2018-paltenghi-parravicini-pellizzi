@@ -8,6 +8,7 @@ public class ConnectionEstabilishedResponse implements ConnectionResponse {
 
     public ConnectionEstabilishedResponse(String playerToken){
         this.playerToken = playerToken;
+
     }
 
     public String getToken(){

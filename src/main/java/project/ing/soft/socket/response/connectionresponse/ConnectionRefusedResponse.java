@@ -15,5 +15,6 @@ public class ConnectionRefusedResponse implements ConnectionResponse {
     @Override
     public void accept(ConnectionResponseHandler handler) throws Exception {
         handler.handle(this);
+
     }
 }
