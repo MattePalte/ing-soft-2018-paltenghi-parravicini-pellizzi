@@ -59,7 +59,7 @@ public class GameController extends UnicastRemoteObject implements IController, 
     }
 
     private synchronized void addPlayer(String playerName, IView view){
-            theGame.add(new Player(playerName, view));
+        theGame.add(new Player(playerName, view));
     }
 
     public synchronized void joinTheGame(String playerName, IView view) throws Exception {

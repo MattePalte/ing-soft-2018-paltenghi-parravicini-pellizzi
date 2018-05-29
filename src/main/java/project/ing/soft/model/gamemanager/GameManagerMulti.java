@@ -1,6 +1,7 @@
 package project.ing.soft.model.gamemanager;
 
 
+import project.ing.soft.exceptions.ToolCardApplicationException;
 import project.ing.soft.model.*;
 import project.ing.soft.model.cards.objectives.ObjectiveCard;
 import project.ing.soft.model.cards.objectives.privates.PrivateObjective;
@@ -365,6 +366,11 @@ public class GameManagerMulti implements IGameManager, Serializable {
     @Override
     public void playToolCard(ToolCard aToolCard) throws Exception{
         logger.log(Level.INFO, "Player {0} would like to use the ToolCard: {1}", new Object[]{getCurrentPlayer().getName(),aToolCard.getTitle()});
+        if(!toolCardCost.containsKey(aToolCard.getTitle())){
+            logger.log(Level.INFO, "Player {0} would like to use the ToolCard: {1}. REFUSED", new Object[]{getCurrentPlayer().getName(),aToolCard.getTitle()});
+            throw new ToolCardApplicationException("ToolCard not permitted");
+        }
+
         aToolCard.play(getCurrentPlayer(), this);
     }
 
@@ -390,7 +396,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
             endGame();
             return;
         }
-       // Making all disconnected players jump its turn
+        // Making all disconnected players jump its turn
         while(currentTurnList.size() > 0 && !currentTurnList.get(0).isConnected()){
             currentTurnList.remove(0);
         }

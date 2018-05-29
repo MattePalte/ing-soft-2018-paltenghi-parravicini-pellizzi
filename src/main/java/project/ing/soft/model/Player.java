@@ -69,6 +69,8 @@ public class Player implements Serializable{
         this.myView = newView;
     }
 
+
+    //region memento
     public Player getMemento(){
         return new Player(this);
     }
@@ -85,6 +87,8 @@ public class Player implements Serializable{
             this.hasEverPlacedADie       = p.hasEverPlacedADie;
         }
     }
+    //endregion
+
 
     //region setter
     public void givePossiblePatternCard(List<WindowPatternCard> givenPatternCards) {
@@ -103,6 +107,7 @@ public class Player implements Serializable{
     public void setPrivateObjective(PrivateObjective myPrivateObjective) {
         this.myPrivateObjective = myPrivateObjective;
     }
+
     public void setConnected(boolean connected) {
         isConnected = connected;
     }
@@ -344,10 +349,14 @@ public class Player implements Serializable{
     }
 
     //endregion
-    public void update(Event event) {
+
+    public void update(Event... events) {
         try {
-            if(myView != null)
-                myView.update(event);
+            if(!isConnected())
+                for(Event aEvent : events){
+                    myView.update(aEvent);
+                }
+
         }catch (IOException ex){
             assert(false);
         }
