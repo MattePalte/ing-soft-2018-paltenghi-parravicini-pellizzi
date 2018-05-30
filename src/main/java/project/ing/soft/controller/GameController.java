@@ -69,6 +69,9 @@ public class GameController extends UnicastRemoteObject implements IController, 
 
             if(gameManager != null && gameManager.getStatus() != IGameManager.GAME_MANAGER_STATUS.ENDED)
                 gameManager.reconnectPlayer(playerName, view);
+            else{
+                theGame.reconnect(playerName, view);
+            }
         }
         else {
             if (theGame.getNumberOfPlayers() < theGame.getMaxNumPlayers()) {

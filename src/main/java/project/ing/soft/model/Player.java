@@ -63,6 +63,12 @@ public class Player implements Serializable{
         this.myView                  = pToBeCopied.myView;
         this.hasPlacedADieInThisTurn = pToBeCopied.hasPlacedADieInThisTurn;
         this.hasEverPlacedADie       = pToBeCopied.hasEverPlacedADie;
+        this.isConnected = pToBeCopied.isConnected;
+    }
+
+    public Player(Player pToBeCopied, IView view){
+        this(pToBeCopied);
+        this.myView = view;
     }
 
 
@@ -81,6 +87,7 @@ public class Player implements Serializable{
             this.myView                  = p.myView;
             this.hasPlacedADieInThisTurn = p.hasPlacedADieInThisTurn;
             this.hasEverPlacedADie       = p.hasEverPlacedADie;
+            this.isConnected             = p.isConnected;
         }
     }
     //endregion
@@ -367,8 +374,8 @@ public class Player implements Serializable{
 
     public void reconnectView(IView myView){
         isConnected = true;
-        if(myView != null)
-            ((Thread) myView).interrupt();
+        if(this.myView != null)
+            ((Thread) this.myView).interrupt();
         this.myView = myView;
     }
 

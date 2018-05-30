@@ -60,8 +60,8 @@ public class AccessPointReal implements IAccessPoint {
 
 
         String token = TokenCalculator.computeDigest(nickname + gameControllerToJoin.getControllerSecurityCode());
-        log.log(Level.INFO, "Associated ({0}, {1}) token: {2}", new Object[]{nickname, gameControllerToJoin.getControllerSecurityCode(), token});
         clientView.update(new SetTokenEvent(token));
+        log.log(Level.INFO, "Associated ({0}, {1}) token: {2}", new Object[]{nickname, gameControllerToJoin.getControllerSecurityCode(), token});
         gameControllerToJoin.joinTheGame(nickname, clientView);
         return gameControllerToJoin;
     }

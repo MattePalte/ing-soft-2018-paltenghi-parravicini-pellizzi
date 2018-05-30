@@ -1,6 +1,8 @@
 package project.ing.soft.model;
 
 
+import project.ing.soft.view.IView;
+
 import java.io.Serializable;
 import java.util.*;
 
@@ -47,19 +49,13 @@ public class Game implements Serializable{
         }
     }
 
-    public void add(Player newPlayer, int index){
-        if(players.size() < maxNumPlayer){
-            players.add(index, newPlayer);
-        }
-    }
-
-    public void remove(String nickname){
-        Optional<Player> toRemove = players.stream().filter(p -> p.getName().equals(nickname)).findFirst();
-        toRemove.ifPresent(p -> {
-            p.disconnectView();
-            // this remove is needed because otherwise the player in the turnList is not up-to-date (example: placedDice matrix showed is the old one
-            //players.remove(p);
-        });
+    public void reconnect(String playerName, IView view){
+        Player playerInfoBackup = players.stream().filter(p -> p.getName().equals(playerName)).findFirst().orElse(null);
+        if(playerInfoBackup == null)
+            return;
+        int indexBackup = players.indexOf(playerInfoBackup);
+        players.remove(playerInfoBackup);
+        players.add(indexBackup, new Player(playerInfoBackup, view));
     }
 
     /*

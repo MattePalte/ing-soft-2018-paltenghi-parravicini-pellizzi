@@ -9,6 +9,7 @@ import project.ing.soft.view.IView;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -60,7 +61,13 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
                 toClient.reset();
 
             }
-        }catch (Exception ex){
+        }catch(SocketException ex){
+            if(isStarted) {
+                log.log(Level.INFO, "{0} disconnected", nickname);
+                gameController.markAsDisconnected(nickname);
+            }
+            // else user asked for reconnection, so disconnection is done elsewhere
+        } catch (Exception ex){
             log.log(Level.SEVERE,"Exception occurred", ex);
             gameController.markAsDisconnected(nickname);
 
@@ -73,26 +80,27 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
 
     @Override
     public void interrupt() {
-
+        // if user asked for reconnection calls interrupt, and the boolean is set to false as a flag to distinguish from disconnection due to network problems or client crashes
+        isStarted = false;
         try {
-            if(fromClient != null)
+            if (fromClient != null)
                 fromClient.close();
         } catch (IOException e) {
-            log.log(Level.SEVERE,"Error while closing ObjectInputStream",  e);
+            log.log(Level.SEVERE, "Error while closing ObjectInputStream", e);
         }
 
         try {
-            if(toClient != null)
+            if (toClient != null)
                 toClient.close();
         } catch (IOException e) {
-            log.log(Level.SEVERE,"Error while closing ObjectOutputStream",  e);
+            log.log(Level.SEVERE, "Error while closing ObjectOutputStream", e);
         }
 
         try {
-            if(aSocket != null)
+            if (aSocket != null)
                 aSocket.close();
         } catch (IOException e) {
-            log.log(Level.SEVERE,"Error while closing socket",  e);
+            log.log(Level.SEVERE, "Error while closing socket", e);
         }
     }
 
@@ -157,7 +165,7 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
 
     @Override
     public void update(Event event) throws IOException {
-       send(new EventResponse(event));
+        send(new EventResponse(event));
     }
 
     private void send(IResponse aResponse) throws IOException {

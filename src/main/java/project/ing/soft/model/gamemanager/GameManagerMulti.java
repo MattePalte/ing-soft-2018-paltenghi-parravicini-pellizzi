@@ -481,8 +481,8 @@ public class GameManagerMulti implements IGameManager, Serializable {
         if(player == null){
             return;
         }
-
-        player.disconnectView();
+        // Useless?
+        //player.disconnectView();
         player.reconnectView(view);
         player.update(new ModelChangedEvent(this));
         if(status == GAME_MANAGER_STATUS.WAITING_FOR_PATTERNCARD)
