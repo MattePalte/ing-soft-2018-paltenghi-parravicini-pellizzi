@@ -47,6 +47,7 @@ public class Player implements Serializable{
         this.myView                  = aView;
         this.hasPlacedADieInThisTurn = false;
         this.hasEverPlacedADie       = false;
+        this.isConnected             = true;
     }
 
     // the only field that is actually copied is the placedDie matrix.
@@ -62,11 +63,6 @@ public class Player implements Serializable{
         this.myView                  = pToBeCopied.myView;
         this.hasPlacedADieInThisTurn = pToBeCopied.hasPlacedADieInThisTurn;
         this.hasEverPlacedADie       = pToBeCopied.hasEverPlacedADie;
-    }
-
-    public Player(Player pToBeCopied, IView newView){
-        this(pToBeCopied);
-        this.myView = newView;
     }
 
 
@@ -108,14 +104,11 @@ public class Player implements Serializable{
         this.myPrivateObjective = myPrivateObjective;
     }
 
-    public void setConnected(boolean connected) {
-        isConnected = connected;
-    }
     //endregion
 
     //region getter
     public boolean isConnected() {
-        return myView != null;
+        return myView != null && isConnected;
     }
     //@assignable nothing
     public String getName() {
@@ -352,7 +345,7 @@ public class Player implements Serializable{
 
     public void update(Event... events) {
         try {
-            if(!isConnected())
+            if(isConnected())
                 for(Event aEvent : events){
                     myView.update(aEvent);
                 }
@@ -363,11 +356,23 @@ public class Player implements Serializable{
 
     }
 
-    public void resetView(){
+    //region connection
+
+    public void disconnectView(){
+        isConnected = false;
         if(myView != null)
             ((Thread) myView).interrupt();
         myView = null;
     }
+
+    public void reconnectView(IView myView){
+        isConnected = true;
+        if(myView != null)
+            ((Thread) myView).interrupt();
+        this.myView = myView;
+    }
+
+    //endregion
 
     //region object override
 
@@ -407,8 +412,8 @@ public class Player implements Serializable{
         aBuilder.append("---------------------\n")
                 .append(getName())
                 .append("'s situation ...\n")
-                .append(Card.drawNear("Private objective : "+(myPrivateObjective == null ? "Not already assigned a private objective": myPrivateObjective.toString()),
-                        "Player game board: \n"+stringifyPlayerGameBoard()))
+                .append(Card.drawNear("Private objective : \n"+(myPrivateObjective == null ? "Not already assigned a private objective": myPrivateObjective.toString()),
+                        "Player game board: \n\n"+stringifyPlayerGameBoard()))
                 .append("---------------------\n");
         return aBuilder.toString();
     }

@@ -6,8 +6,10 @@ import project.ing.soft.controller.IController;
 import project.ing.soft.rmi.ViewProxyOverRmi;
 import project.ing.soft.view.IView;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -15,6 +17,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
@@ -65,12 +68,12 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
         //se a log for output
         File log = new File("log.txt");
         pb.redirectErrorStream(true);
-        pb.redirectOutput(ProcessBuilder.Redirect.appendTo(log));
+        pb.redirectOutput( ProcessBuilder.Redirect.appendTo(log));
 
         //start the rmi process
         Process rmiRegistryProcess = pb.start();
         //waiting for server start
-        Thread.sleep(1000);
+        Thread.sleep(5000);
         //it would be nice to test for activity of the thread of rmi registry.
         rmiRegistryProcess.isAlive();
         Registry registry = LocateRegistry.getRegistry();
@@ -117,4 +120,5 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
         IController gameToReconnect = accessPointReal.reconnect(nickname, code, clientView);
         return gameToReconnect;
     }
+
 }

@@ -11,7 +11,6 @@ import project.ing.soft.model.cards.WindowPatternCard;
 import project.ing.soft.model.gamemanager.GameManagerFactory;
 import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.model.Player;
-import project.ing.soft.rmi.ViewProxyOverRmi;
 import project.ing.soft.view.IView;
 
 import java.io.Serializable;
@@ -36,11 +35,12 @@ public class GameController extends UnicastRemoteObject implements IController, 
     private transient TimerTask     timeoutTask;
     private final transient String id;
 
-    private static final transient long TURN_TIMEOUT       = 60000;
+    private static final transient long TURN_TIMEOUT       = 120000;
     private static final transient long GAME_START_TIMEOUT = 60000;
 
 
     public GameController(int maxNumberOfPlayer, String id) throws RemoteException{
+        super();
         this.theGame        = new Game(maxNumberOfPlayer);
         this.gameManager    = null;
         this.log            = Logger.getLogger(Objects.toString(this));
@@ -58,26 +58,21 @@ public class GameController extends UnicastRemoteObject implements IController, 
         return this.gameManager == null;
     }
 
-    private synchronized void addPlayer(String playerName, IView view){
-        theGame.add(new Player(playerName, view));
-    }
-
     public synchronized void joinTheGame(String playerName, IView view) throws Exception {
         log.log(Level.INFO,"Add player request received from {0} ", playerName);
-        List<String> playersNicknames = theGame.getPlayers().stream().map(Player::getName).collect(Collectors.toCollection(ArrayList::new));
+        Optional<Player> player = theGame.getPlayers()
+                .stream()
+                .filter(p->p.getName().equals(playerName))
+                .findFirst();
 
-        if(playersNicknames.contains(playerName)){
-            log.log(Level.INFO,  "{0} come back", playerName);
-            // TODO: notify view that it's been removed from the game because of reconnection
-            theGame.remove(playerName);
-            addPlayer(playerName, view);
-            System.out.println("Player connected again");
-            if(gameManager != null && (gameManager.getStatus() == IGameManager.GAME_MANAGER_STATUS.ONGOING || gameManager.getStatus() == IGameManager.GAME_MANAGER_STATUS.WAITING_FOR_PATTERNCARD))
-                gameManager.updatePlayers(playerName, view);
+        if(player.isPresent()){
+
+            if(gameManager != null && gameManager.getStatus() != IGameManager.GAME_MANAGER_STATUS.ENDED)
+                gameManager.reconnectPlayer(playerName, view);
         }
         else {
             if (theGame.getNumberOfPlayers() < theGame.getMaxNumPlayers()) {
-                addPlayer(playerName, view);
+                theGame.add(new Player(playerName, view));
 
                 log.log(Level.INFO,  "{0} added to the match ;)", playerName);
             } else {

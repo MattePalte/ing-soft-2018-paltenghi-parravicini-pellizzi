@@ -7,6 +7,7 @@ import project.ing.soft.controller.IController;
 import project.ing.soft.exceptions.ActionNotPermittedException;
 import project.ing.soft.exceptions.CodeInvalidException;
 import project.ing.soft.exceptions.NickNameAlreadyTakenException;
+import project.ing.soft.model.gamemanager.events.SetTokenEvent;
 import project.ing.soft.view.IView;
 
 import java.util.ArrayList;
@@ -57,10 +58,10 @@ public class AccessPointReal implements IAccessPoint {
         }
         log.log(Level.INFO,"{0} connection request succeed", nickname);
 
-        //TODO: distribute Token
+
         String token = TokenCalculator.computeDigest(nickname + gameControllerToJoin.getControllerSecurityCode());
         log.log(Level.INFO, "Associated ({0}, {1}) token: {2}", new Object[]{nickname, gameControllerToJoin.getControllerSecurityCode(), token});
-
+        clientView.update(new SetTokenEvent(token));
         gameControllerToJoin.joinTheGame(nickname, clientView);
         return gameControllerToJoin;
     }
@@ -82,6 +83,7 @@ public class AccessPointReal implements IAccessPoint {
             throw new CodeInvalidException("The code you have inserted is not valid");
         }
         clientView.attachController(gameControllerToJoin);
+
         log.log(Level.INFO,"{0} reconnection request succeed", nickname);
         gameControllerToJoin.joinTheGame(nickname,clientView);
         return gameControllerToJoin;

@@ -81,7 +81,7 @@ public class ClientViewCLI extends UnicastRemoteObject
     }
 
     private boolean gameOngoing(){
-        return (localCopyOfTheStatus == null || localCopyOfTheStatus.getStatus() == IGameManager.GAME_MANAGER_STATUS.ONGOING);
+        return (localCopyOfTheStatus == null || localCopyOfTheStatus.getStatus() != IGameManager.GAME_MANAGER_STATUS.ENDED);
     }
 
     @Override
@@ -125,6 +125,8 @@ public class ClientViewCLI extends UnicastRemoteObject
             do {
                 err = false;
                 try {
+                    out.println("These are the public objectives: ");
+                    out.println(Card.drawNear(localCopyOfTheStatus.getPublicObjective().toArray()));
                     out.println("This is your private objective: ");
                     out.println(event.getMyPrivateObjective());
                     WindowPatternCard aCard = (WindowPatternCard) chooseFrom(List.of(event.getOne(), event.getTwo()));
@@ -142,6 +144,7 @@ public class ClientViewCLI extends UnicastRemoteObject
             } while (err);
             return true;
         });
+
     }
     @Override
     public void respondTo(ModelChangedEvent event) {

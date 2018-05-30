@@ -3,7 +3,6 @@ package project.ing.soft.accesspoint;
 import project.ing.soft.controller.IController;
 import project.ing.soft.exceptions.ConnectionRefusedException;
 import project.ing.soft.exceptions.NickNameAlreadyTakenException;
-import project.ing.soft.model.gamemanager.events.SetTokenEvent;
 import project.ing.soft.socket.request.connectionrequest.APReconnectRequest;
 import project.ing.soft.socket.response.connectionresponse.*;
 import project.ing.soft.socket.ControllerProxyOverSocket;
@@ -59,7 +58,7 @@ public class APProxySocket implements IAccessPoint, ConnectionResponseHandler {
     @Override
     public IController reconnect(String nickname, String code, IView clientView) throws Exception {
         ControllerProxyOverSocket controllerProxy = null;
-        log.log(Level.INFO,"{0} requested to reconnect", nickname);
+        log.log(Level.INFO,"{0} requested to reconnectPlayer", nickname);
         try {
             oos.writeObject(new APReconnectRequest(nickname, code));
             ConnectionResponse response = (ConnectionResponse) ois.readObject();

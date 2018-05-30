@@ -22,7 +22,7 @@ public class StringBoxBuilder {
         this.bottomBuilder = new StringBuilder();
         this.lineFilled = 2;
 
-        this.topBuilder.append('\n').append(buildTopLine()).append('\n');
+        this.topBuilder.append(buildTopLine()).append('\n');
         this.bottomBuilder.append(buildBottomLine() ).append('\n');
     }
 
@@ -142,17 +142,16 @@ public class StringBoxBuilder {
             String two = drawNear(tmp +1, last, others );
 
             String[] ones = one.split("\\n");
-            int oneMaxLength = Arrays.stream(ones).mapToInt(String::length).max().orElse(0);
+            int oneMaxLength = Arrays.stream(ones).mapToInt(StringBoxBuilder::escapedAnsiLength).max().orElse(0);
             String paddingOne = padding(oneMaxLength);
             String[] twos = two.split("\\n");
-            int twoMaxLength = Arrays.stream(ones).mapToInt(String::length).max().orElse(0);
+            int twoMaxLength = Arrays.stream(twos).mapToInt(StringBoxBuilder::escapedAnsiLength).max().orElse(0);
             String paddingTwo = padding(twoMaxLength);
             StringBuilder sb = IntStream
                     .range(0, Math.max(ones.length, twos.length))
-                    .mapToObj(i ->
-                         (i < ones.length ? ones[i]+padding(oneMaxLength-ones[i].length()) : paddingOne) +" "+
-                         (i < twos.length ? twos[i]+padding(twoMaxLength-twos[i].length()) : paddingTwo) +
-                                "\n"
+                    .mapToObj(i -> (i < ones.length ? ones[i] + padding(oneMaxLength - escapedAnsiLength(ones[i])) : paddingOne) + " " +
+                                   (i < twos.length ? twos[i] + padding(twoMaxLength - escapedAnsiLength(twos[i])) : paddingTwo) +
+                                        "\n"
                     )
                     .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append );
             return sb.toString();
@@ -162,6 +161,20 @@ public class StringBoxBuilder {
     }
     public static String drawNear( Object... others ){
         return drawNear(0, others.length-1, others);
+    }
+    private static int escapedAnsiLength(String s){
+        boolean ansiEscapeSeen = false;
+        int ret = 0;
+        for (int i = 0; i < s.length(); i++) {
+            if(s.charAt(i) == '\u001B') {
+                ansiEscapeSeen = true;
+            }else if(s.charAt(i) == 'm' && ansiEscapeSeen) {
+                ansiEscapeSeen = false;
+            }else if(!ansiEscapeSeen) {
+                ret++;
+            }
+        }
+        return ret;
     }
 
 

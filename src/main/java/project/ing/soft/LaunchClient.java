@@ -4,6 +4,7 @@ import project.ing.soft.accesspoint.APProxySocket;
 import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.IController;
 
+import project.ing.soft.view.ClientViewCLI;
 import project.ing.soft.view.IView;
 import project.ing.soft.view.LocalViewCli;
 
@@ -60,7 +61,7 @@ public class LaunchClient {
             // create the CLI view
             // launch it
             // and attach the chosen controller (Rmi or Socket) to it
-            IView view = new LocalViewCli(name);
+            IView view = new ClientViewCLI(name);
             out.println("View created successfully");
             IController controller = accessPoint.connect(name, view);
             out.println("Controller retrieved from AccessPoint");

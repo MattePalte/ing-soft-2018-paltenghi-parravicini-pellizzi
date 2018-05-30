@@ -62,7 +62,7 @@ public interface IGameManager extends Serializable {
 
     IGameManager copy();
 
-    void updatePlayers(String playerName, IView view);
+    void reconnectPlayer(String playerName, IView view);
     void disconnectPlayer(String playerToDisconnect);
 
     enum GAME_MANAGER_STATUS{

@@ -56,9 +56,9 @@ public class Game implements Serializable{
     public void remove(String nickname){
         Optional<Player> toRemove = players.stream().filter(p -> p.getName().equals(nickname)).findFirst();
         toRemove.ifPresent(p -> {
-            p.resetView();
+            p.disconnectView();
             // this remove is needed because otherwise the player in the turnList is not up-to-date (example: placedDice matrix showed is the old one
-            players.remove(p);
+            //players.remove(p);
         });
     }
 

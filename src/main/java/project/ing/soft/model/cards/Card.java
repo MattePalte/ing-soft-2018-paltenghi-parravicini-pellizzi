@@ -3,6 +3,7 @@ package project.ing.soft.model.cards;
 import project.ing.soft.model.StringBoxBuilder;
 
 import java.io.Serializable;
+import java.util.List;
 
 public interface Card extends Serializable{
 
@@ -18,6 +19,10 @@ public interface Card extends Serializable{
 
     static String drawNear( Object... others ){
         return StringBoxBuilder.drawNear(0, others.length-1, others);
+    }
+
+    static String drawNear( List<Object> others ){
+        return StringBoxBuilder.drawNear(0, others.size()-1, others.toArray());
     }
 
 

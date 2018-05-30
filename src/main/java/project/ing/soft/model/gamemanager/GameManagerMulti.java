@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 public class GameManagerMulti implements IGameManager, Serializable {
 
-    //TODO: keep 3 round during debugging procedue, switch to 10 only in final version
+    //TODO: keep 3 round during debugging procedure, switch to 10 only in final version
     private static final int ROUNDS_NUMBER = 10;
 
     private Game                currentGame ;
@@ -133,7 +133,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
     //Copy constructor
     private GameManagerMulti(GameManagerMulti from){
         from.logger.log(Level.INFO, "A game manager was cloned from this");
-        this.logger             = Logger.getLogger(Objects.toString(this));
+        this.logger             = Logger.getAnonymousLogger();
         this.logger.setLevel(Level.OFF);
         this.currentGame        = new Game(from.currentGame);
         this.diceBag            = new ArrayList<> (from.diceBag);
@@ -309,7 +309,8 @@ public class GameManagerMulti implements IGameManager, Serializable {
     }
 
     private void deliverEvent(Player p, Event ...events ){
-        if (!p.isConnected()) return;
+        if (!p.isConnected())
+            return;
         for(Event event: events) {
             p.update(event);
         }
@@ -397,7 +398,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
             return;
         }
         // Making all disconnected players jump its turn
-        while(currentTurnList.size() > 0 && !currentTurnList.get(0).isConnected()){
+        while(!currentTurnList.isEmpty() && !currentTurnList.get(0).isConnected()){
             currentTurnList.remove(0);
         }
 
@@ -472,42 +473,31 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
     }
 
-    public void updatePlayers(String nickname, IView view){
-        // Inject a new player object to replace player object of disconnected player
-        // do this both in turn list and game general list of players
-        List<Player> oldList = currentGame.getPlayers();
-        List<Player> playerInfoBackup = oldList.stream().filter(player -> player.getName().equals(nickname)).collect(Collectors.toCollection(ArrayList::new));
-        Player toRemove = playerInfoBackup.get(0);
-        int indexBackup = oldList.indexOf(toRemove);
-        currentGame.remove(nickname);
-        Player toAdd = new Player(toRemove, view);
-        currentGame.add(toAdd, indexBackup);
-        for(int i = 0; i < currentTurnList.size(); i++){
-            if(currentTurnList.get(i).getName().equals(toAdd.getName())){
-                currentTurnList.add(i, toAdd);
-                currentTurnList.remove(i+1);
-            }
+    public void reconnectPlayer(String nickname, IView view){
+        Player player = currentGame.getPlayers()
+                .stream()
+                .filter(p-> p.getName().equals(nickname)).findFirst().orElse(null);
+
+        if(player == null){
+            return;
         }
-        // Create a list of events to send in order
-        List<Event> eventsToSend = new ArrayList<>();
-        eventsToSend.add(new ModelChangedEvent(this));
+
+        player.disconnectView();
+        player.reconnectView(view);
+        player.update(new ModelChangedEvent(this));
         if(status == GAME_MANAGER_STATUS.WAITING_FOR_PATTERNCARD)
-            eventsToSend.add(new PatternCardDistributedEvent(toRemove.getPrivateObjective(), toRemove.getPossiblePatternCard().get(0), toRemove.getPossiblePatternCard().get(1)));
-        if(status == GAME_MANAGER_STATUS.ONGOING && getCurrentPlayer().equals(toAdd))
-            eventsToSend.add(new MyTurnStartedEvent());
-        // Send them in order with deliverEvent method to do stuff async
-        Event[] eventsArray = new Event[eventsToSend.size()];
-        eventsArray = eventsToSend.toArray(eventsArray);
-        deliverEvent(toAdd, eventsArray);
+            player.update(new PatternCardDistributedEvent(player.getPrivateObjective(), player.getPossiblePatternCard().get(0), player.getPossiblePatternCard().get(1)));
+        else if(status == GAME_MANAGER_STATUS.ONGOING && getCurrentPlayer().equals(player))
+            player.update(new MyTurnStartedEvent());
+
     }
 
     @Override
     public void disconnectPlayer(String playerToDisconnect) {
         for (Player p : getPlayerList()) {
-            if (p.getName().equals(playerToDisconnect) && p.isConnected()) {
-                p.setConnected(false);
-                p.resetView();
-                System.out.println("Player disconnected now");
+            if (p.getName().equals(playerToDisconnect) ) {
+                p.disconnectView();
+                logger.log(Level.INFO, "Player {0} disconnected", playerToDisconnect);
             }
         }
     }

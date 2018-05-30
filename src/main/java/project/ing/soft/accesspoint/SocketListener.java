@@ -21,6 +21,7 @@ public class SocketListener extends Thread {
     public SocketListener(int localPort, AccessPointReal accessPointReal) {
         this.localPort      = localPort;
         this.log            = Logger.getLogger(this.getClass().getCanonicalName()+" on port "+localPort);
+        this.log.setLevel(Level.OFF);
         this.accessPointReal = accessPointReal;
     }
 
