@@ -1,0 +1,31 @@
+title Sensitivity to Disconnection of Client
+participant GameManager #violet
+participant Player #violet
+participant GameController #violet
+participant ViewProxyOverXYZ #violet
+participant RealView #lightgreen
+
+activate ViewProxyOverXYZ  #violet
+rbox over GameManager #violet: Something Changed
+rbox over GameManager #violet: deliverEvent()
+opt #violet p.isconnected 
+GameManager->Player: update(event)
+
+activate Player #violet
+Player->ViewProxyOverXYZ:update(event)
+deactivate Player
+
+ViewProxyOverXYZ->RealView:update(event)
+ViewProxyOverXYZ<--RealView:something went wrong
+
+note over ViewProxyOverXYZ  #violet:Only ViewProxy can see this\nmethod: markAsDisconnected(). \nBecause it uses the controller as\na particular implementation \nthat has that method
+GameController<-ViewProxyOverXYZ:markAsDisconnected(nick)
+GameManager<-GameController:disconnectPalyer(nick)
+GameManager->Player:disconnectView()
+activate Player #violet
+rbox over Player #violet: view = null
+rbox over Player #violet: isConnected = false
+Player->ViewProxyOverXYZ:interrupt()
+deactivate Player
+deactivate ViewProxyOverXYZ
+end 
