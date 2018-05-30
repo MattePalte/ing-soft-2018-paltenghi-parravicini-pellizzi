@@ -1,30 +1,36 @@
-package project.ing.soft.socket.request.connectionrequest;
+package project.ing.soft.accesspoint;
 
 import project.ing.soft.TokenCalculator;
+import project.ing.soft.accesspoint.AccessPointReal;
 import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.GameController;
 import project.ing.soft.controller.IController;
 import project.ing.soft.exceptions.NickNameAlreadyTakenException;
+import project.ing.soft.socket.request.connectionrequest.APConnectRequest;
+import project.ing.soft.socket.request.connectionrequest.APReconnectRequest;
+import project.ing.soft.socket.request.connectionrequest.ConnectionRequest;
+import project.ing.soft.socket.request.connectionrequest.ConnectionRequestHandler;
 import project.ing.soft.socket.response.connectionresponse.ConnectionEstabilishedResponse;
 import project.ing.soft.socket.response.connectionresponse.ConnectionRefusedResponse;
 import project.ing.soft.socket.ViewProxyOverSocket;
 import project.ing.soft.socket.response.connectionresponse.NickNameAlreadyTakenResponse;
+import project.ing.soft.view.IView;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.concurrent.Callable;
 
-public class ClientConnectionRequestHandler implements Callable<Boolean>, ConnectionRequestHandler {
+public class APointSocket implements Callable<Boolean>, ConnectionRequestHandler, IAccessPoint {
     private Socket clientSocket;
-    private IAccessPoint accessPoint;
+    private AccessPointReal accessPointReal;
     private ObjectOutputStream oos;
     private ObjectInputStream ois;
     private ViewProxyOverSocket viewProxy;
 
-    public ClientConnectionRequestHandler(Socket clientSocket, IAccessPoint accessPoint){
+    public APointSocket(Socket clientSocket, AccessPointReal accessPointReal){
         this.clientSocket = clientSocket;
-        this.accessPoint = accessPoint;
+        this.accessPointReal = accessPointReal;
     }
 
     @Override
@@ -54,38 +60,33 @@ public class ClientConnectionRequestHandler implements Callable<Boolean>, Connec
     }
 
     @Override
-    public void handle(JoinTheGameRequest request) throws Exception{
-        IController controller;
-        String nickname;
-
-        nickname = request.getNickname();
+    public void handle(APConnectRequest request) throws Exception{
+        String nickname = request.getNickname();
         viewProxy = new ViewProxyOverSocket(clientSocket, oos, ois, nickname);
-        controller = accessPoint.connect(nickname, viewProxy);
-        String token = TokenCalculator.computeDigest(nickname + controller.getControllerSecurityCode());
-        //TODO: delete this print on definitive version
-        System.out.printf("Associated (%s, %s) token: %s%n", nickname, controller.getControllerSecurityCode(), token);
-        //TODO: connect must return a GameController instead of IController
-        // Notify everything went well
-        oos.writeObject(new ConnectionEstabilishedResponse(token));
-        // can't send response after jointhegame, because if the game starts, the first event sent is a EventResponse, while the client is waiting for a ConnectionResponse
-        ((GameController)controller).joinTheGame(nickname, viewProxy);
+        connect(nickname, viewProxy);
+        oos.writeObject(new ConnectionEstabilishedResponse());
+        viewProxy.start();
     }
 
     @Override
-    public void handle(ReconnectionRequest request) throws Exception{
-        IController controller;
-        String nickname;
-        String code;
-
-        nickname = request.getNickname();
+    public void handle(APReconnectRequest request) throws Exception{
+        String code = request.getGameToken();
+        String nickname = request.getNickname();
         viewProxy = new ViewProxyOverSocket(clientSocket, oos, ois, nickname);
-        code = request.getGameToken();
-        controller = accessPoint.reconnect(nickname, code, viewProxy);
+        accessPointReal.reconnect(nickname, code, viewProxy);
         // Notify everything went well
-        oos.writeObject(new ConnectionEstabilishedResponse(code));
-        ((GameController) controller).joinTheGame(nickname, viewProxy);
-
+        oos.writeObject(new ConnectionEstabilishedResponse());
+        viewProxy.start();
     }
 
 
+    @Override
+    public IController connect(String nickname, IView clientView) throws Exception {
+        return accessPointReal.connect(nickname, clientView);
+    }
+
+    @Override
+    public IController reconnect(String nickname, String code, IView clientView) throws Exception {
+        return accessPointReal.reconnect(nickname, code, clientView);
+    }
 }

@@ -9,19 +9,24 @@ import project.ing.soft.view.IView;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
 public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler {
-    private GameController gameController;
-    private Socket aSocket;
+    private GameController              gameController;
+    private Socket                      aSocket;
 
-    private ObjectOutputStream toClient;
-    private ObjectInputStream fromClient;
+    private String                      nickname;
+    private boolean                     isStarted;
+    private final ArrayList<IResponse>  buffer;
+    private final ObjectOutputStream    toClient;
+    private final ObjectInputStream     fromClient;
+
     private Logger log;
 
-    private String nickname;
+
 
 
     public ViewProxyOverSocket(Socket aSocket, ObjectOutputStream oos, ObjectInputStream ois, String nickname) throws IOException {
@@ -30,15 +35,23 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
         this.toClient.flush();
         this.fromClient     = ois;
         this.log            = Logger.getLogger(this.getClass().getCanonicalName()+"(" +nickname+")");
-        this.log.setLevel(Level.OFF);
+        //this.log.setLevel(Level.OFF);
         this.nickname       = nickname;
+        this.isStarted      = false;
+        this.buffer         = new ArrayList<>();
     }
 
     @Override
     public void run() {
         try {
 
-
+            synchronized (toClient){
+                for (IResponse res: buffer ) {
+                    log.log(Level.INFO,"message {0} found in the buffer", res);
+                    toClient.writeObject(res);
+                }
+                isStarted = true;
+            }
             while (!aSocket.isClosed() && !Thread.currentThread().isInterrupted()) {
                 // readObject doesn't wait for the inputStream to have data: it throws EOFException
                 // Must do a requestQueue on which we have to synchronize readObject call
@@ -58,7 +71,7 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
     }
 
 
-
+    @Override
     public void interrupt() {
 
         try {
@@ -149,7 +162,13 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
 
     private void send(IResponse aResponse) throws IOException {
         log.log(Level.INFO, "Forwarding a response {0} ", aResponse);
-        toClient.writeObject(aResponse);
+        synchronized (toClient) {
+            if(isStarted) {
+                toClient.writeObject(aResponse);
+            }else {
+                buffer.add(aResponse);
+            }
+        }
     }
 
     //endregion

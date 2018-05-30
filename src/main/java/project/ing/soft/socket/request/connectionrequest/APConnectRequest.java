@@ -1,9 +1,11 @@
 package project.ing.soft.socket.request.connectionrequest;
 
-public class JoinTheGameRequest implements ConnectionRequest {
+import project.ing.soft.accesspoint.APointSocket;
+
+public class APConnectRequest implements ConnectionRequest {
     private String nickname;
 
-    public JoinTheGameRequest(String nickname) {
+    public APConnectRequest(String nickname) {
         this.nickname = nickname;
     }
 
@@ -12,7 +14,7 @@ public class JoinTheGameRequest implements ConnectionRequest {
     }
 
     @Override
-    public void accept(ClientConnectionRequestHandler handler) throws Exception {
+    public void accept(APointSocket handler) throws Exception {
         handler.handle(this);
     }
 }
