@@ -1,8 +1,6 @@
 package project.ing.soft.gui;
 
-import javafx.animation.FadeTransition;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -19,14 +17,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import javafx.util.Pair;
 import project.ing.soft.Settings;
-import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Coordinate;
@@ -35,21 +30,16 @@ import project.ing.soft.model.Player;
 import project.ing.soft.model.cards.Constraint;
 import project.ing.soft.model.cards.WindowPattern;
 import project.ing.soft.model.cards.WindowPatternCard;
-import project.ing.soft.model.cards.objectives.privates.PrivateObjective;
 import project.ing.soft.model.cards.objectives.publics.PublicObjective;
 import project.ing.soft.model.cards.toolcards.*;
 import project.ing.soft.controller.IController;
 import project.ing.soft.model.gamemanager.events.*;
-import project.ing.soft.model.gamemanager.events.Event;
 import project.ing.soft.model.gamemanager.IGameManager;
-import project.ing.soft.view.IView;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -58,14 +48,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class GuiView extends UnicastRemoteObject implements IView, IEventHandler, IToolCardParametersAcquirer,  Serializable{
+public class MainLayoutController extends UnicastRemoteObject implements IEventHandler, IToolCardParametersAcquirer,  Serializable{
     private IGameManager localCopyOfTheStatus;
     private String ownerNameOfTheView;
-    private transient IController myController;
+    private transient IController gameController;
     private transient String token;
     private boolean stopResponding = false;
     private transient PrintStream out;
-    private final transient Queue<Event> eventsReceived;
     private ArrayList<WindowPattern> possiblePatterns;
     private ArrayList<WindowPatternCard> possiblePatternCard;
     private int currentIndexPatternDisplayed;
@@ -182,52 +171,15 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         SMALL_CELL_DIMENSION = CELL_DIMENSION/1.5;
 
         turnExecutor = Executors.newSingleThreadExecutor();
-        IEventHandler eventHandler = this;
-
-        // start long running task to execute events
-
-        Task task = new Task<Void>() {
-            @Override public Void call() throws InterruptedException {
-                Event toRespond = null;
-
-                while(!isCancelled()) {
-                    synchronized (eventsReceived) {
-                        try {
-                            while (eventsReceived.isEmpty())
-                                eventsReceived.wait();
-                            toRespond = eventsReceived.remove();
-                        } catch (InterruptedException e) {
-                            displayError(e);
-                        }
-                    }
-                    if (toRespond != null) {
-                        Platform.runLater(new EventRunnable(toRespond, eventHandler));
-                        updateMessage("Last event: " + toRespond.toString());
-                    }
-                    toRespond = null;
-                    synchronized (eventsReceived) {
-                        eventsReceived.notifyAll();
-                    }
-                }
-                return null;
-            }
-        };
-
-        status.textProperty().bind(task.messageProperty());
-        Thread th = new Thread(task);
-        th.setDaemon(true);
-        th.start();
     }
 
     //region Getter e Setter
     public void setStage(Stage primaryStage) {
         this.primaryStage = primaryStage;
     }
-
     public Stage getPrimaryStage() {
         return primaryStage;
     }
-
     public void setOut(PrintStream out) {
         this.out = out;
     }
@@ -256,8 +208,8 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     @FXML private Button btnCancel;
     //endregion
 
-    public GuiView() throws RemoteException {
-        eventsReceived = new LinkedList<>();
+    public MainLayoutController() throws RemoteException {
+
     }
 
     //region Event Responding
@@ -267,21 +219,21 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         initializeButtons();
         endingOperation();
         btnCancel.setDisable(false);
+        IToolCardParametersAcquirer myAcquirer = this;
         // CREATE AN ANONYMOUS THREAD WAITING FOR INPUT
-        GuiView myView = this;
         waitingForParameters = turnExecutor.submit(
                 new Runnable() {
-                    private GuiView gView;
+                    private IToolCardParametersAcquirer acquirer;
                     {
-                        this.gView = myView;
+                        this.acquirer = myAcquirer;
                     }
                     @Override
                     public void run() {
                         try {
 
                             ToolCard chosenToolCard = event.getCard();
-                            chosenToolCard.fill(gView);
-                            gView.myController.playToolCard(ownerNameOfTheView, chosenToolCard);
+                            chosenToolCard.fill(acquirer);
+                            gameController.playToolCard(ownerNameOfTheView, chosenToolCard);
                         } catch (InterruptedException e) {
                             displayError(e);
                             out.println("Interrupted play toolcard of " + ownerNameOfTheView);
@@ -307,10 +259,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
     @Override
     public void respondTo(FinishedSetupEvent event) {
-        // nothing special to do
-        displayPrivateObjective(getPrimaryStage().getScene());
-        displayToolCard(getPrimaryStage().getScene());
-        displayPublicCard(getPrimaryStage().getScene());
     }
 
     @Override
@@ -331,11 +279,14 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
     @Override
     public void respondTo(PatternCardDistributedEvent event) {
-        showPickPattern(event);
+
     }
 
     @Override
     public void respondTo(MyTurnStartedEvent event) {
+        displayPrivateObjective(getPrimaryStage().getScene());
+        displayToolCard(getPrimaryStage().getScene());
+        displayPublicCard(getPrimaryStage().getScene());
         btnPlaceDie.setDisable(false);
         btnPlayToolCard.setDisable(false);
         btnEndTurn.setDisable(false);
@@ -437,7 +388,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
 
     }
-
     private synchronized void drawDraftPool() {
         Scene scene = getPrimaryStage().getScene();
         GridPane paneDraft = (GridPane) scene.lookup("#" + ID_DRAFTPOOL);
@@ -487,7 +437,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
             });
         }
     }
-
     private synchronized void drawRoundTracker() {
         Scene scene = getPrimaryStage().getScene();
         GridPane paneRoundTracker = (GridPane) scene.lookup("#" + ID_ROUNDTRACKER);
@@ -517,7 +466,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
             });
         }
     }
-
     private synchronized void displayPrivateObjective(Scene scene) {
         ImageView ivPrivateObj = (ImageView) scene.lookup("#imgPrivateObjective");
         Image img = null;
@@ -532,7 +480,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         ivPrivateObj.setSmooth(true);
         ivPrivateObj.setCache(true);
     }
-
     private synchronized void displayToolCard(Scene scene) {
         List<ToolCard> tCard = localCopyOfTheStatus.getToolCards();
         for (int i = 0; i<3; i++) {
@@ -545,7 +492,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
             iv.setCache(true);
         }
     }
-
     private synchronized void displayPublicCard(Scene scene) {
         List<PublicObjective> pubCard = localCopyOfTheStatus.getPublicObjective();
         for (int i = 0; i<3; i++) {
@@ -561,28 +507,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     //endregion
 
     //region IView interface
-    @Override
-    public void update(Event event) throws RemoteException {
-
-        out.println( getTime() + " - " + ownerNameOfTheView + " ha ricevuto un evento :" + event);
-
-        if (!stopResponding) {
-            synchronized (eventsReceived) {
-                eventsReceived.add(event);
-                eventsReceived.notifyAll();
-            }
-        }
-    }
-
-    @Override
-    public void attachController(IController gameController) {
-        this.myController = gameController;
-    }
-
-    @Override
-    public void run() {
-
-    }
 
     private String getTime() {
         Calendar c = Calendar.getInstance(); //automatically set to current time
@@ -598,30 +522,32 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         initializeButtons();
         endingOperation();
         btnCancel.setDisable(false);
+        IToolCardParametersAcquirer myAcquirer = this;
         // CREATE AN ANONYMOUS THREAD WAITING FOR INPUT
-        GuiView myView = this;
         waitingForParameters = turnExecutor.submit(
-            new Runnable() {
-                private GuiView gView;
-                {
-                    this.gView = myView;
-                }
-                @Override
-                public void run() {
-                    try {
-                        Coordinate chosenCoord = getCoordinate("Choose a position to place the Die");
-                        Die chosenDie = getDieFromDraft("Chose a die to place");
-                        gView.disableAll();
-                        gView.myController.placeDie(gView.getOwnerNameOfTheView(), chosenDie, chosenCoord.getRow(), chosenCoord.getCol());
-                    } catch (InterruptedException e) {
-                        displayError(e);
-                        gView.out.println( getTime() + " - " + "Interrupted place die of " + ownerNameOfTheView);
-                    } catch (Exception e) {
-                        displayError(e);
-                        btnPlaceDie.setDisable(false);
+                new Runnable() {
+                    private IToolCardParametersAcquirer acquirer;
+                    {
+                        this.acquirer = myAcquirer;
+                    }
+                    @Override
+                    public void run() {
+                        try {
+                            Coordinate chosenCoord = getCoordinate("Choose a position to place the Die");
+                            Die chosenDie = getDieFromDraft("Chose a die to place");
+                            disableAll();
+                            System.out.println("owner name : " + getOwnerNameOfTheView());
+                            System.out.println("gameController : " + gameController);
+                            gameController.placeDie(getOwnerNameOfTheView(), chosenDie, chosenCoord.getRow(), chosenCoord.getCol());
+                        } catch (InterruptedException e) {
+                            displayError(e);
+                            out.println( getTime() + " - " + "Interrupted place die of " + ownerNameOfTheView);
+                        } catch (Exception e) {
+                            displayError(e);
+                            btnPlaceDie.setDisable(false);
+                        }
                     }
                 }
-            }
         );
     }
 
@@ -630,31 +556,31 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
         initializeButtons();
         endingOperation();
         btnCancel.setDisable(false);
+        IToolCardParametersAcquirer myAcquirer = this;
         // CREATE AN ANONYMOUS THREAD WAITING FOR INPUT
-        GuiView myView = this;
         waitingForParameters = turnExecutor.submit(
-            new Runnable() {
-                private GuiView gView;
-                {
-                    this.gView = myView;
-                }
-                @Override
-                public void run() {
-                    try {
-                        showPickToolCardIndex("Choose a toolcard to use");
-                        Integer chosenIndex = getValue();
-                        ToolCard chosenToolCard = localCopyOfTheStatus.getToolCards().get(chosenIndex);
-                        chosenToolCard.fill(gView);
-                        gView.myController.playToolCard(ownerNameOfTheView, chosenToolCard);
-                    } catch (InterruptedException e) {
-                        displayError(e);
-                        out.println("Interrupted play toolcard of " + ownerNameOfTheView);
-                    } catch (Exception e) {
-                        displayError(e);
-                        btnPlayToolCard.setDisable(false);
+                new Runnable() {
+                    private IToolCardParametersAcquirer acquirer;
+                    {
+                        this.acquirer = myAcquirer;
+                    }
+                    @Override
+                    public void run() {
+                        try {
+                            showPickToolCardIndex("Choose a toolcard to use");
+                            Integer chosenIndex = getValue();
+                            ToolCard chosenToolCard = localCopyOfTheStatus.getToolCards().get(chosenIndex);
+                            chosenToolCard.fill(acquirer);
+                            gameController.playToolCard(ownerNameOfTheView, chosenToolCard);
+                        } catch (InterruptedException e) {
+                            displayError(e);
+                            out.println("Interrupted play toolcard of " + ownerNameOfTheView);
+                        } catch (Exception e) {
+                            displayError(e);
+                            btnPlayToolCard.setDisable(false);
+                        }
                     }
                 }
-            }
         );
     }
 
@@ -671,12 +597,9 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     public void btnEndTurnOnCLick() throws Exception {
         endingOperation();
         btnCancel.setDisable(true);
-        myController.endTurn(ownerNameOfTheView);
+        gameController.endTurn(ownerNameOfTheView);
     }
     //endregion
-
-
-
 
     public synchronized void initializeButtons(){
         Scene scene = getPrimaryStage().getScene();
@@ -777,44 +700,6 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
             }
         });
     }
-    public synchronized void showPickPattern(PatternCardDistributedEvent event) {
-        PrivateObjective privObj = null;
-        for (Player p : localCopyOfTheStatus.getPlayerList()) {
-            if (p.getName().equals(ownerNameOfTheView)) {
-                privObj = p.getPrivateObjective();
-                break;
-            }
-        }
-        Parent root = null;
-        String sceneFile = "/gui/layout/choose_pattern_layout.fxml";
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(sceneFile));
-        try {
-            root = (Parent)fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Problem loading the fxml");
-        }
-        ChosePatternController chosePatternFxController = fxmlLoader.getController();
-        chosePatternFxController.setGameController(myController);
-        chosePatternFxController.setPatternEvent(event);
-        chosePatternFxController.setPrivObj(privObj);
-        chosePatternFxController.setNick(ownerNameOfTheView);
-        Scene scene = new Scene(root);
-        chosePatternFxController.renderThings();
-        //primaryStage.setScene(scene);
-        // New window (Stage)
-        Stage newWindow = new Stage();
-        newWindow.setTitle("Chose pattern");
-        newWindow.setScene(scene);
-        chosePatternFxController.setStage(newWindow);
-
-        //Center newly created scene
-        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
-        newWindow.setX((primScreenBounds.getWidth() - primaryStage.getWidth()) / 2);
-        newWindow.setY((primScreenBounds.getHeight() - primaryStage.getHeight()) / 2);
-
-        newWindow.show();
-    }
     public synchronized void showPickToolCardIndex(String message) {
         enableOnly(ID_TOOLCARDBOX, message);
     }
@@ -849,6 +734,10 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
 
     //endregion
 
+    public void setGameController(IController gameController) {
+        this.gameController = gameController;
+    }
+
     private void displayError(Exception ex){
         //TODO: display graphical effor messagebox
         ex.printStackTrace();
@@ -864,4 +753,5 @@ public class GuiView extends UnicastRemoteObject implements IView, IEventHandler
     }
 
 }
+
 

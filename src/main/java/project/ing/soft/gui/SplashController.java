@@ -15,6 +15,7 @@ import project.ing.soft.Settings;
 import project.ing.soft.accesspoint.APProxySocket;
 import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.IController;
+import project.ing.soft.view.IView;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -97,22 +98,62 @@ public class SplashController {
                 System.out.println(s);
             accessPoint = (IAccessPoint) registry.lookup("accesspoint");
             System.out.println("1) AccessPoint reference obtained");
+            IView realView = new RealView(stage, nick);
+            System.out.println("2) view object created in BackGround");
+            IController gameController = accessPoint.connect(nick, realView);
+            System.out.println("3) controller retrieved gameID=" + gameController.getControllerSecurityCode());
+            realView.attachController(gameController);
+            System.out.println("4) controller given to the view");
         } catch (Exception ex) {
             System.out.println("x) Probably the server is down (no remote object or no registry)");
             return;
         }
-        Scene scene = createGameView(nick, accessPoint);
-        changeScene(scene);
+
     }
+
+    // OLD CONNECT RMI
+//    IAccessPoint accessPoint = null;
+//    String nick = txtName.getText();
+//        try {
+//        Registry registry = LocateRegistry.getRegistry( Settings.instance().getDefaultIpForRMI());
+//        System.out.println("Objects currently registered in the registry");
+//        String[] registryList = registry.list();
+//        for(String s : registryList)
+//            System.out.println(s);
+//        accessPoint = (IAccessPoint) registry.lookup("accesspoint");
+//        System.out.println("1) AccessPoint reference obtained");
+//    } catch (Exception ex) {
+//        System.out.println("x) Probably the server is down (no remote object or no registry)");
+//        return;
+//    }
+//    Scene scene = createGameView(nick, accessPoint);
+//    changeScene(scene);
 
     public void connectSocket(){
         IAccessPoint accessPoint = null;
         String nick = txtName.getText();
         accessPoint = new APProxySocket(Settings.instance().getHost(), Settings.instance().getPort());
         System.out.println("1) AccessPoint Proxy created and connected");
-        Scene scene = createGameView(nick, accessPoint);
-        changeScene(scene);
+        try {
+            IView realView = new RealView(stage, nick);
+            System.out.println("2) view object created in BackGround");
+            IController gameController = accessPoint.connect(nick, realView);
+            System.out.println("3) controller retrieved gameID=" + gameController.getControllerSecurityCode());
+            realView.attachController(gameController);
+            System.out.println("4) controller given to the view");
+        } catch (Exception ex) {
+            System.out.println("x) Probably the server is down");
+            return;
+        }
     }
+
+    //OLD SOCKET CONNECT
+//    IAccessPoint accessPoint = null;
+//    String nick = txtName.getText();
+//    accessPoint = new APProxySocket(Settings.instance().getHost(), Settings.instance().getPort());
+//        System.out.println("1) AccessPoint Proxy created and connected");
+//    Scene scene = createGameView(nick, accessPoint);
+//    changeScene(scene);
 
     private Scene createGameView(String nick, IAccessPoint accessPoint){
         Parent root = null;
@@ -125,7 +166,7 @@ public class SplashController {
             System.out.println("Problem loading the fxml");
             return null;
         }
-        GuiView viewFxController = fxmlLoader.getController();
+        OldGuiView viewFxController = fxmlLoader.getController();
         PrintStream out = new PrintStream(System.out);
         viewFxController.setOut(out);
         viewFxController.setStage(stage);

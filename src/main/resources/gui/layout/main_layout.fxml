@@ -14,7 +14,8 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<HBox fx:id="content" alignment="CENTER" prefHeight="768" prefWidth="1366" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="project.ing.soft.gui.OldGuiView">
+<HBox fx:id="content" alignment="CENTER" prefHeight="768" prefWidth="1366" xmlns="http://javafx.com/javafx/8.0.121"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="project.ing.soft.gui.MainLayoutController">
     <VBox fx:id="toolcardBox" alignment="CENTER" spacing="10">
         <padding><Insets bottom="25" left="25" right="25" top="25" /></padding>
         <ImageView fx:id="toolcard0" />
@@ -22,11 +23,11 @@
         <ImageView fx:id="toolcard2" />
     </VBox>
     <VBox fx:id="publicObjBox" alignment="CENTER" spacing="10">
-    <padding><Insets bottom="25" left="25" right="25" top="25" /></padding>
-    <ImageView fx:id="publicCard0" />
-    <ImageView fx:id="publicCard1" />
-    <ImageView fx:id="publicCard2" />
-</VBox>
+        <padding><Insets bottom="25" left="25" right="25" top="25" /></padding>
+        <ImageView fx:id="publicCard0" />
+        <ImageView fx:id="publicCard1" />
+        <ImageView fx:id="publicCard2" />
+    </VBox>
     <VBox alignment="CENTER">
         <Text fx:id="status" />
         <GridPane fx:id="main_actions" alignment="center" hgap="10" vgap="10">
@@ -44,9 +45,9 @@
                     <Text fx:id="instructionBox" />
                     <StackPane>
                         <ImageView fx:id="ivMatrixBG">
-                         <image>
-                            <Image url="@../matrix_bg.png" />
-                         </image>
+                            <image>
+                                <Image url="@../matrix_bg.png" />
+                            </image>
                         </ImageView>
                         <GridPane fx:id="matrix" alignment="center" hgap="10" vgap="10">
                             <padding><Insets bottom="25" left="25" right="25" top="25" /></padding>
@@ -74,19 +75,19 @@
                             <Button id="pos32" GridPane.columnIndex="2" GridPane.rowIndex="3" />
                             <Button id="pos33" GridPane.columnIndex="3" GridPane.rowIndex="3" />
                             <Button id="pos34" GridPane.columnIndex="4" GridPane.rowIndex="3" />
-                     <columnConstraints>
-                        <ColumnConstraints />
-                        <ColumnConstraints />
-                        <ColumnConstraints />
-                        <ColumnConstraints />
-                        <ColumnConstraints />
-                     </columnConstraints>
-                     <rowConstraints>
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                     </rowConstraints>
+                            <columnConstraints>
+                                <ColumnConstraints />
+                                <ColumnConstraints />
+                                <ColumnConstraints />
+                                <ColumnConstraints />
+                                <ColumnConstraints />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints />
+                                <RowConstraints />
+                                <RowConstraints />
+                                <RowConstraints />
+                            </rowConstraints>
                         </GridPane>
                     </StackPane>
                     <HBox alignment="CENTER">

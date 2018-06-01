@@ -6,9 +6,11 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -24,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class ChosePatternController {
+public class ChoosePatternController {
 
     private IController gameController;
     private String nick;
@@ -89,7 +91,7 @@ public class ChosePatternController {
             possiblePatternCard.add(event.getTwo());
             for (WindowPatternCard c : possiblePatternCard) {
                 if (c.getFrontPattern() == pattern) {
-                        gameController.choosePattern(nick, c, false);
+                    gameController.choosePattern(nick, c, false);
                     break;
                 }
                 if (c.getRearPattern() == pattern) {
@@ -138,7 +140,6 @@ public class ChosePatternController {
         btnChooseThis.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
                 chooseThis(pattern);
-                stage.close();
             }
         });
         // Create Text to show difficulty
@@ -149,27 +150,28 @@ public class ChosePatternController {
         vBox.getChildren().add(txtFavour);
         vBox.getChildren().add(btnChooseThis);
         for (int row = 0; row < Settings.instance().getMATRIX_NR_ROW(); row++) {
-            for (int col = 0; col < Settings.instance().getMATRIX_NR_ROW(); col++) {
-                Button currentCell = new Button();
+            for (int col = 0; col < Settings.instance().getMATRIX_NR_COL(); col++) {
                 Constraint constraint = pattern.getConstraintsMatrix()[row][col];
+                ImageView bg;
                 if (constraint != null && constraint.getImgPath() != "") {
                     Image image = new Image(constraint.getImgPath());
-                    ImageView bg = new ImageView(image);
+                    bg = new ImageView(image);
                     bg.setFitHeight(Settings.instance().getCELL_DIMENSION());
                     bg.setFitWidth(Settings.instance().getCELL_DIMENSION());
                     bg.setPreserveRatio(true);
                     bg.setSmooth(true);
                     bg.setCache(true);
-                    currentCell.setGraphic(bg);
                 } else {
-                    ImageView bg = new ImageView();
+                    bg = new ImageView();
                     bg.setFitHeight(Settings.instance().getCELL_DIMENSION());
                     bg.setFitWidth(Settings.instance().getCELL_DIMENSION());
-                    currentCell.setGraphic(bg);
                 }
-                if (constraint != null)
-                    currentCell.setStyle("-fx-background-color:" + Settings.instance().getMapBgColour().get(constraint.getColour()));
-                gPane.add(currentCell, col, row);
+                if (constraint != null){
+                    StackPane pane = new StackPane();
+                    pane.setStyle("-fx-background-color:" + Settings.instance().getMapBgColour().get(constraint.getColour()));
+                    gPane.add(pane, col, row);
+                }
+                gPane.add(bg, col, row);
             }
         }
     }
