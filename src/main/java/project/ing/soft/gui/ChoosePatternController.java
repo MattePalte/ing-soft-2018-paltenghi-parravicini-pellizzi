@@ -130,7 +130,7 @@ public class ChoosePatternController {
     private void populate(VBox vBox, WindowPattern pattern){
         // Create Grid for matrix of this pattern
         GridPane gPane = new GridPane();
-        gPane.setPadding(new Insets(25, 25, 25, 25));
+        gPane.setPadding(new Insets(7, 7, 7, 7));
         gPane.setVgap(10);
         gPane.setHgap(10);
         gPane.setAlignment(Pos.CENTER);

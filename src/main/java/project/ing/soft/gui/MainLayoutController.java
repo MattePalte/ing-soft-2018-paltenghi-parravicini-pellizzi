@@ -12,6 +12,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -50,6 +51,7 @@ import java.util.concurrent.Future;
 
 public class MainLayoutController extends UnicastRemoteObject implements IEventHandler, IToolCardParametersAcquirer,  Serializable{
     private IGameManager localCopyOfTheStatus;
+    private Player myPlayer;
     private String ownerNameOfTheView;
     private transient IController gameController;
     private transient String token;
@@ -170,6 +172,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         CELL_DIMENSION = SCREEN_WIDTH/23;
         SMALL_CELL_DIMENSION = CELL_DIMENSION/1.5;
 
+
         turnExecutor = Executors.newSingleThreadExecutor();
     }
 
@@ -185,6 +188,15 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     }
     public void setOwnerNameOfTheView(String ownerNameOfTheView) {
         this.ownerNameOfTheView = ownerNameOfTheView;
+    }
+    public void setLocalCopyOfTheStatus(IGameManager localCopyOfTheStatus) {
+        this.localCopyOfTheStatus = localCopyOfTheStatus;
+        for (Player p : localCopyOfTheStatus.getPlayerList()){
+            if (p.getName().equals(ownerNameOfTheView)) {
+                this.myPlayer = p;
+                break;
+            }
+        }
     }
 
     public String getOwnerNameOfTheView() {
@@ -237,6 +249,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                         } catch (InterruptedException e) {
                             displayError(e);
                             out.println("Interrupted play toolcard of " + ownerNameOfTheView);
+                            Thread.currentThread().interrupt();
                         } catch (Exception e) {
                             displayError(e);
                             btnPlayToolCard.setDisable(false);
@@ -259,6 +272,9 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
     @Override
     public void respondTo(FinishedSetupEvent event) {
+        displayPrivateObjective(getPrimaryStage().getScene());
+        displayToolCard(getPrimaryStage().getScene());
+        displayPublicCard(getPrimaryStage().getScene());
     }
 
     @Override
@@ -279,14 +295,11 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
     @Override
     public void respondTo(PatternCardDistributedEvent event) {
-
+        // implemented in real view
     }
 
     @Override
     public void respondTo(MyTurnStartedEvent event) {
-        displayPrivateObjective(getPrimaryStage().getScene());
-        displayToolCard(getPrimaryStage().getScene());
-        displayPublicCard(getPrimaryStage().getScene());
         btnPlaceDie.setDisable(false);
         btnPlayToolCard.setDisable(false);
         btnEndTurn.setDisable(false);
@@ -296,10 +309,12 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     public void respondTo(ModelChangedEvent event) {
         // new model
         localCopyOfTheStatus = event.getaGameCopy();
-        //Draw things
-        displayPrivateObjective(getPrimaryStage().getScene());
-        displayToolCard(getPrimaryStage().getScene());
-        displayPublicCard(getPrimaryStage().getScene());
+        for (Player p : localCopyOfTheStatus.getPlayerList()){
+            if (p.getName().equals(ownerNameOfTheView)) {
+                this.myPlayer = p;
+                break;
+            }
+        }
         // Draw other things
         out.println("gestione di model changed");
         drawMySituation();
@@ -474,40 +489,47 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     }
     private synchronized void displayPrivateObjective(Scene scene) {
         ImageView ivPrivateObj = (ImageView) scene.lookup("#imgPrivateObjective");
-        Image img = null;
-        for (Player p : localCopyOfTheStatus.getPlayerList()) {
-            if (p.getName().equals(ownerNameOfTheView))
-                img = new Image(p.getPrivateObjective().getImgPath());
-        }
+        Image img = new Image(myPlayer.getPrivateObjective().getImgPath());
         if (img == null) img = new Image("objectives/private/30%/objectives-12.png");
         ivPrivateObj.setImage(img);
         ivPrivateObj.setFitHeight(SCREEN_WIDTH/6);
         ivPrivateObj.setPreserveRatio(true);
         ivPrivateObj.setSmooth(true);
         ivPrivateObj.setCache(true);
+        Tooltip.install(ivPrivateObj, new Tooltip(
+                myPlayer.getPrivateObjective().getTitle() + "\n" +
+                myPlayer.getPrivateObjective().getDescription()));
     }
     private synchronized void displayToolCard(Scene scene) {
         List<ToolCard> tCard = localCopyOfTheStatus.getToolCards();
         for (int i = 0; i<3; i++) {
+            ToolCard currentTool = tCard.get(i);
             ImageView iv = (ImageView) scene.lookup("#toolcard" + i);
-            Image img = new Image(tCard.get(i).getImgPath());
+            Image img = new Image(currentTool.getImgPath());
             iv.setImage(img);
             iv.setFitHeight(SCREEN_WIDTH/6);
             iv.setPreserveRatio(true);
             iv.setSmooth(true);
             iv.setCache(true);
+            Tooltip.install(iv, new Tooltip(
+                    currentTool.getTitle() + "\n" +
+                            currentTool.getDescription()));
         }
     }
     private synchronized void displayPublicCard(Scene scene) {
         List<PublicObjective> pubCard = localCopyOfTheStatus.getPublicObjective();
         for (int i = 0; i<3; i++) {
+            PublicObjective currentPub = pubCard.get(i);
             ImageView iv = (ImageView) scene.lookup("#publicCard" + i);
-            Image img = new Image(pubCard.get(i).getImgPath());
+            Image img = new Image(currentPub.getImgPath());
             iv.setImage(img);
             iv.setFitHeight(SCREEN_WIDTH/6);
             iv.setPreserveRatio(true);
             iv.setSmooth(true);
             iv.setCache(true);
+            Tooltip.install(iv, new Tooltip(
+                    currentPub.getTitle() + "\n" +
+                            currentPub.getDescription()));
         }
     }
     //endregion
@@ -546,8 +568,8 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                             System.out.println("gameController : " + gameController);
                             gameController.placeDie(getOwnerNameOfTheView(), chosenDie, chosenCoord.getRow(), chosenCoord.getCol());
                         } catch (InterruptedException e) {
-                            displayError(e);
                             out.println( getTime() + " - " + "Interrupted place die of " + ownerNameOfTheView);
+                            Thread.currentThread().interrupt();
                         } catch (Exception e) {
                             displayError(e);
                             btnPlaceDie.setDisable(false);
@@ -579,8 +601,8 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                             chosenToolCard.fill(acquirer);
                             gameController.playToolCard(ownerNameOfTheView, chosenToolCard);
                         } catch (InterruptedException e) {
-                            displayError(e);
                             out.println("Interrupted play toolcard of " + ownerNameOfTheView);
+                            Thread.currentThread().interrupt();
                         } catch (Exception e) {
                             displayError(e);
                             btnPlayToolCard.setDisable(false);
@@ -604,6 +626,9 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         endingOperation();
         btnCancel.setDisable(true);
         gameController.endTurn(ownerNameOfTheView);
+        synchronized (this) {
+            instructionBox.setText("");
+        }
     }
     //endregion
 

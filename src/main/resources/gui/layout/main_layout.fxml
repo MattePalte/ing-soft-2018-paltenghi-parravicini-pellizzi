@@ -18,15 +18,27 @@
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="project.ing.soft.gui.MainLayoutController">
     <VBox fx:id="toolcardBox" alignment="CENTER" spacing="10">
         <padding><Insets bottom="25" left="25" right="25" top="25" /></padding>
-        <ImageView fx:id="toolcard0" />
-        <ImageView fx:id="toolcard1" />
-        <ImageView fx:id="toolcard2" />
+        <VBox styleClass="toolBackground" alignment="CENTER">
+            <ImageView fx:id="toolcard0" />
+        </VBox>
+        <VBox styleClass="toolBackground" alignment="CENTER">
+            <ImageView fx:id="toolcard1" />
+        </VBox>
+        <VBox styleClass="toolBackground" alignment="CENTER">
+            <ImageView fx:id="toolcard2" />
+        </VBox>
     </VBox>
     <VBox fx:id="publicObjBox" alignment="CENTER" spacing="10">
         <padding><Insets bottom="25" left="25" right="25" top="25" /></padding>
-        <ImageView fx:id="publicCard0" />
-        <ImageView fx:id="publicCard1" />
-        <ImageView fx:id="publicCard2" />
+        <VBox styleClass="objBackground" alignment="CENTER">
+            <ImageView fx:id="publicCard0" />
+        </VBox>
+        <VBox styleClass="objBackground" alignment="CENTER">
+            <ImageView fx:id="publicCard1" />
+        </VBox>
+        <VBox styleClass="objBackground" alignment="CENTER">
+            <ImageView fx:id="publicCard2" />
+        </VBox>
     </VBox>
     <VBox alignment="CENTER">
         <Text fx:id="status" />
@@ -42,10 +54,13 @@
         <VBox fx:id="currentPlayerInfo" alignment="CENTER">
             <HBox alignment="CENTER">
                 <VBox fx:id="currentPlayerSituation" alignment="CENTER">
-                    <Text fx:id="instructionBox" />
+                    <padding><Insets bottom="25" left="25" right="25" top="25" /></padding>
+                    <VBox alignment="CENTER" styleClass="instructionBox">
+                        <Text fx:id="instructionBox"/>
+                    </VBox>
                     <StackPane>
                         <GridPane fx:id="matrix" alignment="center" hgap="10" vgap="10">
-                            <padding><Insets bottom="25" left="25" right="25" top="25" /></padding>
+                            <padding><Insets bottom="10" left="10" right="10" top="10" /></padding>
 
                             <Button id="pos00" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                             <Button id="pos01" GridPane.columnIndex="1" GridPane.rowIndex="0" />
@@ -90,7 +105,7 @@
                         <TextField fx:id="favourField" disable="true" />
                     </HBox>
                 </VBox>
-                <VBox alignment="CENTER">
+                <VBox alignment="CENTER" styleClass="objBackground">
                     <ImageView fx:id="imgPrivateObjective" pickOnBounds="true" preserveRatio="true">
                     </ImageView>
                 </VBox>
@@ -104,7 +119,7 @@
             <padding><Insets bottom="25" left="25" right="25" top="25" /></padding>
         </GridPane>
     </VBox>
-
+    <VBox fx:id="otherPlayersArea" alignment="CENTER" spacing="10"/>
 
     <stylesheets>
         <URL value="@../style.css" />

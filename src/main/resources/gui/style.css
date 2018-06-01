@@ -4,6 +4,61 @@
 .big_title {
     -fx-font-size: 50px;
 }
+.patternBackground{
+    -fx-background-color: #a0a0a0;
+    -fx-padding: 10 2 10 2;
+    -fx-background-radius: 30;
+    -fx-border-radius: 30;
+    -fx-border-width:5;
+    -fx-border-color: #424242;
+}
+
+.objBackground{
+    -fx-background-color: #a0a0a0;
+    -fx-padding: 7 7 7 7;
+    -fx-border-width:5;
+    -fx-border-color: #424242;
+}
+
+.instructionBox{
+    -fx-background-color: #fff5bf;
+    -fx-padding: 10 10 10 10;
+    -fx-border-width:5;
+    -fx-border-color: #e9252;
+    -fx-font-size: 20px;
+    -fx-font-fill: #e9252;
+    -fx-font-family: cursive;
+}
+
+.toolBackground{
+    -fx-background-color: #fff5bf;
+    -fx-padding: 7 7 7 7;
+    -fx-border-width:5;
+    -fx-border-color: #9e9252;
+}
+
+.tooltip {
+    -fx-background: rgba(30,30,30);
+    -fx-text-fill: white;
+    -fx-background-color: rgba(30,30,30,0.8);
+    -fx-background-radius: 6px;
+    -fx-background-insets: 0;
+    -fx-padding: 0.667em 0.75em 0.667em 0.75em; /* 10px */
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.5) , 10, 0.0 , 0 , 3 );
+    -fx-font-size: 0.85em;
+}
+
+.PaneBackGround {
+    -fx-background-image: url("lincoln-wide.jpg");
+    -fx-background-repeat: no-repeat no-repeat;
+    -fx-background-size:cover;
+    -fx-background-position: center;
+}
+.button {
+    -fx-text-fill: #fff;
+    -fx-background-color: #4f4f4f;
+    -fx-font-size: 15px;
+}
 
 #content {
     -fx-background-color: #c4c4c4;

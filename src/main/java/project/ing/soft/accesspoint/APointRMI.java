@@ -6,7 +6,6 @@ import project.ing.soft.controller.IController;
 import project.ing.soft.rmi.ViewProxyOverRmi;
 import project.ing.soft.view.IView;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
