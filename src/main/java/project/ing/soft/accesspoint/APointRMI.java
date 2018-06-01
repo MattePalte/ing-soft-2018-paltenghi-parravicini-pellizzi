@@ -77,7 +77,6 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
         //it would be nice to test for activity of the thread of rmi registry.
         rmiRegistryProcess.isAlive();
         Registry registry = LocateRegistry.getRegistry();
-
         // Unbinding old ap from registry
         for(String s : registry.list()){
             try {

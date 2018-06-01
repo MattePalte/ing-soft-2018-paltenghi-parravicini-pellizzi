@@ -140,6 +140,7 @@ public class ChoosePatternController {
         btnChooseThis.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
                 chooseThis(pattern);
+                disableOtherButtons();
             }
         });
         // Create Text to show difficulty
@@ -174,6 +175,13 @@ public class ChoosePatternController {
                 gPane.add(bg, col, row);
             }
         }
+    }
+
+    private void disableOtherButtons(){
+        frontFirst.setDisable(true);
+        rearFirst.setDisable(true);
+        frontSecond.setDisable(true);
+        rearSecond.setDisable(true);
     }
 
 

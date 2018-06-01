@@ -155,7 +155,7 @@ public class SplashController {
 //    Scene scene = createGameView(nick, accessPoint);
 //    changeScene(scene);
 
-    private Scene createGameView(String nick, IAccessPoint accessPoint){
+    /*private Scene createGameView(String nick, IAccessPoint accessPoint){
         Parent root = null;
         String sceneFile = "/gui/layout/gui_view_layout.fxml";
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(sceneFile));
@@ -179,14 +179,14 @@ public class SplashController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        /*FadeTransition ft = new FadeTransition(Duration.millis(3000), root);
+        *//*FadeTransition ft = new FadeTransition(Duration.millis(3000), root);
         ft.setFromValue(0.0);
         ft.setToValue(1.0);
-        ft.play();*/
+        ft.play();*//*
         return new Scene(root);
-    }
+    }*/
 
-    private void changeScene(Scene scene) {
+    /*private void changeScene(Scene scene) {
         stage.setScene(scene);
         System.out.println("4) Scene created and started");
         stage.setResizable(true);
@@ -195,7 +195,7 @@ public class SplashController {
         stage.setX((primScreenBounds.getWidth() - stage.getWidth()) / 2);
         stage.setY((primScreenBounds.getHeight() - stage.getHeight()) / 2);
         //stage.setMaximized(true);
-    }
+    }*/
 
 }
 

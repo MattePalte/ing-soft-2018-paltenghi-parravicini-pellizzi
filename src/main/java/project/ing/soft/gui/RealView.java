@@ -3,9 +3,11 @@ package project.ing.soft.gui;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import project.ing.soft.controller.IController;
 import project.ing.soft.model.Player;
@@ -77,12 +79,18 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
 
     @Override
     public void respondTo(CurrentPlayerChangedEvent event) {
-        if (mainBoard != null) mainBoard.respondTo(event);
+        if (mainBoard != null) {
+            mainBoard.respondTo(event);
+            return;
+        }
     }
 
     @Override
     public void respondTo(FinishedSetupEvent event) {
-        if (mainBoard != null) mainBoard.respondTo(event);
+        if (mainBoard != null) {
+            mainBoard.respondTo(event);
+            return;
+        }
         Parent root = null;
         String sceneFile = "/gui/layout/main_layout.fxml";
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(sceneFile));
@@ -102,12 +110,18 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         stage.setScene(scene);
         stage.setResizable(true);
         stage.setMaximized(true);
+        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
+        stage.setX((primScreenBounds.getWidth() - stage.getWidth()) / 2);
+        stage.setY((primScreenBounds.getHeight() - stage.getHeight()) / 2);
         stage.show();
     }
 
     @Override
     public void respondTo(GameFinishedEvent event) {
-        if (mainBoard != null) mainBoard.respondTo(event);
+        if (mainBoard != null) {
+            mainBoard.respondTo(event);
+            return;
+        }
     }
 
     @Override
@@ -132,17 +146,26 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
 
         stage.setTitle("Choose Pattern Card");
         stage.setScene(scene);
+        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
+        stage.setX((primScreenBounds.getWidth() - stage.getWidth()) / 2);
+        stage.setY((primScreenBounds.getHeight() - stage.getHeight()) / 2);
         stage.show();
     }
 
     @Override
     public void respondTo(MyTurnStartedEvent event) {
-        if (mainBoard != null) mainBoard.respondTo(event);
+        if (mainBoard != null) {
+            mainBoard.respondTo(event);
+            return;
+        }
     }
 
     @Override
     public void respondTo(ModelChangedEvent event) {
-        if (mainBoard != null) mainBoard.respondTo(event);
+        if (mainBoard != null) {
+            mainBoard.respondTo(event);
+            return;
+        }
         this.localCopyOfTheStatus = event.getaGameCopy();
         for (Player p : localCopyOfTheStatus.getPlayerList()){
             if (p.getName().equals(ownerNameOfTheView)) {
@@ -154,12 +177,18 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
 
     @Override
     public void respondTo(MyTurnEndedEvent event) {
-        if (mainBoard != null) mainBoard.respondTo(event);
+        if (mainBoard != null) {
+            mainBoard.respondTo(event);
+            return;
+        }
     }
 
     @Override
     public void respondTo(ToolcardActionRequestEvent event) {
-        if (mainBoard != null) mainBoard.respondTo(event);
+        if (mainBoard != null) {
+            mainBoard.respondTo(event);
+            return;
+        }
     }
 
     @Override

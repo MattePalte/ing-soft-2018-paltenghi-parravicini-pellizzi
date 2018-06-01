@@ -294,7 +294,13 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
     @Override
     public void respondTo(ModelChangedEvent event) {
+        // new model
         localCopyOfTheStatus = event.getaGameCopy();
+        //Draw things
+        displayPrivateObjective(getPrimaryStage().getScene());
+        displayToolCard(getPrimaryStage().getScene());
+        displayPublicCard(getPrimaryStage().getScene());
+        // Draw other things
         out.println("gestione di model changed");
         drawMySituation();
         drawDraftPool();

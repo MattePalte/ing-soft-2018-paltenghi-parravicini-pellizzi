@@ -44,11 +44,6 @@
                 <VBox fx:id="currentPlayerSituation" alignment="CENTER">
                     <Text fx:id="instructionBox" />
                     <StackPane>
-                        <ImageView fx:id="ivMatrixBG">
-                            <image>
-                                <Image url="@../matrix_bg.png" />
-                            </image>
-                        </ImageView>
                         <GridPane fx:id="matrix" alignment="center" hgap="10" vgap="10">
                             <padding><Insets bottom="25" left="25" right="25" top="25" /></padding>
 
