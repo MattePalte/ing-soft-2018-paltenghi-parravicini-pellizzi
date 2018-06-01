@@ -1,0 +1,38 @@
+title Access Point Communication RMI
+
+participant Server #violet
+participant GameController #violet
+participant AccessPointReal #violet
+participant ViewProxyOverRMI #violet
+participant APointRmi #violet
+participant Registry #violet
+
+Server->*AccessPointReal: new
+AccessPointReal->*APointRmi: new 
+APointRmi->Registry: bind("ap", this)
+participant Client #lightgreen
+participant View #lightgreen
+
+Client->Registry: lookup("ap")
+Registry-->Client: APointRMI
+Client->*View: new
+Client->APointRmi: connect(n, view)
+activate APointRmi #violet
+APointRmi->*ViewProxyOverRMI: new
+APointRmi->AccessPointReal: connect(n, viewP)
+activate AccessPointReal #violet
+opt #violet no match available
+AccessPointReal->*GameController: new
+end 
+AccessPointReal->GameController: joinTheGame(n, pView)
+AccessPointReal->ViewProxyOverRMI: attachController(c)
+AccessPointReal->ViewProxyOverRMI: update(token)
+AccessPointReal-->APointRmi:gameController
+deactivate AccessPointReal
+APointRmi-->Client: gameController
+ViewProxyOverRMI<-APointRmi:start
+activate ViewProxyOverRMI #violet
+Client->View: attachController(c)
+
+
+ViewProxyOverRMI-->View:eventToken

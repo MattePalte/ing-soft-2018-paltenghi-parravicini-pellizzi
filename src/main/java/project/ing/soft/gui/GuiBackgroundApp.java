@@ -15,12 +15,10 @@ public class GuiBackgroundApp extends Application {
     @Override
     public void start(Stage stage) {
         Parent root = null;
-        //String sceneFile = "/gui/layout/gui_view_layout.fxml";
         String sceneFile = "/gui/layout/spalsh_layout.fxml";
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(sceneFile));
         try {
             root = (Parent)fxmlLoader.load();
-            //root = FXMLLoader.load(getClass().getResource(sceneFile));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -28,7 +26,6 @@ public class GuiBackgroundApp extends Application {
         Scene scene = new Scene(root);
         SplashController splashFxController = fxmlLoader.getController();
         splashFxController.setStage(stage);
-        //splashFxController.collectDimension(scene);
 
         stage.setTitle("Sagrada - GUI");
         stage.setScene(scene);

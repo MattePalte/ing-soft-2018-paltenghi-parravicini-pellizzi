@@ -11,20 +11,20 @@
 <?import javafx.scene.control.Button?>
 <VBox alignment="CENTER" prefHeight="422.0" prefWidth="1366.0"
       xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="project.ing.soft.gui.ChosePatternController">
+      fx:controller="project.ing.soft.gui.ChoosePatternController">
 
 
-        <Text fill="WHITE" stroke="BLACK" strokeLineCap="ROUND" strokeType="OUTSIDE" styleClass="big_title" fx:id="txtTitle" />
-        <HBox alignment="CENTER" spacing="25">
-            <VBox fx:id="frontFirst" alignment="CENTER"/>
-            <VBox fx:id="rearFirst"  alignment="CENTER"/>
+    <Text fill="WHITE" stroke="BLACK" strokeLineCap="ROUND" strokeType="OUTSIDE" styleClass="big_title" fx:id="txtTitle" />
+    <HBox alignment="CENTER" spacing="25">
+        <VBox fx:id="frontFirst" alignment="CENTER"/>
+        <VBox fx:id="rearFirst"  alignment="CENTER"/>
 
-            <ImageView fx:id="imgPrivateObjective" />
+        <ImageView fx:id="imgPrivateObjective" />
 
-            <VBox fx:id="frontSecond"  alignment="CENTER"/>
-            <VBox fx:id="rearSecond"  alignment="CENTER"/>
+        <VBox fx:id="frontSecond"  alignment="CENTER"/>
+        <VBox fx:id="rearSecond"  alignment="CENTER"/>
 
-        </HBox>
+    </HBox>
     <stylesheets>
         <URL value="@../style.css" />
     </stylesheets>

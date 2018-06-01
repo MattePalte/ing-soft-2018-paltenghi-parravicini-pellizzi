@@ -1,0 +1,49 @@
+title Access Point Socket
+
+participant Server #violet
+participant SocketListener #violet
+participant GameController #violet
+participant AccessPointReal #violet
+participant ViewProxyOverSocket #violet
+participant APointSocket #violet
+
+Server->*AccessPointReal: new
+Server->*SocketListener: new 
+
+participant APProxySocket #lightgreen
+participant ControllerProxy #lightgreen
+participant Client #lightgreen
+participant View #lightgreen
+Client->*View:new
+Client->*APProxySocket: new
+APProxySocket->SocketListener: Socket.connect()
+SocketListener->*APointSocket: accept()
+Client->APProxySocket: connect(n, view)
+activate APProxySocket #lightgreen
+APProxySocket-->APointSocket: request[n, view]
+activate APointSocket #violet
+APointSocket->*ViewProxyOverSocket: new
+APointSocket->AccessPointReal: connect(n, viewP)
+activate AccessPointReal #violet
+opt #violet no match available
+AccessPointReal->*GameController: new
+end 
+AccessPointReal->GameController: joinTheGame(n, pView)
+AccessPointReal->ViewProxyOverSocket: attachController(c)
+AccessPointReal->ViewProxyOverSocket: update(token)
+AccessPointReal-->APointSocket:gameController
+deactivate AccessPointReal
+APointSocket-->APProxySocket: responseOK
+deactivate APointSocket
+APProxySocket->*ControllerProxy: new(Socket)
+APProxySocket->ControllerProxy: start
+activate ControllerProxy  #lightgreen
+APointSocket<--APProxySocket:proxyReady
+activate APointSocket  #violet
+ViewProxyOverSocket<-APointSocket:start
+deactivate APointSocket
+activate ViewProxyOverSocket #violet
+APProxySocket-->Client:ControllerProxy
+deactivate APProxySocket
+Client->View: attachController(controllerProxy)
+ViewProxyOverSocket-->ControllerProxy:eventToken
