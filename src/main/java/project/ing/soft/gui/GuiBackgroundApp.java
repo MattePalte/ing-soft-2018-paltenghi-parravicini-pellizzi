@@ -10,10 +10,8 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
-import project.ing.soft.Settings;
 
 import java.io.IOException;
-import java.io.PrintStream;
 
 /**
  * Main class of the GUI. It extends Application class of JavaFX
@@ -54,7 +52,7 @@ public class GuiBackgroundApp extends Application {
         stage.show();
 
         // Listener to handle closing of the window and all related thread
-        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+        stage.setOnCloseRequest(new EventHandler<>() {
             @Override
             public void handle(WindowEvent e) {
                 Platform.exit();

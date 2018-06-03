@@ -5,9 +5,7 @@ import project.ing.soft.accesspoint.APProxySocket;
 import project.ing.soft.exceptions.NickNameAlreadyTakenException;
 import project.ing.soft.view.LocalViewCli;
 
-import java.io.IOException;
 import java.util.Scanner;
-import java.util.logging.Level;
 
 
 public class ClientExample extends Thread{

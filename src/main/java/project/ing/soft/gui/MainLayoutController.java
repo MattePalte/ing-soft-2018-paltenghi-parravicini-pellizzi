@@ -44,7 +44,6 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -430,8 +429,9 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
             paneDraft.add(currentCell, pos,0);
             currentCell.setGraphic(bg);
             currentCell.setStyle(FX_BACKGROUND + WHITE);
-            currentCell.setOnAction(new EventHandler<ActionEvent>() {
-                @Override public void handle(ActionEvent e) {
+            currentCell.setOnAction(new EventHandler<>() {
+                @Override
+                public void handle(ActionEvent e) {
                     disableAll();
                     collectDie(new Die(currentDie));
                 }
@@ -448,10 +448,11 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
             pane.add(currentCell, pos,0);
             currentCell.setStyle(FX_BACKGROUND + WHITE);
             currentCell.setText(Integer.toString(currentValue));
-            currentCell.setOnAction(new EventHandler<ActionEvent>() {
-                @Override public void handle(ActionEvent e) {
+            currentCell.setOnAction(new EventHandler<>() {
+                @Override
+                public void handle(ActionEvent e) {
                     disableAll();
-                    Stage currentStage = (Stage) ((Node)e.getSource()).getScene().getWindow();
+                    Stage currentStage = (Stage) ((Node) e.getSource()).getScene().getWindow();
                     currentStage.close();
                     collectValue(currentValue);
                 }
@@ -479,8 +480,9 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
             paneRoundTracker.add(currentCell, pos, row);
             currentCell.setGraphic(bg);
             currentCell.setStyle(FX_BACKGROUND + WHITE);
-            currentCell.setOnAction(new EventHandler<ActionEvent>() {
-                @Override public void handle(ActionEvent e) {
+            currentCell.setOnAction(new EventHandler<>() {
+                @Override
+                public void handle(ActionEvent e) {
                     disableAll();
                     collectDie(new Die(currentDie));
                 }
@@ -539,7 +541,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     private String getTime() {
         Calendar c = Calendar.getInstance(); //automatically set to current time
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-        return dateFormat.format(c.getTime()).toString();
+        return dateFormat.format(c.getTime());
     }
     //endregion
 
@@ -640,8 +642,9 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                 Button currentCell = (Button) scene.lookup("#pos" + row + col);
                 int finalRow = row;
                 int finalCol = col;
-                currentCell.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override public void handle(ActionEvent e) {
+                currentCell.setOnAction(new EventHandler<>() {
+                    @Override
+                    public void handle(ActionEvent e) {
                         disableAll();
                         collectCoordinate(new Coordinate(finalRow, finalCol));
                     }
@@ -652,7 +655,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         for(int index = 0; index < NR_TOOLCARD; index++) {
             ImageView imageView = (ImageView) scene.lookup("#toolcard" + index);
             int finalIndex = index;
-            imageView.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            imageView.setOnMouseClicked(new EventHandler<>() {
                 @Override
                 public void handle(MouseEvent event) {
                     disableAll();

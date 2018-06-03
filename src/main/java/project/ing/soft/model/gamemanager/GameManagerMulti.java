@@ -14,13 +14,11 @@ import javafx.util.Pair;
 import project.ing.soft.model.cards.Card;
 import project.ing.soft.model.cards.WindowPatternCard;
 
-import project.ing.soft.model.gamemanager.events.Event;
 import project.ing.soft.view.IView;
 
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.List;
 import java.util.function.ToIntFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;

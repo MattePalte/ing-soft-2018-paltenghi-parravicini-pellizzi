@@ -11,19 +11,16 @@ import project.ing.soft.model.cards.toolcards.*;
 import project.ing.soft.model.gamemanager.GameManagerMulti;
 import project.ing.soft.model.gamemanager.IGameManager;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class ToolCardTest {
     private Player playerStub;
     private IGameManager gameManagerStub;
     private ArrayList<Die> draftPoolStub;
+    private ArrayList<Die> diceBagStub;
     private WindowPattern playerPatternStub;
     private RoundTracker roundTrackerStub;
     private ArrayList<Player> playerListStub;
@@ -36,13 +33,14 @@ public class ToolCardTest {
     public void testSetup(){
         playerStub = mock(Player.class);
         gameManagerStub = mock(GameManagerMulti.class);
-        draftPoolStub = new ArrayList<Die>();
+        diceBagStub = new ArrayList<>();
+        draftPoolStub = new ArrayList<>();
         playerPatternStub = mock(WindowPattern.class);
         placedDiceStub = new Die[4][5];
         roundTrackerStub = mock(RoundTracker.class);
-        playerListStub = new ArrayList<Player>();
-        turnListStub = new ArrayList<Player>();
-        diceLeftStub = new ArrayList<Die>();
+        playerListStub = new ArrayList<>();
+        turnListStub = new ArrayList<>();
+        diceLeftStub = new ArrayList<>();
         rndGen = new Random();
         for(int i = 0; i < 5; i++){
             draftPoolStub.add(new Die(Colour.WHITE));
@@ -81,6 +79,14 @@ public class ToolCardTest {
             draftPoolStub.remove(invocation.getArgument(0));
             return null;
         }).when(gameManagerStub).removeFromDraft(any(Die.class));
+
+        doAnswer((invocation) ->
+             diceBagStub.remove(new Random().nextInt(diceBagStub.size())).rollDie()
+        ).when(gameManagerStub).drawFromDicebag();
+
+        doAnswer((invocation) ->
+                diceBagStub.add(invocation.getArgument(0))
+        ).when(gameManagerStub).addToDicebag(any(Die.class));
 
         doAnswer((invocation) -> {
             diceLeftStub.remove(invocation.getArgument(1));
@@ -134,7 +140,7 @@ public class ToolCardTest {
                 else
                     throw new Exception("There are dice around here");
                 return true;
-            }).when(playerStub).placeDie(any(Die.class), any(int.class), any(int.class), eq(false));
+            }).when(playerStub).placeDie(any(Die.class), any(int.class), any(int.class), anyBoolean());
         } catch (PositionOccupiedException |PatternConstraintViolatedException | RuleViolatedException e) {
             e.printStackTrace();
         }
@@ -298,7 +304,7 @@ public class ToolCardTest {
             e.printStackTrace();
         }
         if(!randomStartCoord.equals(randomEndCoord))
-            Assert.assertEquals(null, placedDiceStub[randomStartCoord.getRow()][randomStartCoord.getCol()]);
+            Assert.assertNull(placedDiceStub[randomStartCoord.getRow()][randomStartCoord.getCol()]);
         Assert.assertEquals(movedDie, placedDiceStub[randomEndCoord.getRow()][randomEndCoord.getCol()]);
     }
 
@@ -326,7 +332,7 @@ public class ToolCardTest {
             e.printStackTrace();
         }
         if(!randomStartCoord.equals(randomEndCoord))
-            Assert.assertEquals(null, placedDiceStub[randomStartCoord.getRow()][randomStartCoord.getCol()]);
+            Assert.assertNull(placedDiceStub[randomStartCoord.getRow()][randomStartCoord.getCol()]);
         Assert.assertEquals(movedDie, placedDiceStub[randomEndCoord.getRow()][randomEndCoord.getCol()]);
     }
 
@@ -407,7 +413,104 @@ public class ToolCardTest {
         Assert.assertTrue(draftPoolStub.contains(fromRoundTracker));
     }
 
-    // TODO: test for pennello per pasta salda
+    @Test
+    public void diluentePerPastaSalda() throws UserInterruptActionException, InterruptedException {
+
+        DiluentePerPastaSalda tested = new DiluentePerPastaSalda();
+        //first part has to choose a die from DraftPool
+        Die dieToBeChosenForRolling = new Die(Colour.validColours().get(new Random().nextInt(Colour.validColours().size()))).rollDie();
+        ArrayList<Colour> remaining = new ArrayList<>(Colour.validColours());
+        remaining.remove(dieToBeChosenForRolling.getColour());
+
+        Die diceBagDie = new Die(remaining.get(new Random().nextInt(remaining.size()))).rollDie();
+        draftPoolStub.add(dieToBeChosenForRolling);
+        diceBagStub = new ArrayList<>(List.of(diceBagDie));
+
+        IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
+
+        when(param.getDieFromDraft(anyString()))
+                .then( (args)-> dieToBeChosenForRolling);
+
+        try {
+            tested.fill(param);
+            tested.play(playerStub, gameManagerStub);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //nella dicebag c'è solo un dado. estraendo dalla dicebag è uscito uno tra i due dadi a disposizione
+        //Nella diceBag è finito uno dei due dadi . Siccome i valori potrebbero cambiare nella draftpool testo i colori
+        Assert.assertTrue(diceBagStub.stream().anyMatch( aDie-> aDie.getColour() == diceBagDie.getColour()) ||
+                                    diceBagStub.stream().anyMatch( aDie-> aDie.getColour() == dieToBeChosenForRolling.getColour()));
+        //Nella draftpool è finito uno dei due dadi
+        Assert.assertTrue(diceBagStub.stream().anyMatch( aDie-> List.of(dieToBeChosenForRolling.getColour(),diceBagDie.getColour()).contains(aDie.getColour())));
+        Assert.assertTrue(draftPoolStub.stream().anyMatch( aDie-> List.of(dieToBeChosenForRolling.getColour(),diceBagDie.getColour()).contains(aDie.getColour())));
+        Assert.assertTrue( (   diceBagStub.stream().anyMatch( aDie-> aDie.getColour() == diceBagDie.getColour()) &&
+                                        ( draftPoolStub.stream().anyMatch( aDie-> aDie.getColour() == dieToBeChosenForRolling.getColour()))
+                                    )||( diceBagStub.stream().anyMatch( aDie-> aDie.getColour() == dieToBeChosenForRolling.getColour()) &&
+                                         draftPoolStub.stream().anyMatch( aDie-> aDie.getColour() == diceBagDie.getColour())
+                                        ));
+
+        boolean extractSameDie = draftPoolStub.stream().anyMatch( aDie-> aDie.getColour() == dieToBeChosenForRolling.getColour());
+
+        param = mock(IToolCardParametersAcquirer.class);
+        when(param.getValue(anyString(), anyInt(), anyInt() , anyInt(), anyInt(),anyInt(), anyInt()))
+                .then( (args)-> 6);
+        when(param.getCoordinate(anyString()))
+                .then( (args)-> new Coordinate(0,0));
+
+        try {
+            tested.fill(param);
+            tested.play(playerStub, gameManagerStub);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Assert.assertTrue( extractSameDie ? placedDiceStub[0][0].equals(new Die(6,dieToBeChosenForRolling.getColour())) :
+                                            placedDiceStub[0][0].equals(new Die(6,diceBagDie.getColour()))
+        );
+    }
+
+
+    @Test
+    public void PennelloPerPastaSalda() throws UserInterruptActionException, InterruptedException {
+
+        PennelloPastaSalda tested = new PennelloPastaSalda();
+        //first part has to choose a die from DraftPool
+        Die dieToBeChosenForRolling = new Die(Colour.validColours().get(new Random().nextInt(Colour.validColours().size()))).rollDie();
+
+        draftPoolStub.add(dieToBeChosenForRolling);
+
+
+        IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
+
+        when(param.getDieFromDraft(anyString()))
+                .then( (args)-> dieToBeChosenForRolling);
+
+        try {
+            tested.fill(param);
+            tested.play(playerStub, gameManagerStub);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //nella DraftPool deve esserci un dado del medesimo colore
+        Assert.assertTrue(draftPoolStub.stream().anyMatch( aDie-> aDie.getColour() == dieToBeChosenForRolling.getColour()));
+        Die aRolledDie = draftPoolStub.stream().filter( aDie-> aDie.getColour() == dieToBeChosenForRolling.getColour()).findFirst().orElse(null);
+        //nella seconda parte della toolcard scelgo un posto dove piazzarlo
+        param = mock(IToolCardParametersAcquirer.class);
+
+        when(param.getCoordinate(anyString()))
+                .then( (args)-> new Coordinate(0,0));
+
+        try {
+            tested.fill(param);
+            tested.play(playerStub, gameManagerStub);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Assert.assertEquals(  placedDiceStub[0][0],aRolledDie);
+
+    }
+
+
 
     @Test
     public void martellettoTest(){
@@ -583,8 +686,8 @@ public class ToolCardTest {
         }
         Assert.assertTrue(draftPoolStub.contains(flipped));
         Assert.assertFalse(draftPoolStub.contains(toFlip));
-        Assert.assertTrue(flipped.getValue() == 7 - toFlip.getValue());
-        Assert.assertTrue(flipped.getColour().equals(toFlip.getColour()));
+        Assert.assertEquals(flipped.getValue(), 7 - toFlip.getValue());
+        Assert.assertEquals(flipped.getColour(), toFlip.getColour());
     }
 
     @Test
@@ -655,7 +758,7 @@ public class ToolCardTest {
             ret.add(placedDiceStub[row][col + 1]);
         if(col - 1 >= 0)
             ret.add(placedDiceStub[row][col - 1]);
-        return ret.stream().filter(die -> die != null).collect(Collectors.toCollection(ArrayList::new));
+        return ret.stream().filter(Objects::nonNull).collect(Collectors.toCollection(ArrayList::new));
     }
 
     private ArrayList<Die> getRandomDice(int diceNumber){

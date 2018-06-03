@@ -15,8 +15,6 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.stream.Collectors;
 
-import static java.lang.Thread.sleep;
-
 public class LaunchServer {
 
     private final HashMap<String, GameController> hostedGames;
@@ -25,10 +23,10 @@ public class LaunchServer {
     private final PrintStream out;
     private final Scanner in;
     private final Map<String, Runnable> commands ;
-    private SocketListener SocketListener;
+    private SocketListener socketListener;
     private  APointRMI uniqueRmiAP;
 
-    public LaunchServer() {
+    private LaunchServer() {
         hostedGames = new HashMap<>();
         playersInGame = new HashMap<>();
 
@@ -89,11 +87,16 @@ public class LaunchServer {
     }
 
     private void quit(){
-        SocketListener.interrupt();
+        socketListener.interrupt();
         try {
             APointRMI.unbind(uniqueRmiAP);
         } catch (RemoteException|NotBoundException e) {
-            out.println(e);
+            e.printStackTrace(out);
+        }
+        try {
+            APointRMI.stopRegistry();
+        } catch (RemoteException e) {
+            e.printStackTrace(out);
         }
     }
 
@@ -102,13 +105,13 @@ public class LaunchServer {
         AccessPointReal accessPointReal = new AccessPointReal(hostedGames,playersInGame);
 
         // Create AccessPoint for Socket and start its socket listener
-        SocketListener = new SocketListener(Settings.instance().getPort(), accessPointReal);
-        SocketListener.start();
+        socketListener = new SocketListener(Settings.instance().getPort(), accessPointReal);
+        socketListener.start();
         // Create AccessPoint for RMI and start it
         try {
             uniqueRmiAP = new APointRMI(accessPointReal);
             APointRMI.bind(uniqueRmiAP);
-        } catch (IOException | InterruptedException e ) {
+        } catch (IOException e ) {
             e.printStackTrace(out);
         }
 
@@ -120,8 +123,11 @@ public class LaunchServer {
             }
             cmd = in.nextLine();
             // Invoke some command
-            commands.get(cmd).run();
-
+            try {
+                commands.get(cmd).run();
+            }catch (Exception ex){
+                ex.printStackTrace(out);
+            }
 
         } while (!cmd.startsWith("quit"));
 
@@ -155,20 +161,25 @@ public class LaunchServer {
         return ret;
     }
 
-    private Object chooseFrom(List objs) throws UserInterruptActionException {
-        return objs.get(chooseIndexFrom(objs));
+    private Object chooseFrom(List objects) throws UserInterruptActionException {
+        return objects.get(chooseIndexFrom(objects));
     }
 
-    private int chooseIndexFrom(List objs) throws UserInterruptActionException {
+    private int chooseIndexFrom(List objects) throws UserInterruptActionException {
 
-        out.println(String.format("Enter a number between 0 and %d to select:", objs.size()-1));
-        for (int i = 0; i < objs.size() ; i++) {
-            out.println(String.format("[%d] for %s", i, objs.get(i).toString()));
+        out.println(String.format("Enter a number between 0 and %d to select:", objects.size()-1));
+        for (int i = 0; i < objects.size() ; i++) {
+            out.println(String.format("[%d] for %s", i, objects.get(i).toString()));
         }
-        return waitForUserInput(0, objs.size()-1);
+        return waitForUserInput(0, objects.size()-1);
 
     }
     //endregion
+
+    /**
+     * Launch Server class is responsible for handling construction/destruction of the server
+     * @param args
+     */
     public static void main(String[] args) {
         LaunchServer ls = new LaunchServer();
         ls.run();

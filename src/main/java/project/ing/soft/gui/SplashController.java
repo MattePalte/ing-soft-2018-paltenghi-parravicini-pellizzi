@@ -1,15 +1,11 @@
 package project.ing.soft.gui;
 
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 import project.ing.soft.Settings;
 import project.ing.soft.accesspoint.APProxySocket;
@@ -17,8 +13,6 @@ import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.IController;
 import project.ing.soft.view.IView;
 
-import java.io.IOException;
-import java.io.PrintStream;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 

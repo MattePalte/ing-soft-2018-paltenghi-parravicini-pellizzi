@@ -18,7 +18,7 @@ public class DiceTest {
 
     @Test
     public void Rolling90Test(){
-        ArrayList<Die> diceBag = new ArrayList<Die>();
+        ArrayList<Die> diceBag = new ArrayList<>();
         for (Colour c : Colour.validColours()){
             Die newDie = new Die(c);
             for(int i = 1; i <= 18; i++){

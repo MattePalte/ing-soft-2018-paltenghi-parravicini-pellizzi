@@ -160,7 +160,7 @@ public class GameManagerSingle {
 
 
         // initialize empty draft pool
-        draftPool = new ArrayList<Die>();
+        draftPool = new ArrayList<>();
         // initialize Round Tracker obj
         rounds = new RoundTracker();
         //TODO: move inizialization into a static method, where just copying pre-initialized elements.

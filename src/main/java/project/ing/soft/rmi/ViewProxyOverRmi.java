@@ -6,7 +6,6 @@ import project.ing.soft.model.gamemanager.events.Event;
 import project.ing.soft.view.IView;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 

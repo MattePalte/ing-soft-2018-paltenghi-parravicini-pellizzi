@@ -14,16 +14,18 @@ import project.ing.soft.model.Player;
 import project.ing.soft.view.IView;
 
 import java.io.Serializable;
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
+import java.rmi.server.Unreferenced;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
-public class GameController extends UnicastRemoteObject implements IController, Serializable {
+
+public class GameController extends UnicastRemoteObject implements IController, Serializable, Unreferenced {
 
 
     private transient IGameManager  gameManager;
@@ -39,7 +41,7 @@ public class GameController extends UnicastRemoteObject implements IController, 
     private static final transient long GAME_START_TIMEOUT = 60000;
 
 
-    public GameController(int maxNumberOfPlayer, String id) throws RemoteException{
+    public GameController(int maxNumberOfPlayer, String id) throws RemoteException {
         super();
         this.theGame        = new Game(maxNumberOfPlayer);
         this.gameManager    = null;
@@ -262,4 +264,8 @@ public class GameController extends UnicastRemoteObject implements IController, 
         return Objects.hash(super.hashCode(), gameManager, theGame, turnEnded);
     }
 
+    @Override
+    public void unreferenced() {
+        System.out.println("unreferenced!");
+    }
 }

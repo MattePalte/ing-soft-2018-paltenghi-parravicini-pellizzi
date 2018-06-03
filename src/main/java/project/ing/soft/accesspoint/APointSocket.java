@@ -1,9 +1,7 @@
 package project.ing.soft.accesspoint;
 
-import project.ing.soft.TokenCalculator;
 import project.ing.soft.accesspoint.AccessPointReal;
 import project.ing.soft.accesspoint.IAccessPoint;
-import project.ing.soft.controller.GameController;
 import project.ing.soft.controller.IController;
 import project.ing.soft.exceptions.NickNameAlreadyTakenException;
 import project.ing.soft.socket.request.connectionrequest.APConnectRequest;

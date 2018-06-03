@@ -11,14 +11,12 @@ import project.ing.soft.model.gamemanager.events.*;
 import javafx.util.Pair;
 import project.ing.soft.model.cards.WindowPatternCard;
 import project.ing.soft.controller.IController;
-import project.ing.soft.model.gamemanager.events.Event;
 
 import java.io.*;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.*;
 
 public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHandler, IToolCardParametersAcquirer, Serializable {
@@ -83,7 +81,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     private String getTime() {
         Calendar c = Calendar.getInstance(); //automatically set to current time
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-        String time = dateFormat.format(c.getTime()).toString();
+        String time = dateFormat.format(c.getTime());
         return time;
     }
 
@@ -115,12 +113,10 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
     @Override
     public void respondTo(CurrentPlayerChangedEvent event) {
-        return;
     }
 
     @Override
     public void respondTo(FinishedSetupEvent event) {
-        return;
     }
 
     @Override

@@ -11,13 +11,11 @@ import project.ing.soft.model.gamemanager.events.*;
 import javafx.util.Pair;
 import project.ing.soft.model.cards.WindowPatternCard;
 import project.ing.soft.controller.IController;
-import project.ing.soft.model.gamemanager.events.Event;
 
 import java.io.*;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.*;
 
 
@@ -230,9 +228,9 @@ public class ClientViewCLI extends UnicastRemoteObject
             catch(UserInterruptActionException e){
                 out.println("Operation aborted. Please select an action");
                 update(new MyTurnStartedEvent());
-            }catch(InterruptedException ignored){
+            }catch(InterruptedException ex){
                 out.println("Timeout expired. Your turn ended. Too bad :(");
-                throw ignored;
+                Thread.currentThread().interrupt();
             } catch (Exception e) {
                 displayError(e);
             }

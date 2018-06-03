@@ -60,7 +60,7 @@ public class Constraint implements Serializable {
         String encoding;
         if(value == 0){
             //abbiamo provato 2000+2004, 2001, 3000,2007
-            encoding = "\u2000\u2005";// \u2000\u2005"
+            encoding = " ";// \u2000\u2005" con Courier new-> ma finalmente è arrivato il dejavù
         }else{
             encoding = (new Die( value , Colour.WHITE)).toString();
         }

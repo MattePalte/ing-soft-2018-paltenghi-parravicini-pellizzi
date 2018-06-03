@@ -16,9 +16,6 @@ import java.rmi.registry.Registry;
 import java.util.Random;
 import java.util.Scanner;
 
-import static java.lang.Thread.getDefaultUncaughtExceptionHandler;
-import static java.lang.Thread.sleep;
-
 public class LaunchClient {
 
 
