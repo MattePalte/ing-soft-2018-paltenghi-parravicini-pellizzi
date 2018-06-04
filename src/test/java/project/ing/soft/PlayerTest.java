@@ -6,6 +6,8 @@ import project.ing.soft.model.Coordinate;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Player;
 import project.ing.soft.model.cards.WindowPatternCard;
+import project.ing.soft.rmi.ViewProxyOverRmi;
+import project.ing.soft.socket.ViewProxyOverSocket;
 import project.ing.soft.view.LocalViewCli;
 import project.ing.soft.exceptions.PatternConstraintViolatedException;
 import project.ing.soft.exceptions.PositionOccupiedException;
@@ -15,6 +17,7 @@ import project.ing.soft.model.cards.Constraint;
 import project.ing.soft.model.cards.objectives.privates.SfumatureBlu;
 
 import java.io.File;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.*;
 
@@ -739,6 +742,22 @@ public class PlayerTest {
     //region serialization
     public void testSerialization(){
         //TODO add test about serialization
+    }
+
+    @Test
+    public void testDisconnection() throws IOException {
+        Player toBeTested = new Player("Test", new ViewProxyOverRmi(new LocalViewCli("Test"), "Test"));
+        toBeTested.disconnectView();
+        Assert.assertFalse(toBeTested.isConnected());
+    }
+
+    @Test
+    public void testReconnection() throws RemoteException {
+        Player toBeTested = new Player("Test", new ViewProxyOverRmi(new LocalViewCli("Test"), "Test"));
+        Player copy = new Player(toBeTested);
+        toBeTested.reconnectView(new ViewProxyOverRmi(new LocalViewCli("Test"), "Test"));
+        Assert.assertTrue(toBeTested.isConnected());
+        Assert.assertNotEquals(copy, toBeTested);
     }
 
     //endregion
