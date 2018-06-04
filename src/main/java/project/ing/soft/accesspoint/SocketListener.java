@@ -18,6 +18,11 @@ public class SocketListener extends Thread {
     private ServerSocket aServerSocket;
     private ExecutorService clientAcceptor = Executors.newCachedThreadPool();
 
+    /**
+     *
+     * @param localPort
+     * @param accessPointReal
+     */
     public SocketListener(int localPort, AccessPointReal accessPointReal) {
         this.localPort      = localPort;
         this.log            = Logger.getLogger(this.getClass().getCanonicalName()+" on port "+localPort);

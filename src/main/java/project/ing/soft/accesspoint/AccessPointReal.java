@@ -24,6 +24,11 @@ public class AccessPointReal implements IAccessPoint {
     private final Map<String, GameController> hostedGames;
     private final Map<String, GameController> playersInGame;
 
+    /**
+     *
+     * @param hostedGames
+     * @param playersInGame
+     */
     public AccessPointReal(Map<String, GameController> hostedGames, Map<String, GameController> playersInGame) {
         this.hostedGames = hostedGames;
         this.playersInGame = playersInGame;
@@ -31,6 +36,13 @@ public class AccessPointReal implements IAccessPoint {
         this.log.setLevel(Level.OFF);
     }
 
+    /**
+     *
+     * @param nickname the nickname chosen by the client for that game
+     * @param clientView the view object representing the client
+     * @return
+     * @throws Exception
+     */
     @Override
     public synchronized IController connect(String nickname, IView clientView) throws Exception {
         log.log(Level.INFO,"{0} request to connect", nickname);
