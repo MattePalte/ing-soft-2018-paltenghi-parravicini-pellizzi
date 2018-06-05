@@ -81,7 +81,7 @@ public class GameManagerFactory {
 
     public static List<WindowPatternCard> getWindowPatternCard() {
         if(windowPatternCard == null ){
-            windowPatternCard = new ArrayList<>(WindowPatternCard.loadFromFile("/res/patterns.txt"));
+            windowPatternCard = new ArrayList<>(WindowPatternCard.loadFromFile("/patterns.txt"));
         }
         return windowPatternCard;
     }

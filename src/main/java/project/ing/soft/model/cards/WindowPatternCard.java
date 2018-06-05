@@ -61,7 +61,7 @@ public class WindowPatternCard implements Serializable {
 
     public static List<WindowPatternCard> loadFromFile(String pathname) {
         ArrayList<WindowPatternCard> patterns = new ArrayList<>();
-        try( Scanner input = new Scanner(new File(pathname))) {
+        try( Scanner input = new Scanner(WindowPatternCard.class.getResourceAsStream(pathname))) {
             for (int i = 0; i < 12; i++) {
                 patterns.add(WindowPatternCard.loadAPatternCardFromScanner(input));
                 input.nextLine();
