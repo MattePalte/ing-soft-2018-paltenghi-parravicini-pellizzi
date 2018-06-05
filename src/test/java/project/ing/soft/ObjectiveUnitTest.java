@@ -33,7 +33,7 @@ public class ObjectiveUnitTest {
         pattern = WindowPattern.loadFromScanner(new Scanner(new File("src/main/resources/empty_pattern.txt")));
         when(playerStub.getPlacedDice()).thenReturn(placedDice);
         when(playerStub.getPattern()).thenReturn(pattern);
-        when(playerStub.getPlacedDice()).thenReturn(placedDice);
+        //when(playerStub.getPlacedDice()).thenReturn(placedDice);
     }
 
 
@@ -239,9 +239,14 @@ public class ObjectiveUnitTest {
 
         // First test
         placedDice[0][0] = new Die(Colour.WHITE);
+        placedDice[0][2] = new Die(Colour.WHITE);
+        placedDice[1][1] = new Die(Colour.WHITE);
+        Assert.assertEquals(4, tested.checkCondition(playerStub));
+
+        //Second test
+        placedDice[0][2] = null;
         placedDice[0][1] = new Die(Colour.WHITE);
         placedDice[1][0] = new Die(Colour.WHITE);
-        placedDice[1][1] = new Die(Colour.WHITE);
         placedDice[1][3] = new Die(Colour.WHITE);
         placedDice[2][2] = new Die(Colour.WHITE);
         placedDice[3][1] = new Die(Colour.WHITE);
@@ -250,17 +255,17 @@ public class ObjectiveUnitTest {
 
         Assert.assertEquals(9, tested.checkCondition(playerStub));
 
-        // Second test
+        // Third test
         placedDice[1][1] = new Die(Colour.RED);
 
         Assert.assertEquals(7, tested.checkCondition(playerStub));
 
-        //Third test
+        //Fourth test
         placedDice[0][1] = new Die(Colour.VIOLET);
 
         Assert.assertEquals(5, tested.checkCondition(playerStub));
 
-        //Fourth Test
+        //Fifth Test
         placedDice[0][4] = new Die(Colour.WHITE);
 
         Assert.assertEquals(6, tested.checkCondition(playerStub));

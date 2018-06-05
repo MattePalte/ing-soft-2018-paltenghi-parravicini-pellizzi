@@ -80,9 +80,8 @@ public class GameManagerFactory {
 
 
     public static List<WindowPatternCard> getWindowPatternCard() {
-        URL path = GameManagerFactory.class.getClassLoader().getResource("patterns.txt");
-        if(windowPatternCard == null && path != null){
-            windowPatternCard = new ArrayList<>(WindowPatternCard.loadFromFile(path));
+        if(windowPatternCard == null ){
+            windowPatternCard = new ArrayList<>(WindowPatternCard.loadFromFile("/res/patterns.txt"));
         }
         return windowPatternCard;
     }

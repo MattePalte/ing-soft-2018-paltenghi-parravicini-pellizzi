@@ -56,7 +56,7 @@ public class DiluentePerPastaSaldaSecondPart implements IToolCardState, Serializ
 
     @Override
     public void apply(Player p, IGameManager m) throws Exception {
-        m.removeFromDraft(toBePlaced);
         p.placeDie(new Die(newValue, toBePlaced.getColour()), cord.getRow(), cord.getCol(), true);
+        m.removeFromDraft(toBePlaced);
     }
 }

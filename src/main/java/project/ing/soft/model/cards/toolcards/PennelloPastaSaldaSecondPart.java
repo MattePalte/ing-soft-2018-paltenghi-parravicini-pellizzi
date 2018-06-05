@@ -46,7 +46,7 @@ public class PennelloPastaSaldaSecondPart implements IToolCardState, Serializabl
     }
 
     public void apply(Player p, IGameManager m) throws Exception  {
-        m.removeFromDraft(dieToBePlaced);
         p.placeDie(dieToBePlaced, cord.getRow(), cord.getCol(), true);
+        m.removeFromDraft(dieToBePlaced);
     }
 }

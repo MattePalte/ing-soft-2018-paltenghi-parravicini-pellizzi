@@ -35,7 +35,7 @@ public class RoundTrackerTest {
         for(int i = 0; i < randomTurns; i++){
             roundTracker.nextRound();
         }
-        ArrayList<Die> toAdd = new ArrayList();
+        ArrayList<Die> toAdd = new ArrayList<>();
         for(int i = 0; i < diceToAdd; i++){
             //Adding randomic dice to the list toAdd
             toAdd.add(new Die(rndGen.nextInt(6) + 1, Colour.validColours().get(rndGen.nextInt(5))));
