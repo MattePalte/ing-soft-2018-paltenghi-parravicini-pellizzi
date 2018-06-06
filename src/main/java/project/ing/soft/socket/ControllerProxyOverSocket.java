@@ -1,7 +1,7 @@
 package project.ing.soft.socket;
 
-
 import org.junit.Assert;
+import project.ing.soft.Settings;
 import project.ing.soft.model.Die;
 
 import project.ing.soft.model.cards.WindowPatternCard;
@@ -37,7 +37,7 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
     private final ArrayList<AbstractRequest> toAckList;
 
 
-    public ControllerProxyOverSocket(IView view, Socket socket, ObjectOutputStream oos, ObjectInputStream ois){
+    ControllerProxyOverSocket(IView view, Socket socket, ObjectOutputStream oos, ObjectInputStream ois){
         this.view           = view;
         this.socket         = socket;
         this.toServer       = oos;
@@ -45,7 +45,7 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
         this.toAckList      = new ArrayList<>();
         this.requestBuffer  = new ArrayDeque<>();
         this.logger         = Logger.getLogger(Objects.toString(this));
-        this.logger.setLevel(Level.OFF);
+        this.logger.setLevel(Settings.instance().getDefaultLoggingLevel());
 
     }
 
@@ -80,16 +80,16 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
             if (fromServer != null){
                 fromServer.close();
             }
-        }catch(IOException ignored){
-            logger.log(Level.SEVERE, "Error while closing ObjectInputStream", ignored);
+        }catch(IOException ex){
+            logger.log(Level.SEVERE, "Error while closing ObjectInputStream", ex);
         }
 
         try{
             if(toServer != null) {
                 toServer.close();
             }
-        } catch(IOException ignored) {
-            logger.log(Level.SEVERE, "Error while closing ObjectOutputStream", ignored);
+        } catch(IOException ex) {
+            logger.log(Level.SEVERE, "Error while closing ObjectOutputStream", ex);
         }
         super.interrupt();
     }
@@ -130,7 +130,7 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
 
     }
 
-    public void visit(IResponse aResponse) {
+    private void visit(IResponse aResponse) {
         logger.log(Level.INFO, "Received {0} from server" , aResponse);
         aResponse.accept(this);
     }
@@ -148,7 +148,7 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
 
     @Override
     public void handle(ExceptionalResponse aResponse) {
-        logger.log(Level.INFO,"The action {0} ended up erroneusly", aResponse.getId());
+        logger.log(Level.INFO,"The action {0} ended up erroneously", aResponse.getId());
 
         synchronized (toAckList) {
             AbstractRequest aRequest = toAckList.get(aResponse.getId());
@@ -186,17 +186,25 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
         }
     }
 
-    public void addToQueue(AbstractRequest aNewRequest) throws Exception{
+    /**
+     * The function pass the request supplied as an argument to the thread that is in charge
+     * of communicating with the server. Then it waits until the server has executed the operation
+     * and a corresponding response with the same id get back.
+     * @param aNewRequest a request for execution of remote method
+     * @throws Exception if the supplied request resulted in a exception on the backend.
+     */
+    private void addToQueue(AbstractRequest aNewRequest) throws Exception{
         //add to request tobeSent
         try {
             synchronized (requestBuffer) {
                 requestBuffer.add(aNewRequest);
-                //wait for an execution
-                // aNewRequest should be used, but sonarlint complaints
+
+
                 requestBuffer.notifyAll();
             }
-
+            //wait for execution
             synchronized (toAckList){
+                //aNewRequest should be used, but Sonarlint complaints
                 while (!aNewRequest.beenHandled()) {
                     toAckList.wait();
                 }
@@ -213,19 +221,19 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
     //region IController interface
     @Override
     public void requestUpdate() throws Exception {
-        logger.log(Level.INFO,"An upodate was requested");
+        logger.log(Level.INFO,"An update was requested");
         addToQueue(new UpdateRequest());
     }
 
     @Override
     public void placeDie(String nickname, Die aDie, int rowIndex, int colIndex) throws Exception {
-        logger.log(Level.INFO,"{0} request a place die action {1} ({2},{3})", new Object[]{nickname, aDie, rowIndex, colIndex});
+        logger.log(Level.INFO,"{0} request to place die {1} on ({2},{3})", new Object[]{nickname, aDie, rowIndex, colIndex});
         addToQueue(new PlaceDieRequest(nickname, aDie, colIndex, rowIndex));
     }
 
     @Override
     public void playToolCard(String nickname, ToolCard aToolCard) throws Exception {
-        logger.log(Level.INFO,"{0} request to play a toolcard {1} ", new Object[]{nickname, aToolCard});
+        logger.log(Level.INFO,"{0} request to play the ToolCard: {1} ", new Object[]{nickname, aToolCard});
         addToQueue(new PlayToolCardRequest(nickname, aToolCard));
     }
 

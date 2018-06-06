@@ -1,5 +1,8 @@
-package project.ing.soft.accesspoint;
+package project.ing.soft.socket;
 
+
+import project.ing.soft.Settings;
+import project.ing.soft.accesspoint.AccessPointReal;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -26,7 +29,7 @@ public class SocketListener extends Thread {
     public SocketListener(int localPort, AccessPointReal accessPointReal) {
         this.localPort      = localPort;
         this.log            = Logger.getLogger(this.getClass().getCanonicalName()+" on port "+localPort);
-        this.log.setLevel(Level.OFF);
+        this.log.setLevel(Settings.instance().getDefaultLoggingLevel());
         this.accessPointReal = accessPointReal;
     }
 

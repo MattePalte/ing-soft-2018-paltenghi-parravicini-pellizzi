@@ -3,7 +3,6 @@ package project.ing.soft.model.cards;
 import project.ing.soft.exceptions.GameInvalidException;
 import project.ing.soft.model.Colour;
 
-import java.io.File;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;

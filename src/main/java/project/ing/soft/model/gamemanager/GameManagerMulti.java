@@ -1,6 +1,7 @@
 package project.ing.soft.model.gamemanager;
 
 
+import project.ing.soft.Settings;
 import project.ing.soft.exceptions.ToolCardApplicationException;
 import project.ing.soft.model.*;
 import project.ing.soft.model.cards.objectives.ObjectiveCard;
@@ -57,7 +58,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
                             List<Die> dice
     ) throws GameInvalidException {
         logger = Logger.getLogger(this.getClass().getCanonicalName()+aGame.getPlayers().stream().map(Player::getName).collect(Collectors.toList()).toString());
-        logger.setLevel(Level.OFF);
+        logger.setLevel(Settings.instance().getDefaultLoggingLevel());
 
         if (!aGame.isValid() || aGame.getNumberOfPlayers() <= 1  || aGame.getNumberOfPlayers() > 4  ) {
             setStatus(GAME_MANAGER_STATUS.ENDED);
@@ -132,7 +133,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
     private GameManagerMulti(GameManagerMulti from){
         from.logger.log(Level.INFO, "A game manager was cloned from this");
         this.logger             = Logger.getAnonymousLogger();
-        this.logger.setLevel(Level.OFF);
+        this.logger.setLevel(Settings.instance().getDefaultLoggingLevel());
         this.currentGame        = new Game(from.currentGame);
         this.diceBag            = new ArrayList<> (from.diceBag);
         this.draftPool          = new ArrayList<> (from.draftPool);

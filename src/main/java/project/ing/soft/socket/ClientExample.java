@@ -1,7 +1,6 @@
 package project.ing.soft.socket;
 
 
-import project.ing.soft.accesspoint.APProxySocket;
 import project.ing.soft.exceptions.NickNameAlreadyTakenException;
 import project.ing.soft.view.LocalViewCli;
 

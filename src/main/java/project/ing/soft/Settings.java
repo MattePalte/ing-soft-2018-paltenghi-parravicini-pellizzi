@@ -4,6 +4,7 @@ import javafx.scene.paint.Color;
 import project.ing.soft.model.Colour;
 
 import java.util.HashMap;
+import java.util.logging.Level;
 
 public class Settings {
     private static Settings internalInstance;
@@ -24,6 +25,10 @@ public class Settings {
     private int CARD_HEIGHT = 200;
     private Color BG_SCENE_COLOR = Color.BLACK;
     private HashMap<Colour, String> mapBgColour;
+
+
+
+    private Level defaultLoggingLevel = Level.SEVERE;
 
     private Settings() {
         mapBgColour = new HashMap<>();
@@ -93,6 +98,10 @@ public class Settings {
 
     public HashMap<Colour, String> getMapBgColour(){
         return mapBgColour;
+    }
+
+    public Level getDefaultLoggingLevel() {
+        return defaultLoggingLevel;
     }
     //endregion
 

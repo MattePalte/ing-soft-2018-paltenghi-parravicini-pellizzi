@@ -415,13 +415,12 @@ public class Player implements Serializable{
      */
     @Override
     public String toString() {
-        String aBuilder = "---------------------\n" +
+        return "---------------------\n" +
                 getName() +
                 "'s situation ...\n" +
                 Card.drawNear("Private objective : \n" + (myPrivateObjective == null ? "Not already assigned a private objective" : myPrivateObjective.toString()),
                         "Player game board: \n\n" + stringifyPlayerGameBoard()) +
                 "---------------------\n";
-        return aBuilder;
     }
 
     private String stringifyPlayerGameBoard() {

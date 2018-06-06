@@ -19,7 +19,7 @@ public class Constraint implements Serializable {
     /**
      * The Constraint class provides several ways of creating a constraint
      * @param aValue a number between 0 and 6
-     * @param aColour an immutable object from @link{project.ing.soft.model.Colour}
+     * @param aColour an immutable object from {@link project.ing.soft.model.Colour}
      */
     public Constraint(int aValue, Colour aColour) {
         this.value = aValue;

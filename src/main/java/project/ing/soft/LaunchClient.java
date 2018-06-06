@@ -1,6 +1,6 @@
 package project.ing.soft;
 
-import project.ing.soft.accesspoint.APProxySocket;
+import project.ing.soft.socket.APProxySocket;
 import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.IController;
 
@@ -12,8 +12,6 @@ import project.ing.soft.view.LocalViewCli;
 
 import java.io.PrintStream;
 import java.rmi.Naming;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.Random;
 import java.util.Scanner;
 

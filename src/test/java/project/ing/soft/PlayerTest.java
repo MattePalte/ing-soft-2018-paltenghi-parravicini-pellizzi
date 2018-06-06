@@ -7,7 +7,6 @@ import project.ing.soft.model.Die;
 import project.ing.soft.model.Player;
 import project.ing.soft.model.cards.WindowPatternCard;
 import project.ing.soft.rmi.ViewProxyOverRmi;
-import project.ing.soft.socket.ViewProxyOverSocket;
 import project.ing.soft.view.LocalViewCli;
 import project.ing.soft.exceptions.PatternConstraintViolatedException;
 import project.ing.soft.exceptions.PositionOccupiedException;

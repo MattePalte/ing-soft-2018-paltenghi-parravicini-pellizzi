@@ -8,7 +8,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import project.ing.soft.Settings;
-import project.ing.soft.accesspoint.APProxySocket;
+import project.ing.soft.socket.APProxySocket;
 import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.IController;
 import project.ing.soft.view.IView;

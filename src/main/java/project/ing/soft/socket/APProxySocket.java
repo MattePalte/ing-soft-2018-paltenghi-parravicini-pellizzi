@@ -1,5 +1,7 @@
-package project.ing.soft.accesspoint;
+package project.ing.soft.socket;
 
+import project.ing.soft.Settings;
+import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.IController;
 import project.ing.soft.exceptions.ConnectionRefusedException;
 import project.ing.soft.exceptions.NickNameAlreadyTakenException;
@@ -26,7 +28,7 @@ public class APProxySocket implements IAccessPoint, ConnectionResponseHandler {
 
     public APProxySocket(String host, int port){
         this.log  = Logger.getLogger(Objects.toString(this));
-        this.log.setLevel(Level.OFF);
+        this.log.setLevel(Settings.instance().getDefaultLoggingLevel());
 
         mySocket = new Socket();
         try {

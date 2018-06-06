@@ -33,7 +33,7 @@ public class AccessPointReal implements IAccessPoint {
         this.hostedGames = hostedGames;
         this.playersInGame = playersInGame;
         this.log = Logger.getLogger(Objects.toString(this));
-        this.log.setLevel(Level.OFF);
+        this.log.setLevel(Settings.instance().getDefaultLoggingLevel());
     }
 
     /**

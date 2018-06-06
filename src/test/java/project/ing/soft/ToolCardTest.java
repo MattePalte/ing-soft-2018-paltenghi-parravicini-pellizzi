@@ -111,8 +111,7 @@ public class ToolCardTest {
         when(gameManagerStub.getPlayerList()).thenReturn(playerListStub);
 
         doAnswer((invocation) -> {
-            Player current = turnListStub.get(0);
-            return current;
+            return turnListStub.get(0);
         }).when(gameManagerStub).getCurrentPlayer();
 
         doAnswer((invocation) -> {

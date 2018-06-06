@@ -230,7 +230,7 @@ public class GameManagerSingle {
     }
 
     private ArrayList<Die> createDice() {
-        ArrayList tmp = new ArrayList<Die>();
+        ArrayList<Die> tmp = new ArrayList<>();
         ArrayList<Colour> diceColoursAvailable = new ArrayList<>();
         diceColoursAvailable.add(Colour.BLUE);
         diceColoursAvailable.add(Colour.YELLOW);

@@ -1,6 +1,6 @@
 package project.ing.soft.socket.request.connectionrequest;
 
-import project.ing.soft.accesspoint.APointSocket;
+import project.ing.soft.socket.APointSocket;
 
 public class APReconnectRequest implements ConnectionRequest {
 

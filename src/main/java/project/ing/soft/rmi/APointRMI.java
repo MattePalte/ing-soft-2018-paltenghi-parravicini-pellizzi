@@ -1,8 +1,9 @@
-package project.ing.soft.accesspoint;
+package project.ing.soft.rmi;
 
+import project.ing.soft.Settings;
+import project.ing.soft.accesspoint.AccessPointReal;
+import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.IController;
-import project.ing.soft.rmi.PlayerControllerOverRmi;
-import project.ing.soft.rmi.ViewProxyOverRmi;
 import project.ing.soft.view.IView;
 
 import java.io.IOException;
@@ -16,7 +17,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
+public class APointRMI extends UnicastRemoteObject implements IAccessPoint {
 
     private static final String ACCESS_POINT = "accesspoint";
     private final transient Logger log;
@@ -26,7 +27,7 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
         super();
         this.accessPointReal = accessPointReal;
         this.log = Logger.getLogger(Objects.toString(this));
-        this.log.setLevel(Level.OFF);
+        this.log.setLevel(Settings.instance().getDefaultLoggingLevel());
     }
 
     public static void bind(APointRMI ap) throws IOException {
@@ -67,12 +68,12 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
     public IController connect(String nickname, IView clientView) throws Exception{
         log.log(Level.INFO,"{0} request to connect", nickname);
         ViewProxyOverRmi proxyOverRmi = new ViewProxyOverRmi(clientView, nickname);
-        IController newController = accessPointReal.connect(nickname, proxyOverRmi);
+        IController gameController = accessPointReal.connect(nickname, proxyOverRmi);
         // POST CONNECT ->
-        proxyOverRmi.attachController(newController);
+        proxyOverRmi.attachController(gameController);
         proxyOverRmi.start();
 
-        return (proxyOverRmi);
+        return proxyOverRmi.buildAStubController();
     }
 
     @Override
@@ -83,7 +84,7 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
         // POST CONNECT ->
         proxyOverRmi.attachController(newController);
         proxyOverRmi.start();
-        return (proxyOverRmi);
+        return proxyOverRmi.buildAStubController();
     }
 
 }

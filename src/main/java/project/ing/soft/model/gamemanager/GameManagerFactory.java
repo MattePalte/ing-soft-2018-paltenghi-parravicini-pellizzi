@@ -9,7 +9,6 @@ import project.ing.soft.model.cards.WindowPatternCard;
 import project.ing.soft.model.Game;
 import project.ing.soft.exceptions.GameInvalidException;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 

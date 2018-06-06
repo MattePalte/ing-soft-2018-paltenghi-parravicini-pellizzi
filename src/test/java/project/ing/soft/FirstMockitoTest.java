@@ -1,5 +1,6 @@
-package project.ing.soft;;
+package project.ing.soft;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -11,7 +12,7 @@ public class FirstMockitoTest {
 
     @Test
     public void test() {
-        List<String> mockList = mock(List.class);
+        ArrayList<String> mockList = new ArrayList<>();
 
         mockList.add("First");
         when(mockList.get(0)).thenReturn("Mockito");

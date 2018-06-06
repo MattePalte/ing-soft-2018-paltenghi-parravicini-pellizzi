@@ -29,40 +29,46 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     private transient ExecutorService turnExecutor;
     private transient Future actualTurn;
     private transient Future eventWaitingForInput;
-    private transient Thread eventHandler;
+    private transient ExecutorService eventHandler;
+    private transient NonBlockingScanner scanner;
     private transient String token;
 
     public LocalViewCli(String ownerNameOfTheView) throws RemoteException {
-        // getCurrentPlayer da solo il giocatore di turno non il giocatore della view
-        this.ownerNameOfTheView = ownerNameOfTheView;
-        out = new PrintStream(System.out);
-        eventsReceived = new LinkedList<>();
-        turnExecutor = Executors.newFixedThreadPool(2);
+        super();
 
-        eventHandler = new Thread( () -> {
-            Event toRespond = null;
+        this.ownerNameOfTheView   = ownerNameOfTheView;
+        this.out                  = new PrintStream(System.out);
+        this.scanner              = new NonBlockingScanner(System.in);
+        this.localCopyOfTheStatus = null;
 
-            while(true) {
-                synchronized (eventsReceived) {
-                    try {
-                        while (eventsReceived.isEmpty())
-                            eventsReceived.wait();
-                        toRespond = eventsReceived.remove();
-                    } catch (InterruptedException e) {
-                        displayError(e);
-                        Thread.currentThread().interrupt();
-                    }
-                }
-                if (toRespond != null)
-                    toRespond.accept(this);
-                toRespond = null;
-                synchronized (eventsReceived) {
-                    eventsReceived.notifyAll();
-                }
+        this.eventsReceived       = new LinkedList<>();
+        this.eventHandler         = Executors.newSingleThreadExecutor();
+
+        eventHandler.submit( this::eventHandlingFunction);
+    }
+
+    private boolean eventHandlingFunction() throws InterruptedException {
+        Event toRespond;
+
+        while(gameOngoing()) {
+
+            synchronized (eventsReceived) {
+                while (eventsReceived.isEmpty())
+                    eventsReceived.wait();
+
+                toRespond = eventsReceived.remove();
             }
-        });
 
-        eventHandler.start();
+            if (toRespond != null){
+                toRespond.accept(this);
+            }
+        }
+
+        return true;
+    }
+
+    private boolean gameOngoing(){
+        return (localCopyOfTheStatus == null || localCopyOfTheStatus.getStatus() != IGameManager.GAME_MANAGER_STATUS.ENDED);
     }
 
 
@@ -81,8 +87,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     private String getTime() {
         Calendar c = Calendar.getInstance(); //automatically set to current time
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-        String time = dateFormat.format(c.getTime());
-        return time;
+        return dateFormat.format(c.getTime());
     }
 
     @Override
@@ -323,41 +328,19 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
 
 
-    private String preemptiveReadline() throws InterruptedException {
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        String input = "";
-        do {
-
-            try {
-                // wait until we have data to complete a readLine()
-                while (!br.ready()) {
-                    //Thread.sleep(500);
-                    if(Thread.currentThread().isInterrupted()) {
-                        throw new InterruptedException();
-                    }
-                }
-                input = br.readLine();
-            }catch (IOException e) {
-                e.printStackTrace(out);
-            }
-        } while ("".equals(input));
-
-        return  input;
-    }
+    //region user input
 
     private int waitForUserInput(int lowerBound , int upperBound) throws UserInterruptActionException, InterruptedException {
-        int ret = 0;
+        int ret = lowerBound;
         boolean err;
-        String in = null;
-
 
         do{
             err = false;
             try{
-                in = preemptiveReadline();
-                ret = Integer.valueOf(in);
+
+                ret = Integer.valueOf(scanner.readLine());
             }
             catch( NumberFormatException e){
                 err = true;
@@ -365,17 +348,12 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
             err = err || ret < lowerBound || ret > upperBound;
 
             if(err){
-                if(in != null && in.startsWith("q"))
+                if(scanner.readLine().startsWith("q"))
                     throw new UserInterruptActionException();
                 out.println("You entered a value that does not fit into the correct interval. Enter q to interrupt the operation");
 
             }
-
-
         }while(err);
-
-
-
 
         return ret;
     }
@@ -405,6 +383,8 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
         return waitForUserInput(0, objs.size()-1);
 
     }
+//endregion
+
 
     //region parameters acquirer
     @Override

@@ -1,10 +1,10 @@
 package project.ing.soft;
 
-import project.ing.soft.accesspoint.APointRMI;
+import project.ing.soft.rmi.APointRMI;
 import project.ing.soft.accesspoint.AccessPointReal;
 import project.ing.soft.controller.GameController;
 import project.ing.soft.exceptions.UserInterruptActionException;
-import project.ing.soft.accesspoint.SocketListener;
+import project.ing.soft.socket.SocketListener;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -78,7 +78,7 @@ public class LaunchServer {
             list.add(e.nextElement());
         list = list.stream().sorted().collect(Collectors.toList());
         try {
-            manager.getLogger((String)chooseFrom(list)).setLevel(Level.OFF);
+            manager.getLogger((String)chooseFrom(list)).setLevel(Settings.instance().getDefaultLoggingLevel());
         }catch (UserInterruptActionException ex){
             //no action need to be carried out
         }catch (Exception ex){

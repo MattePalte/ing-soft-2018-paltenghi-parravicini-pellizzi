@@ -1,4 +1,4 @@
-package project.ing.soft.accesspoint;
+package project.ing.soft.socket;
 
 import project.ing.soft.accesspoint.AccessPointReal;
 import project.ing.soft.accesspoint.IAccessPoint;

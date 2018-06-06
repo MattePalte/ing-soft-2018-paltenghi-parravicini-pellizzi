@@ -1,5 +1,6 @@
 package project.ing.soft.controller;
 
+import project.ing.soft.Settings;
 import project.ing.soft.exceptions.ActionNotPermittedException;
 import project.ing.soft.exceptions.GameFullException;
 import project.ing.soft.exceptions.GameInvalidException;
@@ -41,7 +42,7 @@ public class GameController implements IController, Serializable {
         this.theGame        = new Game(maxNumberOfPlayer);
         this.gameManager    = null;
         this.log            = Logger.getLogger(Objects.toString(this));
-        this.log.setLevel(Level.OFF);
+        this.log.setLevel(Settings.instance().getDefaultLoggingLevel());
         this.turnEnded      = new AtomicBoolean(false);
         this.timer          = new Timer();
         this.id             = id;
