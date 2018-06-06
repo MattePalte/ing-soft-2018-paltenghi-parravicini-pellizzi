@@ -30,7 +30,6 @@ public class Lathekin extends ToolCard {
         validateCoordinate(secondDieStartPosition, p.getPattern().getHeight(), p.getPattern().getWidth());
         validateCoordinate(secondDieEndPosition, p.getPattern().getHeight(), p.getPattern().getWidth());
     }
-
     @Override
     public void fill(IToolCardParametersAcquirer acquirer) throws UserInterruptActionException, InterruptedException {
         firstDieStartPosition  = acquirer.getCoordinate("Enter which is the first die you want to move");
