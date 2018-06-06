@@ -1,7 +1,6 @@
 package project.ing.soft.accesspoint;
 
 import project.ing.soft.Settings;
-import project.ing.soft.TokenCalculator;
 import project.ing.soft.controller.GameController;
 import project.ing.soft.controller.IController;
 import project.ing.soft.exceptions.ActionNotPermittedException;

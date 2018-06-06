@@ -1,9 +1,15 @@
-package project.ing.soft;
+package project.ing.soft.accesspoint;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TokenCalculator {
+    private TokenCalculator(){
+
+    }
+
     public static String computeDigest(String toCompute){
         MessageDigest md = null;
         try {
@@ -12,8 +18,8 @@ public class TokenCalculator {
             byte[] digest = md.digest();
             return encodeHex(digest);
         } catch (NoSuchAlgorithmException e) {
-            System.out.println("A problem occurred trying to compute hash function: ");
-            e.printStackTrace();
+            Logger.getAnonymousLogger().log( Level.SEVERE,"A problem occurred trying to compute hash function: ",e );
+
         }
         return null;
     }
