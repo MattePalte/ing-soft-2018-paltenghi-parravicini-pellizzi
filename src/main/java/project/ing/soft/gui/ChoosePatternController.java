@@ -3,19 +3,15 @@ package project.ing.soft.gui;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import project.ing.soft.Settings;
 import project.ing.soft.controller.IController;
-import project.ing.soft.model.cards.Constraint;
 import project.ing.soft.model.cards.WindowPattern;
 import project.ing.soft.model.cards.WindowPatternCard;
 import project.ing.soft.model.cards.objectives.privates.PrivateObjective;
@@ -38,6 +34,7 @@ public class ChoosePatternController {
     @FXML private VBox rearFirst;
     @FXML private VBox frontSecond;
     @FXML private VBox rearSecond;
+    @FXML private VBox vMyObjective;
     @FXML private ImageView imgPrivateObjective;
 
     public void setGameController(IController gameController){
@@ -107,6 +104,8 @@ public class ChoosePatternController {
      * Method to display private objective
      */
     private void displayObjective(){
+        // Set style
+        StyleBooster.forObjectiveCard(vMyObjective, 10);
         Image img = null;
         try {
             img = new Image(privObj.getImgPath());
@@ -127,12 +126,8 @@ public class ChoosePatternController {
      * @param pattern
      */
     private void populate(VBox vBox, WindowPattern pattern){
-        // Create Grid for matrix of this pattern
-        GridPane gPane = new GridPane();
-        gPane.setPadding(new Insets(7, 7, 7, 7));
-        gPane.setVgap(10);
-        gPane.setHgap(10);
-        gPane.setAlignment(Pos.CENTER);
+        // Set style
+        StyleBooster.forPatternCard(vBox, 10);
         // Create "choose this patten" button to invoke controller
         Button btnChooseThis = new Button();
         btnChooseThis.setText("Choose this");
@@ -146,35 +141,12 @@ public class ChoosePatternController {
         // Create Text to show difficulty
         Text txtFavour = new Text();
         txtFavour.setText("Favour: "+pattern.getDifficulty());
+        // Create GridPane for pattern Card
+        GridPane gridPattern = ElementCreator.createPattern(pattern, Settings.instance().getCELL_DIMENSION());
         // Add new element to box
-        vBox.getChildren().add(gPane);
+        vBox.getChildren().add(gridPattern);
         vBox.getChildren().add(txtFavour);
         vBox.getChildren().add(btnChooseThis);
-        for (int row = 0; row < Settings.instance().getMATRIX_NR_ROW(); row++) {
-            for (int col = 0; col < Settings.instance().getMATRIX_NR_COL(); col++) {
-                Constraint constraint = pattern.getConstraintsMatrix()[row][col];
-                ImageView bg;
-                if (constraint != null && constraint.getImgPath() != "") {
-                    Image image = new Image(constraint.getImgPath());
-                    bg = new ImageView(image);
-                    bg.setFitHeight(Settings.instance().getCELL_DIMENSION());
-                    bg.setFitWidth(Settings.instance().getCELL_DIMENSION());
-                    bg.setPreserveRatio(true);
-                    bg.setSmooth(true);
-                    bg.setCache(true);
-                } else {
-                    bg = new ImageView();
-                    bg.setFitHeight(Settings.instance().getCELL_DIMENSION());
-                    bg.setFitWidth(Settings.instance().getCELL_DIMENSION());
-                }
-                if (constraint != null){
-                    StackPane pane = new StackPane();
-                    pane.setStyle("-fx-background-color:" + Settings.instance().getMapBgColour().get(constraint.getColour()));
-                    gPane.add(pane, col, row);
-                }
-                gPane.add(bg, col, row);
-            }
-        }
     }
 
     private void disableOtherButtons(){

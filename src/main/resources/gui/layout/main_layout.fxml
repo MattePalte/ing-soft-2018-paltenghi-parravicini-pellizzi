@@ -14,52 +14,57 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<HBox fx:id="content" alignment="CENTER" prefHeight="768" prefWidth="1366" xmlns="http://javafx.com/javafx/8.0.121"
+<HBox fx:id="content" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.121"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="project.ing.soft.gui.MainLayoutController">
     <VBox fx:id="toolcardBox" alignment="CENTER" spacing="10">
         <padding><Insets bottom="25" left="25" right="25" top="25" /></padding>
-        <VBox styleClass="toolBackground" alignment="CENTER">
-            <ImageView fx:id="toolcard0" />
-        </VBox>
-        <VBox styleClass="toolBackground" alignment="CENTER">
-            <ImageView fx:id="toolcard1" />
-        </VBox>
-        <VBox styleClass="toolBackground" alignment="CENTER">
-            <ImageView fx:id="toolcard2" />
-        </VBox>
+        <VBox fx:id="toolcard0" alignment="CENTER"/>
+        <VBox fx:id="toolcard1" alignment="CENTER"/>
+        <VBox fx:id="toolcard2" alignment="CENTER"/>
     </VBox>
     <VBox fx:id="publicObjBox" alignment="CENTER" spacing="10">
         <padding><Insets bottom="25" left="25" right="25" top="25" /></padding>
-        <VBox styleClass="objBackground" alignment="CENTER">
-            <ImageView fx:id="publicCard0" />
-        </VBox>
-        <VBox styleClass="objBackground" alignment="CENTER">
-            <ImageView fx:id="publicCard1" />
-        </VBox>
-        <VBox styleClass="objBackground" alignment="CENTER">
-            <ImageView fx:id="publicCard2" />
-        </VBox>
+        <VBox fx:id="publicCard0" alignment="CENTER"/>
+        <VBox fx:id="publicCard1" alignment="CENTER"/>
+        <VBox fx:id="publicCard2" alignment="CENTER"/>
     </VBox>
     <VBox alignment="CENTER">
         <Text fx:id="status" />
-        <GridPane fx:id="main_actions" alignment="center" hgap="10" vgap="10">
+        <VBox alignment="CENTER">
             <padding><Insets bottom="25" left="25" right="25" top="25" /></padding>
+            <Text text="RoundTraker" />
+            <Text fx:id="roundnumber"/>
+            <Text fx:id="turnlist"/>
+            <GridPane fx:id="roundtracker" alignment="center" hgap="10" vgap="10">
+                <padding><Insets bottom="25" left="25" right="25" top="25" /></padding>
+            </GridPane>
+        </VBox>
+        <HBox alignment="CENTER">
+            <padding><Insets bottom="25" left="25" right="25" top="25" /></padding>
+            <Text text="Your token for reconnection: " />
+            <TextField fx:id="tokenField" editable="false"/>
+        </HBox>
+        <VBox>
+            <HBox fx:id="main_actions" alignment="center" spacing="10">
+                <padding><Insets bottom="25" left="25" right="25" top="25" /></padding>
 
-            <Button fx:id="btnPlaceDie" disable="true" onAction="#btnPlaceDieOnCLick" styleClass="title" text="Place a Die" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-            <Button fx:id="btnPlayToolCard" disable="true" onAction="#btnPlayToolCardOnCLick" styleClass="title" text="Play Toolcard" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-            <Button fx:id="btnEndTurn" disable="true" onAction="#btnEndTurnOnCLick" styleClass="title" text="End Turn" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-            <Button fx:id="btnCancel" disable="true" onAction="#btnCancelOnCLick" styleClass="title" text="Cancel" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                <Button fx:id="btnPlaceDie" disable="true" onAction="#btnPlaceDieOnCLick" styleClass="title" text="Place a Die" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <Button fx:id="btnPlayToolCard" disable="true" onAction="#btnPlayToolCardOnCLick" styleClass="title" text="Play Toolcard" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                <Button fx:id="btnEndTurn" disable="true" onAction="#btnEndTurnOnCLick" styleClass="title" text="End Turn" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                <Button fx:id="btnCancel" disable="true" onAction="#btnCancelOnCLick" styleClass="title" text="Cancel" GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
-        </GridPane>
+            </HBox>
+            <VBox alignment="CENTER" fx:id="instructionBox">
+                <Text fx:id="instructionTxt"/>
+            </VBox>
+        </VBox>
         <VBox fx:id="currentPlayerInfo" alignment="CENTER">
             <HBox alignment="CENTER">
                 <VBox fx:id="currentPlayerSituation" alignment="CENTER">
                     <padding><Insets bottom="25" left="25" right="25" top="25" /></padding>
-                    <VBox alignment="CENTER" styleClass="instructionBox">
-                        <Text fx:id="instructionBox"/>
-                    </VBox>
+
                     <StackPane>
-                        <GridPane fx:id="matrix" alignment="center" hgap="10" vgap="10">
+                        <GridPane fx:id="matrixPane" alignment="center" hgap="10" vgap="10">
                             <padding><Insets bottom="10" left="10" right="10" top="10" /></padding>
 
                             <Button id="pos00" GridPane.columnIndex="0" GridPane.rowIndex="0" />
@@ -105,9 +110,7 @@
                         <TextField fx:id="favourField" disable="true" />
                     </HBox>
                 </VBox>
-                <VBox alignment="CENTER" styleClass="objBackground">
-                    <ImageView fx:id="imgPrivateObjective" pickOnBounds="true" preserveRatio="true">
-                    </ImageView>
+                <VBox alignment="CENTER" fx:id="imgPrivateObjective">
                 </VBox>
             </HBox>
         </VBox>
@@ -115,13 +118,15 @@
             <padding><Insets bottom="25" left="25" right="25" top="25" /></padding>
 
         </GridPane>
-        <GridPane fx:id="roundtracker" alignment="center" hgap="10" vgap="10">
-            <padding><Insets bottom="25" left="25" right="25" top="25" /></padding>
-        </GridPane>
     </VBox>
-    <VBox fx:id="otherPlayersArea" alignment="CENTER" spacing="10"/>
+    <VBox fx:id="otherPlayersArea" alignment="CENTER" spacing="10">
+        <padding><Insets bottom="25" left="25" right="25" top="25" /></padding>
+    </VBox>
 
+    <!--
     <stylesheets>
-        <URL value="@../style.css" />
+        <URL value="@../old_style.css" />
     </stylesheets>
+    -->
+
 </HBox>

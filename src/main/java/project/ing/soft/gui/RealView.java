@@ -1,5 +1,6 @@
 package project.ing.soft.gui;
 
+import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
@@ -9,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import project.ing.soft.controller.IController;
 import project.ing.soft.model.Player;
 import project.ing.soft.model.gamemanager.IGameManager;
@@ -116,13 +118,14 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         mainLayoutController.setOut(System.out);
         mainLayoutController.setOwnerNameOfTheView(ownerNameOfTheView);
         mainLayoutController.setStage(stage);
+        mainLayoutController.setToken(token);
         mainLayoutController.setGameController(myController);
         mainLayoutController.setLocalCopyOfTheStatus(localCopyOfTheStatus);
         mainBoard = mainLayoutController;
         stage.setTitle("Main Board");
         stage.setScene(scene);
-        stage.setResizable(true);
         stage.setMaximized(true);
+        stage.setResizable(true);
         Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
         stage.setX((primScreenBounds.getWidth() - stage.getWidth()) / 2);
         stage.setY((primScreenBounds.getHeight() - stage.getHeight()) / 2);
@@ -151,6 +154,12 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
             log.log(Level.INFO,"Cause: "+e.getCause() + "\n Message " + e.getMessage());
             return;
         }
+        // prepare transition
+        FadeTransition ft = new FadeTransition(Duration.millis(1000), root);
+        ft.setFromValue(0.0);
+        ft.setToValue(1.0);
+        ft.play();
+        // Show scene
         Scene scene = new Scene(root);
         ChoosePatternController choosePatternController = fxmlLoader.getController();
         choosePatternController.setNick(ownerNameOfTheView);
@@ -159,13 +168,15 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         choosePatternController.setPatternEvent(event);
         choosePatternController.setGameController(myController);
         choosePatternController.renderThings();
-
+        // Prepare stage
+        stage.setResizable(true);
         stage.setTitle("Choose Pattern Card");
         stage.setScene(scene);
-        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
-        stage.setX((primScreenBounds.getWidth() - stage.getWidth()) / 2);
-        stage.setY((primScreenBounds.getHeight() - stage.getHeight()) / 2);
-        stage.show();
+        stage.setMaximized(true);
+//        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
+//        stage.setX((primScreenBounds.getWidth() - stage.getWidth()) / 2);
+//        stage.setY((primScreenBounds.getHeight() - stage.getHeight()) / 2);
+//        stage.show();
     }
 
     @Override

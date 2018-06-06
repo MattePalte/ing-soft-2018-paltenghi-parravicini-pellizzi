@@ -5,6 +5,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -12,22 +13,19 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 import project.ing.soft.Settings;
 import project.ing.soft.exceptions.UserInterruptActionException;
-import project.ing.soft.model.Colour;
-import project.ing.soft.model.Coordinate;
-import project.ing.soft.model.Die;
-import project.ing.soft.model.Player;
+import project.ing.soft.model.*;
 import project.ing.soft.model.cards.Constraint;
 import project.ing.soft.model.cards.WindowPattern;
 import project.ing.soft.model.cards.WindowPatternCard;
@@ -66,7 +64,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     private Map<Colour, String> mapBgColour;
     private Map<Colour, String> mapDieColour;
     private final String STORNG_FOCUS = "#f47a42";
-    private final String LIGHT_FOCUS = "#c4fff0";
+    private final String LIGHT_FOCUS = "#19e4ff";
     private final String NEUTRAL_BG_COLOR = "#c4c4c4";
     private final String WHITE = "#fff";
     private final String CONSTRAIN_TEXT_COLOR = "#b8bab9";
@@ -77,11 +75,12 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     private double SMALL_CELL_DIMENSION;
 
     private final String ID_DRAFTPOOL = "draftPool";
-    private final String ID_MATRIX = "matrix";
+    private final String ID_MATRIX = "matrixPane";
     private final String ID_ROUNDTRACKER = "roundtracker";
     private final String ID_TOOLCARDBOX = "toolcardBox";
     private final String ID_BOX_VALUE = "valueBox";
-    private final String AREA_IDS[] = {ID_DRAFTPOOL, ID_ROUNDTRACKER, ID_MATRIX, ID_TOOLCARDBOX};
+    private final String ID_BOX_ACTION = "main_actions";
+    private final String AREA_IDS[] = {ID_DRAFTPOOL, ID_ROUNDTRACKER, ID_MATRIX, ID_TOOLCARDBOX, ID_BOX_ACTION};
     //endregion
 
     //region Retrieving parameters methods
@@ -172,12 +171,16 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         SMALL_CELL_DIMENSION = CELL_DIMENSION/1.5;
 
 
+        StyleBooster.forInstructionBox(instructionBox, 10);
         turnExecutor = Executors.newSingleThreadExecutor();
     }
 
     //region Getter e Setter
     public void setStage(Stage primaryStage) {
         this.primaryStage = primaryStage;
+    }
+    public void setToken(String token) {
+        this.token = token;
     }
     public Stage getPrimaryStage() {
         return primaryStage;
@@ -206,10 +209,14 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
     //region GUI Elements
     @FXML private TextField favourField;
+    @FXML private TextField tokenField;
 
     // TO DESPLAY INFO
     @FXML private Text status;
-    @FXML private Text instructionBox;
+    @FXML private Text roundnumber;
+    @FXML private Text turnlist;
+    @FXML private Text instructionTxt;
+    @FXML private Pane instructionBox;
     @FXML private GridPane matrixPane;
 
     // PHASE 2 - ACTIONS
@@ -261,7 +268,6 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     @Override
     public void respondTo(SetTokenEvent event) {
         this.token = event.getToken();
-        //TODO: Signal to user which is its token
     }
 
     @Override
@@ -274,6 +280,10 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         displayPrivateObjective(getPrimaryStage().getScene());
         displayToolCard(getPrimaryStage().getScene());
         displayPublicCard(getPrimaryStage().getScene());
+        synchronized (this) {
+            // show connection info
+            tokenField.setText(token);
+        }
     }
 
     @Override
@@ -283,12 +293,17 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Final Rank:");
         String s = "";
+        Map<String, String> pointsDescriptor = event.getPointsDescriptor();
+        for(Player p : localCopyOfTheStatus.getPlayerList()){
+            s += (pointsDescriptor.get(p.getName()));
+        }
         for (Pair<Player, Integer> aPair : event.getRank()){
             s += aPair.getKey().getName() + " => " + aPair.getValue() + "\n";
             out.println(aPair.getKey() + " => " + aPair.getValue());
         }
         alert.setHeaderText(s);
         alert.show();
+        out.println(s);
         stopResponding = true;
     }
 
@@ -299,9 +314,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
     @Override
     public void respondTo(MyTurnStartedEvent event) {
-        btnPlaceDie.setDisable(false);
-        btnPlayToolCard.setDisable(false);
-        btnEndTurn.setDisable(false);
+        enableActions();
     }
 
     @Override
@@ -317,6 +330,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         // Draw other things
         out.println("gestione di model changed");
         drawMySituation();
+        displayOtherPlayerSituation(primaryStage.getScene());
         drawDraftPool();
         drawRoundTracker();
         initializeButtons();
@@ -341,9 +355,11 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
     private void endingOperation() {
         disableAll();
-        btnPlaceDie.setDisable(true);
-        btnPlayToolCard.setDisable(true);
-        btnEndTurn.setDisable(true);
+        synchronized (this) {
+            btnPlaceDie.setDisable(true);
+            btnPlayToolCard.setDisable(true);
+            btnEndTurn.setDisable(true);
+        }
         if(waitingForParameters != null && !waitingForParameters.isDone())
             waitingForParameters.cancel(true);
     }
@@ -372,7 +388,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                 Die currentDie = placedDie[row][col];
                 Constraint constraint = constraints[row][col];
                 if (currentDie == null ) {
-                    if (constraint.getImgPath() != "") {
+                    if (!constraint.getImgPath().equals("")) {
                         Image image = new Image(constraint.getImgPath());
                         ImageView bg = new ImageView(image);
                         bg.setFitHeight(CELL_DIMENSION);
@@ -390,7 +406,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                     }
                     currentCell.setStyle(FX_BACKGROUND + mapBgColour.get(constraint.getColour()));
                 } else {
-                    if (currentDie.getImgPath() != "") {
+                    if (!currentDie.getImgPath().equals("")) {
                         Image image = new Image(currentDie.getImgPath());
                         ImageView bg = new ImageView(image);
                         bg.setFitHeight(SCREEN_WIDTH / 23);
@@ -413,7 +429,6 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         GridPane paneDraft = (GridPane) scene.lookup("#" + ID_DRAFTPOOL);
         List<Die> draft = localCopyOfTheStatus.getDraftPool();
         paneDraft.getChildren().clear();
-        //TODO: add button to draftpool programmatically as in roundtracker
         for (int pos = 0 ; pos < draft.size(); pos++) {
             Die currentDie = draft.get(pos);
             // Create Image
@@ -460,12 +475,27 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         }
     }
     private synchronized void drawRoundTracker() {
+        RoundTracker roundTracker = localCopyOfTheStatus.getRoundTracker();
+        // Draw round number and turn list
+        roundnumber.setText("Round nr: " + roundTracker.getCurrentRound());
+        String listOfTurn = "";
+        for (Player p : localCopyOfTheStatus.getCurrentTurnList()) {
+            listOfTurn += p.getName() + " > ";
+        }
+        if (roundTracker.getCurrentRound() < Settings.instance().getNrOfRound()) {
+            listOfTurn += "round " + (roundTracker.getCurrentRound() + 1);
+        } else {
+            listOfTurn += "end";
+        }
+        turnlist.setText(listOfTurn);
+        // Draw content of the roundtracker
         Scene scene = getPrimaryStage().getScene();
         GridPane paneRoundTracker = (GridPane) scene.lookup("#" + ID_ROUNDTRACKER);
-        List<Die> diceLeft = localCopyOfTheStatus.getRoundTracker().getDiceLeftFromRound();
+        List<Die> diceLeft = roundTracker.getDiceLeftFromRound();
         paneRoundTracker.getChildren().clear();
         for (int pos = 0 ; pos < diceLeft.size(); pos++) {
             int row = pos/9;
+            int col = pos%9;
             Die currentDie = diceLeft.get(pos);
             // Create Image
             Image image = new Image(currentDie.getImgPath());
@@ -477,7 +507,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
             bg.setCache(true);
             // Create Button
             Button currentCell = new Button();
-            paneRoundTracker.add(currentCell, pos, row);
+            paneRoundTracker.add(currentCell, col, row);
             currentCell.setGraphic(bg);
             currentCell.setStyle(FX_BACKGROUND + WHITE);
             currentCell.setOnAction(new EventHandler<>() {
@@ -490,48 +520,64 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         }
     }
     private synchronized void displayPrivateObjective(Scene scene) {
-        ImageView ivPrivateObj = (ImageView) scene.lookup("#imgPrivateObjective");
-        Image img = new Image(myPlayer.getPrivateObjective().getImgPath());
-        if (img == null) img = new Image("objectives/private/30%/objectives-12.png");
-        ivPrivateObj.setImage(img);
-        ivPrivateObj.setFitHeight(SCREEN_WIDTH/6);
-        ivPrivateObj.setPreserveRatio(true);
-        ivPrivateObj.setSmooth(true);
-        ivPrivateObj.setCache(true);
-        Tooltip.install(ivPrivateObj, new Tooltip(
-                myPlayer.getPrivateObjective().getTitle() + "\n" +
-                myPlayer.getPrivateObjective().getDescription()));
+        Pane panePrivateObj = (Pane) scene.lookup("#imgPrivateObjective");
+        ImageView ivPrivateObj = ElementCreator.createCard(myPlayer.getPrivateObjective(), (int) SCREEN_WIDTH/6);
+        panePrivateObj.getChildren().add(0, ivPrivateObj);
+        StyleBooster.forObjectiveCard(panePrivateObj, 10);
     }
     private synchronized void displayToolCard(Scene scene) {
         List<ToolCard> tCard = localCopyOfTheStatus.getToolCards();
-        for (int i = 0; i<3; i++) {
-            ToolCard currentTool = tCard.get(i);
-            ImageView iv = (ImageView) scene.lookup("#toolcard" + i);
-            Image img = new Image(currentTool.getImgPath());
-            iv.setImage(img);
-            iv.setFitHeight(SCREEN_WIDTH/6);
-            iv.setPreserveRatio(true);
-            iv.setSmooth(true);
-            iv.setCache(true);
-            Tooltip.install(iv, new Tooltip(
-                    currentTool.getTitle() + "\n" +
-                            currentTool.getDescription()));
+        for (int index = 0; index<3; index++) {
+            ToolCard currentTool = tCard.get(index);
+            ImageView iv = ElementCreator.createCard(currentTool, (int) SCREEN_WIDTH/6);
+            Pane pane = (Pane) scene.lookup("#toolcard" + index);
+            pane.getChildren().add(0, iv);
+            StyleBooster.forToolCardCard(pane, 7);
+            int finalIndex = index;
+            iv.setOnMouseClicked(new EventHandler<>() {
+                @Override
+                public void handle(MouseEvent event) {
+                    disableAll();
+                    collectToolcardIndex(finalIndex);
+                }
+            });
         }
     }
+    private synchronized void displayOtherPlayerSituation(Scene scene) {
+        List<Player> listOfPlayer = localCopyOfTheStatus.getPlayerList();
+        if (localCopyOfTheStatus == null || listOfPlayer == null) return;
+        Pane area = (Pane) scene.lookup("#otherPlayersArea");
+        for (int index = 0; index < listOfPlayer.size(); index++){
+            Player p = listOfPlayer.get(index);
+            // Create Text to show difficulty
+            Text txtPlayerName = new Text(p.getName());
+            // Create and style box
+            VBox playerBox = new VBox();
+            playerBox.setAlignment(Pos.CENTER);
+            StyleBooster.forPatternCard(playerBox, 10);
+            // Create GridPane for pattern Card
+            GridPane playerPattern = ElementCreator.createPattern(p.getPattern(), p.getPlacedDice(), Settings.instance().getCELL_DIMENSION());
+            // Add elements
+            playerBox.getChildren().add(0,txtPlayerName);
+            playerBox.getChildren().add(0,playerPattern);
+            // Add player to area of other player
+            if (area.getChildren().size() > index) {
+                area.getChildren().set(index, playerBox);
+            } else {
+                area.getChildren().add(index, playerBox);
+            }
+        }
+
+    }
+
     private synchronized void displayPublicCard(Scene scene) {
         List<PublicObjective> pubCard = localCopyOfTheStatus.getPublicObjective();
-        for (int i = 0; i<3; i++) {
-            PublicObjective currentPub = pubCard.get(i);
-            ImageView iv = (ImageView) scene.lookup("#publicCard" + i);
-            Image img = new Image(currentPub.getImgPath());
-            iv.setImage(img);
-            iv.setFitHeight(SCREEN_WIDTH/6);
-            iv.setPreserveRatio(true);
-            iv.setSmooth(true);
-            iv.setCache(true);
-            Tooltip.install(iv, new Tooltip(
-                    currentPub.getTitle() + "\n" +
-                            currentPub.getDescription()));
+        for (int index = 0; index<3; index++) {
+            PublicObjective currentPub = pubCard.get(index);
+            ImageView iv = ElementCreator.createCard(currentPub, (int) SCREEN_WIDTH/6);
+            Pane pane = (Pane) scene.lookup("#publicCard" + index);
+            pane.getChildren().add(0, iv);
+            StyleBooster.forObjectiveCard(pane, 7);
         }
     }
     //endregion
@@ -551,7 +597,9 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         // PRE-SETUP
         initializeButtons();
         endingOperation();
-        btnCancel.setDisable(false);
+        synchronized (this) {
+            btnCancel.setDisable(false);
+        }
         IToolCardParametersAcquirer myAcquirer = this;
         // CREATE AN ANONYMOUS THREAD WAITING FOR INPUT
         waitingForParameters = turnExecutor.submit(
@@ -574,7 +622,8 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                             Thread.currentThread().interrupt();
                         } catch (Exception e) {
                             displayError(e);
-                            btnPlaceDie.setDisable(false);
+                        } finally {
+                            enableActions();
                         }
                     }
                 }
@@ -585,7 +634,9 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         // PRE-SETUP
         initializeButtons();
         endingOperation();
-        btnCancel.setDisable(false);
+        synchronized (this) {
+            btnCancel.setDisable(false);
+        }
         IToolCardParametersAcquirer myAcquirer = this;
         // CREATE AN ANONYMOUS THREAD WAITING FOR INPUT
         waitingForParameters = turnExecutor.submit(
@@ -607,7 +658,8 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                             Thread.currentThread().interrupt();
                         } catch (Exception e) {
                             displayError(e);
-                            btnPlayToolCard.setDisable(false);
+                        } finally {
+                            enableActions();
                         }
                     }
                 }
@@ -616,12 +668,9 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
     public void btnCancelOnCLick() throws Exception{
         endingOperation();
-        btnEndTurn.setDisable(false);
-        btnPlayToolCard.setDisable(false);
-        btnPlaceDie.setDisable(false);
-        btnCancel.setDisable(true);
+        enableActions();
         synchronized (this) {
-            instructionBox.setText("");
+            instructionTxt.setText("");
         }
     }
     public void btnEndTurnOnCLick() throws Exception {
@@ -629,13 +678,14 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         btnCancel.setDisable(true);
         gameController.endTurn(ownerNameOfTheView);
         synchronized (this) {
-            instructionBox.setText("");
+            instructionTxt.setText("");
         }
     }
     //endregion
 
     public synchronized void initializeButtons(){
         Scene scene = getPrimaryStage().getScene();
+        StyleBooster.forPatternCard(matrixPane, 20);
         // set button of pattern
         for (int row = 0; row < Settings.instance().getMATRIX_NR_ROW(); row++) {
             for (int col = 0; col < Settings.instance().getMATRIX_NR_COL(); col++) {
@@ -650,18 +700,6 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                     }
                 });
             }
-        }
-        //set listeners on toolcard
-        for(int index = 0; index < NR_TOOLCARD; index++) {
-            ImageView imageView = (ImageView) scene.lookup("#toolcard" + index);
-            int finalIndex = index;
-            imageView.setOnMouseClicked(new EventHandler<>() {
-                @Override
-                public void handle(MouseEvent event) {
-                    disableAll();
-                    collectToolcardIndex(finalIndex);
-                }
-            });
         }
     }
 
@@ -689,7 +727,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
     private synchronized void focusOn(String idPane, String message){
         focusOn(idPane);
-        instructionBox.setText(message);
+        instructionTxt.setText(message);
     }
 
     private synchronized void focusOff(String idPane) {
@@ -710,6 +748,15 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                 focusOff(id);
             }
         }
+    }
+
+    public synchronized void enableActions(){
+        btnPlaceDie.setDisable(false);
+        btnEndTurn.setDisable(false);
+        btnPlayToolCard.setDisable(false);
+        btnCancel.setDisable(true);
+        focus(ID_BOX_ACTION, true);
+        instructionTxt.setText("Select an action ");
     }
     //endregion
 

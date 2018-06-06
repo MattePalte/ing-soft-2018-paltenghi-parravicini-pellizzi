@@ -19,8 +19,9 @@
         <padding><Insets top="25" right="25" bottom="25" left="25"/></padding>
 
     </GridPane>
-
+<!--
     <stylesheets>
-        <URL value="@../style.css"></URL>
+        <URL value="@../old_style.css"></URL>
     </stylesheets>
+    -->
 </VBox>

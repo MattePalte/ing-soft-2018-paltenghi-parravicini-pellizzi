@@ -10,6 +10,7 @@ public class Settings {
     private static Settings internalInstance;
     // General Game Settings
     private int nrPlayersOfNewMatch = 2;
+    private int nrOfRound = 10;
     // Connection Settings
     private int port = 3000;
     private String host = "localhost";
@@ -50,6 +51,10 @@ public class Settings {
 
     public int getNrPlayersOfNewMatch() {
         return nrPlayersOfNewMatch;
+    }
+
+    public int getNrOfRound() {
+        return nrOfRound;
     }
 
     public int getPort() {
