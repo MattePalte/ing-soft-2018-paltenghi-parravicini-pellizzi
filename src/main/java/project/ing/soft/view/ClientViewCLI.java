@@ -171,7 +171,9 @@ public class ClientViewCLI extends UnicastRemoteObject
                 "Show public objectives",
                 "Show my situation",
                 "Show my favours",
-                "End turn");
+                "End turn",
+                "Exit"
+        );
 
 
         do{
@@ -218,7 +220,11 @@ public class ClientViewCLI extends UnicastRemoteObject
                     case 5:
                         controller.endTurn(ownerNameOfTheView);
                         break;
-
+                    case 6:
+                        controller =  null;
+                        System.gc();
+                        System.exit(0);
+                        break;
                     default:
                         out.println("No operation performed");
 

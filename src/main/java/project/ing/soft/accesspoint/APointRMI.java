@@ -1,6 +1,7 @@
 package project.ing.soft.accesspoint;
 
 import project.ing.soft.controller.IController;
+import project.ing.soft.rmi.PlayerControllerOverRmi;
 import project.ing.soft.rmi.ViewProxyOverRmi;
 import project.ing.soft.view.IView;
 
@@ -38,7 +39,7 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
             ap.log.log(Level.SEVERE, "error while getting the registry" , ex);
             throw ex;
         }
-
+        System.setProperty("java.rmi.dgc.leaseValue", "10000");
         registry.rebind(ACCESS_POINT, ap);
         ap.log.log(Level.INFO,"AccessPoint RMI published on the registry");
     }
@@ -68,15 +69,21 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint{
         ViewProxyOverRmi proxyOverRmi = new ViewProxyOverRmi(clientView, nickname);
         IController newController = accessPointReal.connect(nickname, proxyOverRmi);
         // POST CONNECT ->
+        proxyOverRmi.attachController(newController);
         proxyOverRmi.start();
-        return newController;
+
+        return (proxyOverRmi);
     }
 
     @Override
     public IController reconnect(String nickname, String code, IView clientView) throws Exception {
         log.log(Level.INFO,"{0} requested to reconnect", nickname);
-        IController gameToReconnect = accessPointReal.reconnect(nickname, code, clientView);
-        return gameToReconnect;
+        ViewProxyOverRmi proxyOverRmi = new ViewProxyOverRmi(clientView, nickname);
+        IController newController = accessPointReal.reconnect(nickname, code, clientView);
+        // POST CONNECT ->
+        proxyOverRmi.attachController(newController);
+        proxyOverRmi.start();
+        return (proxyOverRmi);
     }
 
 }

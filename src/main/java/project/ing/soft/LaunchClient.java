@@ -11,6 +11,7 @@ import project.ing.soft.view.IView;
 import project.ing.soft.view.LocalViewCli;
 
 import java.io.PrintStream;
+import java.rmi.Naming;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Random;
@@ -22,7 +23,7 @@ public class LaunchClient {
     public static void main(String[] args) throws Exception {
         PrintStream out = new PrintStream(System.out);
         Random rndGen = new Random();
-
+        System.setProperty("java.rmi.dgc.leaseValue", "10000");
         Colour foreground;
         Colour[] coloursAvailable = new Colour[]{Colour.RED, Colour.VIOLET};
         foreground = coloursAvailable[rndGen.nextInt(coloursAvailable.length)];
@@ -67,12 +68,15 @@ public class LaunchClient {
             case "0":
 
                 //args[0] should be the ip address of the machine running the registry
-                Registry registry = LocateRegistry.getRegistry( Settings.instance().getDefaultIpForRMI());
-                out.println("Objects currently registered in the registry");
+
+                //Registry registry = LocateRegistry.getRegistry( Settings.instance().getDefaultIpForRMI());
+                /*out.println("Objects currently registered in the registry");
                 String[] registryList = registry.list();
                 for(String s : registryList)
                     out.println(s);
                 accessPoint = (IAccessPoint) registry.lookup("accesspoint");
+                */
+                accessPoint = (IAccessPoint) Naming.lookup("accesspoint");
                 break;
             case "1":
                 try {
