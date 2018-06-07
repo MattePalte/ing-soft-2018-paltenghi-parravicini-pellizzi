@@ -49,10 +49,7 @@ public class Console {
     }
 
     public void println(String message) {
-        if (attemptWindowsPrint(message)) {
-            System.out.println();
-        }
-        else {
+        if (!attemptWindowsPrint(message.concat(System.getProperty("line.separator")))) {
             System.out.println(message);
         }
     }

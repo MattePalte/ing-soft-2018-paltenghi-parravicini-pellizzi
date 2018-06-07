@@ -36,7 +36,7 @@ public class LaunchServer {
         in  = new Scanner(System.in);
 
         //map of commands
-        commands = new HashMap<>();
+        commands = new TreeMap<>();
         // Populate commands map
         commands.put("logAvailable", this::logAvailable);
         commands.put("logEnable", this::logEnable);
@@ -133,6 +133,7 @@ public class LaunchServer {
 
     }
     //endregion
+
     //region scanner operation
     private int waitForUserInput(int lowerBound , int upperBound) throws UserInterruptActionException {
         int ret = 0;
@@ -178,7 +179,7 @@ public class LaunchServer {
 
     /**
      * Launch Server class is responsible for handling construction/destruction of the server
-     * @param args
+     * @param args no parameter is required
      */
     public static void main(String[] args) {
         LaunchServer ls = new LaunchServer();

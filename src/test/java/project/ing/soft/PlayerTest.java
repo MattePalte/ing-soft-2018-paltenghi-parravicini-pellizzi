@@ -7,13 +7,13 @@ import project.ing.soft.model.Die;
 import project.ing.soft.model.Player;
 import project.ing.soft.model.cards.WindowPatternCard;
 import project.ing.soft.rmi.ViewProxyOverRmi;
-import project.ing.soft.view.LocalViewCli;
 import project.ing.soft.exceptions.PatternConstraintViolatedException;
 import project.ing.soft.exceptions.PositionOccupiedException;
 import project.ing.soft.exceptions.RuleViolatedException;
 import org.junit.*;
 import project.ing.soft.model.cards.Constraint;
 import project.ing.soft.model.cards.objectives.privates.SfumatureBlu;
+import project.ing.soft.view.ClientViewCLI;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +27,7 @@ public class PlayerTest {
 
     @Before
     public void playerCreation() throws RemoteException{
-        testPlayer = new Player("giocatore 1", new LocalViewCli("giocatore 1"));
+        testPlayer = new Player("giocatore 1", new ClientViewCLI("giocatore 1"));
         // set private objective
         testPlayer.setPrivateObjective(new SfumatureBlu());
         // set WindowPatternCard from file
@@ -45,7 +45,7 @@ public class PlayerTest {
 
         }
 
-        testPlayerWithWhitePatternCardNoMove = new Player("Test", new LocalViewCli("Test") );
+        testPlayerWithWhitePatternCardNoMove = new Player("Test", new ClientViewCLI("Test") );
         // set private objective
         testPlayerWithWhitePatternCardNoMove.setPrivateObjective(new SfumatureBlu());
         // set WindowPatternCard from file
@@ -745,16 +745,16 @@ public class PlayerTest {
 
     @Test
     public void testDisconnection() throws IOException {
-        Player toBeTested = new Player("Test", new ViewProxyOverRmi(new LocalViewCli("Test"), "Test"));
+        Player toBeTested = new Player("Test", new ViewProxyOverRmi(new ClientViewCLI("Test"), "Test"));
         toBeTested.disconnectView();
         Assert.assertFalse(toBeTested.isConnected());
     }
 
     @Test
     public void testReconnection() throws RemoteException {
-        Player toBeTested = new Player("Test", new ViewProxyOverRmi(new LocalViewCli("Test"), "Test"));
+        Player toBeTested = new Player("Test", new ViewProxyOverRmi(new ClientViewCLI("Test"), "Test"));
         Player copy = new Player(toBeTested);
-        toBeTested.reconnectView(new ViewProxyOverRmi(new LocalViewCli("Test"), "Test"));
+        toBeTested.reconnectView(new ViewProxyOverRmi(new ClientViewCLI("Test"), "Test"));
         Assert.assertTrue(toBeTested.isConnected());
         Assert.assertNotEquals(copy, toBeTested);
     }

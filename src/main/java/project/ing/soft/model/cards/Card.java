@@ -21,7 +21,7 @@ public interface Card extends Serializable{
         return StringBoxBuilder.drawNear(0, others.length-1, others);
     }
 
-    static String drawNear( List<Object> others ){
+    static String drawNear( List others ){
         return StringBoxBuilder.drawNear(0, others.size()-1, others.toArray());
     }
 

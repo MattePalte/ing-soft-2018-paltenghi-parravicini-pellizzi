@@ -4,7 +4,6 @@ package project.ing.soft;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Game;
 import project.ing.soft.model.Player;
-import project.ing.soft.view.LocalViewCli;
 
 import java.io.FileNotFoundException;
 import java.rmi.RemoteException;
@@ -13,6 +12,7 @@ import java.util.Random;
 
 
 import org.junit.*;
+import project.ing.soft.view.ClientViewCLI;
 
 public class GameTest {
 
@@ -21,16 +21,16 @@ public class GameTest {
     @Before
     public void CreateGameAndAddPlayers() throws FileNotFoundException, Colour.ColorNotFoundException, RemoteException {
         Game aMultiplePlayerGame = new Game(3);
-        aMultiplePlayerGame.add(new Player("Matteo", new LocalViewCli("Matteo")));
-        aMultiplePlayerGame.add(new Player("Daniele", new LocalViewCli("Daniele")));
+        aMultiplePlayerGame.add(new Player("Matteo", new ClientViewCLI("Matteo")));
+        aMultiplePlayerGame.add(new Player("Daniele", new ClientViewCLI("Daniele")));
         Assert.assertEquals(2, aMultiplePlayerGame.getNumberOfPlayers());
         Assert.assertTrue(aMultiplePlayerGame.isValid());
 
-        aMultiplePlayerGame.add(new Player("Kris", new LocalViewCli("Kris")));
+        aMultiplePlayerGame.add(new Player("Kris", new ClientViewCLI("Kris")));
         Assert.assertEquals(3, aMultiplePlayerGame.getNumberOfPlayers());
         Assert.assertTrue(aMultiplePlayerGame.isValid());
 
-        aMultiplePlayerGame.add(new Player("TestPlayer", new LocalViewCli("TestPlayer")));
+        aMultiplePlayerGame.add(new Player("TestPlayer", new ClientViewCLI("TestPlayer")));
         Assert.assertEquals(aMultiplePlayerGame.getMaxNumPlayers(), aMultiplePlayerGame.getNumberOfPlayers());
         Assert.assertTrue(aMultiplePlayerGame.isValid());
     }
@@ -38,7 +38,7 @@ public class GameTest {
     @Before
     public void CreateGameAndAddPlayer() throws FileNotFoundException, Colour.ColorNotFoundException, RemoteException {
         Game aSinglePlayerGame = new Game(1);
-        aSinglePlayerGame.add(new Player("Matteo",new LocalViewCli("Matteo")));
+        aSinglePlayerGame.add(new Player("Matteo",new ClientViewCLI("Matteo")));
     }
 
     @Test
@@ -46,7 +46,7 @@ public class GameTest {
         int players = rndGen.nextInt(4) + 1;
         Game toBeCopied = new Game(players);
         for(int i = 0; i < players; i++){
-            toBeCopied.add(new Player("TestPlayer", new LocalViewCli("TestPlayer")));
+            toBeCopied.add(new Player("TestPlayer", new ClientViewCLI("TestPlayer")));
         }
         Game copy = new Game(toBeCopied);
         Assert.assertFalse(copy == toBeCopied);
@@ -61,7 +61,7 @@ public class GameTest {
         int players = rndGen.nextInt(4) + 1;
         Game toBeTested = new Game(players);
         for(int i = 0; i < players; i++){
-            toBeTested.add(new Player("Test", new LocalViewCli("Test")));
+            toBeTested.add(new Player("Test", new ClientViewCLI("Test")));
         }
         Player firstPlayer = toBeTested.getPlayers().get(0);
         //Repeat shift operation until the result is equal to the first list
@@ -83,12 +83,12 @@ public class GameTest {
         int players = rndGen.nextInt(4) + 1;
         Game toBeTested = new Game(players);
         for(int i = 0; i < players - 1; i++){
-            toBeTested.add(new Player("Test", new LocalViewCli("Test")));
+            toBeTested.add(new Player("Test", new ClientViewCLI("Test")));
         }
-        toBeTested.add(new Player("Kris", new LocalViewCli("Kris")));
+        toBeTested.add(new Player("Kris", new ClientViewCLI("Kris")));
         Game gameBackup = new Game(toBeTested);
 
-        toBeTested.reconnect("Kris", new LocalViewCli("Kris"));
+        toBeTested.reconnect("Kris", new ClientViewCLI("Kris"));
         Assert.assertEquals(gameBackup.getMaxNumPlayers(), toBeTested.getMaxNumPlayers());
         Assert.assertEquals(gameBackup.getNumberOfPlayers(), toBeTested.getNumberOfPlayers());
         Assert.assertNotEquals(gameBackup.getPlayers(), toBeTested.getPlayers());
@@ -102,7 +102,7 @@ public class GameTest {
         }
 
         gameBackup = new Game(toBeTested);
-        toBeTested.reconnect("Johnny", new LocalViewCli("Johnny"));
+        toBeTested.reconnect("Johnny", new ClientViewCLI("Johnny"));
         Assert.assertEquals(gameBackup, toBeTested);
     }
 
@@ -113,7 +113,7 @@ public class GameTest {
 
         myModel.countPlayersPoints();
         Player p = myModel.getWinner();
-        Assert.assertTrue(p.equals(new Player("Kris", new LocalViewCli("Kris"))));
+        Assert.assertTrue(p.equals(new Player("Kris", new ClientViewCLI("Kris"))));
         System.out.println("Player "+ p +" wins!");
     }
 
@@ -123,7 +123,7 @@ public class GameTest {
         IGameManager referee = GameManagerFactory.factory(aSinglePlayerGame);
         referee.countPlayersPoints();
         Player p = referee.getWinner();
-        Assert.assertTrue(p.equals(new Player("Kris", new LocalViewCli("Kris"))));
+        Assert.assertTrue(p.equals(new Player("Kris", new ClientViewCLI("Kris"))));
         System.out.println("Player "+ p +" wins!");
 
     }*/

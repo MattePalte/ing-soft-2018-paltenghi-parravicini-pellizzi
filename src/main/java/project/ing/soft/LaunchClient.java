@@ -8,7 +8,6 @@ import project.ing.soft.exceptions.NickNameAlreadyTakenException;
 import project.ing.soft.model.Colour;
 import project.ing.soft.view.ClientViewCLI;
 import project.ing.soft.view.IView;
-import project.ing.soft.view.LocalViewCli;
 
 import java.io.PrintStream;
 import java.rmi.Naming;
@@ -109,7 +108,7 @@ public class LaunchClient {
                         name = scan.nextLine();
                         out.println("Your nickname is " + name);
                         // Create a new view with the up-to-date name. The view is started after this method ends
-                        view = new LocalViewCli(name);
+                        view = new ClientViewCLI(name);
                         nicknameAlreadyTaken = true;
                     }
                 } while (nicknameAlreadyTaken);

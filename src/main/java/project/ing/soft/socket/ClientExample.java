@@ -2,7 +2,7 @@ package project.ing.soft.socket;
 
 
 import project.ing.soft.exceptions.NickNameAlreadyTakenException;
-import project.ing.soft.view.LocalViewCli;
+import project.ing.soft.view.ClientViewCLI;
 
 import java.util.Scanner;
 
@@ -26,7 +26,7 @@ public class ClientExample extends Thread{
             Scanner in = new Scanner(System.in);
             int choice = in.nextInt();
             in.nextLine();
-            LocalViewCli view = new LocalViewCli(name);
+            ClientViewCLI view = new ClientViewCLI(name);
             APProxySocket accessPointProxy = new APProxySocket(host, port);
             boolean nicknameAlreadyTaken;
             if(choice == 0)
@@ -41,7 +41,7 @@ public class ClientExample extends Thread{
                         name = in.nextLine();
                         System.out.println("Your nickname is " + name);
                         // Create a new view with the up-to-date name. The view is started after this method ends
-                        view = new LocalViewCli(name);
+                        view = new ClientViewCLI(name);
                         nicknameAlreadyTaken = true;
                     }
                 } while(nicknameAlreadyTaken);

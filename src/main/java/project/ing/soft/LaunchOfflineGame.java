@@ -1,8 +1,8 @@
 package project.ing.soft;
 
 import project.ing.soft.controller.GameController;
+import project.ing.soft.view.ClientViewCLI;
 import project.ing.soft.view.IView;
-import project.ing.soft.view.LocalViewCli;
 import project.ing.soft.controller.IController;
 
 import java.util.UUID;
@@ -17,9 +17,9 @@ public class LaunchOfflineGame
         IController fantasticController = new GameController(3, UUID.randomUUID().toString());
 
         // Create two views (that correspond to clients in RMI context)
-        IView viewMatteo = new LocalViewCli("Matteo");
-        IView viewDaniele = new LocalViewCli("Daniele");
-        IView viewKris = new LocalViewCli("Kris");
+        IView viewMatteo = new ClientViewCLI("Matteo");
+        IView viewDaniele = new ClientViewCLI("Daniele");
+        IView viewKris = new ClientViewCLI("Kris");
 
         // give each view its controller (that correspond to a remote obj in RMI context)
         viewMatteo.attachController(fantasticController);

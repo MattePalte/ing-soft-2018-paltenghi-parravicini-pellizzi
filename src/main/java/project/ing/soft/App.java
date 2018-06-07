@@ -3,7 +3,7 @@ package project.ing.soft;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Game;
 import project.ing.soft.model.Player;
-import project.ing.soft.view.LocalViewCli;
+import project.ing.soft.view.ClientViewCLI;
 
 import java.io.FileNotFoundException;
 import java.rmi.RemoteException;
@@ -50,7 +50,7 @@ public class App
             //  prompt for the player name
             System.out.println(String.format("Name for player nr %d : ", i));
             String newName = scanner.next();
-            Player newPlayer = new Player(newName, new LocalViewCli(newName));
+            Player newPlayer = new Player(newName, new ClientViewCLI(newName));
             theGame.add(newPlayer);
         }
         return theGame;
