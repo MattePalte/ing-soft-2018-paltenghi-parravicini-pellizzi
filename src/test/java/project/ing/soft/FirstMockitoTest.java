@@ -12,7 +12,7 @@ public class FirstMockitoTest {
 
     @Test
     public void test() {
-        ArrayList<String> mockList = new ArrayList<>();
+        ArrayList<String> mockList = mock(ArrayList.class);
 
         mockList.add("First");
         when(mockList.get(0)).thenReturn("Mockito");
