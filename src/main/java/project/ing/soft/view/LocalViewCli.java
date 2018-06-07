@@ -20,17 +20,21 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHandler, IToolCardParametersAcquirer, Serializable {
-    private IGameManager localCopyOfTheStatus;
-    private IController  controller;
-    private String ownerNameOfTheView;
-    private boolean stopResponding = false;
-    private transient PrintStream out;
-    private final transient Queue<Event> eventsReceived;
-    private transient ExecutorService turnExecutor;
-    private transient Future actualTurn;
-    private transient Future eventWaitingForInput;
-    private transient ExecutorService eventHandler;
-    private transient NonBlockingScanner scanner;
+    private String                          ownerNameOfTheView;
+    private IGameManager                    localCopyOfTheStatus;
+
+    private transient IController           controller;
+
+
+    private transient PrintStream           out;
+    private transient NonBlockingScanner    scanner;
+    private final transient Queue<Event>    eventsReceived;
+
+    private transient ExecutorService       turnExecutor;
+    private transient ExecutorService       eventHandler;
+    private transient Future                actualTurn;
+    private transient Future                eventWaitingForInput;
+
     private transient String token;
 
     public LocalViewCli(String ownerNameOfTheView) throws RemoteException {
@@ -49,7 +53,6 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
     private boolean eventHandlingFunction() throws InterruptedException {
         Event toRespond;
-
         while(gameOngoing()) {
 
             synchronized (eventsReceived) {
@@ -76,7 +79,7 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     public void update(Event aEvent) {
         out.println( getTime() + " - " + ownerNameOfTheView + " ha ricevuto un evento :" + aEvent);
 
-        if (!stopResponding) {
+        if (gameOngoing()) {
             synchronized (eventsReceived) {
                 eventsReceived.add(aEvent);
                 eventsReceived.notifyAll();
@@ -385,7 +388,6 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
     }
 //endregion
 
-
     //region parameters acquirer
     @Override
     public Die getDieFromDraft(String message) throws InterruptedException, UserInterruptActionException {
@@ -401,7 +403,6 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
 
     @Override
     public Coordinate getCoordinate(String message) throws InterruptedException, UserInterruptActionException {
-
         return chooseDieCoordinate(message);
     }
 
@@ -411,4 +412,9 @@ public class LocalViewCli extends UnicastRemoteObject implements IView, IEventHa
         return (Integer) chooseFrom( Arrays.asList(values) );
     }
     //endregion
+
+    public void stop(){
+        threadPool.shutdown();
+
+    }
 }

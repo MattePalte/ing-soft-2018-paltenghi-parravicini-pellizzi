@@ -15,6 +15,7 @@ import project.ing.soft.controller.IController;
 import java.io.*;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -22,7 +23,7 @@ import java.util.concurrent.*;
 public class ClientViewCLI extends UnicastRemoteObject
         implements IView, IEventHandler, Serializable, IToolCardParametersAcquirer {
 
-    private IGameManager localCopyOfTheStatus;
+    private IGameManager    localCopyOfTheStatus;
 
     private String ownerNameOfTheView;
     private transient IController  controller;
@@ -91,7 +92,7 @@ public class ClientViewCLI extends UnicastRemoteObject
 
     @Override
     public void update(Event aEvent) {
-        out.println( ownerNameOfTheView + " has received an event:" + aEvent);
+        out.println( getTime() + " - " + ownerNameOfTheView + " ha ricevuto un evento :" + aEvent);
 
         if (gameOngoing()) {
             synchronized (eventsReceived) {
@@ -101,6 +102,30 @@ public class ClientViewCLI extends UnicastRemoteObject
         }
     }
 
+    private String getTime() {
+        Calendar c = Calendar.getInstance(); //automatically set to current time
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        return dateFormat.format(c.getTime());
+    }
+
+
+    @Override
+    public void respondTo(ToolcardActionRequestEvent event){
+        eventWaitingForInput = turnExecutor.submit(() -> {
+            ToolCard aToolCard = event.getCard();
+            boolean done = false;
+            do{
+                try {
+                    aToolCard.fill(this);
+                    controller.playToolCard(ownerNameOfTheView, aToolCard);
+                    done = true;
+                }catch(Exception ex){
+                    displayError(ex);
+                }
+            }while (!done);
+
+        });
+    }
 
     @Override
     public void respondTo(CurrentPlayerChangedEvent event) {
@@ -123,8 +148,6 @@ public class ClientViewCLI extends UnicastRemoteObject
             do {
                 err = false;
                 try {
-                    out.println("These are the public objectives: ");
-                    out.println(Card.drawNear(localCopyOfTheStatus.getPublicObjective().toArray()));
                     out.println("This is your private objective: ");
                     out.println(event.getMyPrivateObjective());
                     WindowPatternCard aCard = (WindowPatternCard) chooseFrom(List.of(event.getOne(), event.getTwo()));
@@ -304,14 +327,17 @@ public class ClientViewCLI extends UnicastRemoteObject
 
     //region helper functions
 
-    private void displayError(Exception ex){
+    private void displayError(Exception ex) {
         out.println("Error: "+ex.getMessage());
-        Scanner input = new Scanner(System.in);
-
         out.println("Do you need stack trace? [y/n]");
 
-        if(input.next().startsWith("y"))
-            ex.printStackTrace(out);
+        try {
+            if(scanner.readLine().startsWith("y"))
+                ex.printStackTrace(out);
+        } catch (InterruptedException ignored) {
+            out.println("Input operation interrupted");
+            Thread.currentThread().interrupt();
+        }
     }
 
     private void displayMySituation(){
@@ -327,9 +353,9 @@ public class ClientViewCLI extends UnicastRemoteObject
     }
 
     private void displayEntireGameBoard(){
-        out.println("Public objectives");
+        out.println("Public objectives:");
         out.println(Card.drawNear(localCopyOfTheStatus.getPublicObjective()));
-        out.println("ToolCards");
+        out.println("ToolCards:");
         out.println(Card.drawNear(localCopyOfTheStatus.getToolCards()));
 
         for (Player p : localCopyOfTheStatus.getPlayerList()) {
@@ -350,28 +376,27 @@ public class ClientViewCLI extends UnicastRemoteObject
 
     //region user input
 
-    private int waitForUserInput(int lowerBound , int upperBound) throws UserInterruptActionException, InterruptedException {
-        int ret = lowerBound;
-        boolean err;
+    private int waitForUserInput( int upperBound) throws UserInterruptActionException, InterruptedException {
+        int ret      = 0;
+        boolean done = false;
 
         do{
-            err = false;
+
             try{
-
                 ret = Integer.valueOf(scanner.readLine());
+                done = ret >= 0 && ret <= upperBound;
             }
-            catch( NumberFormatException e){
-                err = true;
+            catch( NumberFormatException ignored){
+                //No action need to be performed here.
             }
-            err = err || ret < lowerBound || ret > upperBound;
 
-            if(err){
+            if(!done){
                 if(scanner.readLine().startsWith("q"))
                     throw new UserInterruptActionException();
                 out.println("You entered a value that does not fit into the correct interval. Enter q to interrupt the operation");
 
             }
-        }while(err);
+        }while(!done);
 
         return ret;
     }
@@ -381,9 +406,9 @@ public class ClientViewCLI extends UnicastRemoteObject
         int row = 0;
         int col = 0;
         out.println("Row Index [0 - 3]");
-        row = waitForUserInput(0, 3);
+        row = waitForUserInput( 3);
         out.println("Col Index [0 - 4]");
-        col = waitForUserInput(0, 4);
+        col = waitForUserInput( 4);
         return new Coordinate(row, col);
 
     }
@@ -398,13 +423,12 @@ public class ClientViewCLI extends UnicastRemoteObject
         for (int i = 0; i < objs.size() ; i++) {
             out.println(String.format("[%d] for %s", i, objs.get(i).toString()));
         }
-        return waitForUserInput(0, objs.size()-1);
+        return waitForUserInput( objs.size()-1);
 
     }
 //endregion
 
     //region parameters acquirer
-
     @Override
     public Die getDieFromDraft(String message) throws InterruptedException, UserInterruptActionException {
         out.println(message);
@@ -425,9 +449,8 @@ public class ClientViewCLI extends UnicastRemoteObject
     @Override
     public int getValue(String message, Integer... values) throws InterruptedException, UserInterruptActionException {
         out.println(message);
-        return (int) chooseFrom(Arrays.asList(values));
+        return (Integer) chooseFrom( Arrays.asList(values) );
     }
-
     //endregion
 
     public void stop(){
