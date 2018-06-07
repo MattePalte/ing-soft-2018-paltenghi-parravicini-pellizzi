@@ -16,7 +16,7 @@
        fx:controller="project.ing.soft.gui.ChoosePatternController" >
         <ImageView fx:id="ivBackground">
             <image>
-                <Image url="@../lincoln-wide.jpg" />
+                <Image url="@../lincoln-wide.jpg" requestedHeight="422.0" requestedWidth="1366.0"/>
             </image>
         </ImageView>
         <VBox alignment="CENTER" >

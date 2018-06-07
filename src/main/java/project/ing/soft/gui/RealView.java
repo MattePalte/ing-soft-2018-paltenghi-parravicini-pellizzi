@@ -10,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import project.ing.soft.controller.IController;
 import project.ing.soft.model.Player;
@@ -122,18 +123,19 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         mainLayoutController.setGameController(myController);
         mainLayoutController.setLocalCopyOfTheStatus(localCopyOfTheStatus);
         mainBoard = mainLayoutController;
+        stage.hide();
         stage.setTitle("Main Board");
         stage.setScene(scene);
+        if (mainBoard != null) {
+            mainBoard.respondTo(event);
+        }
         stage.setMaximized(true);
         stage.setResizable(true);
         Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
         stage.setX((primScreenBounds.getWidth() - stage.getWidth()) / 2);
         stage.setY((primScreenBounds.getHeight() - stage.getHeight()) / 2);
+
         stage.show();
-        if (mainBoard != null) {
-            mainBoard.respondTo(event);
-            return;
-        }
     }
 
     @Override
@@ -169,14 +171,14 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         choosePatternController.setGameController(myController);
         choosePatternController.renderThings();
         // Prepare stage
+        stage.hide();
         stage.setResizable(true);
         stage.setTitle("Choose Pattern Card");
+        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
+        stage.centerOnScreen();
         stage.setScene(scene);
-        stage.setMaximized(true);
-//        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
-//        stage.setX((primScreenBounds.getWidth() - stage.getWidth()) / 2);
-//        stage.setY((primScreenBounds.getHeight() - stage.getHeight()) / 2);
-//        stage.show();
+        stage.sizeToScene();
+        stage.show();
     }
 
     @Override
