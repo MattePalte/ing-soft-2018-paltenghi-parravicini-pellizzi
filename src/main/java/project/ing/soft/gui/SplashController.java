@@ -13,6 +13,7 @@ import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.IController;
 import project.ing.soft.view.IView;
 
+import java.rmi.Naming;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
@@ -85,12 +86,8 @@ public class SplashController {
         IAccessPoint accessPoint = null;
         String nick = txtName.getText();
         try {
-            Registry registry = LocateRegistry.getRegistry( Settings.instance().getDefaultIpForRMI());
-            System.out.println("Objects currently registered in the registry");
-            String[] registryList = registry.list();
-            for(String s : registryList)
-                System.out.println(s);
-            accessPoint = (IAccessPoint) registry.lookup("accesspoint");
+            accessPoint = (IAccessPoint)Naming.lookup( Settings.instance().getRmiApName());
+
             System.out.println("1) AccessPoint reference obtained");
             IView realView = new RealView(stage, nick);
             System.out.println("2) view object created in BackGround");

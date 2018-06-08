@@ -7,6 +7,7 @@ import project.ing.soft.controller.IController;
 import project.ing.soft.exceptions.NickNameAlreadyTakenException;
 import project.ing.soft.model.Colour;
 import project.ing.soft.view.ClientViewCLI;
+import project.ing.soft.view.Console;
 import project.ing.soft.view.IView;
 
 import java.io.PrintStream;
@@ -18,7 +19,7 @@ public class LaunchClient {
 
 
     public static void main(String[] args) throws Exception {
-        PrintStream out = new PrintStream(System.out);
+        PrintStream out = new Console(System.out);
 
         System.setProperty("java.rmi.dgc.leaseValue", "10000");
         printLandingPage(out);

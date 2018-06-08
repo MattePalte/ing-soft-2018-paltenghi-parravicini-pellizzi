@@ -114,6 +114,7 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         } catch (IOException e) {
             log.log(Level.INFO,"Cause: "+e.getCause() + "\n Message " + e.getMessage());
         }
+
         Scene scene = new Scene(root);
         MainLayoutController mainLayoutController = fxmlLoader.getController();
         mainLayoutController.setOut(System.out);
@@ -123,14 +124,13 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         mainLayoutController.setGameController(myController);
         mainLayoutController.setLocalCopyOfTheStatus(localCopyOfTheStatus);
         mainBoard = mainLayoutController;
-        stage.hide();
         stage.setTitle("Main Board");
         stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.setResizable(true);
         if (mainBoard != null) {
             mainBoard.respondTo(event);
         }
-        stage.setMaximized(true);
-        stage.setResizable(true);
         Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
         stage.setX((primScreenBounds.getWidth() - stage.getWidth()) / 2);
         stage.setY((primScreenBounds.getHeight() - stage.getHeight()) / 2);
@@ -160,7 +160,6 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         FadeTransition ft = new FadeTransition(Duration.millis(1000), root);
         ft.setFromValue(0.0);
         ft.setToValue(1.0);
-        ft.play();
         // Show scene
         Scene scene = new Scene(root);
         ChoosePatternController choosePatternController = fxmlLoader.getController();
@@ -178,6 +177,7 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         stage.centerOnScreen();
         stage.setScene(scene);
         stage.sizeToScene();
+        ft.play();
         stage.show();
     }
 

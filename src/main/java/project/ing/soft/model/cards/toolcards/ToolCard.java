@@ -10,6 +10,7 @@ import project.ing.soft.model.gamemanager.events.MyTurnStartedEvent;
 
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.List;
 
 /**

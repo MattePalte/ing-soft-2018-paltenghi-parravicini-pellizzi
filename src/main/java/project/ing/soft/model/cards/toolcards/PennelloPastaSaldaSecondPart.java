@@ -1,5 +1,6 @@
 package project.ing.soft.model.cards.toolcards;
 
+import project.ing.soft.Settings;
 import project.ing.soft.exceptions.MalformedToolCardException;
 import project.ing.soft.exceptions.ToolCardApplicationException;
 import project.ing.soft.exceptions.UserInterruptActionException;
@@ -11,6 +12,7 @@ import project.ing.soft.model.gamemanager.events.ModelChangedEvent;
 import project.ing.soft.model.gamemanager.events.MyTurnStartedEvent;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 public class PennelloPastaSaldaSecondPart implements IToolCardState, Serializable {
     private Die dieToBePlaced;

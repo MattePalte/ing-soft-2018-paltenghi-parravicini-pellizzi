@@ -34,9 +34,6 @@ public class GameController implements IController, Serializable {
     private transient TimerTask     timeoutTask;
     private final transient String id;
 
-    private static final transient long TURN_TIMEOUT       = 120000;
-    private static final transient long GAME_START_TIMEOUT = 60000;
-
 
     public GameController(int maxNumberOfPlayer, String id) {
         this.theGame        = new Game(maxNumberOfPlayer);
@@ -85,10 +82,9 @@ public class GameController implements IController, Serializable {
             if (theGame.getNumberOfPlayers() == theGame.getMaxNumPlayers()) {
                 startGame();
             }
+            if(Settings.instance().isGAME_START_TIMEOUT_ENABLED() && theGame.getNumberOfPlayers() >= 2)
+                timer.schedule(buildStartTimeoutTask(), Settings.instance().getGAME_START_TIMEOUT());
         }
-        /*else{
-            timer.schedule(buildStartTimeoutTask(), TURN_TIMEOUT);
-        }*/
 
     }
 
@@ -138,7 +134,12 @@ public class GameController implements IController, Serializable {
 
             if(gameManager.getStatus() == IGameManager.GAME_MANAGER_STATUS.ONGOING) {
                 log.log(Level.INFO, "Match started");
-                resetTurnEndAndStartTimer();
+                timer.schedule(new TimerTask(){
+                    @Override
+                    public void run() {
+                        resetTurnEndAndStartTimer();
+                    }
+                }, Settings.instance().getSYNCH_TIME());
             }
         }else{
             log.log(Level.INFO, "Somebody is trying to penetrate our program");
@@ -211,12 +212,12 @@ public class GameController implements IController, Serializable {
     //region timeout turn
 
     private void resetTurnEndAndStartTimer(){
-
-        turnEnded.set(false);
-        //set true the
-        timeoutTask = buildTurnTimeoutTask();
-        timer.schedule(timeoutTask, TURN_TIMEOUT);
-
+        if(Settings.instance().isTURN_TIMEOUT_ENABLED()) {
+            turnEnded.set(false);
+            //set true the
+            timeoutTask = buildTurnTimeoutTask();
+            timer.schedule(timeoutTask, Settings.instance().getTURN_TIMEOUT());
+        }
     }
 
     private TimerTask buildTurnTimeoutTask() {

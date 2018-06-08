@@ -1,6 +1,11 @@
 package project.ing.soft.gui;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -10,18 +15,15 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import javafx.util.Pair;
 import project.ing.soft.Settings;
 import project.ing.soft.exceptions.UserInterruptActionException;
@@ -40,6 +42,7 @@ import java.io.PrintStream;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -167,11 +170,16 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
         //SCREEN_WIDTH = primaryScreenBounds.getWidth();
         SCREEN_WIDTH = Settings.instance().getMIN_SCREEN_SIZE();
-        CELL_DIMENSION = SCREEN_WIDTH/23;
-        SMALL_CELL_DIMENSION = CELL_DIMENSION/1.5;
+        CELL_DIMENSION = SCREEN_WIDTH/30;
+        SMALL_CELL_DIMENSION = CELL_DIMENSION/2;
 
-
-        StyleBooster.forInstructionBox(instructionBox, 10);
+        mainScrollPane.setMaxHeight(primaryScreenBounds.getHeight());
+        mainScrollPane.setMinHeight(primaryScreenBounds.getWidth());
+        roundtrackerScrollPane.setMinHeight(SMALL_CELL_DIMENSION + 30);
+        roundtrackerScrollPane.setMaxHeight(SMALL_CELL_DIMENSION + 30);
+        roundtrackerScrollPane.setFitToWidth(true);
+        roundtrackerScrollPane.setFitToHeight(true);
+        StyleBooster.forInstructionBox(instructionBox, 5);
         turnExecutor = Executors.newSingleThreadExecutor();
     }
 
@@ -213,6 +221,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
     // TO DESPLAY INFO
     @FXML private Text status;
+    @FXML private HBox content;
     @FXML private Text roundnumber;
     @FXML private Text turnlist;
     @FXML private Text instructionTxt;
@@ -225,6 +234,12 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     @FXML private Button btnEndTurn;
     @FXML private Button btnCancel;
     //endregion
+
+    @FXML private ProgressBar timeout;
+    @FXML private GridPane roundtracker;
+    @FXML private ScrollPane roundtrackerScrollPane;
+    @FXML private ScrollPane mainScrollPane;
+    @FXML private Pane imgPrivateObjective;
 
     public MainLayoutController() throws RemoteException {
 
@@ -314,6 +329,16 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
     @Override
     public void respondTo(MyTurnStartedEvent event) {
+        Timeline timeLine = new Timeline();
+        timeLine.setCycleCount(1);
+        Timestamp endTurn = event.getEndTurnTimeStamp();
+        if(endTurn != null) {
+            long initialValue = endTurn.getTime() - System.currentTimeMillis();
+            DoubleProperty time = new SimpleDoubleProperty(initialValue);
+            timeout.progressProperty().bind(time.divide(Settings.instance().getTURN_TIMEOUT()));
+            timeLine.getKeyFrames().add(new KeyFrame(Duration.millis(initialValue), new KeyValue(time, 0)));
+            timeLine.play();
+        }
         enableActions();
     }
 
@@ -409,8 +434,8 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                     if (!currentDie.getImgPath().equals("")) {
                         Image image = new Image(currentDie.getImgPath());
                         ImageView bg = new ImageView(image);
-                        bg.setFitHeight(SCREEN_WIDTH / 23);
-                        bg.setFitWidth(SCREEN_WIDTH / 23);
+                        bg.setFitHeight(CELL_DIMENSION);
+                        bg.setFitWidth(CELL_DIMENSION);
                         bg.setPreserveRatio(true);
                         bg.setSmooth(true);
                         bg.setCache(true);
@@ -491,6 +516,8 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         // Draw content of the roundtracker
         Scene scene = getPrimaryStage().getScene();
         GridPane paneRoundTracker = (GridPane) scene.lookup("#" + ID_ROUNDTRACKER);
+        //roundtrackerScrollPane = new ScrollPane(paneRoundTracker);
+        //roundtrackerScrollPane.setFitToWidth(true);
         List<Die> diceLeft = roundTracker.getDiceLeftFromRound();
         paneRoundTracker.getChildren().clear();
         for (int pos = 0 ; pos < diceLeft.size(); pos++) {
@@ -518,12 +545,14 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                 }
             });
         }
+        //roundtrackerScrollPane.setContent(paneRoundTracker);
     }
     private synchronized void displayPrivateObjective(Scene scene) {
-        Pane panePrivateObj = (Pane) scene.lookup("#imgPrivateObjective");
         ImageView ivPrivateObj = ElementCreator.createCard(myPlayer.getPrivateObjective(), (int) SCREEN_WIDTH/6);
-        panePrivateObj.getChildren().add(0, ivPrivateObj);
-        StyleBooster.forObjectiveCard(panePrivateObj, 10);
+        System.out.println(imgPrivateObjective.getId());
+        imgPrivateObjective.getChildren().add(0, ivPrivateObj);
+        imgPrivateObjective.setMaxHeight(SCREEN_WIDTH/6);
+        StyleBooster.forObjectiveCard(imgPrivateObjective, 5);
     }
     private synchronized void displayToolCard(Scene scene) {
         List<ToolCard> tCard = localCopyOfTheStatus.getToolCards();
@@ -676,6 +705,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     public void btnEndTurnOnCLick() throws Exception {
         endingOperation();
         btnCancel.setDisable(true);
+        timeout.progressProperty().bind(new SimpleDoubleProperty(0));
         gameController.endTurn(ownerNameOfTheView);
         synchronized (this) {
             instructionTxt.setText("");
@@ -685,7 +715,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
     public synchronized void initializeButtons(){
         Scene scene = getPrimaryStage().getScene();
-        StyleBooster.forPatternCard(matrixPane, 20);
+        StyleBooster.forPatternCard(matrixPane, 3);
         // set button of pattern
         for (int row = 0; row < Settings.instance().getMATRIX_NR_ROW(); row++) {
             for (int col = 0; col < Settings.instance().getMATRIX_NR_COL(); col++) {

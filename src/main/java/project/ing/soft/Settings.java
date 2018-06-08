@@ -9,7 +9,7 @@ import java.util.logging.Level;
 public class Settings {
     private static Settings internalInstance;
     // General Game Settings
-    private int nrPlayersOfNewMatch = 2;
+    private int nrPlayersOfNewMatch = 4;
     private int nrOfRound = 10;
     // Connection Settings
     private int port = 3000;
@@ -27,6 +27,11 @@ public class Settings {
     private Color BG_SCENE_COLOR = Color.BLACK;
     private HashMap<Colour, String> mapBgColour;
 
+    private boolean GAME_START_TIMEOUT_ENABLED = true;
+    private boolean TURN_TIMEOUT_ENABLED = true;
+    private long TURN_TIMEOUT = 120000;
+    private long GAME_START_TIMEOUT = 6000;
+    private long SYNCH_TIME = 5000;
 
     private String tokenProperty      = "SagradaToken";
     private Level defaultLoggingLevel = Level.SEVERE;
@@ -49,6 +54,26 @@ public class Settings {
     }
 
     //region getter
+
+    public long getSYNCH_TIME(){
+        return SYNCH_TIME;
+    }
+
+    public boolean isTURN_TIMEOUT_ENABLED(){
+        return TURN_TIMEOUT_ENABLED;
+    }
+
+    public boolean isGAME_START_TIMEOUT_ENABLED() {
+        return GAME_START_TIMEOUT_ENABLED;
+    }
+
+    public long getTURN_TIMEOUT() {
+        return TURN_TIMEOUT;
+    }
+
+    public long getGAME_START_TIMEOUT() {
+        return GAME_START_TIMEOUT;
+    }
 
     public int getNrPlayersOfNewMatch() {
         return nrPlayersOfNewMatch;

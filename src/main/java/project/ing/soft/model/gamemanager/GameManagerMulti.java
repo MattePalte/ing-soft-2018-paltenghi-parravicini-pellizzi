@@ -19,11 +19,14 @@ import project.ing.soft.view.IView;
 
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.function.ToIntFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import static java.lang.Thread.sleep;
 
 public class GameManagerMulti implements IGameManager, Serializable {
 
@@ -47,6 +50,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
     private Map<String, Integer>        favours;
     private Map<String, String>         pointDescription;
+    private transient Object lock;
     private transient Logger logger;
     //Constructor
     //@Signals Exception aGame.isValid() || aGame.numOfPlayers() <= 1 or aGame.numOfPlayers()> 4
@@ -239,7 +243,14 @@ public class GameManagerMulti implements IGameManager, Serializable {
 
         drawDice();
         broadcastEvents(new FinishedSetupEvent(), new ModelChangedEvent(new GameManagerMulti(this)));
-        deliverEvent(getCurrentPlayer(), new MyTurnStartedEvent());
+        new Timer().schedule(new TimerTask(){
+            @Override
+            public void run() {
+                Timestamp ts = new Timestamp(System.currentTimeMillis() + Settings.instance().getTURN_TIMEOUT());
+                deliverEvent(getCurrentPlayer(), new MyTurnStartedEvent(ts));
+            }
+        }, Settings.instance().getSYNCH_TIME());
+
     }
 
     @Override
@@ -421,7 +432,7 @@ public class GameManagerMulti implements IGameManager, Serializable {
         Player next = getCurrentPlayer();
 
         broadcastEvents(new ModelChangedEvent(new GameManagerMulti(this)));
-        deliverEvent(next, new MyTurnStartedEvent());
+        deliverEvent(next, new MyTurnStartedEvent(new Timestamp(System.currentTimeMillis() + Settings.instance().getTURN_TIMEOUT())));
     }
     @Override
     public Map<String, Integer> getFavours(){
