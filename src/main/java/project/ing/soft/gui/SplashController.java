@@ -95,9 +95,8 @@ public class SplashController {
             IView realView = new RealView(stage, nick);
             System.out.println("2) view object created in BackGround");
             IController gameController = accessPoint.connect(nick, realView);
-            System.out.println("3) controller retrieved gameID=" + gameController.getControllerSecurityCode());
             realView.attachController(gameController);
-            System.out.println("4) controller given to the view");
+            System.out.println("3) controller given to the view");
         } catch (Exception ex) {
             System.out.println("x) Probably the server is down (no remote object or no registry)");
             return;
@@ -132,9 +131,8 @@ public class SplashController {
             IView realView = new RealView(stage, nick);
             System.out.println("2) view object created in BackGround");
             IController gameController = accessPoint.connect(nick, realView);
-            System.out.println("3) controller retrieved gameID=" + gameController.getControllerSecurityCode());
             realView.attachController(gameController);
-            System.out.println("4) controller given to the view");
+            System.out.println("3) controller given to the view");
         } catch (Exception ex) {
             System.out.println("x) Probably the server is down");
             return;

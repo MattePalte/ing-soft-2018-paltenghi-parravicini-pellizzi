@@ -120,12 +120,10 @@ public class GameController implements IController, Serializable {
         gameManager.setupPhase();
     }
 
-    @Override
     public String getControllerSecurityCode() throws Exception {
         return id;
     }
 
-    @Override
     public synchronized void choosePattern(String nickname, WindowPatternCard windowCard, Boolean side) throws Exception {
 
         Optional<Player> player = gameManager.getPlayerList().stream()
@@ -149,13 +147,11 @@ public class GameController implements IController, Serializable {
     }
 
 
-    @Override
     public synchronized void requestUpdate() throws Exception{
         log.log(Level.INFO, "An model update was requested");
         gameManager.requestUpdate();
     }
 
-    @Override
     public synchronized void placeDie(String nickname, Die aDie, int rowIndex, int colIndex) throws Exception {
         if (!gameManager.getCurrentPlayer().getName().equals(nickname)) {
             log.log(Level.WARNING, "Place die called but player name {0} mismatch ", nickname);
@@ -171,7 +167,6 @@ public class GameController implements IController, Serializable {
 
     }
 
-    @Override
     public synchronized void playToolCard(String nickname, ToolCard aToolCard) throws Exception {
         if (!gameManager.getCurrentPlayer().getName().equals(nickname)) {
             log.log(Level.WARNING, "Play ToolCard called but player name {0} mismatch ", nickname);
@@ -187,7 +182,6 @@ public class GameController implements IController, Serializable {
     }
 
     //region end turn
-    @Override
     public synchronized void endTurn(String nickname) throws Exception {
 
         if (!gameManager.getCurrentPlayer().getName().equals(nickname)) {

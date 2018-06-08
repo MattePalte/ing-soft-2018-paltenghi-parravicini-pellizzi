@@ -1,6 +1,7 @@
 package project.ing.soft.view;
 
 import project.ing.soft.IExceptionalProcedure;
+import project.ing.soft.Settings;
 import project.ing.soft.model.Coordinate;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Player;
@@ -16,9 +17,10 @@ import project.ing.soft.controller.IController;
 import java.io.*;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -27,11 +29,13 @@ public class ClientViewCLI extends UnicastRemoteObject
         implements IView, IEventHandler, Serializable, IToolCardParametersAcquirer {
 
     private final String                    ownerNameOfTheView;
+    private String                          personalToken;
     private IGameManager                    localCopyOfTheStatus;
 
     private transient IController           controller;
 
-    private transient PrintStream           out;
+    private transient Logger                log;
+    private transient Console               out;
     private transient NonBlockingScanner    scanner;
 
 
@@ -53,7 +57,9 @@ public class ClientViewCLI extends UnicastRemoteObject
         super();
 
         this.ownerNameOfTheView   = ownerNameOfTheView;
-        this.out                  = new PrintStream(System.out);
+        this.log                  = Logger.getLogger(ownerNameOfTheView);
+        this.log.setLevel(Level.OFF);
+        this.out                  = new Console(System.out);
         this.scanner              = new NonBlockingScanner(System.in);
         this.localCopyOfTheStatus = null;
 
@@ -61,12 +67,11 @@ public class ClientViewCLI extends UnicastRemoteObject
         this.commands             = new LinkedHashMap<>();
         this.commands.put("Place a die"     ,           this::placeDieOperation);
         this.commands.put("Play a ToolCard" ,           this::playAToolCardOperation);
-        this.commands.put("Show public objectives",     this::showPublicObjectives);
         this.commands.put("Show the entire situation",  this::displayEntireGameBoard);
         this.commands.put("Show my situation",          this::displayMySituation);
-        this.commands.put("Show my favours",            this::showMyFavours);
         this.commands.put("End turn",                   this::endTurnOperation);
-        this.commands.put("Exit",                       this::stop);
+        this.commands.put("Disconnect from game",       this::stop);
+        this.commands.put("Log", ()-> log.setLevel(log.getLevel() == Level.OFF ? Level.ALL : Level.OFF));
 
         this.eventsReceived       = new LinkedList<>();
         this.threadPool           = Executors.newCachedThreadPool();
@@ -103,15 +108,9 @@ public class ClientViewCLI extends UnicastRemoteObject
     }
 
     //region event handling
-    private String getTime() {
-        Calendar c = Calendar.getInstance(); //automatically set to current time
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-        return dateFormat.format(c.getTime());
-    }
-
     @Override
     public void update(Event aEvent) {
-        out.println( getTime() + " - " + ownerNameOfTheView + " received an event :" + aEvent);
+        log.log(Level.INFO,  "{0} received an event : {1}" ,new Object[]{ ownerNameOfTheView, aEvent});
 
         if (gameOngoing()) {
             synchronized (eventsReceived) {
@@ -135,7 +134,7 @@ public class ClientViewCLI extends UnicastRemoteObject
     public void respondTo(ModelChangedEvent event) {
         localCopyOfTheStatus = event.getaGameCopy();
 
-        out.println("Modello aggiornato!");
+        log.info("Model updated!");
         if (!localCopyOfTheStatus.getCurrentPlayer().getName().equals(ownerNameOfTheView)) {
             out.println("It's the turn of " + localCopyOfTheStatus.getCurrentPlayer().getName() + ". Wait for yours.");
         }
@@ -144,6 +143,7 @@ public class ClientViewCLI extends UnicastRemoteObject
 
     @Override
     public void respondTo(PatternCardDistributedEvent event) {
+        log.info("PatternCardEvent received");
         if(userThread != null)
             userThread.cancel(true);
         userThread = threadPool.submit( ()-> choosePatternCardOperation(event));
@@ -151,12 +151,17 @@ public class ClientViewCLI extends UnicastRemoteObject
 
     @Override
     public void respondTo(SetTokenEvent event) {
+        log.log(Level.INFO,"Token received");
+        log.log(Level.INFO,"Your token to ask reconnection is {0} " , event.getToken());
+        System.setProperty(Settings.instance().tokenProperty(), event.getToken());
+        personalToken = event.getToken();
+        out.println("Your token to ask reconnection is "+event.getToken());
         out.println("Connection established. Please, wait for the game to start");
-        out.println("Please remember to save this code to let you ask for reconnection in case of network problems");
-        out.println("YOUR TOKEN TO ASK RECONNECTION IS: " + event.getToken());
+
     }
     @Override
     public void respondTo(ToolcardActionRequestEvent event) {
+        log.log(Level.INFO, "ToolCard action request");
         if(userThread !=null)
             userThread.cancel(true);
         userThread = threadPool.submit(()-> completeToolCardOperation(event));
@@ -164,6 +169,7 @@ public class ClientViewCLI extends UnicastRemoteObject
 
     @Override
     public void respondTo(MyTurnStartedEvent event) {
+        log.log(Level.INFO, "Turn started event received");
         if(userThread != null ) {
             userThread.cancel(true);
         }
@@ -173,15 +179,7 @@ public class ClientViewCLI extends UnicastRemoteObject
     //region operations
     private void endTurnOperation()  throws Exception {
         controller.endTurn(ownerNameOfTheView);
-    }
-
-    private void showMyFavours() {
-        out.println("You still have " + localCopyOfTheStatus.getFavours().get(localCopyOfTheStatus.getCurrentPlayer().getName()));
-    }
-
-    private void showPublicObjectives() {
-        out.println("Public objectives: ");
-        out.println(Card.drawNear(localCopyOfTheStatus.getPublicObjective()));
+        Thread.currentThread().interrupt();
     }
 
     private void choosePatternCardOperation(PatternCardDistributedEvent event){
@@ -286,6 +284,7 @@ public class ClientViewCLI extends UnicastRemoteObject
     //region helper functions
 
     private void displayError(Exception ex) {
+        log.log(Level.SEVERE, "Error", ex);
         out.println("Error: "+ex.getMessage());
         out.println("Do you need stack trace? [y/n]");
 
@@ -306,6 +305,7 @@ public class ClientViewCLI extends UnicastRemoteObject
                 out.println(p);
             }
         }
+        out.println("Favours: "+localCopyOfTheStatus.getFavours().get(localCopyOfTheStatus.getCurrentPlayer().getName()));
         out.println("Draft pool : "+ localCopyOfTheStatus.getDraftPool());
         out.println("RoundTracker dice left : "+ localCopyOfTheStatus.getRoundTracker().getDiceLeftFromRound());
     }
@@ -318,6 +318,7 @@ public class ClientViewCLI extends UnicastRemoteObject
 
         for (Player p : localCopyOfTheStatus.getPlayerList()) {
             out.println(p);
+            out.println(p.getName()+" favours: "+localCopyOfTheStatus.getFavours().get(localCopyOfTheStatus.getCurrentPlayer().getName()));
         }
         out.println("Draft pool : "+ localCopyOfTheStatus.getDraftPool());
     }
@@ -419,7 +420,8 @@ public class ClientViewCLI extends UnicastRemoteObject
         eventHandler.cancel(true);
         threadPool.shutdown();
         this.controller = null;
-        System.gc();
+        out.println("To reconnect you can use this token: "+personalToken);
+        System.exit(0);
     }
 
     @Override

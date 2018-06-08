@@ -35,7 +35,7 @@ public class PlayerControllerOverRmi implements IController, Remote, Unreference
      * @throws RemoteException when the object gets an error while being exported
      */
     PlayerControllerOverRmi(GameController realController, String associatedNickname) throws RemoteException {
-        this.realController = realController;
+        this.realController     = realController;
         this.associatedNickname = associatedNickname;
         this.logger = Logger.getLogger(this.getClass().getCanonicalName()+"("+ associatedNickname +")");
         this.logger.setLevel(Level.SEVERE);
@@ -50,34 +50,30 @@ public class PlayerControllerOverRmi implements IController, Remote, Unreference
 
     @Override
     public void placeDie(String nickname, Die aDie, int rowIndex, int colIndex) throws Exception {
-        logger.log(Level.INFO, "Player {0} request to place die {1} on ({2},{3})", new Object[]{nickname, aDie, rowIndex, colIndex});
+        logger.log(Level.INFO, "Player {0} request to place die {1} on ({2},{3})", new Object[]{associatedNickname, aDie, rowIndex, colIndex});
         checkController();
-        checkNickname(nickname);
-        realController.placeDie(nickname, aDie, rowIndex, colIndex);
+        realController.placeDie(associatedNickname, aDie, rowIndex, colIndex);
     }
 
     @Override
     public void playToolCard(String nickname, ToolCard aToolCard) throws Exception {
-        logger.log(Level.INFO,"{0} request to play the ToolCard: {1} ", new Object[]{nickname, aToolCard});
+        logger.log(Level.INFO,"{0} request to play the ToolCard: {1} ", new Object[]{associatedNickname, aToolCard});
         checkController();
-        checkNickname(nickname);
-        realController.playToolCard(nickname, aToolCard);
+        realController.playToolCard(associatedNickname, aToolCard);
     }
 
     @Override
     public void endTurn(String nickname) throws Exception {
-        logger.log(Level.INFO,"{0} request to end his turn", nickname);
+        logger.log(Level.INFO,"{0} request to end his turn", associatedNickname);
         checkController();
-        checkNickname(nickname);
-        realController.endTurn(nickname);
+        realController.endTurn(associatedNickname);
     }
 
     @Override
     public void choosePattern(String nickname, WindowPatternCard windowCard, Boolean side) throws Exception {
-        logger.log(Level.INFO,"{0} inform the game that he has chosen {1}", new Object[]{nickname, side ? windowCard.getFrontPattern().getTitle(): windowCard.getRearPattern().getTitle()});
+        logger.log(Level.INFO,"{0} inform the game that he has chosen {1}", new Object[]{associatedNickname, side ? windowCard.getFrontPattern().getTitle(): windowCard.getRearPattern().getTitle()});
         checkController();
-        checkNickname(nickname);
-        realController.choosePattern(nickname, windowCard, side);
+        realController.choosePattern(associatedNickname, windowCard, side);
     }
 
     /**
@@ -89,24 +85,6 @@ public class PlayerControllerOverRmi implements IController, Remote, Unreference
             logger.log(Level.SEVERE, "Player {0} request was abandoned because no RealController is connected", associatedNickname);
             throw new GameInvalidException("An ");
         }
-    }
-
-    /**
-     * Helper method that checks nickname misuse
-     * @param nickname name to be tested
-     * @throws GameInvalidException whenever the user tried to fake his name
-     */
-    private void checkNickname(String nickname) throws GameInvalidException{
-        if(realController != null && !nickname.equals(associatedNickname)) {
-            logger.log(Level.SEVERE, "Player {0} pretend to act like he was {1}.", new Object[]{nickname, nickname});
-            realController.markAsDisconnected(associatedNickname);
-            throw  new GameInvalidException("You tried to fake your nickname. You'll be kicked off");
-        }
-    }
-
-    @Override
-    public String getControllerSecurityCode() {
-        return null;
     }
 
     /**

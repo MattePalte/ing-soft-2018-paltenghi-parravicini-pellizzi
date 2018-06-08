@@ -20,7 +20,7 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
     private GameController              gameController;
     private Socket                      aSocket;
 
-    private String                      nickname;
+    private String                      associatedNickname;
     private boolean                     isStarted;
     private final ArrayList<IResponse>  buffer;
     private final ObjectOutputStream    toClient;
@@ -38,7 +38,7 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
         this.fromClient     = ois;
         this.logger = Logger.getLogger(this.getClass().getCanonicalName()+"(" +nickname+")");
         this.logger.setLevel(Settings.instance().getDefaultLoggingLevel());
-        this.nickname       = nickname;
+        this.associatedNickname = nickname;
         this.isStarted      = false;
         this.buffer         = new ArrayList<>();
     }
@@ -64,13 +64,13 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
             }
         }catch(SocketException ex){
             if(isStarted) {
-                logger.log(Level.INFO, "{0} disconnected", nickname);
-                gameController.markAsDisconnected(nickname);
+                logger.log(Level.INFO, "{0} disconnected", associatedNickname);
+                gameController.markAsDisconnected(associatedNickname);
             }
             // else user asked for reconnection, so disconnection is done elsewhere
         } catch (Exception ex){
             logger.log(Level.SEVERE,"Exception occurred", ex);
-            gameController.markAsDisconnected(nickname);
+            gameController.markAsDisconnected(associatedNickname);
 
         }finally {
             logger.log(Level.INFO,"disconnected");
@@ -131,32 +131,32 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
 
     @Override
     public void handle(UpdateRequest aRequest) throws Exception {
-        logger.log(Level.INFO, "Player {0} request an update", nickname);
+        logger.log(Level.INFO, "Player {0} request an update", associatedNickname);
         this.gameController.requestUpdate();
     }
 
     @Override
     public void handle(PlaceDieRequest aRequest) throws Exception {
         logger.log(Level.INFO, "Player {0} request to place die {1} on ({2},{3})", new Object[]{aRequest.getNickname(), aRequest.getTheDie(), aRequest.getRowIndex(), aRequest.getColIndex()});
-        this.gameController.placeDie(aRequest.getNickname(), aRequest.getTheDie(), aRequest.getRowIndex(), aRequest.getColIndex());
+        this.gameController.placeDie(associatedNickname, aRequest.getTheDie(), aRequest.getRowIndex(), aRequest.getColIndex());
     }
 
     @Override
     public void handle(PlayToolCardRequest aRequest) throws Exception {
         logger.log(Level.INFO,"{0} request to play the ToolCard: {1} ", new Object[]{aRequest.getNickname(), aRequest.getaToolCard()});
-        this.gameController.playToolCard(aRequest.getNickname(), aRequest.getaToolCard());
+        this.gameController.playToolCard(associatedNickname, aRequest.getaToolCard());
     }
 
     @Override
     public void handle(EndTurnRequest aRequest) throws Exception {
         logger.log(Level.INFO,"{0} request to end his turn", aRequest.getNickname());
-        this.gameController.endTurn(aRequest.getNickname());
+        this.gameController.endTurn(associatedNickname);
     }
 
     @Override
     public void handle(ChoosePatternRequest aRequest) throws Exception {
         logger.log(Level.INFO,"{0} inform the game that he has chosen {1}", new Object[]{aRequest.getNickname(), aRequest.getSide() ? aRequest.getWindowCard().getFrontPattern().getTitle(): aRequest.getWindowCard().getRearPattern().getTitle()});
-        this.gameController.choosePattern(aRequest.getNickname(), aRequest.getWindowCard(), aRequest.getSide());
+        this.gameController.choosePattern(associatedNickname, aRequest.getWindowCard(), aRequest.getSide());
     }
 
 

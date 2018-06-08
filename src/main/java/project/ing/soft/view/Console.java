@@ -6,20 +6,22 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.win32.StdCallLibrary;
 
 import java.io.IOException;
+import java.io.PrintStream;
 
 /**
  * This class handles output for the ConsoleUI.
  * Special handling for this is needed as UTF-8 output in Windows is unreliable
  * due to a broken unicode page.
  *
- * @author Håvard Slettvold
+ * @author Håvard Slettvold, D.Parravicini
  */
-public class Console {
+public class Console extends PrintStream {
 
     private Kernel32 instance = null;
     private Pointer handle;
 
-    public Console() {
+    public Console(PrintStream defaultOut) {
+        super(defaultOut);
         String os = System.getProperty("os.name").toLowerCase();
         if (os.startsWith("win")) {
             instance = Native.loadLibrary("kernel32", Kernel32.class);
@@ -28,8 +30,8 @@ public class Console {
             handle = instance.GetStdHandle(-11);
             instance.SetConsoleMode(handle, 7);
         }
-
     }
+
 
     public interface Kernel32 extends StdCallLibrary {
         Pointer GetStdHandle(int nStdHandle);
@@ -42,16 +44,27 @@ public class Console {
         boolean SetConsoleMode(Pointer hConsoleHandle, int dwMode);
     }
 
+    @Override
+    public void print(Object obj) {
+        print(obj.toString());
+    }
+
+    @Override
     public void print(String message) {
         if (!attemptWindowsPrint(message)) {
-            System.out.print(message);
+            super.print(message);
         }
     }
 
+    @Override
+    public void println(Object obj) {
+        println(obj.toString());
+
+    }
+    @Override
     public void println(String message) {
-        if (!attemptWindowsPrint(message.concat(System.getProperty("line.separator")))) {
-            System.out.println(message);
-        }
+        print(message.concat(System.getProperty("line.separator")));
+
     }
 
     /**
@@ -78,7 +91,7 @@ public class Console {
     }
 
     public static void main(String[] args){
-        Console c = new Console();
+        Console c = new Console(System.out);
         String str = "⚀";
         c.println( str);
         c.println("\u001B[31mit's me mario\u001B[0m");

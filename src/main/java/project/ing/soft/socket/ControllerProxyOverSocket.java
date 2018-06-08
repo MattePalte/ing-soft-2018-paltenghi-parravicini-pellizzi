@@ -249,10 +249,6 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
         addToQueue(new ChoosePatternRequest(nickname, windowCard, side));
     }
 
-    @Override
-    public String getControllerSecurityCode() {
-        return "fake-code-not-yet-implemented-in-proxy";
-    }
     //endregion
 }
 

@@ -19,7 +19,6 @@ import java.util.logging.Logger;
 
 public class APointRMI extends UnicastRemoteObject implements IAccessPoint {
 
-    private static final String ACCESS_POINT = "accesspoint";
     private final transient Logger log;
     private final AccessPointReal accessPointReal;
 
@@ -41,13 +40,13 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint {
             throw ex;
         }
         System.setProperty("java.rmi.dgc.leaseValue", "10000");
-        registry.rebind(ACCESS_POINT, ap);
+        registry.rebind(Settings.instance().getRmiApName(), ap);
         ap.log.log(Level.INFO,"AccessPoint RMI published on the registry");
     }
 
     public static void unbind(APointRMI ap) throws RemoteException, NotBoundException {
         Registry registry = LocateRegistry.getRegistry();
-        registry.unbind(ACCESS_POINT);
+        registry.unbind(Settings.instance().getRmiApName());
         ap.log.log(Level.INFO,"AccessPoint RMI removed from the registry");
     }
 

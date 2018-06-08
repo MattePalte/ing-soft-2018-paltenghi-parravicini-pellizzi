@@ -12,5 +12,4 @@ public interface IController extends Remote{
     void playToolCard(String nickname, ToolCard aToolCard)                  throws Exception;
     void endTurn(String nickname)                                           throws Exception;
     void choosePattern(String nickname, WindowPatternCard windowCard, Boolean side) throws Exception;
-    String getControllerSecurityCode()                                      throws Exception;
 }

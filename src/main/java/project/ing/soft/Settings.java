@@ -28,8 +28,9 @@ public class Settings {
     private HashMap<Colour, String> mapBgColour;
 
 
-
+    private String tokenProperty      = "SagradaToken";
     private Level defaultLoggingLevel = Level.SEVERE;
+    private String defaultRmiApName   = "accessPoint";
 
     private Settings() {
         mapBgColour = new HashMap<>();
@@ -107,6 +108,14 @@ public class Settings {
 
     public Level getDefaultLoggingLevel() {
         return defaultLoggingLevel;
+    }
+
+    public String tokenProperty() {
+        return tokenProperty;
+    }
+
+    public String getRmiApName() {
+        return defaultRmiApName;
     }
     //endregion
 
