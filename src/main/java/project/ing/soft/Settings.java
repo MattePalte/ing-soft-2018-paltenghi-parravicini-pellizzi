@@ -1,55 +1,76 @@
 package project.ing.soft;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import javafx.scene.paint.Color;
-import project.ing.soft.model.Colour;
 
-import java.util.HashMap;
+import java.io.*;
+import java.util.Scanner;
 import java.util.logging.Level;
 
 public class Settings {
     private static Settings internalInstance;
     // General Game Settings
-    private int nrPlayersOfNewMatch = 4;
-    private int nrOfRound = 10;
+    private int nrPlayersOfNewMatch;
+    private int nrOfRound;
     // Connection Settings
-    private int port = 3000;
-    private String host = "localhost";
-    private String defaultIpForRMI = "localhost";
+    private int port;
+    private String host;
+    private String defaultIpForRMI;
     // CLI settings
-    private int TEXT_CARD_WIDTH = 29;
-    private int TEXT_CARD_HEIGHT = 12;
+    private int TEXT_CARD_WIDTH;
+    private int TEXT_CARD_HEIGHT;
     // GUI settings
-    private int MATRIX_NR_ROW = 4;
-    private int MATRIX_NR_COL = 5;
-    private double MIN_SCREEN_SIZE = 1366;
-    private int CELL_DIMENSION = 30;
-    private int CARD_HEIGHT = 200;
-    private Color BG_SCENE_COLOR = Color.BLACK;
-    private HashMap<Colour, String> mapBgColour;
+    private int MATRIX_NR_ROW;
+    private int MATRIX_NR_COL;
+    private double MIN_SCREEN_SIZE;
+    private int CELL_DIMENSION;
+    private int CARD_HEIGHT;
+    private Color BG_SCENE_COLOR;
 
-    private boolean GAME_START_TIMEOUT_ENABLED = true;
-    private boolean TURN_TIMEOUT_ENABLED = true;
-    private long TURN_TIMEOUT = 120000;
-    private long GAME_START_TIMEOUT = 6000;
-    private long SYNCH_TIME = 5000;
+    private boolean GAME_START_TIMEOUT_ENABLED;
+    private boolean TURN_TIMEOUT_ENABLED;
+    private long TURN_TIMEOUT;
+    private long GAME_START_TIMEOUT;
+    private long SYNCH_TIME ;
 
-    private String tokenProperty      = "SagradaToken";
-    private Level defaultLoggingLevel = Level.SEVERE;
-    private String defaultRmiApName   = "accessPoint";
+    private String tokenProperty;
+    private Level defaultLoggingLevel;
+    private String defaultRmiApName;
 
     private Settings() {
-        mapBgColour = new HashMap<>();
-        mapBgColour.put(Colour.BLUE, "#4286f4");
-        mapBgColour.put(Colour.VIOLET, "#b762fc");
-        mapBgColour.put(Colour.RED, "#fc5067");
-        mapBgColour.put(Colour.GREEN, "#6af278");
-        mapBgColour.put(Colour.YELLOW, "#f5f97a");
-        mapBgColour.put(Colour.WHITE, "#ffffff");
+        // methods to create file of backup settings when changing
+        // some attributes in this class
+//        PrintWriter writer = null;
+//        try {
+//            String path = "C:\\Users\\Matteo\\Desktop\\settings.json";
+//            File f = new File(path);
+//            writer = new PrintWriter(f);
+//            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//            writer.println(gson.toJson(this));
+//            System.out.println("Successfully Copied JSON Object to File...");
+//            writer.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } finally {
+//            if (writer != null) writer.close();
+//        }
     }
 
     public static Settings instance(){
-        if (internalInstance == null)
-            return new Settings();
+        if (internalInstance == null) {
+//          read from file
+            Gson gson = new Gson();
+            InputStream inputStream = Settings.class.getResourceAsStream("/settings.json");
+            Scanner scanner = new Scanner(inputStream);
+            StringBuilder sb = new StringBuilder();
+            while (scanner.hasNextLine()) {
+                sb.append(scanner.nextLine());
+            }
+            //System.out.println("Settings content -> " + sb.toString());
+            internalInstance = gson.fromJson(sb.toString(), Settings.class);
+            //System.out.println("Settings loaded -> " + internalInstance);
+        }
         return internalInstance;
     }
 
@@ -125,10 +146,6 @@ public class Settings {
 
     public Color getBG_SCENE_COLOR() {
         return BG_SCENE_COLOR;
-    }
-
-    public HashMap<Colour, String> getMapBgColour(){
-        return mapBgColour;
     }
 
     public Level getDefaultLoggingLevel() {

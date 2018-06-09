@@ -1,0 +1,32 @@
+{
+  "nrPlayersOfNewMatch": 4,
+  "nrOfRound": 10,
+  "port": 3000,
+  "host": "localhost",
+  "defaultIpForRMI": "localhost",
+  "TEXT_CARD_WIDTH": 29,
+  "TEXT_CARD_HEIGHT": 12,
+  "MATRIX_NR_ROW": 4,
+  "MATRIX_NR_COL": 5,
+  "MIN_SCREEN_SIZE": 1366.0,
+  "CELL_DIMENSION": 30,
+  "CARD_HEIGHT": 200,
+  "BG_SCENE_COLOR": {
+    "red": 0.0,
+    "green": 0.0,
+    "blue": 0.0,	
+    "opacity": 1.0
+  },
+  "GAME_START_TIMEOUT_ENABLED": true,
+  "TURN_TIMEOUT_ENABLED": true,
+  "TURN_TIMEOUT": 30000,
+  "GAME_START_TIMEOUT": 6000,
+  "SYNCH_TIME": 5000,
+  "tokenProperty": "SagradaToken",
+  "defaultLoggingLevel": {
+    "name": "SEVERE",
+    "value": 1000,
+    "resourceBundleName": "sun.util.logging.resources.logging"
+  },
+  "defaultRmiApName": "accessPoint"
+}

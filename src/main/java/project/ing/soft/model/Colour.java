@@ -19,13 +19,13 @@ public enum Colour implements Serializable{
     //http://jkorpela.fi/chars/spaces.html
     // Because ⚄ is an irregular width character -> 1+1/3 em
 
-    BLUE  ("\u001B[96m", "\u001B[44m"),
-    GREEN ("\u001B[92m", "\u001B[42m"),
-    RED   ("\u001B[91m","\u001B[41m"),
-    VIOLET("\u001B[95m", "\u001B[45m"),
-    YELLOW("\u001B[93m", "\u001B[43m"),
+    BLUE  ("\u001B[96m", "\u001B[44m", "#4286f4"),
+    GREEN ("\u001B[92m", "\u001B[42m", "#6af278"),
+    RED   ("\u001B[91m","\u001B[41m", "#fc5067"),
+    VIOLET("\u001B[95m", "\u001B[45m", "#b762fc"),
+    YELLOW("\u001B[93m", "\u001B[43m", "#f5f97a"),
 
-    WHITE("\u001B[97m", "\u001B[47m");
+    WHITE("\u001B[97m", "\u001B[47m", "#ffffff");
 
     private static final String ANSI_RESET = "\u001B[0m";
     private static List<Colour> validColours;
@@ -38,10 +38,12 @@ public enum Colour implements Serializable{
 
     private String ansiForegroundColour;
     private String ansiBackgroundColour;
+    private String webColor;
 
-    Colour( String aForegroundColour, String aBackgroundColour){
+    Colour( String aForegroundColour, String aBackgroundColour, String webColor){
         this.ansiBackgroundColour = aBackgroundColour;
         this.ansiForegroundColour = aForegroundColour;
+        this.webColor = webColor;
     }
 
     public String colourBackground(String aString){
@@ -50,6 +52,10 @@ public enum Colour implements Serializable{
 
     public String colourForeground(String aString) {
         return ansiForegroundColour + aString + ANSI_RESET;
+    }
+
+    public String getWebColor() {
+        return webColor;
     }
 
     @Override

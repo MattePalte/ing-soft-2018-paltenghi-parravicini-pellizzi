@@ -46,7 +46,7 @@ public class ElementCreator {
                 }
                 if (constraint != null){
                     StackPane pane = new StackPane();
-                    pane.setStyle("-fx-background-color:" + Settings.instance().getMapBgColour().get(constraint.getColour()));
+                    pane.setStyle("-fx-background-color:" + constraint.getColour().getWebColor());
                     gPane.add(pane, col, row);
                 }
                 gPane.add(bg, col, row);
