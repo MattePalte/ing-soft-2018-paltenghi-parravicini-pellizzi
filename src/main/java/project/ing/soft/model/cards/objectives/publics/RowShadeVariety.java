@@ -1,15 +1,18 @@
 package project.ing.soft.model.cards.objectives.publics;
 
+import project.ing.soft.Settings;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Player;
 
 import java.util.Arrays;
 
-public class SfumatureDiverseRiga extends PublicObjective {
+public class RowShadeVariety extends PublicObjective {
 
-    public SfumatureDiverseRiga(){
-        super("Sfumature Diverse - Riga", "Hai formato righe senza ripetere piu volte lo stesso grado di sfumatura", 5,
-                "objectives/public/30%/objectives-4.png");
+    public RowShadeVariety(){
+        super(  Settings.ObjectivesProperties.RowShadeVariety.getTitle(),
+                Settings.ObjectivesProperties.RowShadeVariety.getDescription(),
+                Settings.ObjectivesProperties.RowShadeVariety.getPoints(),
+                Settings.ObjectivesProperties.RowShadeVariety.getPath());
     }
 
     public int checkCondition(Player window) {

@@ -1,16 +1,19 @@
 package project.ing.soft.model.cards.objectives.publics;
 
+import project.ing.soft.Settings;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Player;
 
 import java.util.Arrays;
 
-public class ColoriDiversiColonna extends PublicObjective {
+public class ColumnColourVariety extends PublicObjective {
 
-    public ColoriDiversiColonna(){
-        super("Colori Diversi - Colonna", "Hai formato colonne senza ripetere più volte lo stesso colore", 5,
-                "objectives/public/30%/objectives-3.png");
+    public ColumnColourVariety(){
+        super(  Settings.ObjectivesProperties.ColumnColourVariety.getTitle(),
+                Settings.ObjectivesProperties.ColumnColourVariety.getDescription(),
+                Settings.ObjectivesProperties.ColumnColourVariety.getPoints(),
+                Settings.ObjectivesProperties.ColumnColourVariety.getPath());
     }
 
     public int checkCondition(Player window) {

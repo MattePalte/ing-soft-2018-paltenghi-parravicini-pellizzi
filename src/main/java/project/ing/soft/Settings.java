@@ -144,5 +144,51 @@ public class Settings {
     }
     //endregion
 
+    public enum ObjectivesProperties{
+
+        ShadesOfRed("Shades Of Red", "Sum of values of red dice", "objectives/private/30%/objectives-13.png", 1),
+        ShadesOfBlue("Shades Of Blue", "Sum of values of blue dice", "objectives/private/30%/objectives-16.png", 1),
+        ShadesOfPurple("Shades Of Purple", "Sum of values of violet dice", "objectives/private/30%/objectives-17.png", 1),
+        ShadesOfYellow("Shades Of Yellow", "Sum of values of yellow dice", "objectives/private/30%/objectives-14.png", 1),
+        ShadesOfGreen("Shades Of Green", "Sum of values of green dice", "objectives/private/30%/objectives-15.png", 1),
+        ColourVariety("Colour Variety", "Sets of pieces of each colour", "objectives/public/30%/objectives-11.png", 4),
+        RowColourVariety("Row Colour Variety", "Rows with no repeated colours", "objectives/public/30%/objectives-2.png", 6),
+        ColumnColourVariety("Column Colour Variety", "Columns with no repeated colours", "objectives/public/30%/objectives-3.png", 5),
+        Diagonals("Diagonals", "2 or more pieces of the same colour placed on a diagonal", "objectives/public/30%/objectives-10.png", 1),
+        ShadeVariety("Shade Variety", "Sets of pieces of each shade", "objectives/public/30%/objectives-9.png", 5),
+        RowShadeVariety("Row Shade Variety", "Rows with no repeated shades", "objectives/public/30%/objectives-4.png", 5),
+        ColumnShadeVariety("Column Shade Variety", "Columns with no repeated shades", "objectives/public/30%/objectives-5.png", 4),
+        LightShades("Light Shades", "Sets of (1,2)", "objectives/public/30%/objectives-6.png", 2),
+        MediumShades("Medium Shades", "Sets of (3,4)", "objectives/public/30%/objectives-7.png", 2),
+        DarkShades("Dark Shades", "Sets of (5,6)", "objectives/public/30%/objectives-8.png", 2);
+
+        private String title;
+        private String description;
+        private String path;
+        private int points;
+
+        ObjectivesProperties(String title, String description, String path, int points){
+            this.title = title;
+            this.description = description;
+            this.path = path;
+            this.points = points;
+        }
+
+        public String getTitle(){
+            return title;
+        }
+
+        public String getDescription(){
+            return description;
+        }
+
+        public String getPath(){
+            return path;
+        }
+
+        public int getPoints(){
+            return points;
+        }
+    }
 
 }

@@ -1,13 +1,16 @@
 package project.ing.soft.model.cards.objectives.publics;
 
+import project.ing.soft.Settings;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Player;
 
-public class SfumatureMedie extends PublicObjective{
+public class LightShades extends PublicObjective {
 
-    public SfumatureMedie(){
-        super("Sfumature Medie", "Conta il numero di coppie di dadi (3,4) presenti sulla tua vetrata", 2,
-                "objectives/public/30%/objectives-7.png");
+    public LightShades(){
+        super(  Settings.ObjectivesProperties.LightShades.getTitle(),
+                Settings.ObjectivesProperties.LightShades.getDescription(),
+                Settings.ObjectivesProperties.LightShades.getPoints(),
+                Settings.ObjectivesProperties.LightShades.getPath());
     }
 
     public int checkCondition(Player window) {
@@ -17,12 +20,13 @@ public class SfumatureMedie extends PublicObjective{
 
         values[0] = 0;
         values[1] = 0;
-        for (Die[] row : placedDice){
+
+        for(Die[] row : placedDice) {
             for (Die d : row) {
                 if (d != null) {
                     actualDieValue = d.getValue();
-                    if (actualDieValue == 3 || actualDieValue == 4)
-                        values[actualDieValue - 3]++;
+                    if (actualDieValue == 1 || actualDieValue == 2)
+                        values[actualDieValue - 1]++;
                 }
             }
         }

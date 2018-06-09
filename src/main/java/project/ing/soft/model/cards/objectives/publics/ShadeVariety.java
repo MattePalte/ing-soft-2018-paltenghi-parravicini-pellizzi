@@ -1,15 +1,18 @@
 package project.ing.soft.model.cards.objectives.publics;
 
+import project.ing.soft.Settings;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Player;
 
 import java.util.Arrays;
 
-public class SfumatureDiverse extends PublicObjective {
+public class ShadeVariety extends PublicObjective {
 
-    public SfumatureDiverse(){
-        super("Sfumature Diverse", "Conta quanti set di sfumature (1,2,3,4,5,6) sei riuscito a comporre sulla tua vetrata", 5,
-                "objectives/public/30%/objectives-9.png");
+    public ShadeVariety(){
+        super(  Settings.ObjectivesProperties.ShadeVariety.getTitle(),
+                Settings.ObjectivesProperties.ShadeVariety.getDescription(),
+                Settings.ObjectivesProperties.ShadeVariety.getPoints(),
+                Settings.ObjectivesProperties.ShadeVariety.getPath());
     }
 
     public int checkCondition(Player window) {

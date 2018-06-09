@@ -251,11 +251,11 @@ public class GameManagerSingle {
     private ArrayList<PrivateObjective> createPrivateObjectives() {
         ArrayList<PrivateObjective> tmp = new ArrayList<>();
 
-        tmp.add(new SfumatureBlu());
-        tmp.add(new SfumatureGialle());
-        tmp.add(new SfumatureRosse());
-        tmp.add(new SfumatureVerdi());
-        tmp.add(new SfumatureViola());
+        tmp.add(new ShadesOfBlue());
+        tmp.add(new ShadesOfYellow());
+        tmp.add(new ShadesOfRed());
+        tmp.add(new ShadesOfGreen());
+        tmp.add(new ShadesOfPurple());
 
         return tmp;
     }
@@ -263,16 +263,16 @@ public class GameManagerSingle {
     private ArrayList<PublicObjective> createPublicObjectives() {
         ArrayList<PublicObjective> tmp = new ArrayList<>();
 
-        tmp.add(new ColoriDiversiColonna());
-        tmp.add(new ColoriDiversiRiga());
-        tmp.add(new DiagonaliColorate());
-        tmp.add(new SfumatureChiare());
-        tmp.add(new SfumatureDiverse());
-        tmp.add(new SfumatureDiverseColonna());
-        tmp.add(new SfumatureDiverseRiga());
-        tmp.add(new SfumatureMedie());
-        tmp.add(new SfumatureScure());
-        tmp.add(new VarietaColore());
+        tmp.add(new ColumnColourVariety());
+        tmp.add(new RowColourVariety());
+        tmp.add(new Diagonals());
+        tmp.add(new LightShades());
+        tmp.add(new ShadeVariety());
+        tmp.add(new ColumnShadeVariety());
+        tmp.add(new RowShadeVariety());
+        tmp.add(new MediumShades());
+        tmp.add(new DarkShades());
+        tmp.add(new ColourVariety());
 
         return tmp;
     }

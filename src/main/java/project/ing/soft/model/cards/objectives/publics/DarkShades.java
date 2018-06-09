@@ -1,13 +1,16 @@
 package project.ing.soft.model.cards.objectives.publics;
 
+import project.ing.soft.Settings;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Player;
 
-public class SfumatureScure extends PublicObjective {
+public class DarkShades extends PublicObjective {
 
-    public SfumatureScure(){
-        super("Sfumature Scure", "Conta il numero di coppie di dadi (5,6) presenti sulla tua vetrata", 2,
-                "objectives/public/30%/objectives-8.png");
+    public DarkShades(){
+        super(  Settings.ObjectivesProperties.DarkShades.getTitle(),
+                Settings.ObjectivesProperties.DarkShades.getDescription(),
+                Settings.ObjectivesProperties.DarkShades.getPoints(),
+                Settings.ObjectivesProperties.DarkShades.getPath());
     }
 
     @Override

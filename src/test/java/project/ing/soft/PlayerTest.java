@@ -12,7 +12,7 @@ import project.ing.soft.exceptions.PositionOccupiedException;
 import project.ing.soft.exceptions.RuleViolatedException;
 import org.junit.*;
 import project.ing.soft.model.cards.Constraint;
-import project.ing.soft.model.cards.objectives.privates.SfumatureBlu;
+import project.ing.soft.model.cards.objectives.privates.ShadesOfBlue;
 import project.ing.soft.view.ClientViewCLI;
 
 import java.io.File;
@@ -29,7 +29,7 @@ public class PlayerTest {
     public void playerCreation() throws RemoteException{
         testPlayer = new Player("giocatore 1", new ClientViewCLI("giocatore 1"));
         // set private objective
-        testPlayer.setPrivateObjective(new SfumatureBlu());
+        testPlayer.setPrivateObjective(new ShadesOfBlue());
         // set WindowPatternCard from file
         File file = new File("src/main/resources/patterns.txt");
         Scanner input = null;
@@ -47,7 +47,7 @@ public class PlayerTest {
 
         testPlayerWithWhitePatternCardNoMove = new Player("Test", new ClientViewCLI("Test") );
         // set private objective
-        testPlayerWithWhitePatternCardNoMove.setPrivateObjective(new SfumatureBlu());
+        testPlayerWithWhitePatternCardNoMove.setPrivateObjective(new ShadesOfBlue());
         // set WindowPatternCard from file
         file = new File("src/main/resources/empty_pattern.txt");
         try {

@@ -40,7 +40,7 @@ public class ObjectiveUnitTest {
     // Testing public objectives' functionality
     @Test
     public void testColoriDiversiColonna() {
-        tested = new ColoriDiversiColonna();
+        tested = new ColumnColourVariety();
 
         for(int i = 0; i < playerStub.getPattern().getHeight(); i++){
             placedDice[i][0]= new Die(rndGen.nextInt(6) + 1, Colour.validColours().get(i));
@@ -56,7 +56,7 @@ public class ObjectiveUnitTest {
 
     @Test
     public void testColoriDiversiRiga(){
-        tested = new ColoriDiversiRiga();
+        tested = new RowColourVariety();
 
         for(int i = 0; i < playerStub.getPattern().getWidth(); i++){
             placedDice[0][i] = new Die(rndGen.nextInt(6) + 1, Colour.validColours().get(i));
@@ -72,7 +72,7 @@ public class ObjectiveUnitTest {
 
     @Test
     public void testSfumatureChiare(){
-        tested = new SfumatureChiare();
+        tested = new LightShades();
         Pair<Integer, Integer> position;
 
         for(int i = 0; i < 2; i++){
@@ -102,7 +102,7 @@ public class ObjectiveUnitTest {
 
     @Test
     public void testSfumatureMedie(){
-        tested = new SfumatureMedie();
+        tested = new MediumShades();
         Pair<Integer, Integer> position;
 
         for(int i = 0; i < 2; i++){
@@ -132,7 +132,7 @@ public class ObjectiveUnitTest {
 
     @Test
     public void testSfumatureScure(){
-        tested = new SfumatureScure();
+        tested = new DarkShades();
         Pair<Integer, Integer> position;
 
         for(int i = 0; i < 2; i++){
@@ -162,7 +162,7 @@ public class ObjectiveUnitTest {
 
     @Test
     public void testSfumatureDiverse(){
-        tested = new SfumatureDiverse();
+        tested = new ShadeVariety();
         Pair<Integer, Integer> position;
 
         placedDice[0][0] = new Die(6, Colour.WHITE);
@@ -180,7 +180,7 @@ public class ObjectiveUnitTest {
 
     @Test
     public void testSfumatureDiverseRiga() {
-        tested = new SfumatureDiverseRiga();
+        tested = new RowShadeVariety();
 
         for(int col = 0; col < playerStub.getPattern().getWidth(); col++){
             placedDice[0][col] = new Die(col + 1, Colour.validColours().get(rndGen.nextInt(5)));
@@ -196,7 +196,7 @@ public class ObjectiveUnitTest {
 
     @Test
     public void testSfumatureDiverseColonna(){
-        tested = new SfumatureDiverseColonna();
+        tested = new ColumnShadeVariety();
 
         for(int row = 0; row < playerStub.getPattern().getHeight(); row++){
             placedDice[row][0] = new Die(row + 1, Colour.validColours().get(rndGen.nextInt(5)));
@@ -211,7 +211,7 @@ public class ObjectiveUnitTest {
 
     @Test
     public void testVarietaColore(){
-        tested = new VarietaColore();
+        tested = new ColourVariety();
         Pair<Integer, Integer> position;
 
         placedDice[0][0] = new Die(1, Colour.VIOLET);
@@ -235,7 +235,7 @@ public class ObjectiveUnitTest {
 
     @Test
     public void testDiagonaliColorate(){
-        tested = new DiagonaliColorate();
+        tested = new Diagonals();
 
         // First test
         placedDice[0][0] = new Die(Colour.WHITE);
@@ -277,7 +277,7 @@ public class ObjectiveUnitTest {
 
     @Test
     public void testSfumatureBlu(){
-        tested = new SfumatureBlu();
+        tested = new ShadesOfBlue();
         int height = playerStub.getPattern().getHeight();
         int width = playerStub.getPattern().getWidth();
         int row ;
@@ -308,7 +308,7 @@ public class ObjectiveUnitTest {
 
     @Test
     public void testSfumatureGialle() {
-        tested = new SfumatureGialle();
+        tested = new ShadesOfYellow();
         int height = playerStub.getPattern().getHeight();
         int width = playerStub.getPattern().getWidth();
         int row ;
@@ -338,7 +338,7 @@ public class ObjectiveUnitTest {
 
     @Test
     public void testSfumatureRosse() {
-        tested = new SfumatureRosse();
+        tested = new ShadesOfRed();
         int height = playerStub.getPattern().getHeight();
         int width = playerStub.getPattern().getWidth();
         int row ;
@@ -368,7 +368,7 @@ public class ObjectiveUnitTest {
 
     @Test
     public void testSfumatureVerdi() {
-        tested = new SfumatureVerdi();
+        tested = new ShadesOfGreen();
         int height = playerStub.getPattern().getHeight();
         int width = playerStub.getPattern().getWidth();
         int row ;
@@ -398,7 +398,7 @@ public class ObjectiveUnitTest {
 
     @Test
     public void testSfumatureViola() {
-        tested = new SfumatureViola();
+        tested = new ShadesOfPurple();
         int height = playerStub.getPattern().getHeight();
         int width = playerStub.getPattern().getWidth();
         int row ;

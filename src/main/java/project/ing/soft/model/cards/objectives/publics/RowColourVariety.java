@@ -1,16 +1,19 @@
 package project.ing.soft.model.cards.objectives.publics;
 
+import project.ing.soft.Settings;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Player;
 
 import java.util.Arrays;
 
-public class ColoriDiversiRiga extends PublicObjective {
+public class RowColourVariety extends PublicObjective {
 
-    public ColoriDiversiRiga(){
-        super("Colori Diversi - Riga", "Hai formato righe senza ripetere piu volte lo stesso colore", 6,
-                "objectives/public/30%/objectives-2.png");
+    public RowColourVariety(){
+        super(  Settings.ObjectivesProperties.RowColourVariety.getTitle(),
+                Settings.ObjectivesProperties.RowColourVariety.getDescription(),
+                Settings.ObjectivesProperties.RowColourVariety.getPoints(),
+                Settings.ObjectivesProperties.RowColourVariety.getPath());
     }
 
     public int checkCondition(Player window) {

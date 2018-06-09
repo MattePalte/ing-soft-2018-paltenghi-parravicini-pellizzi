@@ -27,16 +27,16 @@ public class GameManagerFactory {
     public static List<PublicObjective> getPublicObjCards() {
         if(publicObjCards == null){
             publicObjCards = new ArrayList<>();
-            publicObjCards.add(new ColoriDiversiColonna());
-            publicObjCards.add(new ColoriDiversiRiga());
-            publicObjCards.add(new DiagonaliColorate());
-            publicObjCards.add(new SfumatureChiare());
-            publicObjCards.add(new SfumatureDiverse());
-            publicObjCards.add(new SfumatureDiverseColonna());
-            publicObjCards.add(new SfumatureDiverseRiga());
-            publicObjCards.add(new SfumatureMedie());
-            publicObjCards.add(new SfumatureScure());
-            publicObjCards.add(new VarietaColore());
+            publicObjCards.add(new ColumnColourVariety());
+            publicObjCards.add(new RowColourVariety());
+            publicObjCards.add(new Diagonals());
+            publicObjCards.add(new LightShades());
+            publicObjCards.add(new ShadeVariety());
+            publicObjCards.add(new ColumnShadeVariety());
+            publicObjCards.add(new RowShadeVariety());
+            publicObjCards.add(new MediumShades());
+            publicObjCards.add(new DarkShades());
+            publicObjCards.add(new ColourVariety());
         }
         return publicObjCards;
     }
@@ -44,11 +44,11 @@ public class GameManagerFactory {
     public static List<PrivateObjective> getPrivateObjCards() {
         if(privateObjCards == null){
             privateObjCards = new ArrayList<>();
-            privateObjCards.add(new SfumatureBlu());
-            privateObjCards.add(new SfumatureGialle());
-            privateObjCards.add(new SfumatureRosse());
-            privateObjCards.add(new SfumatureVerdi());
-            privateObjCards.add(new SfumatureViola());
+            privateObjCards.add(new ShadesOfBlue());
+            privateObjCards.add(new ShadesOfYellow());
+            privateObjCards.add(new ShadesOfRed());
+            privateObjCards.add(new ShadesOfGreen());
+            privateObjCards.add(new ShadesOfPurple());
         }
 
         return privateObjCards;

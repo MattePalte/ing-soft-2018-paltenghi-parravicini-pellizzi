@@ -1,15 +1,18 @@
 package project.ing.soft.model.cards.objectives.publics;
 
+import project.ing.soft.Settings;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Player;
 
 import java.util.Arrays;
 
-public class SfumatureDiverseColonna extends PublicObjective {
+public class ColumnShadeVariety extends PublicObjective {
 
-    public SfumatureDiverseColonna(){
-        super("Sfumature Diverse - Colonna", "Hai formato colonne senza ripetere piu volte lo stesso grado di sfumatura", 4,
-                "objectives/public/30%/objectives-5.png");
+    public ColumnShadeVariety(){
+        super(  Settings.ObjectivesProperties.ColumnShadeVariety.getTitle(),
+                Settings.ObjectivesProperties.ColumnShadeVariety.getDescription(),
+                Settings.ObjectivesProperties.ColumnShadeVariety.getPoints(),
+                Settings.ObjectivesProperties.ColumnShadeVariety.getPath());
     }
 
     public int checkCondition(Player window) {

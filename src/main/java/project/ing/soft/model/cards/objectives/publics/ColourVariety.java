@@ -1,16 +1,19 @@
 package project.ing.soft.model.cards.objectives.publics;
 
+import project.ing.soft.Settings;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Player;
 
 import java.util.*;
 
-public class VarietaColore extends PublicObjective {
+public class ColourVariety extends PublicObjective {
 
-    public VarietaColore(){
-        super("Varieta Colore", "Conta quanti set di dadi con 5 colori differenti hai composto sulla tua vetrata", 4,
-                "objectives/public/30%/objectives-11.png");
+    public ColourVariety(){
+        super(  Settings.ObjectivesProperties.ColourVariety.getTitle(),
+                Settings.ObjectivesProperties.ColourVariety.getDescription(),
+                Settings.ObjectivesProperties.ColourVariety.getPoints(),
+                Settings.ObjectivesProperties.ColourVariety.getPath());
     }
 
     public int checkCondition(Player window) {

@@ -1,16 +1,19 @@
 package project.ing.soft.model.cards.objectives.publics;
 
+import project.ing.soft.Settings;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Player;
 
 import java.util.*;
 
-public class DiagonaliColorate extends PublicObjective {
+public class Diagonals extends PublicObjective {
 
-    public DiagonaliColorate(){
-        super("Diagonali Colorate", "Conta il numero di dadi dello stesso colore posizionati diagonalmente l'uno rispetto all'altro", 1,
-                "objectives/public/30%/objectives-10.png");
+    public Diagonals(){
+        super(  Settings.ObjectivesProperties.Diagonals.getTitle(),
+                Settings.ObjectivesProperties.Diagonals.getDescription(),
+                Settings.ObjectivesProperties.Diagonals.getPoints(),
+                Settings.ObjectivesProperties.Diagonals.getPath());
     }
 
     public int checkCondition(Player window) {
