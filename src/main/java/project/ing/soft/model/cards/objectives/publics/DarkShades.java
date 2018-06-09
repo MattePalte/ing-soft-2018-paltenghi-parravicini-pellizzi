@@ -4,8 +4,15 @@ import project.ing.soft.Settings;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Player;
 
+/**
+ * Specific implementation of a PublicObjective
+ */
 public class DarkShades extends PublicObjective {
 
+    /**
+     * DarkShades constructor. It takes information about the specific objective from
+     * class Settings
+     */
     public DarkShades(){
         super(  Settings.ObjectivesProperties.DarkShades.getTitle(),
                 Settings.ObjectivesProperties.DarkShades.getDescription(),
@@ -13,6 +20,12 @@ public class DarkShades extends PublicObjective {
                 Settings.ObjectivesProperties.DarkShades.getPath());
     }
 
+    /**
+     * This method verifies if the objective is completed by the given player
+     * and returns how many times he managed to complete it
+     * @param window the player who is counting points on its window
+     * @return how many times the condition to complete this objective is achieved
+     */
     @Override
     public int checkCondition(Player window) {
         Die[][] placedDice = window.getPlacedDice();

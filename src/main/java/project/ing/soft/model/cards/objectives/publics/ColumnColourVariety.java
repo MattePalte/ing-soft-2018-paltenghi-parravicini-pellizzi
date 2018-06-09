@@ -7,8 +7,15 @@ import project.ing.soft.model.Player;
 
 import java.util.Arrays;
 
+/**
+ * Specific implementation of a PublicObjective
+ */
 public class ColumnColourVariety extends PublicObjective {
 
+    /**
+     * ColumnColourVariety constructor. It takes information about the specific objective from
+     * class Settings
+     */
     public ColumnColourVariety(){
         super(  Settings.ObjectivesProperties.ColumnColourVariety.getTitle(),
                 Settings.ObjectivesProperties.ColumnColourVariety.getDescription(),
@@ -16,6 +23,13 @@ public class ColumnColourVariety extends PublicObjective {
                 Settings.ObjectivesProperties.ColumnColourVariety.getPath());
     }
 
+    /**
+     * This method verifies if the objective is completed by the given player
+     * and returns how many times he managed to complete it
+     * @param window the player who is counting points on its window
+     * @return how many times the condition to complete this objective is achieved
+     */
+    @Override
     public int checkCondition(Player window) {
         Die[][] placedDice = window.getPlacedDice();
         int ret = 0;
