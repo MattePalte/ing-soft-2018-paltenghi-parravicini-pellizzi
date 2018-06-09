@@ -14,7 +14,7 @@ public class Settings {
     // Connection Settings
     private int port = 3000;
     private String host = "localhost";
-    private String defaultIpForRMI = "127.0.0.1";
+    private String defaultIpForRMI = "localhost";
     // CLI settings
     private int TEXT_CARD_WIDTH = 29;
     private int TEXT_CARD_HEIGHT = 12;
@@ -140,7 +140,13 @@ public class Settings {
     }
 
     public String getRmiApName() {
-        return defaultRmiApName;
+        StringBuilder sb = new StringBuilder("//");
+        sb.append(defaultIpForRMI);
+        sb.append(":");
+        sb.append(1099);
+        sb.append("/");
+        sb.append(defaultRmiApName);
+        return new String(sb);
     }
     //endregion
 

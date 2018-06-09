@@ -7,6 +7,7 @@ import project.ing.soft.controller.IController;
 import project.ing.soft.view.IView;
 
 import java.io.IOException;
+import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -40,7 +41,7 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint {
             throw ex;
         }
         System.setProperty("java.rmi.dgc.leaseValue", "10000");
-        registry.rebind(Settings.instance().getRmiApName(), ap);
+        Naming.rebind(Settings.instance().getRmiApName(), ap);
         ap.log.log(Level.INFO,"AccessPoint RMI published on the registry");
     }
 
@@ -79,7 +80,7 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint {
     public IController reconnect(String nickname, String code, IView clientView) throws Exception {
         log.log(Level.INFO,"{0} requested to reconnect", nickname);
         ViewProxyOverRmi proxyOverRmi = new ViewProxyOverRmi(clientView, nickname);
-        IController newController = accessPointReal.reconnect(nickname, code, clientView);
+        IController newController = accessPointReal.reconnect(nickname, code, proxyOverRmi);
         // POST CONNECT ->
         proxyOverRmi.attachController(newController);
         proxyOverRmi.start();
