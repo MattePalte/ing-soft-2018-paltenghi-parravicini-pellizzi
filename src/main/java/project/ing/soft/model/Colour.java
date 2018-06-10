@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Enumeration of possible colours used in the game
+ */
 public enum Colour implements Serializable{
     //w.r.t https://en.wikipedia.org/wiki/ANSI_escape_code
     //To avoid problems related to width of different character
@@ -40,33 +43,71 @@ public enum Colour implements Serializable{
     private String ansiBackgroundColour;
     private String webColor;
 
+    /**
+     * Default constructor for colours in the enumeration
+     * @param aForegroundColour ANSI code for console's foreground colour
+     * @param aBackgroundColour ANSI code for console's background colour
+     * @param webColor Hexadecimal code for text color
+     */
     Colour( String aForegroundColour, String aBackgroundColour, String webColor){
         this.ansiBackgroundColour = aBackgroundColour;
         this.ansiForegroundColour = aForegroundColour;
         this.webColor = webColor;
     }
 
+    /**
+     * Method which returns a String which indicates to print the chosen String on a coloured
+     * background. Background's colour is chosen by calling the method on the chosen Colour
+     * @param aString the string that is asked to be printed on the coloured background
+     * @return the string passed as a parameter, wrapped between the chosen colour ANSI background code
+     * and ANSI_RESET code
+     */
     public String colourBackground(String aString){
         return ansiBackgroundColour+aString+ANSI_RESET;
     }
 
+    /**
+     * Method which returns a String which indicates to print the chosen String colouring console's text.
+     * Text's colour is chosen by calling the method on the chosen Colour
+     * @param aString the string that is asked to be coloured
+     * @return the string passed as a parameter, wrapped between the chosen colour ANSI foreground code
+     * and ANSI_RESET code
+     */
     public String colourForeground(String aString) {
         return ansiForegroundColour + aString + ANSI_RESET;
     }
 
+    /**
+     *
+     * @return the hexadecimal code of the colour
+     */
     public String getWebColor() {
         return webColor;
     }
 
+    /**
+     *
+     * @return a String representation of the colour
+     */
     @Override
     public String toString() {
         return "Colour{" + name()+ "}";
     }
 
+    /**
+     * Static method:
+     * @return a list of the valid colours used in the game
+     */
     public static List<Colour> validColours(){
         return validColours;
     }
 
+    /**
+     * Method used to return a colour according to an abbreviation of the colour itself
+     * @param aChar abbreviation of a colour name
+     * @return the colour corresponding to the given abbreviation
+     * @throws ColorNotFoundException if the abbreviation given does not correspond to any colour
+     */
     public static Colour valueOf( char aChar) throws ColorNotFoundException{
        for (Colour c: values())
            if (c.name().charAt(0) == aChar )
@@ -74,7 +115,14 @@ public enum Colour implements Serializable{
        throw new ColorNotFoundException("Color not found for abbreviation "+ aChar);
     }
 
+    /**
+     * Exception used to notify that the asked colour does not exist in the enumeration
+     */
     public static class ColorNotFoundException extends Exception{
+        /**
+         * ColourNotFoundException default constructor
+         * @param aString the string to set as an Exception message
+         */
         ColorNotFoundException(String aString){
             super(aString);
         }

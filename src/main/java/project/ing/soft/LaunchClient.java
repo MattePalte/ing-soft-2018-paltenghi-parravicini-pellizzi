@@ -15,9 +15,18 @@ import java.rmi.Naming;
 import java.util.Random;
 import java.util.Scanner;
 
+/**
+ * This class is the entry point of the program to launch a CLI client
+ */
 public class LaunchClient {
 
 
+    /**
+     * main method of the class. This methods asks the user's name and which type of connection he wants
+     * to use and tries to connect him to the server.
+     * @param args arguments passed from the terminal
+     * @throws Exception if anything went wrong during connection to the server
+     */
     public static void main(String[] args) throws Exception {
         PrintStream out = new Console(System.out);
 
@@ -77,6 +86,16 @@ public class LaunchClient {
 
     }
 
+    /**
+     * Method called to get a reference to an access point: a object needed to ask connection or reconnection
+     * to a game. With socket connection an access point proxy is set and a request to the server is sent.
+     * With RMI connection, instead, the client gets a remote reference of the access point from the
+     * registry and requests directly for a connection or a reconnection
+     * @param args the arguments passed from the terminal
+     * @param out PrintStream on which the method should print information for the user
+     * @param scan the scanner used to get user input
+     * @return a reference to an access point
+     */
     private static IAccessPoint getAccessPoint(String[] args, PrintStream out, Scanner scan) {
         // ask for RMI/Socket
         out.println("Which type of connection do you want to use to communicate with the server:");
@@ -110,6 +129,13 @@ public class LaunchClient {
     }
 
 
+    /**
+     * Method used to ask the user if he wants to connect to a new game or reconnect to a old one
+     * @param args arguments passed from the terminal
+     * @param out PrintStream on which the method should print information for the user
+     * @param scan the scanner used to get user input
+     * @return an int value representing the choice of the user
+     */
     private static int getConnectionMethod(String[] args, PrintStream out, Scanner scan) {
         int connectionMethod;
 
@@ -125,6 +151,13 @@ public class LaunchClient {
         return connectionMethod;
     }
 
+    /**
+     * Method called to ask user's name
+     * @param args arguments passed from the terminal
+     * @param out PrintStream on which the method should print information for the user
+     * @param scan Scanner used to get user input
+     * @return
+     */
     private static String getPlayerName(String[] args, PrintStream out, Scanner scan) {
         out.println("Enter your name:");
         String name = args.length > 0 ? args[0] : scan.next();
@@ -132,6 +165,10 @@ public class LaunchClient {
         return name;
     }
 
+    /**
+     * Method which prints a starting page of the game
+     * @param out PrintStream on which the method should print information for the user
+     */
     private static void printLandingPage(PrintStream out) {
         Random rndGen = new Random();
         Colour foreground;

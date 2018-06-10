@@ -22,6 +22,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
+/**
+ * Main implementation of Controller interface. Every match has an instance of a GameController associated.
+ * A GameController exposes methods to a view, to make them call operations on the model without
+ * having a direct connection with it. Before delegate the call to the model, the GameController execute
+ * some checks about the player who asked to perform operations and makes some preliminary operations,
+ * if needed
+ */
 public class GameController implements IController, Serializable {
 
 
@@ -35,6 +42,12 @@ public class GameController implements IController, Serializable {
     private final transient String id;
 
 
+    /**
+     * Default constructor on a GameController. It also instances a logger to log events and a timer useful
+     * to interrupt a player's turn after a certain amount of time
+     * @param maxNumberOfPlayer the superior limit of the number of players allowed in the game
+     * @param id string which uniquely identifies a GameController and its associated game
+     */
     public GameController(int maxNumberOfPlayer, String id) {
         this.theGame        = new Game(maxNumberOfPlayer);
         this.gameManager    = null;
@@ -45,14 +58,33 @@ public class GameController implements IController, Serializable {
         this.id             = id;
     }
 
+    /**
+     *
+     * @return the number of players playing in the match
+     */
     public synchronized int getCurrentPlayers(){
         return theGame.getNumberOfPlayers();
     }
 
+    /**
+     *
+     * @return a boolean flag which indicates whether the game is already started or not by checking
+     * if the associated gameManager has already been instanced
+     */
     public synchronized boolean notAlreadyStarted(){
         return this.gameManager == null;
     }
 
+    /**
+     * Method called by a view to connect or reconnect to a game. Obviously if the game is full
+     * no other players can join the game. While the game is in the setup phase, if the number of players
+     * in the game equals the maximum number of players allowed, then the match starts. If the number of
+     * players is bigger than 2 and can't reach the maximum number of players allowed within a certain
+     * amount of time, the match starts anyway with only the players already joined.
+     * @param playerName name of the player who asked to connect or reconnect to the game
+     * @param view player's view reference
+     * @throws Exception if anything went wrong while trying to connect or reconnect the player to the game
+     */
     public synchronized void joinTheGame(String playerName, IView view) throws Exception {
         log.log(Level.INFO,"Add player request received from {0} ", playerName);
         Optional<Player> player = theGame.getPlayers()
@@ -88,11 +120,21 @@ public class GameController implements IController, Serializable {
 
     }
 
+    /**
+     * Method to mark a player as disconnected. This method is called only by the player's view proxy on the
+     * server side if this catches a SocketException or a RemoteException, due to disconnection from
+     * socket or RMI communication
+     * @param playerName name of the player who disconnected from the game
+     */
     public synchronized void markAsDisconnected(String playerName) {
         if(gameManager != null)
             gameManager.disconnectPlayer(playerName);
     }
 
+    /**
+     *
+     * @return a TimerTask to use in GameController's Timer which makes the match start
+     */
     private TimerTask  buildStartTimeoutTask() {
         return new TimerTask() {
             @Override
@@ -106,6 +148,10 @@ public class GameController implements IController, Serializable {
         };
     }
 
+    /**
+     * This method starts the match. It instances the GameManager and launches the setup phase
+     * @throws Exception if anything went wrong during GameManager creation
+     */
     private synchronized void startGame() throws Exception {
         log.log(Level.INFO, "Game started");
         this.gameManager = GameManagerFactory.factory(theGame);
@@ -116,10 +162,21 @@ public class GameController implements IController, Serializable {
         gameManager.setupPhase();
     }
 
-    public String getControllerSecurityCode() throws Exception {
+    /**
+     *
+     * @return GameController's identifier string
+     */
+    public String getControllerSecurityCode() {
         return id;
     }
 
+    /**
+     * Method called by players' views to make them choose their window pattern.
+     * @param nickname name of the player who chose the pattern
+     * @param windowCard pattern card chosen by the player
+     * @param side a boolean flag which indicated if the player chose the front or the rear side of the card
+     * @throws Exception if anything went wrong while binding player and window pattern
+     */
     public synchronized void choosePattern(String nickname, WindowPatternCard windowCard, Boolean side) throws Exception {
 
         Optional<Player> player = gameManager.getPlayerList().stream()
@@ -148,11 +205,24 @@ public class GameController implements IController, Serializable {
     }
 
 
+    /**
+     * Method used to let players request for a model update to the server
+     * @throws Exception if anything went wrong while accepting the request
+     */
     public synchronized void requestUpdate() throws Exception{
         log.log(Level.INFO, "An model update was requested");
         gameManager.requestUpdate();
     }
 
+    /**
+     * Method called by players to place a die in their placedDice matrix
+     * @param nickname name of the player who asked to place a die
+     * @param aDie the die asked to be placed
+     * @param rowIndex of the position in which the die is asked to be placed
+     * @param colIndex of the position in which the die is asked to be placed
+     * @throws Exception if anything went wrong while trying to place the die in the asked position or
+     * if timeout expires
+     */
     public synchronized void placeDie(String nickname, Die aDie, int rowIndex, int colIndex) throws Exception {
         if (!gameManager.getCurrentPlayer().getName().equals(nickname)) {
             log.log(Level.WARNING, "Place die called but player name {0} mismatch ", nickname);
@@ -168,6 +238,13 @@ public class GameController implements IController, Serializable {
 
     }
 
+    /**
+     * Method called by players to play a toolcard.
+     * @param nickname of the player who asked to play a toolcard
+     * @param aToolCard Toolcard that the player asked to play
+     * @throws Exception if anything went wrong while trying to use the asked toolcard or if
+     * timeout expires
+     */
     public synchronized void playToolCard(String nickname, ToolCard aToolCard) throws Exception {
         if (!gameManager.getCurrentPlayer().getName().equals(nickname)) {
             log.log(Level.WARNING, "Play ToolCard called but player name {0} mismatch ", nickname);
@@ -183,6 +260,14 @@ public class GameController implements IController, Serializable {
     }
 
     //region end turn
+
+    /**
+     * Method called by players to signal they want to end their turn. This method is also automatically
+     * called when the timeout expires
+     * @param nickname of the player who is taking its turn
+     * @throws Exception if the player who asked to perform operation is not the one who is taking
+     * the current turn or if its timeout is already expired
+     */
     public synchronized void endTurn(String nickname) throws Exception {
 
         if (!gameManager.getCurrentPlayer().getName().equals(nickname)) {
@@ -201,6 +286,13 @@ public class GameController implements IController, Serializable {
 
     }
 
+    /**
+     * Method which end player's turn signaling if the turn is ended by timeout expired or by player's call.
+     * After the current turn ended, a new timer is set for the turn which is going to begin
+     * @param timeoutOccurred a boolean flag which indicates whether the method has been invoked by a timer
+     *                        or by player's call
+     * @throws Exception if anything went wrong while trying to end current turn
+     */
     private synchronized void endTurn(boolean timeoutOccurred) throws Exception {
         log.log(Level.INFO, "End turn {0} ", timeoutOccurred ? "called" : "forced from timer");
         gameManager.endTurn(timeoutOccurred);
@@ -211,6 +303,9 @@ public class GameController implements IController, Serializable {
 
     //region timeout turn
 
+    /**
+     * Method used to reset the timer for turns timeout
+     */
     private void resetTurnEndAndStartTimer(){
         if(Settings.instance().isTURN_TIMEOUT_ENABLED()) {
             turnEnded.set(false);
@@ -220,6 +315,11 @@ public class GameController implements IController, Serializable {
         }
     }
 
+    /**
+     *
+     * @return a TimerTask to use in the Timer which sets boolean flag turnEnded to false and terminates
+     * current player's turn
+     */
     private TimerTask buildTurnTimeoutTask() {
         return new TimerTask() {
             @Override

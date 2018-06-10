@@ -15,6 +15,9 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.stream.Collectors;
 
+/**
+ * This class is the entry point of the program to launch a server instance
+ */
 public class LaunchServer {
 
     private final HashMap<String, GameController> hostedGames;
@@ -26,6 +29,10 @@ public class LaunchServer {
     private SocketListener socketListener;
     private  APointRMI uniqueRmiAP;
 
+    /**
+     * Server default constructor. It creates maps to save on going games and players actually playing and
+     * exposes commands to enable and disable loggers
+     */
     private LaunchServer() {
         hostedGames = new HashMap<>();
         playersInGame = new HashMap<>();
@@ -45,6 +52,10 @@ public class LaunchServer {
     }
 
     //region commands
+
+    /**
+     * Method used to print a list of available loggers
+     */
     private void logAvailable(){
 
         out.println("Logger available:");
@@ -53,6 +64,9 @@ public class LaunchServer {
 
     }
 
+    /**
+     * Method used to enable a logger from the available ones
+     */
     private void logEnable(){
 
         out.println("Enter name of the logger to be enabled");
@@ -70,6 +84,9 @@ public class LaunchServer {
         }
     }
 
+    /**
+     * Method used to disable a logger
+     */
     private void logDisable(){
 
         out.println("Enter name of the logger to be enabled");
@@ -86,6 +103,9 @@ public class LaunchServer {
         }
     }
 
+    /**
+     * Method which stops server from listening connection
+     */
     private void quit(){
         socketListener.interrupt();
         try {
@@ -100,6 +120,11 @@ public class LaunchServer {
         }
     }
 
+    /**
+     * This method is responsible for the creation of a single access point used to let players connect
+     * to the game. It also runs a thread which will accept users socket connection and exports the RMI
+     * access point in the registry.
+     */
     public void run() {
         // Create real AccessPoint server-side
         AccessPointReal accessPointReal = new AccessPointReal(hostedGames,playersInGame);
@@ -135,6 +160,14 @@ public class LaunchServer {
     //endregion
 
     //region scanner operation
+
+    /**
+     * Method used to get user input
+     * @param lowerBound inferior limit of the command numeric identifier a user can choose
+     * @param upperBound superior limit of the command numeric identifier a user can choose
+     * @return an int value representing user's choice
+     * @throws UserInterruptActionException if the user itself chose to interrupt its choice
+     */
     private int waitForUserInput(int lowerBound , int upperBound) throws UserInterruptActionException {
         int ret = 0;
         boolean err;
@@ -162,10 +195,22 @@ public class LaunchServer {
         return ret;
     }
 
+    /**
+     * Method used to make users choose from a list of objects
+     * @param objects the list of objects from which users must make a choice
+     * @return the object chosen by the user
+     * @throws UserInterruptActionException if the user itself chose to interrupt its choice
+     */
     private Object chooseFrom(List objects) throws UserInterruptActionException {
         return objects.get(chooseIndexFrom(objects));
     }
 
+    /**
+     * Method which asks the user to choose an object from a list by enumerating them
+     * @param objects the list of objects from which the user must make a choice
+     * @return an int value representing user's choice
+     * @throws UserInterruptActionException if the user itself chose to interrupt its choice
+     */
     private int chooseIndexFrom(List objects) throws UserInterruptActionException {
 
         out.println(String.format("Enter a number between 0 and %d to select:", objects.size()-1));
@@ -178,7 +223,7 @@ public class LaunchServer {
     //endregion
 
     /**
-     * Launch Server class is responsible for handling construction/destruction of the server
+     * This method runs an instance of the server
      * @param args no parameter is required
      */
     public static void main(String[] args) {
