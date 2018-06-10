@@ -1,19 +1,28 @@
 package project.ing.soft.gui;
 
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import project.ing.soft.Settings;
+import project.ing.soft.exceptions.ActionNotPermittedException;
+import project.ing.soft.exceptions.CodeInvalidException;
+import project.ing.soft.exceptions.NickNameAlreadyTakenException;
 import project.ing.soft.socket.APProxySocket;
 import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.IController;
 import project.ing.soft.view.IView;
 
 import java.rmi.Naming;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
@@ -30,12 +39,15 @@ public class SplashController {
     */
     private Stage stage;
 
-    @FXML
-    private Button btnConnectRMI;
-    @FXML
-    private Button btnConnectSocket;
-    @FXML
-    private TextField txtName;
+    @FXML private Text msgLabel;
+    @FXML private TextField txtName;
+    @FXML private TextField txtToken;
+    @FXML private TextField txtServerIP;
+    @FXML private TextField txtServerPort;
+    @FXML private Button btnConnect;
+    @FXML private Button btnReconnect;
+    @FXML private Pane content;
+    @FXML private ToggleGroup connectionTypeGroup;
 
     public void setStage(Stage stage) {
         this.stage = stage;
@@ -82,109 +94,169 @@ public class SplashController {
         ivSplash.setFitHeight(desiredHeight);*/
     }
 
-    public void connectRMI(){
-        IAccessPoint accessPoint = null;
+    public void connect(){
         String nick = txtName.getText();
+        RadioButton selectedOption = (RadioButton) connectionTypeGroup.getSelectedToggle();
+        String chosenType = selectedOption.getText();
+        System.out.println("connect with -> " + selectedOption.getText());
+        if (chosenType.toLowerCase().contains("rmi")) {
+            connectRMI(nick);
+        } else {
+            connectSocket(nick);
+        }
+    }
+    public void reconnect(){
+        String nick = txtName.getText();
+        String token = txtToken.getText();
+        RadioButton selectedOption = (RadioButton) connectionTypeGroup.getSelectedToggle();
+        String chosenType = selectedOption.getText();
+        System.out.println("reconnect with -> " + selectedOption.getText());
+        if (chosenType.toLowerCase().contains("rmi")) {
+            reconnectRMI(nick, token);
+        } else {
+            reconnectSocket(nick, token);
+        }
+    }
+
+    public void notifyConnectionEnstablished(String token){
+        String nick = txtName.getText();
+        Text msg = new Text("You are now connected with the nick: " + nick);
+        Text tokenLbl = new Text("This is your token for reconnection: ");
+        TextField txtToken = new TextField();
+        txtToken.setText(token);
+        txtToken.setEditable(false);
+        content.setPadding(new Insets(50,50,100,50));
+        content.getChildren().clear();
+        content.getChildren().add(msg);
+        content.getChildren().add(tokenLbl);
+        content.getChildren().add(txtToken);
+    }
+
+    private int getPort(){
+        String insertedPort = txtServerPort.getText();
+        if (insertedPort.equals("")) return Settings.instance().getPort();
+        int portNumber = Integer.parseInt(insertedPort);
+        if (validPort(insertedPort)) {
+            return portNumber;
+        } else {
+            return Settings.instance().getPort();
+        }
+    }
+
+    private String getIP() {
+        String insertedIP = txtServerIP.getText();
+        if (insertedIP.equals("")) return Settings.instance().getHost();
+        if (validIP(insertedIP)) {
+            return insertedIP;
+        } else {
+            return Settings.instance().getHost();
+        }
+    }
+
+    private boolean validIP(String ip) {
+        try {
+            String[] parts = ip.split( "\\." );
+            if ( ip == null || ip.isEmpty() || parts.length != 4 || ip.endsWith(".")) {
+                return false;
+            }
+            for ( String s : parts ) {
+                int i = Integer.parseInt( s );
+                if ( (i < 0) || (i > 255) ) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+    }
+    private boolean validPort(String port) {
+        int portNumber = Integer.parseInt(port);
+        return portNumber > 1024 && portNumber <= 49151;
+    }
+
+    private void connectRMI(String nick){
+        IAccessPoint accessPoint = null;
         try {
             accessPoint = (IAccessPoint)Naming.lookup( Settings.instance().getRmiApName());
 
             System.out.println("1) AccessPoint reference obtained");
-            IView realView = new RealView(stage, nick);
+            IView realView = new RealView(stage, nick, this);
             System.out.println("2) view object created in BackGround");
             IController gameController = accessPoint.connect(nick, realView);
             realView.attachController(gameController);
             System.out.println("3) controller given to the view");
+        } catch (NickNameAlreadyTakenException ex){
+            System.out.println("x) " + ex.getMessage());
+            msgLabel.setText(ex.getMessage());
         } catch (Exception ex) {
             System.out.println("x) Probably the server is down (no remote object or no registry)");
+            msgLabel.setText(ex.getMessage());
             return;
         }
-
     }
 
-    // OLD CONNECT RMI
-//    IAccessPoint accessPoint = null;
-//    String nick = txtName.getText();
-//        try {
-//        Registry registry = LocateRegistry.getRegistry( Settings.instance().getDefaultIpForRMI());
-//        System.out.println("Objects currently registered in the registry");
-//        String[] registryList = registry.list();
-//        for(String s : registryList)
-//            System.out.println(s);
-//        accessPoint = (IAccessPoint) registry.lookup("accesspoint");
-//        System.out.println("1) AccessPoint reference obtained");
-//    } catch (Exception ex) {
-//        System.out.println("x) Probably the server is down (no remote object or no registry)");
-//        return;
-//    }
-//    Scene scene = createGameView(nick, accessPoint);
-//    changeScene(scene);
-
-    public void connectSocket(){
+    private void connectSocket(String nick){
         IAccessPoint accessPoint = null;
-        String nick = txtName.getText();
-        accessPoint = new APProxySocket(Settings.instance().getHost(), Settings.instance().getPort());
+        accessPoint = new APProxySocket(getIP(), getPort());
         System.out.println("1) AccessPoint Proxy created and connected");
         try {
-            IView realView = new RealView(stage, nick);
+            IView realView = new RealView(stage, nick, this);
             System.out.println("2) view object created in BackGround");
             IController gameController = accessPoint.connect(nick, realView);
             realView.attachController(gameController);
             System.out.println("3) controller given to the view");
+        } catch (NickNameAlreadyTakenException ex){
+            System.out.println("x) " + ex.getMessage());
+            msgLabel.setText(ex.getMessage());
         } catch (Exception ex) {
             System.out.println("x) Probably the server is down");
+            msgLabel.setText(ex.getMessage());
             return;
         }
     }
 
-    //OLD SOCKET CONNECT
-//    IAccessPoint accessPoint = null;
-//    String nick = txtName.getText();
-//    accessPoint = new APProxySocket(Settings.instance().getHost(), Settings.instance().getPort());
-//        System.out.println("1) AccessPoint Proxy created and connected");
-//    Scene scene = createGameView(nick, accessPoint);
-//    changeScene(scene);
-
-    /*private Scene createGameView(String nick, IAccessPoint accessPoint){
-        Parent root = null;
-        String sceneFile = "/gui/layout/gui_view_layout.fxml";
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(sceneFile));
+    private void reconnectRMI(String nick, String token){
+        IAccessPoint accessPoint = null;
         try {
-            root = (Parent)fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Problem loading the fxml");
-            return null;
-        }
-        OldGuiView viewFxController = fxmlLoader.getController();
-        PrintStream out = new PrintStream(System.out);
-        viewFxController.setOut(out);
-        viewFxController.setStage(stage);
-        viewFxController.setOwnerNameOfTheView(nick);
-        try {
-            IController controllerFromRMI = (IController) accessPoint.connect(nick, viewFxController);
-            System.out.println("2) Controller retrieved from AccessPoint gameID=" + controllerFromRMI.getControllerSecurityCode());
-            viewFxController.attachController(controllerFromRMI);
-            System.out.println("3) Controller attached to the view");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        *//*FadeTransition ft = new FadeTransition(Duration.millis(3000), root);
-        ft.setFromValue(0.0);
-        ft.setToValue(1.0);
-        ft.play();*//*
-        return new Scene(root);
-    }*/
+            accessPoint = (IAccessPoint) Naming.lookup(Settings.instance().getRmiApName());
 
-    /*private void changeScene(Scene scene) {
-        stage.setScene(scene);
-        System.out.println("4) Scene created and started");
-        stage.setResizable(true);
-        //Center newly created scene
-        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
-        stage.setX((primScreenBounds.getWidth() - stage.getWidth()) / 2);
-        stage.setY((primScreenBounds.getHeight() - stage.getHeight()) / 2);
-        //stage.setMaximized(true);
-    }*/
+            System.out.println("1) AccessPoint reference obtained");
+            IView realView = new RealView(stage, nick, this);
+            System.out.println("2) view object created in BackGround");
+            IController gameController = accessPoint.reconnect(nick, token, realView);
+            realView.attachController(gameController);
+            System.out.println("3) controller given to the view");
+        } catch (ActionNotPermittedException | CodeInvalidException ex){
+            System.out.println("x) " + ex.getMessage());
+            msgLabel.setText(ex.getMessage());
+        } catch (Exception ex) {
+            System.out.println("x) Probably the server is down (no remote object or no registry)");
+            msgLabel.setText(ex.getMessage());
+            return;
+        }
+    }
+
+    private void reconnectSocket(String nick, String token){
+        IAccessPoint accessPoint = null;
+        accessPoint = new APProxySocket(getIP(), getPort());
+        System.out.println("1) AccessPoint Proxy created and connected");
+        try {
+            IView realView = new RealView(stage, nick, this);
+            System.out.println("2) view object created in BackGround");
+            IController gameController = accessPoint.reconnect(nick, token, realView);
+            realView.attachController(gameController);
+            System.out.println("3) controller given to the view");
+        } catch (ActionNotPermittedException | CodeInvalidException ex){
+            System.out.println("x) " + ex.getMessage());
+            msgLabel.setText(ex.getMessage());
+        } catch (Exception ex) {
+            System.out.println("x) Probably the server is down");
+            msgLabel.setText(ex.getMessage());
+            return;
+        }
+    }
+
 
 }
 

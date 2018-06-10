@@ -42,15 +42,17 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
     private transient String token;
     private boolean stopResponding = false;
     private MainLayoutController mainBoard;
+    private SplashController splashController;
     private final transient Queue<Event> eventsReceived = new LinkedList<>();
     private final Stage stage;
     private final transient Logger log;
 
 
-    public RealView(Stage stage, String nick) throws RemoteException{
+    public RealView(Stage stage, String nick, SplashController splashController) throws RemoteException{
         super();
         this.stage = stage;
         this.ownerNameOfTheView = nick;
+        this.splashController = splashController;
         startTaskForEventsListening();
         this.log = Logger.getLogger(Objects.toString(this));
     }
@@ -128,9 +130,9 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         stage.setScene(scene);
         stage.setMaximized(true);
         stage.setResizable(true);
-        if (mainBoard != null) {
-            mainBoard.respondTo(event);
-        }
+        // handle event
+        mainBoard.respondTo(event);
+        // show mainBoard
         Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
         stage.setX((primScreenBounds.getWidth() - stage.getWidth()) / 2);
         stage.setY((primScreenBounds.getHeight() - stage.getHeight()) / 2);
@@ -197,8 +199,13 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
                 break;
             }
         }
-        if (mainBoard != null) {
+        // normal forwarding scenario
+        if (mainBoard != null && myPlayer.getPattern() != null) {
             mainBoard.respondTo(event);
+        }
+        // reconnection scenario
+        if (mainBoard == null && myPlayer.getPattern() != null) {
+            createBoardAfterReconnection(event);
         }
     }
 
@@ -219,11 +226,56 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
     @Override
     public void respondTo(SetTokenEvent event) {
         this.token = event.getToken();
+        System.out.println("TOKEN -> " + event.getToken());
+        splashController.notifyConnectionEnstablished(event.getToken());
     }
+
+    private void createBoardAfterReconnection(ModelChangedEvent event){
+        Parent root = null;
+        String sceneFile = "/gui/layout/main_layout.fxml";
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(sceneFile));
+        try {
+            root = fxmlLoader.load();
+        } catch (IOException e) {
+            log.log(Level.INFO,"Cause: "+e.getCause() + "\n Message " + e.getMessage());
+        }
+        Scene scene = new Scene(root);
+        MainLayoutController mainLayoutController = fxmlLoader.getController();
+        mainLayoutController.setOut(System.out);
+        mainLayoutController.setOwnerNameOfTheView(ownerNameOfTheView);
+        mainLayoutController.setStage(stage);
+        mainLayoutController.setToken(token);
+        mainLayoutController.setGameController(myController);
+        mainLayoutController.setLocalCopyOfTheStatus(localCopyOfTheStatus);
+        for (Player p : localCopyOfTheStatus.getPlayerList()){
+            if (p.getName().equals(ownerNameOfTheView)) {
+                this.myPlayer = p;
+                break;
+            }
+        }
+        mainBoard = mainLayoutController;
+        stage.setTitle("Main Board");
+        stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.setResizable(true);
+        // handle model changed event
+        mainBoard.respondTo(event);
+        // simulate a finished setup to draw public cards and token
+        mainBoard.respondTo(new FinishedSetupEvent());
+        if (myPlayer.getName().equals(localCopyOfTheStatus.getCurrentPlayer().getName())) {
+            mainBoard.respondTo(new MyTurnStartedEvent());
+        }
+        // show mainBoard
+        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
+        stage.setX((primScreenBounds.getWidth() - stage.getWidth()) / 2);
+        stage.setY((primScreenBounds.getHeight() - stage.getHeight()) / 2);
+        stage.show();
+    }
+
 
     @Override
     public void update(Event event) throws IOException {
-        System.out.println( " - " + ownerNameOfTheView + " ha ricevuto un evento :" + event);
+        System.out.println( "Real View - " + ownerNameOfTheView + " ha ricevuto un evento :" + event);
 
         if (!stopResponding) {
             synchronized (eventsReceived) {

@@ -17,6 +17,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+/**
+ * This class is the real implementation of AccessPoint, every type of connection
+ * (both RMI and socket) communicates with this object. This object is the only one
+ * that can have the entire set of hosted games. Its task is to add new players to
+ * games waiting for them or connect players that lose connection to the right match.
+ */
 public class AccessPointReal implements IAccessPoint {
 
     private final Logger log;
@@ -95,6 +101,9 @@ public class AccessPointReal implements IAccessPoint {
         }
         clientView.attachController(gameControllerToJoin);
 
+        String token = TokenCalculator.computeDigest(nickname + gameControllerToJoin.getControllerSecurityCode());
+        clientView.update(new SetTokenEvent(token));
+        log.log(Level.INFO, "Associated ({0}, {1}) token: {2}", new Object[]{nickname, gameControllerToJoin.getControllerSecurityCode(), token});
         log.log(Level.INFO,"{0} reconnection request succeed", nickname);
         gameControllerToJoin.joinTheGame(nickname,clientView);
         return gameControllerToJoin;

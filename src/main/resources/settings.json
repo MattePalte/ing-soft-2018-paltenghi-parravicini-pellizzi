@@ -19,8 +19,8 @@
   },
   "GAME_START_TIMEOUT_ENABLED": true,
   "TURN_TIMEOUT_ENABLED": true,
-  "TURN_TIMEOUT": 30000,
-  "GAME_START_TIMEOUT": 6000,
+  "TURN_TIMEOUT": 120000,
+  "GAME_START_TIMEOUT": 3000,
   "SYNCH_TIME": 5000,
   "tokenProperty": "SagradaToken",
   "defaultLoggingLevel": {
