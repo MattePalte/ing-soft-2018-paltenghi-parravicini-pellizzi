@@ -6,12 +6,12 @@ import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.model.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
 
-public class TenagliaRotelle extends ToolCard {
+public class RunningPliers extends ToolCardSingleState {
 
-    public TenagliaRotelle() {
-        super("Tenaglia a rotelle", "Dopo il tuo primo turno scegli immediatamente un altro dado." +
-                "Salta il tuo secondo turno in questo round",
-                "toolcard/30%/toolcards-9.png", Colour.RED);
+    public RunningPliers() {
+        super("Running Pliers", "After your first turn, \n" +
+                        "immediately draft a die. skip your next turn this round",
+                "toolcard/30%/toolcards-9.png",  Colour.RED);
     }
 
 
@@ -23,6 +23,7 @@ public class TenagliaRotelle extends ToolCard {
     }
 
 
+
     @Override
     public void fill(IToolCardParametersAcquirer acquirer) {
         // No parameters need to be collected
@@ -32,4 +33,10 @@ public class TenagliaRotelle extends ToolCard {
     public void apply(Player p, IGameManager m) {
         m.samePlayerAgain();
     }
+
+    @Override
+    public ToolCard copy() {
+        return this;
+    }
+
 }

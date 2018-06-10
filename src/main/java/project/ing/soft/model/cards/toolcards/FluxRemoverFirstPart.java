@@ -11,24 +11,24 @@ import project.ing.soft.model.gamemanager.events.ToolcardActionRequestEvent;
 
 import java.io.Serializable;
 
-public class DiluentePerPastaSaldaFirstPart implements IToolCardState, Serializable {
+public class FluxRemoverFirstPart implements IToolCardState, Serializable {
 
     private Die chosenDie;
     private Die toBePlaced;
 
 
-    public void checkParameters(ToolCardStateful ctx,Player p, IGameManager m) throws MalformedToolCardException {
+    public void checkParameters(ToolCard ctx,Player p, IGameManager m) throws MalformedToolCardException {
         ctx.validateDie(chosenDie);
         ctx.validatePresenceOfDieIn(chosenDie, m.getDraftPool());
     }
 
     @Override
-    public void fill(ToolCardStateful ctx, IToolCardParametersAcquirer acquirer) throws UserInterruptActionException, InterruptedException {
+    public void fill(ToolCard ctx, IToolCardParametersAcquirer acquirer) throws UserInterruptActionException, InterruptedException {
         chosenDie = acquirer.getDieFromDraft("Choose a die to take back to the dice bag: ");
     }
 
     @Override
-    public void play(ToolCardStateful ctx, Player p, IGameManager m) throws ToolCardApplicationException {
+    public void play(ToolCard ctx, Player p, IGameManager m) throws ToolCardApplicationException {
         try{
             m.canPayToolCard(ctx);
 
@@ -37,7 +37,7 @@ public class DiluentePerPastaSaldaFirstPart implements IToolCardState, Serializa
             apply(p, m);
             m.payToolCard(ctx);
 
-            ctx.setState(new DiluentePerPastaSaldaSecondPart(toBePlaced));
+            ctx.setState(new FluxRemoverSecondPart(toBePlaced));
             p.update(new ModelChangedEvent(m.copy()));
             p.update(new ToolcardActionRequestEvent(ctx.copy()));
         }catch(Exception e){

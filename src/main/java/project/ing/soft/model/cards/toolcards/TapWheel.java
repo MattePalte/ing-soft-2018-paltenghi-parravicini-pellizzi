@@ -10,15 +10,15 @@ import project.ing.soft.model.Player;
 
 import java.util.ArrayList;
 
-public class TaglierinaManuale extends ToolCard {
+public class TapWheel extends ToolCardSingleState {
     private Die dieFromRoundTracker;
     private ArrayList<Coordinate> diceChosen;
     private ArrayList<Coordinate> moveTo;
 
-    public TaglierinaManuale() {
-        super("Taglierina manuale", "Muovi fino a due dadi dello \n"+
-                "stesso colore di un solo dado sul Tracciato dei Round. \n" +
-                "Devi rispettare tutte le restrizioni di piazzamento",
+    public TapWheel() {
+        super("Tap Wheel", "Move up to two dice of the same\n"+
+                "color that match the color of a die on the Round Track.\n" +
+                "You must obey all placement restrictions",
                 "toolcard/30%/toolcards-13.png", Colour.BLUE);
 
     }
@@ -59,5 +59,14 @@ public class TaglierinaManuale extends ToolCard {
     @Override
     public void apply(Player p, IGameManager m) throws Exception {
         p.moveDice(diceChosen, moveTo, true, true, true);
+    }
+
+    @Override
+    public ToolCard copy() {
+       TapWheel tw              = new TapWheel();
+       tw.diceChosen            = this.diceChosen;
+       tw.dieFromRoundTracker   = this.dieFromRoundTracker;
+       tw.moveTo                = this.moveTo;
+       return tw;
     }
 }

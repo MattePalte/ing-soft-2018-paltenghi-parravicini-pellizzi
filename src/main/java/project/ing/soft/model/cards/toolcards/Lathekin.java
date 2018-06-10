@@ -9,7 +9,7 @@ import project.ing.soft.model.Player;
 
 import java.util.List;
 
-public class Lathekin extends ToolCard {
+public class Lathekin extends ToolCardSingleState {
 
     private Coordinate firstDieStartPosition;
     private Coordinate firstDieEndPosition;
@@ -17,8 +17,8 @@ public class Lathekin extends ToolCard {
     private Coordinate secondDieEndPosition;
 
     public Lathekin() {
-        super("Lathekin", "Muovi esattamente due dadi, \n" +
-                "rispettando tutte le restrizioni di piazzamento",
+        super("Lathekin", "Move exactly two dice, \n" +
+                "obeying all placement restrictions",
                 "toolcard/30%/toolcards-5.png", Colour.YELLOW);
     }
 
@@ -44,5 +44,16 @@ public class Lathekin extends ToolCard {
                     List.of(firstDieEndPosition, secondDieEndPosition),
                     true, true, true);
 
+    }
+
+    @Override
+    public ToolCard copy() {
+        Lathekin lt = new Lathekin();
+        lt.firstDieStartPosition    = this.firstDieStartPosition;
+        lt.firstDieEndPosition      = this.firstDieEndPosition;
+        lt.secondDieStartPosition   = this.secondDieStartPosition;
+        lt.secondDieEndPosition     = this.secondDieEndPosition;
+
+        return lt;
     }
 }

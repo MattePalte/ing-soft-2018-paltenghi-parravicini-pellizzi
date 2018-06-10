@@ -5,10 +5,9 @@ import project.ing.soft.model.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
 import project.ing.soft.model.Colour;
 
-public class Martelletto extends ToolCard {
-    public Martelletto() {
-        super("Martelletto", "Tira nuovamente tutti i dadi della Riserva Questa carta può essera usata \n" +
-                "solo durante il tuo secondo turno, prima di scegliere il secondo dado",
+public class GlazingHammer extends ToolCardSingleState {
+    public GlazingHammer() {
+        super("Running Pliers", "Re-roll all dice in the Draft Pool.\nThis may only be used on your second turn before drafting.",
                 "toolcard/30%/toolcards-8.png", Colour.BLUE);
     }
 
@@ -26,5 +25,10 @@ public class Martelletto extends ToolCard {
     @Override
     public void apply(Player p, IGameManager m) {
         m.rollDraftPool();
+    }
+
+    @Override
+    public ToolCard copy() {
+        return this;
     }
 }

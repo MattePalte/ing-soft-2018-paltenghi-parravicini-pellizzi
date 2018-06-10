@@ -5,12 +5,8 @@ import project.ing.soft.exceptions.*;
 import project.ing.soft.model.*;
 import project.ing.soft.model.cards.Card;
 import project.ing.soft.model.gamemanager.IGameManager;
-import project.ing.soft.model.gamemanager.events.ModelChangedEvent;
-import project.ing.soft.model.gamemanager.events.MyTurnStartedEvent;
-
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -21,10 +17,11 @@ import java.util.List;
  */
 public abstract class ToolCard implements Serializable, Card {
 
-    private String title;
-    private String description;
-    private String imgPath;
-    private Colour colour;
+    private final String title;
+    private final String description;
+    private final String imgPath;
+    private final Colour colour;
+    private IToolCardState state;
 
     /**
      * ToolCard default constructor
@@ -33,11 +30,12 @@ public abstract class ToolCard implements Serializable, Card {
      * @param imgPath path of the image that graphically represent the card
      * @param colour color of the die that has to be paid in order to play this ToolCard in a solo-fashion game
      */
-    public ToolCard(String title, String description, String imgPath, Colour colour) {
+    public ToolCard(String title, String description, String imgPath, Colour colour, IToolCardState state) {
         this.title       = title;
         this.description = description;
         this.imgPath     = imgPath;
         this.colour      = colour;
+        this.state       = state;
     }
 
     /**
@@ -49,6 +47,11 @@ public abstract class ToolCard implements Serializable, Card {
         this.description = from.description;
         this.imgPath     = from.imgPath;
         this.colour      = from.colour;
+        this.state       = from.state;
+    }
+
+    public void setState(IToolCardState newState) {
+        state = newState;
     }
 
     @Override
@@ -77,8 +80,9 @@ public abstract class ToolCard implements Serializable, Card {
      * @throws InterruptedException when the thread executing the fill method has been requested a stop
      * @throws UserInterruptActionException when the user interrupts the fill procedure
      */
-    public abstract void fill(IToolCardParametersAcquirer acquirer) throws InterruptedException, UserInterruptActionException;
-
+    public void fill(IToolCardParametersAcquirer acquirer) throws InterruptedException, UserInterruptActionException {
+        state.fill(this, acquirer);
+    }
     /**
      * Play ToolCard is a command interface for operations that involves ToolCard
      * Methods that redefine this method has to redefine event raised
@@ -86,21 +90,8 @@ public abstract class ToolCard implements Serializable, Card {
      * @param m model
      * @throws ToolCardApplicationException describes the reason that cause an error
      */
-    public void play(Player p, IGameManager m) throws ToolCardApplicationException
-    {
-        try{
-            m.canPayToolCard(this);
-            checkParameters(p, m);
-
-            apply(p, m);
-
-            m.payToolCard(this);
-
-            p.update(new ModelChangedEvent(m.copy()));
-            p.update(new MyTurnStartedEvent());
-        }catch (Exception ex){
-            throw new ToolCardApplicationException(ex);
-        }
+    public void play(Player p, IGameManager m) throws ToolCardApplicationException {
+        state.play(this, p, m);
     }
 
     /**
@@ -110,7 +101,9 @@ public abstract class ToolCard implements Serializable, Card {
      * @param m model
      * @throws ToolCardApplicationException describes the reason that
      */
-    abstract void apply(Player p, IGameManager m) throws Exception;
+    void apply(Player p, IGameManager m) throws Exception{
+        state.apply(p, m);
+    }
 
     /**
      * CheckParameters is a method that concerns about the soundness of the data written in it
@@ -118,7 +111,9 @@ public abstract class ToolCard implements Serializable, Card {
      * @param m model on which the ToolCard will be applied
      * @throws MalformedToolCardException if any error in private data stored in it are wrong
      */
-    public abstract void checkParameters(Player p, IGameManager m) throws MalformedToolCardException;
+    public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException{
+        state.checkParameters(this, p, m);
+    }
 
     protected void validateDie(Die aDie) throws MalformedToolCardException {
         if (aDie == null)
@@ -150,4 +145,7 @@ public abstract class ToolCard implements Serializable, Card {
         aBuilder.appendToTop(getDescription());
         return aBuilder.toString();
     }
+
+    public abstract ToolCard copy();
+
 }

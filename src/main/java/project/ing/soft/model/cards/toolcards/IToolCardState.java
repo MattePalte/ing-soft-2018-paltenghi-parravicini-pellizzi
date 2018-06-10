@@ -26,7 +26,7 @@ public interface IToolCardState extends Serializable {
      * @throws UserInterruptActionException when user wants to interrupted the action
      * @throws InterruptedException when system request an action interruption
      */
-    void fill           (ToolCardStateful ctx, IToolCardParametersAcquirer acquirer)
+    void fill           (ToolCard ctx, IToolCardParametersAcquirer acquirer)
             throws UserInterruptActionException, InterruptedException ;
 
     /**
@@ -37,7 +37,7 @@ public interface IToolCardState extends Serializable {
      * @param m game model
      * @throws MalformedToolCardException when some parameter is clearly wrong
      */
-    void checkParameters(ToolCardStateful ctx, Player p, IGameManager m)
+    void checkParameters(ToolCard ctx, Player p, IGameManager m)
             throws MalformedToolCardException;
 
     /**
@@ -49,7 +49,7 @@ public interface IToolCardState extends Serializable {
      * @throws ToolCardApplicationException when the action couldn't be correctly completed
      * because of an error
      */
-    void play           (ToolCardStateful ctx, Player p, IGameManager m)
+    void play           (ToolCard ctx, Player p, IGameManager m)
             throws ToolCardApplicationException ;
 
     /**

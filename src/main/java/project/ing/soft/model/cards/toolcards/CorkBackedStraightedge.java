@@ -8,14 +8,14 @@ import project.ing.soft.model.gamemanager.IGameManager;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Player;
 
-public class RigaSughero extends ToolCard {
+public class CorkBackedStraightedge extends ToolCardSingleState {
     private Die chosenDieFromDraft;
     private Coordinate chosenPosition;
 
-    public RigaSughero() {
-        super("Riga di sughero", "Dopo aver scelto un dado, \n" +
-                "piazzalo in una casella che non sia adiacente a un altro dado. \n" +
-                "Devi rispettare tutte le restrizioni di piazzamento",
+    public CorkBackedStraightedge() {
+        super("Cork-backed Straightedge", "After drafting, place the\n" +
+                "die in a spot that is not adjacent to\nanother die.\n" +
+                "You must obey all other\nplacement restrictions.",
                 "toolcard/30%/toolcards-10.png", Colour.YELLOW);
     }
 
@@ -39,9 +39,15 @@ public class RigaSughero extends ToolCard {
 
     @Override
     public void apply(Player p, IGameManager m) throws Exception{
-
         p.placeDie(chosenDieFromDraft, chosenPosition.getRow(), chosenPosition.getCol(), false);
         m.removeFromDraft(chosenDieFromDraft);
+    }
 
+    @Override
+    public ToolCard copy() {
+        CorkBackedStraightedge cs = new CorkBackedStraightedge();
+        cs.chosenDieFromDraft     = this.chosenDieFromDraft;
+        cs.chosenPosition         = this.chosenPosition;
+        return cs;
     }
 }

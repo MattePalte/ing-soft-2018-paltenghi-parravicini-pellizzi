@@ -11,25 +11,25 @@ import project.ing.soft.model.gamemanager.events.ToolcardActionRequestEvent;
 
 import java.io.Serializable;
 
-public class PennelloPastaSaldaFirstPart implements IToolCardState, Serializable {
+public class FluxBrushFirstPart implements IToolCardState, Serializable {
 
     private Die dieToRoll;
     private Die toPlace;
 
 
-    public void checkParameters(ToolCardStateful ctx,Player p, IGameManager m) throws MalformedToolCardException {
+    public void checkParameters(ToolCard ctx,Player p, IGameManager m) throws MalformedToolCardException {
         //check parameters integrity, otherwise send MalformedToolCardException
         ctx.validateDie(dieToRoll);
         ctx.validatePresenceOfDieIn(dieToRoll, m.getDraftPool());
     }
 
-
-    public void fill(ToolCardStateful ctx,  IToolCardParametersAcquirer acquirer) throws UserInterruptActionException, InterruptedException {
+    @Override
+    public void fill(ToolCard ctx,  IToolCardParametersAcquirer acquirer) throws UserInterruptActionException, InterruptedException {
         dieToRoll = acquirer.getDieFromDraft("Select a die in order to re-roll it");
     }
 
-
-    public void play(ToolCardStateful ctx, Player p, IGameManager m) throws ToolCardApplicationException {
+    @Override
+    public void play(ToolCard ctx, Player p, IGameManager m) throws ToolCardApplicationException {
         try{
             m.canPayToolCard(ctx);
             checkParameters(ctx, p, m);
@@ -39,7 +39,7 @@ public class PennelloPastaSaldaFirstPart implements IToolCardState, Serializable
             m.payToolCard(ctx);
 
 
-            ctx.setState(new PennelloPastaSaldaSecondPart(toPlace));
+            ctx.setState(new FluxBrushSecondPart(toPlace));
             p.update(new ModelChangedEvent(m.copy()));
             p.update(new ToolcardActionRequestEvent(ctx.copy()));
         }catch (Exception ex){

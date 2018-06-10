@@ -1,6 +1,5 @@
 package project.ing.soft.model.cards.toolcards;
 
-import project.ing.soft.exceptions.ToolCardApplicationException;
 import project.ing.soft.model.Die;
 import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.gamemanager.IGameManager;
@@ -8,12 +7,12 @@ import project.ing.soft.model.Colour;
 import project.ing.soft.model.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
 
-public class TamponeDiamantato extends ToolCard {
+public class GrindingStone extends ToolCardSingleState {
     private Die chosenDie;
 
-    public TamponeDiamantato() {
-        super("Tampone diamantato", "Dopo aver scelto un dado, giralo sulla faccia opposta. " +
-                "E.g. 6 diventa 1, 5 diventa 2, 4 diventa 3 ecc.",
+    public GrindingStone() {
+        super("Grinding Stone", "After drafting, flip the die\nto its opposite side." +
+                "E.g. 6 flips to 1, 5 to 2, 4 to 3 ecc.",
                 "toolcard/30%/toolcards-11.png", Colour.GREEN);
     }
 
@@ -30,10 +29,17 @@ public class TamponeDiamantato extends ToolCard {
     }
 
     @Override
-    public void apply(Player p, IGameManager m) throws ToolCardApplicationException {
+    public void apply(Player p, IGameManager m) {
 
         m.removeFromDraft(chosenDie);
         m.addToDraft(chosenDie.flipDie());
 
+    }
+
+    @Override
+    public ToolCard copy() {
+        GrindingStone gs = new GrindingStone();
+        gs.chosenDie = this.chosenDie;
+        return gs;
     }
 }

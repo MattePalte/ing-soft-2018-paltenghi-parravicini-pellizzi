@@ -8,14 +8,14 @@ import project.ing.soft.model.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
 import project.ing.soft.model.Colour;
 
-public class TaglierinaCircolare extends ToolCard {
+public class LensCutter extends ToolCardSingleState {
 
     private Die dieFromDraft;
     private Die dieFromRoundTracker;
 
-    public TaglierinaCircolare() {
-        super("Taglierina circolare", "Dopo aver scelto un dado, \n" +
-                "scambia quel dado con un dado sul Tracciato dei Round",
+    public LensCutter() {
+        super("Lens Cutter", "After drafting, swap the drafted\n" +
+                "die with a die from the\nRound Track",
                 "toolcard/30%/toolcards-6.png", Colour.GREEN);
     }
 
@@ -41,5 +41,13 @@ public class TaglierinaCircolare extends ToolCard {
         m.swapWithRoundTracker(dieFromDraft,dieFromRoundTracker);
         m.addToDraft(dieFromRoundTracker);
 
+    }
+
+    @Override
+    public ToolCard copy() {
+        LensCutter lc          = new LensCutter();
+        lc.dieFromDraft        = this.dieFromDraft;
+        lc.dieFromRoundTracker = this.dieFromRoundTracker;
+        return lc;
     }
 }

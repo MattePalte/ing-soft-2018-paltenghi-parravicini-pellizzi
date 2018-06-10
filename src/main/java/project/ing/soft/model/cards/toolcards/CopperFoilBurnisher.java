@@ -1,5 +1,6 @@
 package project.ing.soft.model.cards.toolcards;
 
+
 import project.ing.soft.exceptions.*;
 import project.ing.soft.model.Coordinate;
 import project.ing.soft.model.gamemanager.IGameManager;
@@ -8,17 +9,16 @@ import project.ing.soft.model.Player;
 
 import java.util.List;
 
-public class PennelloPerEglomise extends ToolCard {
+public class CopperFoilBurnisher extends ToolCardSingleState {
 
     private Coordinate startPosition;
     private Coordinate endPosition;
 
-    public PennelloPerEglomise() {
-        super("Pennello per Eglomise", "Muovi un qualsiasi dado nella tua vetrata ignorando le restrizioni di colore. \n" +
-                "Devi rispettare tutte le altre restrizioni di piazzamento",
-                "toolcard/30%/toolcards-3.png", Colour.BLUE);
+    public CopperFoilBurnisher() {
+        super("Copper Foil Burnisher", "Move any one die in your window ignoring shade restriction.\n" +
+                "You must obey all other placement restrictions",
+                "toolcard/30%/toolcards-4.png", Colour.RED);
     }
-
 
     @Override
     public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
@@ -31,11 +31,18 @@ public class PennelloPerEglomise extends ToolCard {
     public void fill(IToolCardParametersAcquirer acquirer) throws UserInterruptActionException, InterruptedException {
         startPosition = acquirer.getCoordinate("Enter which die you want to move");
         endPosition   = acquirer.getCoordinate("Enter an empty cell's position to move it");
-
     }
 
     @Override
-    public void apply(Player p, IGameManager m) throws Exception{
-        p.moveDice(List.of(startPosition), List.of(endPosition), false, true, true);
+    public void apply(Player p, IGameManager m) throws Exception {
+        p.moveDice(List.of(startPosition), List.of(endPosition), true, true, true);
+    }
+
+    @Override
+    public ToolCard copy() {
+        CopperFoilBurnisher al = new CopperFoilBurnisher();
+        al.endPosition   = this.endPosition;
+        al.startPosition = this.startPosition;
+        return al;
     }
 }

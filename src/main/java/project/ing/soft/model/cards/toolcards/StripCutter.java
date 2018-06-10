@@ -6,13 +6,13 @@ import project.ing.soft.model.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
 import project.ing.soft.model.Colour;
 
-public class StripCutter extends ToolCard {
+public class StripCutter extends ToolCardSingleState {
 
     public StripCutter() {
-        super("Taglia strisce", "Prendi un dado da qualsiasi altro giocatore. \n" +
-                        " Al suo posto dai loro un dado dello stesso colore o dello stesso valore. \n" +
-                "Possono piazzare il dado senza curarsi delle restrizioni di colore o valore. \n" +
-                "Deve essere usato prima del Round 7",
+        super("Strip Cutter", "Take one die from any player.\n" +
+                        "Give them a die of a matching Color or Value.\n" +
+                "They may place it ignoring Color or Value Restrictions.\n" +
+                "May bve used before Round 7.",
                 "toolcard/30%/toolcards-14.png", Colour.WHITE);
     }
 
@@ -30,5 +30,10 @@ public class StripCutter extends ToolCard {
     @Override
     public void apply(Player p, IGameManager m) throws ToolCardApplicationException {
         throw new ToolCardApplicationException(new UnsupportedOperationException());
+    }
+
+    @Override
+    public ToolCard copy() {
+        return this;
     }
 }

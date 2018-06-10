@@ -1,6 +1,5 @@
 package project.ing.soft.model.cards.toolcards;
 
-import project.ing.soft.Settings;
 import project.ing.soft.exceptions.MalformedToolCardException;
 import project.ing.soft.exceptions.ToolCardApplicationException;
 import project.ing.soft.exceptions.UserInterruptActionException;
@@ -12,25 +11,24 @@ import project.ing.soft.model.gamemanager.events.ModelChangedEvent;
 import project.ing.soft.model.gamemanager.events.MyTurnStartedEvent;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 
-public class DiluentePerPastaSaldaSecondPart implements IToolCardState, Serializable {
+public class FluxRemoverSecondPart implements IToolCardState, Serializable {
     private final Die toBePlaced;
     private int newValue;
     private Coordinate cord;
 
-    public DiluentePerPastaSaldaSecondPart(Die toBePlaced){
+    public FluxRemoverSecondPart(Die toBePlaced){
         this.toBePlaced = toBePlaced;
     }
 
     @Override
-    public void checkParameters(ToolCardStateful ctx, Player p, IGameManager m) throws MalformedToolCardException {
+    public void checkParameters(ToolCard ctx, Player p, IGameManager m) throws MalformedToolCardException {
         ctx.validatePresenceOfDieIn(toBePlaced, m.getDraftPool());
         ctx.validateCoordinate(cord, p.getPattern().getHeight(), p.getPattern().getWidth());
     }
 
     @Override
-    public void fill(ToolCardStateful ctx, IToolCardParametersAcquirer acquirer) throws UserInterruptActionException, InterruptedException {
+    public void fill(ToolCard ctx, IToolCardParametersAcquirer acquirer) throws UserInterruptActionException, InterruptedException {
         newValue = acquirer.getValue(String.format("A die of color %s was chosen. Choose the new value for it", toBePlaced.getColour().name()), 1,2,3,4,5,6);
         cord     = acquirer.getCoordinate("Where do you want to place this new die?");
     }
@@ -42,13 +40,13 @@ public class DiluentePerPastaSaldaSecondPart implements IToolCardState, Serializ
      * @throws ToolCardApplicationException
      */
     @Override
-    public void play(ToolCardStateful ctx,Player p, IGameManager m) throws ToolCardApplicationException {
+    public void play(ToolCard ctx,Player p, IGameManager m) throws ToolCardApplicationException {
         try{
             checkParameters(ctx, p, m);
 
             apply(p, m);
 
-            ctx.setState(new DiluentePerPastaSaldaFirstPart());
+            ctx.setState(new FluxRemoverFirstPart());
             p.update(new ModelChangedEvent(m.copy()));
             p.update(new MyTurnStartedEvent());
         }catch (Exception ex){
