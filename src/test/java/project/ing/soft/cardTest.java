@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import project.ing.soft.model.cards.Card;
 import project.ing.soft.model.StringBoxBuilder;
-import project.ing.soft.model.cards.toolcards.AlesatoreLaminaRame;
+import project.ing.soft.model.cards.toolcards.CopperFoilBurnisher;
 import project.ing.soft.model.cards.toolcards.ToolCard;
 import project.ing.soft.model.gamemanager.GameManagerFactory;
 
@@ -23,7 +23,7 @@ public class cardTest {
 
     @Test
     public void toTestFillACard(){
-        ToolCard aCard = new AlesatoreLaminaRame();
+        ToolCard aCard = new CopperFoilBurnisher();
 
         StringBoxBuilder aBuilder = new StringBoxBuilder(new StringBoxBuilder.DOUBLELINESQUAREANGLE(),20, 8);
         aBuilder.appendInAboxToTop(aCard.getTitle());
@@ -44,7 +44,7 @@ public class cardTest {
         aBuilder.appendToTop("contenuto molto molto molto molto molto molto lungo");
         System.out.println(aBuilder);
 
-        ToolCard otherCard = new AlesatoreLaminaRame();
+        ToolCard otherCard = new CopperFoilBurnisher();
 
         StringBoxBuilder aBuilder2 = new StringBoxBuilder(new StringBoxBuilder.DOUBLELINESQUAREANGLE(),20, 8);
         aBuilder2.appendInAboxToTop(otherCard.getTitle());

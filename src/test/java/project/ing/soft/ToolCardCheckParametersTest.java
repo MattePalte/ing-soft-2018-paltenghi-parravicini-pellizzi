@@ -25,12 +25,12 @@ public class ToolCardCheckParametersTest {
     private WindowPattern stubPattern;
     private RoundTracker stubRoundTracker;
 
-    private PinzaSgrossatrice pinzaSgrossatrice;
-    private PennelloPerEglomise pennelloPerEglomise;
-    private AlesatoreLaminaRame alesatoreLaminaRame;
+    private GrozingPliers pinzaSgrossatrice;
+    private EglomiseBrush pennelloPerEglomise;
+    private CopperFoilBurnisher alesatoreLaminaRame;
     private Lathekin lathekin;
-    private TaglierinaCircolare taglierinaCircolare;
-    private PennelloPastaSalda pennelloPastaSalda;
+    private LensCutter taglierinaCircolare;
+    private FluxBrush pennelloPastaSalda;
 
     @Before
     public void createStubThings(){
@@ -48,7 +48,7 @@ public class ToolCardCheckParametersTest {
     public void pinzaSgrossatriceOkTest() throws UserInterruptActionException, InterruptedException {
         Die rndDie = randomDie();
         boolean isExHappend = false;
-        pinzaSgrossatrice = new PinzaSgrossatrice();
+        pinzaSgrossatrice = new GrozingPliers();
 
         IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
 
@@ -77,7 +77,7 @@ public class ToolCardCheckParametersTest {
         Die rndDie = randomDie();
 
         boolean isExHappend = false;
-        pinzaSgrossatrice = new PinzaSgrossatrice();
+        pinzaSgrossatrice = new GrozingPliers();
 
         IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
         when(param.getValue(anyString(), anyInt(), anyInt()))
@@ -93,7 +93,7 @@ public class ToolCardCheckParametersTest {
         Assert.assertTrue( isExHappend);
 
         isExHappend = false;
-        pinzaSgrossatrice = new PinzaSgrossatrice();
+        pinzaSgrossatrice = new GrozingPliers();
 
         param = mock(IToolCardParametersAcquirer.class);
         when(param.getValue(anyString(), anyInt(), anyInt()))
@@ -117,7 +117,7 @@ public class ToolCardCheckParametersTest {
     // check if a well formed PennelloPerEglomise toolcard doesn't throw the exception
     public void pennelloPerEglomiseOkTest() throws UserInterruptActionException, InterruptedException {
         boolean isExHappend = false;
-        pennelloPerEglomise = new PennelloPerEglomise();
+        pennelloPerEglomise = new EglomiseBrush();
 
         IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
         when(param.getCoordinate(anyString()))
@@ -138,7 +138,7 @@ public class ToolCardCheckParametersTest {
     // - coordinate out of bound
     public void pennelloPerEglomiseKoTest() throws UserInterruptActionException, InterruptedException {
         boolean isExHappend = false;
-        pennelloPerEglomise = new PennelloPerEglomise();
+        pennelloPerEglomise = new EglomiseBrush();
         for(int i = 0; i < 60; i++){
             isExHappend = false;
             Coordinate c1 = listOfInvalidCoordinates().get(new Random().nextInt(listOfInvalidCoordinates().size()));
@@ -163,7 +163,7 @@ public class ToolCardCheckParametersTest {
     // check if a well formed alesatoreLaminaRame toolcard doesn't throw the exception
     public void alesatoreLaminaRameOkTest() throws UserInterruptActionException, InterruptedException {
         boolean isExHappend = false;
-        alesatoreLaminaRame = new AlesatoreLaminaRame();
+        alesatoreLaminaRame = new CopperFoilBurnisher();
 
         IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
         when(param.getCoordinate(anyString()))
@@ -184,7 +184,7 @@ public class ToolCardCheckParametersTest {
     // - coordinate out of bound
     public void alesatoreLaminaRameKoTest() throws UserInterruptActionException, InterruptedException {
         boolean isExHappend = false;
-        alesatoreLaminaRame = new AlesatoreLaminaRame();
+        alesatoreLaminaRame = new CopperFoilBurnisher();
         for(int i = 0; i < 60; i++){
             isExHappend = false;
             Coordinate c1 = listOfInvalidCoordinates().get(new Random().nextInt(listOfInvalidCoordinates().size()));
@@ -264,7 +264,7 @@ public class ToolCardCheckParametersTest {
         Die rndDieRoundTracker = randomDie();
         Die rndDieDraftPool = randomDie();
         boolean isExHappend = false;
-        taglierinaCircolare = new TaglierinaCircolare();
+        taglierinaCircolare = new LensCutter();
 
 
         when(stubModel.getRoundTracker()).thenReturn(stubRoundTracker);
@@ -299,7 +299,7 @@ public class ToolCardCheckParametersTest {
         Die rndDieRoundTracker = randomDie();
         Die rndDieDraftPool = randomDie();
         boolean isExHappend = false;
-        taglierinaCircolare = new TaglierinaCircolare();
+        taglierinaCircolare = new LensCutter();
         // - the die selected is not in the draft pool
         when(stubModel.getRoundTracker()).thenReturn(stubRoundTracker);
         ArrayList<Die> myDiceLeft = new ArrayList<>();
@@ -356,7 +356,7 @@ public class ToolCardCheckParametersTest {
         when(stubModel.getCurrentTurnList()).thenReturn(List.of(stubPlayer, stubPlayer));
         when(stubModel.getPlayerList()).thenReturn(List.of(stubPlayer));
         try{
-            Martelletto martelletto = new Martelletto();
+            GlazingHammer martelletto = new GlazingHammer();
             martelletto.fill(mock(IToolCardParametersAcquirer.class));
             martelletto.checkParameters(stubPlayer, stubModel);
             Assert.fail();
@@ -371,7 +371,7 @@ public class ToolCardCheckParametersTest {
     public void pennelloPastaSaldaOkTest() throws UserInterruptActionException, InterruptedException {
         Die rndDie = randomDie();
         boolean isExHappend = false;
-        pennelloPastaSalda = new PennelloPastaSalda();
+        pennelloPastaSalda = new FluxBrush();
 
         when(stubModel.getDraftPool()).thenReturn(List.of(rndDie));
 
@@ -394,7 +394,7 @@ public class ToolCardCheckParametersTest {
     public void pennelloPastaSaldaKoTest() throws UserInterruptActionException, InterruptedException {
         Die rndDie = randomDie();
         boolean isExHappend = false;
-        pennelloPastaSalda = new PennelloPastaSalda();
+        pennelloPastaSalda = new FluxBrush();
 
         IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
         when(param.getDieFromDraft(anyString()))

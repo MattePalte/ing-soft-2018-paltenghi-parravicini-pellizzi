@@ -165,7 +165,7 @@ public class ToolCardTest {
 
     @Test
     public void pinzaSgrossatriceTest() throws UserInterruptActionException, InterruptedException {
-        PinzaSgrossatrice tested = new PinzaSgrossatrice();
+        GrozingPliers tested = new GrozingPliers();
         boolean exceptionThrown = false;
 
         //Asserting that a die with a value different from 6 can be increased
@@ -281,7 +281,7 @@ public class ToolCardTest {
 
     @Test
     public void pennelloEglomiseTest() throws UserInterruptActionException, InterruptedException {
-        PennelloPerEglomise tested = new PennelloPerEglomise();
+        EglomiseBrush tested = new EglomiseBrush();
 
         Coordinate randomStartCoord = getRandomCoord();
         Coordinate randomEndCoord = getRandomCoord();
@@ -309,7 +309,7 @@ public class ToolCardTest {
 
     @Test
     public void alesatoreLaminaRameTest() throws UserInterruptActionException, InterruptedException {
-        AlesatoreLaminaRame tested = new AlesatoreLaminaRame();
+        CopperFoilBurnisher tested = new CopperFoilBurnisher();
 
         Coordinate randomStartCoord = getRandomCoord();
         Coordinate randomEndCoord = getRandomCoord();
@@ -384,7 +384,7 @@ public class ToolCardTest {
 
     @Test
     public void taglierinaCircolareTest() throws UserInterruptActionException, InterruptedException {
-        TaglierinaCircolare tested = new TaglierinaCircolare();
+        LensCutter tested = new LensCutter();
 
         int randomColourIndex = rndGen.nextInt(5);
         int randomValue = rndGen.nextInt(6) + 1;
@@ -415,7 +415,7 @@ public class ToolCardTest {
     @Test
     public void diluentePerPastaSalda() throws UserInterruptActionException, InterruptedException {
 
-        DiluentePerPastaSalda tested = new DiluentePerPastaSalda();
+        FluxRemover tested = new FluxRemover();
         //first part has to choose a die from DraftPool
         Die dieToBeChosenForRolling = new Die(Colour.validColours().get(new Random().nextInt(Colour.validColours().size()))).rollDie();
         ArrayList<Colour> remaining = new ArrayList<>(Colour.validColours());
@@ -472,7 +472,7 @@ public class ToolCardTest {
     @Test
     public void PennelloPerPastaSalda() throws UserInterruptActionException, InterruptedException {
 
-        PennelloPastaSalda tested = new PennelloPastaSalda();
+        FluxBrush tested = new FluxBrush();
         //first part has to choose a die from DraftPool
         Die dieToBeChosenForRolling = new Die(Colour.validColours().get(new Random().nextInt(Colour.validColours().size()))).rollDie();
 
@@ -513,7 +513,7 @@ public class ToolCardTest {
 
     @Test
     public void martellettoTest(){
-        Martelletto tested = new Martelletto();
+        GlazingHammer tested = new GlazingHammer();
 
         ArrayList<Die> oldDraftPool = new ArrayList<>(draftPoolStub);
         try {
@@ -529,7 +529,7 @@ public class ToolCardTest {
 
     @Test
     public void tenagliaRotelleTest(){
-        TenagliaRotelle tested = new TenagliaRotelle();
+        RunningPliers tested = new RunningPliers();
         boolean exceptionThrown = false;
         String message;
 
@@ -568,7 +568,7 @@ public class ToolCardTest {
     @Test
     public void rigaSugheroTest() throws UserInterruptActionException, InterruptedException {
         // TODO: check method. Exception die passed not in the list at line 464
-        RigaSughero tested = new RigaSughero();
+        CorkBackedStraightedge tested = new CorkBackedStraightedge();
         boolean exceptionThrown = false;
         String message = "There are dice around here";
         ArrayList<Coordinate> posToTest;
@@ -667,7 +667,7 @@ public class ToolCardTest {
 
     @Test
     public void tamponeDiamantatoTest() throws UserInterruptActionException, InterruptedException {
-        TamponeDiamantato tested = new TamponeDiamantato();
+        GrindingStone tested = new GrindingStone();
 
         Die toFlip = new Die(rndGen.nextInt(6) + 1, Colour.validColours().get(rndGen.nextInt(5)));
         Die flipped = toFlip.flipDie();
@@ -691,7 +691,7 @@ public class ToolCardTest {
 
     @Test
     public void taglierinaManualeTest() throws UserInterruptActionException, InterruptedException {
-        TaglierinaManuale tested = new TaglierinaManuale();
+        TapWheel tested = new TapWheel();
 
         Die fromRoundTracker = new Die(rndGen.nextInt(6) + 1, Colour.validColours().get(rndGen.nextInt(5)));
         ArrayList<Coordinate> startPos = new ArrayList<>();

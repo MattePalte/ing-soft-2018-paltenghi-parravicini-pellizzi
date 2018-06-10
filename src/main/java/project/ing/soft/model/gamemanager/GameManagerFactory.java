@@ -59,18 +59,18 @@ public class GameManagerFactory {
 
             toolCards = new ArrayList<>();
 
-            /*toolCards.add( new PinzaSgrossatrice());
-            toolCards.add( new PennelloPerEglomise());
-            toolCards.add( new AlesatoreLaminaRame());
+            toolCards.add( new CopperFoilBurnisher());
+            toolCards.add( new CorkBackedStraightedge());
+            toolCards.add( new EglomiseBrush());
+            toolCards.add( new FluxBrush());
+            toolCards.add( new FluxRemover());
+            toolCards.add( new GlazingHammer());
+            toolCards.add( new GrindingStone());
+            toolCards.add( new GrozingPliers());
             toolCards.add( new Lathekin());
-            toolCards.add( new TaglierinaCircolare());*/
-            toolCards.add( new PennelloPastaSalda());
-            toolCards.add( new DiluentePerPastaSalda());
-            toolCards.add( new Martelletto());/*
-            toolCards.add( new RigaSughero());
-            toolCards.add( new TaglierinaManuale());
-            toolCards.add( new TamponeDiamantato());
-            toolCards.add( new TenagliaRotelle());*/
+            toolCards.add( new LensCutter());
+            toolCards.add( new RunningPliers());
+            toolCards.add( new TapWheel());
 
 
         }

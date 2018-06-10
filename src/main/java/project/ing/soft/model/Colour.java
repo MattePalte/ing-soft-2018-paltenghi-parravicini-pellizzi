@@ -75,7 +75,7 @@ public enum Colour implements Serializable{
     }
 
     public static class ColorNotFoundException extends Exception{
-        public ColorNotFoundException(String aString){
+        ColorNotFoundException(String aString){
             super(aString);
         }
     }

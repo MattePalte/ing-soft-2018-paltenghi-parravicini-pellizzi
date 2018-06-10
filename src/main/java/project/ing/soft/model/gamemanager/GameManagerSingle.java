@@ -280,19 +280,18 @@ public class GameManagerSingle {
     private ArrayList<ToolCard> createToolCards() {
         ArrayList<ToolCard> tmp = new ArrayList<>();
 
-        tmp.add( new AlesatoreLaminaRame());
-        tmp.add( new DiluentePerPastaSalda());
+        tmp.add( new CopperFoilBurnisher());
+        tmp.add( new CorkBackedStraightedge());
+        tmp.add( new EglomiseBrush());
+        tmp.add( new FluxBrush());
+        tmp.add( new FluxRemover());
+        tmp.add( new GlazingHammer());
+        tmp.add( new GrindingStone());
+        tmp.add( new GrozingPliers());
         tmp.add( new Lathekin());
-        tmp.add( new Martelletto());
-        tmp.add( new PennelloPastaSalda());
-        tmp.add( new PennelloPerEglomise());
-        tmp.add( new PinzaSgrossatrice());
-        tmp.add( new RigaSughero());
-        tmp.add( new StripCutter());
-        tmp.add( new TaglierinaCircolare());
-        tmp.add( new TaglierinaManuale());
-        tmp.add( new TamponeDiamantato());
-        tmp.add( new TenagliaRotelle());
+        tmp.add( new LensCutter());
+        tmp.add( new RunningPliers());
+        tmp.add( new TapWheel());
 
         return tmp;
     }
