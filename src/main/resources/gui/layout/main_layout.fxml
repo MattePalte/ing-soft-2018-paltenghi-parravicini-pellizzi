@@ -14,6 +14,8 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 <ScrollPane fx:id="mainScrollPane" fitToWidth="true" fitToHeight="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="project.ing.soft.gui.MainLayoutController">
     <HBox fx:id="content" alignment="CENTER" >
         <VBox fx:id="toolcardBox" alignment="CENTER" spacing="10">
@@ -47,14 +49,47 @@
                 <TextField fx:id="tokenField" editable="false" />
             </HBox>
             <VBox>
-                <HBox fx:id="main_actions" alignment="center" spacing="10">
+                <HBox alignment="center" spacing="10">
                     <padding><Insets bottom="5.0" left="5.0" right="5.0" top="5.0" /></padding>
-
-                    <Button fx:id="btnPlaceDie" disable="true" onAction="#btnPlaceDieOnCLick" styleClass="title" text="Place a Die" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                    <Button fx:id="btnPlayToolCard" disable="true" onAction="#btnPlayToolCardOnCLick" styleClass="title" text="Play Toolcard" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                    <Button fx:id="btnEndTurn" disable="true" onAction="#btnEndTurnOnCLick" styleClass="title" text="End Turn" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-                    <Button fx:id="btnCancel" disable="true" onAction="#btnCancelOnCLick" styleClass="title" text="Cancel" GridPane.columnIndex="3" GridPane.rowIndex="0" />
-
+                    <HBox fx:id="main_actions" alignment="center" spacing="10">
+                        <padding><Insets bottom="5.0" left="5.0" right="5.0" top="5.0" /></padding>
+                        <Button fx:id="btnPlaceDie" disable="true" text="Place Die" onAction="#btnPlaceDieOnCLick" GridPane.columnIndex="0" GridPane.rowIndex="0" >
+                            <graphic>
+                                <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@../place_die_icon.png" />
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+                        <Button fx:id="btnPlayToolCard" disable="true" text="Use Toolcard" onAction="#btnPlayToolCardOnCLick" GridPane.columnIndex="1" GridPane.rowIndex="0" >
+                            <graphic>
+                            <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                                <image>
+                                    <Image url="@../play_toolcard_icon.png" />
+                                </image>
+                            </ImageView>
+                        </graphic>
+                        </Button>
+                        <Button fx:id="btnEndTurn" disable="true" onAction="#btnEndTurnOnCLick" GridPane.columnIndex="2" GridPane.rowIndex="0" >
+                            <graphic>
+                            <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                                <image>
+                                    <Image url="@../next_player_icon.png" />
+                                </image>
+                            </ImageView>
+                        </graphic>
+                        </Button>
+                    </HBox>
+                    <Button fx:id="btnCancel" disable="true" onAction="#btnCancelOnCLick" styleClass="title" GridPane.columnIndex="3" GridPane.rowIndex="0" >
+                        <graphic>
+                            <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                                <image>
+                                    <Image url="@../back_arrow.png" />
+                                </image>
+                            </ImageView>
+                        </graphic>
+                    </Button>
                 </HBox>
                 <VBox fx:id="instructionBox" alignment="CENTER">
                     <Text fx:id="instructionTxt" />

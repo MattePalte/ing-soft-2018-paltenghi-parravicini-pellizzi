@@ -167,8 +167,8 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         mapDieColour.put(Colour.WHITE, "#ffffff");
 
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-        //SCREEN_WIDTH = primaryScreenBounds.getWidth();
-        SCREEN_WIDTH = Settings.instance().getMIN_SCREEN_SIZE();
+        SCREEN_WIDTH = primaryScreenBounds.getWidth();
+        //SCREEN_WIDTH = Settings.instance().getMIN_SCREEN_SIZE();
         CELL_DIMENSION = SCREEN_WIDTH/30;
         SMALL_CELL_DIMENSION = CELL_DIMENSION/2;
 
@@ -477,13 +477,16 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
             });
         }
     }
-    private synchronized void drawValues(Scene scene, String idPane, Integer... values) {
+    private synchronized void drawValues(Scene scene, String idPane, String message, Integer... values) {
         GridPane pane = (GridPane) scene.lookup("#" + idPane);
+        Text lblMessage = (Text) scene.lookup("#lblMessage");
+        lblMessage.setText(message);
         pane.getChildren().clear();
         for (int pos = 0 ; pos < values.length; pos++) {
             int currentValue = values[pos];
             // Create Button
             Button currentCell = new Button();
+            currentCell.setText(String.valueOf(pos));
             pane.add(currentCell, pos,0);
             currentCell.setStyle(FX_BACKGROUND + WHITE);
             currentCell.setText(Integer.toString(currentValue));
@@ -784,8 +787,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         btnEndTurn.setDisable(false);
         btnPlayToolCard.setDisable(false);
         btnCancel.setDisable(true);
-        focus(ID_BOX_ACTION, true);
-        instructionTxt.setText("Select an action ");
+        focusOn(ID_BOX_ACTION, "Select an action ");
     }
     //endregion
 
@@ -806,7 +808,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                 Scene pickValueScene = new Scene(root1);
                 stage.setScene(pickValueScene);
                 stage.show();
-                drawValues(pickValueScene, ID_BOX_VALUE, values);
+                drawValues(pickValueScene, ID_BOX_VALUE, message, values);
             }
         });
     }
