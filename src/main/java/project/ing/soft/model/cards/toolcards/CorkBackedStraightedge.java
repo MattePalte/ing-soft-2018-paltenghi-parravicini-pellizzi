@@ -13,9 +13,9 @@ public class CorkBackedStraightedge extends ToolCardSingleState {
     private Coordinate chosenPosition;
 
     public CorkBackedStraightedge() {
-        super("Cork-backed Straightedge", "After drafting, place the\n" +
-                "die in a spot that is not adjacent to\nanother die.\n" +
-                "You must obey all other\nplacement restrictions.",
+        super("Cork-backed Straightedge", "After drafting, place the " +
+                "die in a spot that is not adjacent to another die. " +
+                "You must obey all other placement restrictions.",
                 "toolcard/30%/toolcards-10.png", Colour.YELLOW);
     }
 

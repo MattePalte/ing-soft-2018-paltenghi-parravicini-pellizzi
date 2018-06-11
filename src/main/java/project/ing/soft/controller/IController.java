@@ -50,7 +50,7 @@ public interface IController extends Remote{
      * Method called to make players choose their window pattern.
      * @param nickname name of the player who chose the pattern
      * @param windowCard pattern card chosen by the player
-     * @param side a boolean flag which indicated if the player chose the front or the rear side of the card
+     * @param side a boolean flag which indicated if the player chose the front or the rear frontSide of the card
      * @throws Exception if anything went wrong while binding player and window pattern
      */
     void choosePattern(String nickname, WindowPatternCard windowCard, Boolean side) throws Exception;

@@ -16,8 +16,8 @@ public class TapWheel extends ToolCardSingleState {
     private ArrayList<Coordinate> moveTo;
 
     public TapWheel() {
-        super("Tap Wheel", "Move up to two dice of the same\n"+
-                "color that match the color of a die on the Round Track.\n" +
+        super("Tap Wheel", "Move up to two dice of the same "+
+                "color that match the color of a die on the Round Track. " +
                 "You must obey all placement restrictions",
                 "toolcard/30%/toolcards-13.png", Colour.BLUE);
 

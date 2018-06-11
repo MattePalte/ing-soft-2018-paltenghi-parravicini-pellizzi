@@ -1,28 +1,26 @@
 package project.ing.soft.socket.request.connectionrequest;
 
+import project.ing.soft.exceptions.ActionNotPermittedException;
+import project.ing.soft.exceptions.CodeInvalidException;
+import project.ing.soft.exceptions.GameInvalidException;
 import project.ing.soft.socket.APointSocket;
 
-public class APReconnectRequest implements ConnectionRequest {
+import java.io.IOException;
 
-    private String nickname;
+public final class APReconnectRequest implements ConnectionRequest {
 
-    private String gameToken;
+    public final String nickname;
+
+    public final String gameToken;
 
     public APReconnectRequest(String nickname, String gameToken){
         this.nickname = nickname;
         this.gameToken = gameToken;
     }
 
-    public String getNickname(){
-        return nickname;
-    }
-
-    public String getGameToken(){
-        return gameToken;
-    }
 
     @Override
-    public void accept(APointSocket handler) throws Exception {
+    public void accept(APointSocket handler) throws CodeInvalidException, GameInvalidException, ActionNotPermittedException, IOException {
         handler.handle(this);
     }
 }

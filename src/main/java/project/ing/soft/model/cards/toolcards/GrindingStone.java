@@ -11,7 +11,7 @@ public class GrindingStone extends ToolCardSingleState {
     private Die chosenDie;
 
     public GrindingStone() {
-        super("Grinding Stone", "After drafting, flip the die\nto its opposite side." +
+        super("Grinding Stone", "After drafting, flip the die to its opposite frontSide. " +
                 "E.g. 6 flips to 1, 5 to 2, 4 to 3 ecc.",
                 "toolcard/30%/toolcards-11.png", Colour.GREEN);
     }

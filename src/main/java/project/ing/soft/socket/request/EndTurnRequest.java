@@ -1,14 +1,10 @@
 package project.ing.soft.socket.request;
 
-public class EndTurnRequest extends AbstractRequest {
-    private String nickname;
+public final class EndTurnRequest extends AbstractRequest {
+    public final String nickname;
 
     public EndTurnRequest(String nickname) {
         this.nickname = nickname;
-    }
-
-    public String getNickname() {
-        return nickname;
     }
 
     @Override

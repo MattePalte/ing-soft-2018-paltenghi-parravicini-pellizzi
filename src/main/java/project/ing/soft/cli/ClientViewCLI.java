@@ -66,13 +66,13 @@ public class ClientViewCLI extends UnicastRemoteObject
 
 
         this.commands             = new LinkedHashMap<>();
-        this.commands.put("Place a die"     ,           this::placeDieOperation);
-        this.commands.put("Play a ToolCard" ,           this::playAToolCardOperation);
-        this.commands.put("Show the entire situation",  this::displayEntireGameBoard);
-        this.commands.put("Show my situation",          this::displayMySituation);
-        this.commands.put("End turn",                   this::endTurnOperation);
-        this.commands.put("Disconnect from game",       this::stop);
-        this.commands.put("Log", ()-> log.setLevel(log.getLevel() == Level.OFF ? Level.ALL : Level.OFF));
+        this.commands.put("Placing a die"     ,           this::placeDieOperation);
+        this.commands.put("Playing a ToolCard" ,           this::playAToolCardOperation);
+        this.commands.put("Showing the entire situation",  this::displayEntireGameBoard);
+        this.commands.put("Showing my situation",          this::displayMySituation);
+        this.commands.put("Ending turn",                   this::endTurnOperation);
+        this.commands.put("Disconnecting from game",       this::stop);
+        this.commands.put("Enabling loggin features", ()-> log.setLevel(log.getLevel() == Level.OFF ? Level.ALL : Level.OFF));
 
         this.eventsReceived       = new LinkedList<>();
         this.threadPool           = Executors.newCachedThreadPool();

@@ -14,7 +14,7 @@ public class GrozingPliers extends ToolCardSingleState {
     private boolean toBeIncreased;
 
     public GrozingPliers() {
-        super("Grozing Pliers", "After drafting,\n increase or decrease the value\nof the drafted die by 1.\n" +
+        super("Grozing Pliers", "After drafting, increase or decrease the value of the drafted die by 1. " +
                 "1 may not change to 6, or 6 to 1." ,
                 "toolcard/30%/toolcards-2.png", Colour.VIOLET);
     }

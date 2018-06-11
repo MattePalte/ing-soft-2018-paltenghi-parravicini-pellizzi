@@ -1,6 +1,6 @@
 package project.ing.soft.socket.request;
 
-public class InformationRequest extends AbstractRequest {
+public final class InformationRequest extends AbstractRequest {
     public InformationRequest() {
         super();
     }

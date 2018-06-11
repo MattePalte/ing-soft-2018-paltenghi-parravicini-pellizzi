@@ -9,7 +9,7 @@ import project.ing.soft.exceptions.MalformedToolCardException;
 public class RunningPliers extends ToolCardSingleState {
 
     public RunningPliers() {
-        super("Running Pliers", "After your first turn, \n" +
+        super("Running Pliers", "After your first turn, " +
                         "immediately draft a die. skip your next turn this round",
                 "toolcard/30%/toolcards-9.png",  Colour.RED);
     }

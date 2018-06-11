@@ -28,7 +28,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *  Class that emulates is the view Client-side.
+ *  Class that emulates is the view Client-frontSide.
  *  It receives updates from the server through an MVC pattern with events.
  *  It also handles those events by changing scene of the stage for different phases of the game.
  */

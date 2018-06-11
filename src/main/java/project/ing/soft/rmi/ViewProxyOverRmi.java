@@ -86,9 +86,9 @@ public class ViewProxyOverRmi extends Thread implements IView {
             log.log(Level.INFO, "an interrupt was raised");
         } catch(IOException ex){
             log.log(Level.SEVERE, "Event dispatcher thread got an error.", ex);
-        }finally {
             log.log(Level.INFO, "Event dispatcher marked {0} as disconnected ", nickname);
             gameController.markAsDisconnected(nickname);
+        }finally {
             //the interrupt exception makes possible the thread ending or
             //the update function raise an exception because the update couldn't be completed
             Thread.currentThread().interrupt();
@@ -105,7 +105,7 @@ public class ViewProxyOverRmi extends Thread implements IView {
                 log.log(Level.SEVERE, "Error while removing controllerOverRmi from registry ", ex);
             }
             controllerOverRmi = null;
-            gameController    = null;
+
         }
         super.interrupt();
     }

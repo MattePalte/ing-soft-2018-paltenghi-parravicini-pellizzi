@@ -1,7 +1,7 @@
 package project.ing.soft.socket.response;
 
 public class AllRightResponse implements IResponse{
-    int id;
+    private final int id;
 
     public AllRightResponse(int id) {
         this.id = id;

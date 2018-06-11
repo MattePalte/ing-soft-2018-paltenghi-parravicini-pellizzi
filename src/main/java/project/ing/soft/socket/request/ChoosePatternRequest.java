@@ -2,30 +2,17 @@ package project.ing.soft.socket.request;
 
 import project.ing.soft.model.cards.WindowPatternCard;
 
-public class ChoosePatternRequest extends AbstractRequest {
-    private String nickname;
-    private WindowPatternCard windowCard;
-    private Boolean side;
+public final class ChoosePatternRequest extends AbstractRequest {
+    public final String nickname;
+    public final WindowPatternCard windowCard;
+    public final Boolean frontSide;
 
 
-    public ChoosePatternRequest(String nickname, WindowPatternCard windowCard, Boolean side) {
+    public ChoosePatternRequest(String nickname, WindowPatternCard windowCard, Boolean frontSide) {
 
         this.nickname = nickname;
         this.windowCard = windowCard;
-        this.side = side;
-    }
-
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    public WindowPatternCard getWindowCard() {
-        return windowCard;
-    }
-
-    public Boolean getSide() {
-        return side;
+        this.frontSide = frontSide;
     }
 
 

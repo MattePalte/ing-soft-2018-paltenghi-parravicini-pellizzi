@@ -1,14 +1,10 @@
 package project.ing.soft.socket.request;
 
-public class CreationGameRequest extends AbstractRequest {
-    private int numberOfPlayer;
+public final class CreationGameRequest extends AbstractRequest {
+    public final int numberOfPlayer;
 
     public CreationGameRequest(int numberOfPlayer) {
         this.numberOfPlayer = numberOfPlayer;
-    }
-
-    public int getNumberOfPlayer() {
-        return numberOfPlayer;
     }
 
     @Override

@@ -15,7 +15,7 @@ public class CopperFoilBurnisher extends ToolCardSingleState {
     private Coordinate endPosition;
 
     public CopperFoilBurnisher() {
-        super("Copper Foil Burnisher", "Move any one die in your window ignoring shade restriction.\n" +
+        super("Copper Foil Burnisher", "Move any one die in your window ignoring shade restriction. " +
                 "You must obey all other placement restrictions",
                 "toolcard/30%/toolcards-4.png", Colour.RED);
     }

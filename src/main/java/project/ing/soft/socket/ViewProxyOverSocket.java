@@ -15,7 +15,13 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/**
+ * This class is intended to be a server representation of the user,and
+ * as an entrypoint that allow user to interact with the server.
+ * Its main concern is take into action user's requests as he was the associated player
+ * An istance of this classe is usually obtained by invoking{@link APointSocket#connect(String, IView)}
+ * or {@link APointSocket#reconnect(String, String, IView)}
+ */
 public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler {
     private GameController              gameController;
     private Socket                      aSocket;
@@ -29,9 +35,18 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
     private final Logger logger;
 
 
-
-
-    public ViewProxyOverSocket(Socket aSocket, ObjectOutputStream oos, ObjectInputStream ois, String nickname) throws IOException {
+    /**
+     * The viewProxyOverSocket take as arguments the name of the player that has been previously associated
+     * to the game and the information associated with socket connection.
+     * Since the {@link APProxySocket} has already used the socket to ensure that the remote player is the legitimate
+     * owner of {@param nickname} identifier, It has to open the socket and deal with oos/ois
+     * @param aSocket that is related to ObjectOutput/IntputStream parameters
+     * @param oos that can be used to write data through the socket
+     * @param ois that can be used to read data through the socket
+     * @param nickname that can univokely associate the remote player in the game.
+     * @throws IOException if an error occurred with OOS.
+     */
+    ViewProxyOverSocket(Socket aSocket, ObjectOutputStream oos, ObjectInputStream ois, String nickname) throws IOException {
         this.aSocket        = aSocket;
         this.toClient       = oos;
         this.toClient.flush();
@@ -43,6 +58,23 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
         this.buffer         = new ArrayList<>();
     }
 
+    /**
+     * This is the main part of the class. The thread waits for user request and handle it.
+     * Every object received from {@link #fromClient} is a subclass of Abstractrequest which
+     * embbed every necessary information to carry out the operation indentified by the
+     * particular type of AbstractRequest itself.
+     * Every request in this way is associated to a corresponding action and then to a response that
+     * has to be returned to the client. This is accomplished by {@link #visit(AbstractRequest)}
+     *
+     *
+     * The view does not only enable information flow from client to server,
+     * it is also responsible to trasmit information back to the client supplied to {@link #update(Event)}.
+     *
+     * When the view is created the OOS,OIS could be occupied by the {@link APointSocket}.
+     * Because of that any message that is sent to {@link #update(Event)} has to be buffered and sent
+     * when {@link Thread#start()} is actually invoked.
+     * Any error during trasmission resemble a disconnection event that has to be notified.
+     */
     @Override
     public void run() {
         try {
@@ -59,8 +91,9 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
                 // Must do a requestQueue on which we have to synchronize readObject call
                 AbstractRequest aRequest = (AbstractRequest) fromClient.readObject();
                 this.visit(aRequest);
-                toClient.reset();
-
+                synchronized (toClient) {
+                    toClient.reset();
+                }
             }
         }catch(SocketException ex){
             if(isStarted) {
@@ -79,9 +112,14 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
     }
 
 
+    /**
+     * An interruption is required when the connection is not needed anymore.
+     */
     @Override
     public void interrupt() {
-        // if user asked for reconnection calls interrupt, and the boolean is set to false as a flag to distinguish from disconnection due to network problems or client crashes
+        // if user asked for reconnection calls interrupt, and the boolean
+        // is set to false as a flag to distinguish from disconnection
+        // due to network problems or client crashes
         isStarted = false;
         try {
             if (fromClient != null)
@@ -106,14 +144,25 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
     }
 
     //region handle request. Pass request to the real gameController
-    public void visit(AbstractRequest aRequest) throws Exception {
+
+    /**
+     * entrypoint for the visitor pattern that discern beetween request supplied and
+     * based on their type it retrieves the necessary information to carry out the operation.
+     * The action is then carried out on the {@link #gameController}, the result is given back to the client.
+     * Note: no method has been recalled on AbstractRequest subclass in order to avoid code injection from client.
+     * Note: nickname supplied by the AbstractRequest is ignored in order to avoid user substitution.
+     * @param aRequest to be mapped to the corresponding action
+     * @throws IOException it's raised whether a trasmission of a response to the client ended
+     *          with an error.
+     */
+    private void visit(AbstractRequest aRequest) throws IOException {
         logger.log(Level.INFO, "Request {0} received {1}",new Object[]{aRequest.getId(), aRequest});
         try {
             aRequest.accept(this);
-            toClient.writeObject(new AllRightResponse(aRequest.getId()));
+            send(new AllRightResponse(aRequest.getId()));
             logger.log(Level.INFO, "Request {0} finished correctly",aRequest.getId());
         }catch (Exception ex){
-            toClient.writeObject(new ExceptionalResponse(ex, aRequest.getId()));
+            send(new ExceptionalResponse(ex, aRequest.getId()));
             logger.log(Level.INFO, "Request {0} ended with error {1}",new Object[]{aRequest.getId(), ex});
         }
     }
@@ -130,40 +179,39 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
     }
 
     @Override
-    public void handle(UpdateRequest aRequest) throws Exception {
+    public void handle(UpdateRequest aRequest) {
         logger.log(Level.INFO, "Player {0} request an update", associatedNickname);
         this.gameController.requestUpdate();
     }
 
     @Override
     public void handle(PlaceDieRequest aRequest) throws Exception {
-        logger.log(Level.INFO, "Player {0} request to place die {1} on ({2},{3})", new Object[]{aRequest.getNickname(), aRequest.getTheDie(), aRequest.getRowIndex(), aRequest.getColIndex()});
-        this.gameController.placeDie(associatedNickname, aRequest.getTheDie(), aRequest.getRowIndex(), aRequest.getColIndex());
+        logger.log(Level.INFO, "Player {0} request to place die {1} on ({2},{3})", new Object[]{aRequest.nickname, aRequest.aDie, aRequest.rowIndex, aRequest.colIndex});
+        this.gameController.placeDie(associatedNickname, aRequest.aDie, aRequest.rowIndex, aRequest.colIndex);
     }
 
     @Override
     public void handle(PlayToolCardRequest aRequest) throws Exception {
-        logger.log(Level.INFO,"{0} request to play the ToolCard: {1} ", new Object[]{aRequest.getNickname(), aRequest.getaToolCard()});
-        this.gameController.playToolCard(associatedNickname, aRequest.getaToolCard());
+        logger.log(Level.INFO,"{0} request to play the ToolCard: {1} ", new Object[]{aRequest.nickname, aRequest.aToolCard});
+        this.gameController.playToolCard(associatedNickname, aRequest.aToolCard);
     }
 
     @Override
     public void handle(EndTurnRequest aRequest) throws Exception {
-        logger.log(Level.INFO,"{0} request to end his turn", aRequest.getNickname());
+        logger.log(Level.INFO,"{0} request to end his turn", aRequest.nickname);
         this.gameController.endTurn(associatedNickname);
     }
 
     @Override
     public void handle(ChoosePatternRequest aRequest) throws Exception {
-        logger.log(Level.INFO,"{0} inform the game that he has chosen {1}", new Object[]{aRequest.getNickname(), aRequest.getSide() ? aRequest.getWindowCard().getFrontPattern().getTitle(): aRequest.getWindowCard().getRearPattern().getTitle()});
-        this.gameController.choosePattern(associatedNickname, aRequest.getWindowCard(), aRequest.getSide());
+        logger.log(Level.INFO,"{0} inform the game that he has chosen {1}", new Object[]{aRequest.nickname, aRequest.frontSide ? aRequest.windowCard.getFrontPattern().getTitle(): aRequest.windowCard.getRearPattern().getTitle()});
+        this.gameController.choosePattern(associatedNickname, aRequest.windowCard, aRequest.frontSide);
     }
-
-
 
     //endregion
 
     //region IView
+
     @Override
     public void attachController(IController gameController) {
         this.gameController = (GameController) gameController;
@@ -174,6 +222,13 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
         send(new EventResponse(event));
     }
 
+    //endregion
+
+    /**
+     * this is a helper method that can be used to trasmit
+     * @param aResponse to the client
+     * @throws IOException whether a network error is raised
+     */
     private void send(IResponse aResponse) throws IOException {
         logger.log(Level.INFO, "Forwarding a response {0} ", aResponse);
         synchronized (toClient) {
@@ -184,6 +239,4 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
             }
         }
     }
-
-    //endregion
 }

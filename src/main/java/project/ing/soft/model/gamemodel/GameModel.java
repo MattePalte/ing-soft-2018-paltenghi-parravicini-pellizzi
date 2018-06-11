@@ -37,6 +37,7 @@ public class GameModel implements IGameModel, Serializable {
     private ArrayList<ToolCard>         toolCards;
     private Map<String, Integer>        toolCardCost;
     private Map<String, Integer>        favours;
+    private boolean aToolcardUsedDuringThisTurn;
 
     private transient Logger logger;
     //Constructor
@@ -104,6 +105,7 @@ public class GameModel implements IGameModel, Serializable {
             }
             p.givePossiblePatternCard(new ArrayList<>(selectedPatternCards));
         }
+        aToolcardUsedDuringThisTurn = false;
         logger.log(Level.INFO, "distributed cards");
     }
 
@@ -124,6 +126,7 @@ public class GameModel implements IGameModel, Serializable {
         }
         this.toolCardCost       = new HashMap<>   (from.toolCardCost);
         this.favours            = new HashMap<>   (from.favours);
+        this.aToolcardUsedDuringThisTurn = from.aToolcardUsedDuringThisTurn;
         this.setStatus(from.status);
 
     }
@@ -235,6 +238,7 @@ public class GameModel implements IGameModel, Serializable {
         if  (actualFavours < toolCardCost.get(aToolCard.getTitle()))
             return;
 
+        aToolcardUsedDuringThisTurn = true;
         favours.replace(getCurrentPlayer().getName(), actualFavours - toolCardCost.get(aToolCard.getTitle()));
         toolCardCost.replace(aToolCard.getTitle(), 2);
         logger.log(Level.INFO, "Player {0} paid the ToolCard: {1}", new Object[]{getCurrentPlayer().getName(),aToolCard.getTitle()});
@@ -247,6 +251,8 @@ public class GameModel implements IGameModel, Serializable {
      */
     @Override
     public void canPayToolCard(ToolCard aToolCard) throws RuleViolatedException {
+        if(aToolcardUsedDuringThisTurn)
+            throw new RuleViolatedException("Ehi! You can't play more than a ToolCard at turn");
         if (favours.get(getCurrentPlayer().getName()) < toolCardCost.get(aToolCard.getTitle()))
             throw new RuleViolatedException("Ehi! You don't have enough favours to do that, poor man!!");
     }
@@ -344,7 +350,7 @@ public class GameModel implements IGameModel, Serializable {
         getCurrentPlayer().placeDie(aDie,rowIndex,colIndex, true);
         removeFromDraft(aDie);
 
-       getCurrentPlayer().update(new ModelChangedEvent(new GameModel(this)), new MyTurnStartedEvent());
+        getCurrentPlayer().update(new ModelChangedEvent(new GameModel(this)), new MyTurnStartedEvent());
 
     }
 
@@ -391,7 +397,6 @@ public class GameModel implements IGameModel, Serializable {
             return;
         }else if(currentTurnList.isEmpty()){
             logger.log(Level.INFO, "Round {0} finished.", roundTracker.getCurrentRound());
-
             currentGame.leftShiftPlayers();
             currentTurnList = createTurns(currentGame.getPlayers());
             roundTracker.addDiceLeft(draftPool);
@@ -402,7 +407,7 @@ public class GameModel implements IGameModel, Serializable {
             drawDice();
         }
 
-
+        aToolcardUsedDuringThisTurn = false;
         Player nextPlayer = getCurrentPlayer();
 
         broadcastEvents(new ModelChangedEvent(new GameModel(this)));

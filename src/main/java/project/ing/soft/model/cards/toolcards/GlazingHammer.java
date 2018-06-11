@@ -7,7 +7,7 @@ import project.ing.soft.model.Colour;
 
 public class GlazingHammer extends ToolCardSingleState {
     public GlazingHammer() {
-        super("Running Pliers", "Re-roll all dice in the Draft Pool.\nThis may only be used on your second turn before drafting.",
+        super("Running Pliers", "Re-roll all dice in the Draft Pool. This may only be used on your second turn before drafting.",
                 "toolcard/30%/toolcards-8.png", Colour.BLUE);
     }
 

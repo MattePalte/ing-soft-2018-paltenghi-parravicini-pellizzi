@@ -76,7 +76,7 @@ public class ChoosePatternController {
     }
 
     /**
-     * Get pattern card and side from pattern
+     * Get pattern card and frontSide from pattern
      * and then send our chosen card to the game controller
      * @param pattern
      */

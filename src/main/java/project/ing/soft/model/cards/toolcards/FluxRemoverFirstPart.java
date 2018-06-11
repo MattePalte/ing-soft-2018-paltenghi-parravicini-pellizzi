@@ -52,7 +52,7 @@ public class FluxRemoverFirstPart implements IToolCardState, Serializable {
         m.removeFromDraft(chosenDie);
         // Die is placed into the dice bag rolled to avoid to draft it again with the same value in following rounds
         m.addToDicebag(chosenDie);
-        toBePlaced = new Die(m.drawFromDicebag().getColour());
+        toBePlaced = new Die(m.drawFromDicebag().getColour()).rollDie();
         m.addToDraft(toBePlaced);
 
 

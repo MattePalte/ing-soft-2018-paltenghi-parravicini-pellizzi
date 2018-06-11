@@ -150,8 +150,8 @@ public class Player implements Serializable{
 
     /**
      * Setter of a boolean flag which indicates if the player chose the front or the rear
-     * side of the pattern card
-     * @param patternFlipped a flag to indicate which side of the pattern the player chose
+     * frontSide of the pattern card
+     * @param patternFlipped a flag to indicate which frontSide of the pattern the player chose
      */
     public void setPatternFlipped(boolean patternFlipped) {
         isPatternFlipped = patternFlipped;

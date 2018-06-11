@@ -17,7 +17,7 @@ public class Lathekin extends ToolCardSingleState {
     private Coordinate secondDieEndPosition;
 
     public Lathekin() {
-        super("Lathekin", "Move exactly two dice, \n" +
+        super("Lathekin", "Move exactly two dice, " +
                 "obeying all placement restrictions",
                 "toolcard/30%/toolcards-5.png", Colour.YELLOW);
     }

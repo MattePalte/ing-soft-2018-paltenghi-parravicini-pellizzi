@@ -7,8 +7,8 @@ public class FluxRemover extends ToolCard {
 
 
     public FluxRemover() {
-        super("Flux Remover", "After drafting, return the die to the Dice Bag and pull a die from the bag." +
-                        "Choose a value and place the new die\n" +
+        super("Flux Remover", "After drafting, return the die to the Dice Bag and pull a die from the bag. " +
+                        "Choose a value and place the new die " +
                         "obeying all placement restrictions or return it to the Draft Pool",
                 "toolcard/30%/toolcards-12.png",  Colour.VIOLET, new FluxRemoverFirstPart());
     }

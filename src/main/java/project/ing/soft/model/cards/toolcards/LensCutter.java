@@ -14,8 +14,8 @@ public class LensCutter extends ToolCardSingleState {
     private Die dieFromRoundTracker;
 
     public LensCutter() {
-        super("Lens Cutter", "After drafting, swap the drafted\n" +
-                "die with a die from the\nRound Track",
+        super("Lens Cutter", "After drafting, swap the drafted " +
+                "die with a die from the Round Track",
                 "toolcard/30%/toolcards-6.png", Colour.GREEN);
     }
 

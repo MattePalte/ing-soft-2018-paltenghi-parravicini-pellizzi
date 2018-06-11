@@ -118,7 +118,7 @@ public class GameController implements IController {
 
     /**
      * Method to mark a player as disconnected. This method is called only by the player's view proxy on the
-     * server side if this catches a SocketException or a RemoteException, due to disconnection from
+     * server frontSide if this catches a SocketException or a RemoteException, due to disconnection from
      * socket or RMI communication
      * @param playerName name of the player who disconnected from the game
      */
@@ -165,7 +165,7 @@ public class GameController implements IController {
      * Method called by players' views to make them choose their window pattern.
      * @param nickname name of the player who chose the pattern
      * @param windowCard pattern card chosen by the player
-     * @param side a boolean flag which indicated if the player chose the front or the rear side of the card
+     * @param side a boolean flag which indicated if the player chose the front or the rear frontSide of the card
      * @throws ActionNotPermittedException if the palyer doesn't appear in the palyer list
      * @throws GameInvalidException if an error occur
      */

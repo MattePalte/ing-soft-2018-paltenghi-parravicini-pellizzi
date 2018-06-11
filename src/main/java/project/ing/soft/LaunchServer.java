@@ -2,7 +2,6 @@ package project.ing.soft;
 
 import project.ing.soft.rmi.APointRMI;
 import project.ing.soft.accesspoint.AccessPointReal;
-import project.ing.soft.controller.GameController;
 import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.socket.SocketListener;
 
@@ -196,7 +195,7 @@ public class LaunchServer {
      * access point in the registry.
      */
     public void run() {
-        // Create real AccessPoint server-side
+        // Create real AccessPoint server-frontSide
         AccessPointReal accessPointReal = new AccessPointReal();
 
         // Create AccessPoint for Socket and start its socket listener

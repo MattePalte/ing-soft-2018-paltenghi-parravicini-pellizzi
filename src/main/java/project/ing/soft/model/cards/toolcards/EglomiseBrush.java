@@ -14,8 +14,8 @@ public class EglomiseBrush extends ToolCardSingleState {
     private Coordinate endPosition;
 
     public EglomiseBrush() {
-        super("Eglomise Brush", "Move any die in your window\nignoring the color restrictions." +
-                "You must obey all other\nplacement restrictions.",
+        super("Eglomise Brush", "Move any die in your window ignoring the color restrictions. " +
+                "You must obey all other placement restrictions.",
                 "toolcard/30%/toolcards-3.png", Colour.BLUE);
     }
 
