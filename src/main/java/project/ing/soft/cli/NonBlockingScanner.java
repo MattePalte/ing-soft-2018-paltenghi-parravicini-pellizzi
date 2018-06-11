@@ -1,4 +1,4 @@
-package project.ing.soft.view;
+package project.ing.soft.cli;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,11 +9,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-public class NonBlockingScanner {
+class NonBlockingScanner {
     private BufferedReader br;
     private Logger log;
 
-    public NonBlockingScanner(InputStream in) {
+    NonBlockingScanner(InputStream in) {
         this.br = new BufferedReader(new InputStreamReader(in));
         this.log = Logger.getLogger(Objects.toString(this));
 
@@ -27,7 +27,7 @@ public class NonBlockingScanner {
         }
     }
 
-    public int read() throws InterruptedException{
+    int read() throws InterruptedException{
 
         try {
             // wait until we have data to complete a readLine()
@@ -40,7 +40,7 @@ public class NonBlockingScanner {
 
     }
 
-    public String readLine() throws InterruptedException {
+    String readLine() throws InterruptedException {
 
         String input = "";
 

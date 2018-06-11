@@ -9,7 +9,7 @@ import java.util.logging.Logger;
  * This is a utility class, whose objective is to compute a digest that will be the token which associates
  * a client with the game
  */
-public class TokenCalculator {
+class TokenCalculator {
     private TokenCalculator(){
 
     }
@@ -19,7 +19,7 @@ public class TokenCalculator {
      * @param toCompute the string of which a digest is required
      * @return the string digest computed with MD5 algorithm
      */
-    public static String computeDigest(String toCompute){
+    static String computeDigest(String toCompute){
         MessageDigest md = null;
         try {
             md = MessageDigest.getInstance("MD5");

@@ -1,18 +1,19 @@
-package project.ing.soft.view;
+package project.ing.soft.cli;
 
 import project.ing.soft.IExceptionalProcedure;
 import project.ing.soft.Settings;
 import project.ing.soft.model.Coordinate;
 import project.ing.soft.model.Die;
+import project.ing.soft.model.Pair;
 import project.ing.soft.model.Player;
 import project.ing.soft.model.cards.Card;
 import project.ing.soft.model.cards.toolcards.*;
 import project.ing.soft.exceptions.UserInterruptActionException;
-import project.ing.soft.model.gamemanager.IGameManager;
-import project.ing.soft.model.gamemanager.events.*;
-import javafx.util.Pair;
+import project.ing.soft.model.gamemodel.IGameModel;
+import project.ing.soft.model.gamemodel.events.*;
 import project.ing.soft.model.cards.WindowPatternCard;
 import project.ing.soft.controller.IController;
+import project.ing.soft.view.IView;
 
 import java.io.*;
 import java.rmi.RemoteException;
@@ -30,7 +31,7 @@ public class ClientViewCLI extends UnicastRemoteObject
 
     private final String                    ownerNameOfTheView;
     private String                          personalToken;
-    private IGameManager                    localCopyOfTheStatus;
+    private IGameModel localCopyOfTheStatus;
 
     private transient IController           controller;
 
@@ -99,7 +100,7 @@ public class ClientViewCLI extends UnicastRemoteObject
     }
 
     private boolean gameOngoing(){
-        return (localCopyOfTheStatus == null || localCopyOfTheStatus.getStatus() != IGameManager.GAME_MANAGER_STATUS.ENDED);
+        return (localCopyOfTheStatus == null || localCopyOfTheStatus.getStatus() != IGameModel.GAME_MANAGER_STATUS.ENDED);
     }
 
     @Override
@@ -420,7 +421,9 @@ public class ClientViewCLI extends UnicastRemoteObject
         eventHandler.cancel(true);
         threadPool.shutdown();
         this.controller = null;
-        out.println("To reconnect you can use this token: "+personalToken);
+        out.println("To reconnect you can use this token: " + personalToken);
+        //the following line must remain. In other case no unreferenced() get called!
+        System.gc();
         System.exit(0);
     }
 

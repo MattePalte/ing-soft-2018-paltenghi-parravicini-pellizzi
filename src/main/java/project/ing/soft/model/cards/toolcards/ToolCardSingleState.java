@@ -4,9 +4,9 @@ import project.ing.soft.exceptions.ToolCardApplicationException;
 import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Player;
-import project.ing.soft.model.gamemanager.IGameManager;
-import project.ing.soft.model.gamemanager.events.ModelChangedEvent;
-import project.ing.soft.model.gamemanager.events.MyTurnStartedEvent;
+import project.ing.soft.model.gamemodel.IGameModel;
+import project.ing.soft.model.gamemodel.events.ModelChangedEvent;
+import project.ing.soft.model.gamemodel.events.MyTurnStartedEvent;
 
 public abstract class ToolCardSingleState extends ToolCard{
     public ToolCardSingleState(String title, String description, String imgPath, Colour colour) {
@@ -26,7 +26,7 @@ public abstract class ToolCardSingleState extends ToolCard{
     public abstract void fill(IToolCardParametersAcquirer acquirer) throws InterruptedException, UserInterruptActionException ;
 
     @Override
-    public void play(Player p, IGameManager m) throws ToolCardApplicationException {
+    public void play(Player p, IGameModel m) throws ToolCardApplicationException {
         try{
             m.canPayToolCard(this);
             checkParameters(p, m);

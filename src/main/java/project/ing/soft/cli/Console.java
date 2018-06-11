@@ -67,7 +67,7 @@ public class Console extends PrintStream {
         }
     }
 
-    
+
     @Override
     public void print(Object obj) {
         print(obj.toString());

@@ -2,7 +2,7 @@ package project.ing.soft.model.cards.toolcards;
 
 import project.ing.soft.exceptions.*;
 import project.ing.soft.model.Coordinate;
-import project.ing.soft.model.gamemanager.IGameManager;
+import project.ing.soft.model.gamemodel.IGameModel;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Player;
 
@@ -21,7 +21,7 @@ public class EglomiseBrush extends ToolCardSingleState {
 
 
     @Override
-    public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
+    public void checkParameters(Player p, IGameModel m) throws MalformedToolCardException {
         //check parameters integrity, otherwise send MalformedToolCardException
         validateCoordinate(startPosition, p.getPattern().getHeight(), p.getPattern().getWidth());
         validateCoordinate(endPosition, p.getPattern().getHeight(), p.getPattern().getWidth());
@@ -35,7 +35,7 @@ public class EglomiseBrush extends ToolCardSingleState {
     }
 
     @Override
-    public void apply(Player p, IGameManager m) throws Exception{
+    public void apply(Player p, IGameModel m) throws Exception{
         p.moveDice(List.of(startPosition), List.of(endPosition), false, true, true);
     }
 

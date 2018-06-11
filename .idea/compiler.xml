@@ -18,7 +18,4 @@
       <module name="ing-soft-2018-paltenghi-parravicini-pellizzi" options="--add-exports=jdk.jfr/jdk.jfr.internal=ALL-UNNAMED" />
     </option>
   </component>
-  <component name="RmicSettings">
-    <option name="IS_EANABLED" value="true" />
-  </component>
 </project>

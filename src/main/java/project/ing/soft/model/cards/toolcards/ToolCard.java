@@ -4,7 +4,7 @@ import project.ing.soft.Settings;
 import project.ing.soft.exceptions.*;
 import project.ing.soft.model.*;
 import project.ing.soft.model.cards.Card;
-import project.ing.soft.model.gamemanager.IGameManager;
+import project.ing.soft.model.gamemodel.IGameModel;
 
 import java.io.Serializable;
 import java.util.List;
@@ -90,7 +90,7 @@ public abstract class ToolCard implements Serializable, Card {
      * @param m model
      * @throws ToolCardApplicationException describes the reason that cause an error
      */
-    public void play(Player p, IGameManager m) throws ToolCardApplicationException {
+    public void play(Player p, IGameModel m) throws ToolCardApplicationException {
         state.play(this, p, m);
     }
 
@@ -101,7 +101,7 @@ public abstract class ToolCard implements Serializable, Card {
      * @param m model
      * @throws ToolCardApplicationException describes the reason that
      */
-    void apply(Player p, IGameManager m) throws Exception{
+    void apply(Player p, IGameModel m) throws Exception{
         state.apply(p, m);
     }
 
@@ -111,7 +111,7 @@ public abstract class ToolCard implements Serializable, Card {
      * @param m model on which the ToolCard will be applied
      * @throws MalformedToolCardException if any error in private data stored in it are wrong
      */
-    public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException{
+    public void checkParameters(Player p, IGameModel m) throws MalformedToolCardException{
         state.checkParameters(this, p, m);
     }
 

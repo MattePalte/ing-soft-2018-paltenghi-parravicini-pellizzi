@@ -4,7 +4,7 @@ import project.ing.soft.exceptions.*;
 import project.ing.soft.model.Coordinate;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.cards.WindowPattern;
-import project.ing.soft.model.gamemanager.IGameManager;
+import project.ing.soft.model.gamemodel.IGameModel;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Player;
 
@@ -21,7 +21,7 @@ public class CorkBackedStraightedge extends ToolCardSingleState {
 
 
     @Override
-    public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
+    public void checkParameters(Player p, IGameModel m) throws MalformedToolCardException {
         WindowPattern pattern = m.getCurrentPlayer().getPattern();
 
         validateCoordinate(chosenPosition, pattern.getHeight(), pattern.getWidth());
@@ -38,7 +38,7 @@ public class CorkBackedStraightedge extends ToolCardSingleState {
     }
 
     @Override
-    public void apply(Player p, IGameManager m) throws Exception{
+    public void apply(Player p, IGameModel m) throws Exception{
         p.placeDie(chosenDieFromDraft, chosenPosition.getRow(), chosenPosition.getCol(), false);
         m.removeFromDraft(chosenDieFromDraft);
     }

@@ -4,7 +4,7 @@ import project.ing.soft.exceptions.*;
 import project.ing.soft.model.Coordinate;
 import project.ing.soft.model.Colour;
 
-import project.ing.soft.model.gamemanager.IGameManager;
+import project.ing.soft.model.gamemodel.IGameModel;
 import project.ing.soft.model.Player;
 
 import java.util.List;
@@ -23,7 +23,7 @@ public class Lathekin extends ToolCardSingleState {
     }
 
     @Override
-    public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
+    public void checkParameters(Player p, IGameModel m) throws MalformedToolCardException {
         //check parameters integrity, otherwise send MalformedToolCardException
         validateCoordinate(firstDieStartPosition, p.getPattern().getHeight(), p.getPattern().getWidth());
         validateCoordinate(firstDieEndPosition, p.getPattern().getHeight(), p.getPattern().getWidth());
@@ -39,7 +39,7 @@ public class Lathekin extends ToolCardSingleState {
     }
 
     @Override
-    public void apply(Player p, IGameManager m) throws Exception {
+    public void apply(Player p, IGameModel m) throws Exception {
             p.moveDice( List.of(firstDieStartPosition,secondDieStartPosition),
                     List.of(firstDieEndPosition, secondDieEndPosition),
                     true, true, true);

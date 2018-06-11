@@ -12,7 +12,7 @@ import java.util.Random;
 
 
 import org.junit.*;
-import project.ing.soft.view.ClientViewCLI;
+import project.ing.soft.cli.ClientViewCLI;
 
 public class GameTest {
 
@@ -109,7 +109,7 @@ public class GameTest {
 /*
     @Test
     public void testMultiplayer() throws Exception {
-        IGameManager myModel = GameManagerFactory.factory(aMultiplePlayerGame);
+        IGameModel myModel = GameModelFactory.factory(aMultiplePlayerGame);
 
         myModel.countPlayersPoints();
         Player p = myModel.getWinner();
@@ -120,7 +120,7 @@ public class GameTest {
     @Test
     public void testSinglePlayer() throws Exception {
 
-        IGameManager referee = GameManagerFactory.factory(aSinglePlayerGame);
+        IGameModel referee = GameModelFactory.factory(aSinglePlayerGame);
         referee.countPlayersPoints();
         Player p = referee.getWinner();
         Assert.assertTrue(p.equals(new Player("Kris", new ClientViewCLI("Kris"))));

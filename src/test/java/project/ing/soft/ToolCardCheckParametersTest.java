@@ -7,7 +7,7 @@ import project.ing.soft.model.cards.toolcards.*;
 import project.ing.soft.model.cards.WindowPattern;
 import org.junit.Before;
 import org.junit.Test;
-import project.ing.soft.model.gamemanager.GameManagerMulti;
+import project.ing.soft.model.gamemodel.GameModel;
 import project.ing.soft.exceptions.MalformedToolCardException;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 public class ToolCardCheckParametersTest {
 
     private Player stubPlayer;
-    private GameManagerMulti stubModel;
+    private GameModel stubModel;
     private WindowPattern stubPattern;
     private RoundTracker stubRoundTracker;
 
@@ -35,7 +35,7 @@ public class ToolCardCheckParametersTest {
     @Before
     public void createStubThings(){
         stubPlayer = mock(Player.class);
-        stubModel = mock(GameManagerMulti.class);
+        stubModel = mock(GameModel.class);
         stubPattern = mock(WindowPattern.class);
         stubRoundTracker = mock(RoundTracker.class);
         when(stubPlayer.getPattern()).thenReturn(stubPattern);

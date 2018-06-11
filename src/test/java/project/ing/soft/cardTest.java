@@ -6,7 +6,7 @@ import project.ing.soft.model.cards.Card;
 import project.ing.soft.model.StringBoxBuilder;
 import project.ing.soft.model.cards.toolcards.CopperFoilBurnisher;
 import project.ing.soft.model.cards.toolcards.ToolCard;
-import project.ing.soft.model.gamemanager.GameManagerFactory;
+import project.ing.soft.model.gamemodel.GameModelFactory;
 
 
 public class cardTest {
@@ -57,13 +57,13 @@ public class cardTest {
 
     @Test
     public void testACardToString(){
-        for(Card aCard: GameManagerFactory.getPrivateObjCards()) {
+        for(Card aCard: GameModelFactory.getPrivateObjCards()) {
             System.out.println(aCard);
         }
-        for(Card aCard: GameManagerFactory.getPublicObjCards()) {
+        for(Card aCard: GameModelFactory.getPublicObjCards()) {
             System.out.println(aCard);
         }
-        for(Card aCard: GameManagerFactory.getToolCards()) {
+        for(Card aCard: GameModelFactory.getToolCards()) {
             System.out.println(aCard);
         }
 
@@ -71,5 +71,5 @@ public class cardTest {
     }
     @Test
     public void TestMultiline(){
-        System.out.println(Card.drawNear(0,2, GameManagerFactory.getPrivateObjCards().toArray())); }
+        System.out.println(Card.drawNear(0,2, GameModelFactory.getPrivateObjCards().toArray())); }
 }

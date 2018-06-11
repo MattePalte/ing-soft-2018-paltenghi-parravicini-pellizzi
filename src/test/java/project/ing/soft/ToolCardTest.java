@@ -8,8 +8,8 @@ import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.*;
 import project.ing.soft.model.cards.WindowPattern;
 import project.ing.soft.model.cards.toolcards.*;
-import project.ing.soft.model.gamemanager.GameManagerMulti;
-import project.ing.soft.model.gamemanager.IGameManager;
+import project.ing.soft.model.gamemodel.GameModel;
+import project.ing.soft.model.gamemodel.IGameModel;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -18,7 +18,7 @@ import static org.mockito.Mockito.*;
 
 public class ToolCardTest {
     private Player playerStub;
-    private IGameManager gameManagerStub;
+    private IGameModel gameManagerStub;
     private ArrayList<Die> draftPoolStub;
     private ArrayList<Die> diceBagStub;
     private WindowPattern playerPatternStub;
@@ -32,7 +32,7 @@ public class ToolCardTest {
     @Before
     public void testSetup(){
         playerStub = mock(Player.class);
-        gameManagerStub = mock(GameManagerMulti.class);
+        gameManagerStub = mock(GameModel.class);
         diceBagStub = new ArrayList<>();
         draftPoolStub = new ArrayList<>();
         playerPatternStub = mock(WindowPattern.class);

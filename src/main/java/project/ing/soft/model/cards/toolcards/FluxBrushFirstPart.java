@@ -5,9 +5,9 @@ import project.ing.soft.exceptions.ToolCardApplicationException;
 import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Player;
-import project.ing.soft.model.gamemanager.IGameManager;
-import project.ing.soft.model.gamemanager.events.ModelChangedEvent;
-import project.ing.soft.model.gamemanager.events.ToolcardActionRequestEvent;
+import project.ing.soft.model.gamemodel.IGameModel;
+import project.ing.soft.model.gamemodel.events.ModelChangedEvent;
+import project.ing.soft.model.gamemodel.events.ToolcardActionRequestEvent;
 
 import java.io.Serializable;
 
@@ -17,7 +17,7 @@ public class FluxBrushFirstPart implements IToolCardState, Serializable {
     private Die toPlace;
 
 
-    public void checkParameters(ToolCard ctx,Player p, IGameManager m) throws MalformedToolCardException {
+    public void checkParameters(ToolCard ctx,Player p, IGameModel m) throws MalformedToolCardException {
         //check parameters integrity, otherwise send MalformedToolCardException
         ctx.validateDie(dieToRoll);
         ctx.validatePresenceOfDieIn(dieToRoll, m.getDraftPool());
@@ -29,7 +29,7 @@ public class FluxBrushFirstPart implements IToolCardState, Serializable {
     }
 
     @Override
-    public void play(ToolCard ctx, Player p, IGameManager m) throws ToolCardApplicationException {
+    public void play(ToolCard ctx, Player p, IGameModel m) throws ToolCardApplicationException {
         try{
             m.canPayToolCard(ctx);
             checkParameters(ctx, p, m);
@@ -49,7 +49,7 @@ public class FluxBrushFirstPart implements IToolCardState, Serializable {
     }
 
     @Override
-    public void apply(Player p, IGameManager m) {
+    public void apply(Player p, IGameModel m) {
             m.removeFromDraft(dieToRoll);
             toPlace = dieToRoll.rollDie();
             m.addToDraft(toPlace);

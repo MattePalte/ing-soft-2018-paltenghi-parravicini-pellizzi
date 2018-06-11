@@ -1,4 +1,4 @@
-package project.ing.soft.model.gamemanager.events;
+package project.ing.soft.model.gamemodel.events;
 
 public interface IEventHandler {
 

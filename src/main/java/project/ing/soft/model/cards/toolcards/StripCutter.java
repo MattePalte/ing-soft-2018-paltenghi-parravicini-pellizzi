@@ -1,7 +1,7 @@
 package project.ing.soft.model.cards.toolcards;
 
 import project.ing.soft.exceptions.ToolCardApplicationException;
-import project.ing.soft.model.gamemanager.IGameManager;
+import project.ing.soft.model.gamemodel.IGameModel;
 import project.ing.soft.model.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
 import project.ing.soft.model.Colour;
@@ -19,7 +19,7 @@ public class StripCutter extends ToolCardSingleState {
 
 
     @Override
-    public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
+    public void checkParameters(Player p, IGameModel m) throws MalformedToolCardException {
         throw new MalformedToolCardException("Used a not supported ToolCard");
     }
 
@@ -28,7 +28,7 @@ public class StripCutter extends ToolCardSingleState {
         throw new UnsupportedOperationException();
     }
     @Override
-    public void apply(Player p, IGameManager m) throws ToolCardApplicationException {
+    public void apply(Player p, IGameModel m) throws ToolCardApplicationException {
         throw new ToolCardApplicationException(new UnsupportedOperationException());
     }
 

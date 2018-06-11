@@ -2,7 +2,7 @@ package project.ing.soft.model;
 
 import project.ing.soft.model.cards.Card;
 import project.ing.soft.model.cards.WindowPattern;
-import project.ing.soft.model.gamemanager.events.Event;
+import project.ing.soft.model.gamemodel.events.Event;
 import project.ing.soft.exceptions.PatternConstraintViolatedException;
 import project.ing.soft.exceptions.PositionOccupiedException;
 import project.ing.soft.exceptions.RuleViolatedException;
@@ -563,13 +563,15 @@ public class Player implements Serializable{
      * @param events list of events to be sent to player's view
      */
     public void update(Event... events) {
+        if(!isConnected())
+            return;
         try {
-            if(isConnected())
-                for(Event aEvent : events){
-                    myView.update(aEvent);
-                }
-
+            for(Event aEvent : events){
+                myView.update(aEvent);
+            }
         }catch (IOException ex){
+            //no exception can be raised if player is connected since there's a
+            //view on the server that receives its messages and passed it to the real view.
             assert(false);
         }
 

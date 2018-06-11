@@ -1,4 +1,4 @@
-package project.ing.soft.model.gamemanager;
+package project.ing.soft.model.gamemodel;
 
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Die;
@@ -13,14 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class GameManagerFactory {
+public class GameModelFactory {
     private static ArrayList<PublicObjective>   publicObjCards;
     private static ArrayList<PrivateObjective>  privateObjCards;
     private static ArrayList<ToolCard>          toolCards;
     private static ArrayList<WindowPatternCard> windowPatternCard;
     private static ArrayList<Die>               dice;
 
-    private GameManagerFactory(){
+    private GameModelFactory(){
 
     }
 
@@ -98,14 +98,14 @@ public class GameManagerFactory {
     }
 
 
-    public static IGameManager factory(Game aGame) {
+    public static IGameModel factory(Game aGame) {
         if (aGame.getNumberOfPlayers() == 1) {
-            //instantiate a single player GameManager
+            //instantiate a single player GameModel
 
             return null;
         } else if (aGame.getNumberOfPlayers() <= 4) {
             try {
-                return new GameManagerMulti(aGame, getPublicObjCards(), getPrivateObjCards(), getToolCards(), getWindowPatternCard(), getDice());
+                return new GameModel(aGame, getPublicObjCards(), getPrivateObjCards(), getToolCards(), getWindowPatternCard(), getDice());
             } catch (GameInvalidException e) {
                 return null;
             }

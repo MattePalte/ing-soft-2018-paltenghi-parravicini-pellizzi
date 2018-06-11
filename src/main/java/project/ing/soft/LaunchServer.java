@@ -20,8 +20,6 @@ import java.util.stream.Collectors;
  */
 public class LaunchServer {
 
-    private final HashMap<String, GameController> hostedGames;
-    private final HashMap<String, GameController> playersInGame;
     private final LogManager manager;
     private final PrintStream out;
     private final Scanner in;
@@ -34,8 +32,6 @@ public class LaunchServer {
      * exposes commands to enable and disable loggers
      */
     private LaunchServer() {
-        hostedGames = new HashMap<>();
-        playersInGame = new HashMap<>();
 
         manager  = LogManager.getLogManager();
 
@@ -120,43 +116,6 @@ public class LaunchServer {
         }
     }
 
-    /**
-     * This method is responsible for the creation of a single access point used to let players connect
-     * to the game. It also runs a thread which will accept users socket connection and exports the RMI
-     * access point in the registry.
-     */
-    public void run() {
-        // Create real AccessPoint server-side
-        AccessPointReal accessPointReal = new AccessPointReal(hostedGames,playersInGame);
-
-        // Create AccessPoint for Socket and start its socket listener
-        socketListener = new SocketListener(Settings.instance().getPort(), accessPointReal);
-        socketListener.start();
-        // Create AccessPoint for RMI and start it
-        try {
-            uniqueRmiAP = new APointRMI(accessPointReal);
-            APointRMI.bind(uniqueRmiAP);
-        } catch (IOException e ) {
-            e.printStackTrace(out);
-        }
-
-        String cmd ;
-        do {
-            out.println("Commands available:");
-            for(String s : commands.keySet().stream().sorted().collect(Collectors.toList())){
-                out.println(s);
-            }
-            cmd = in.nextLine();
-            // Invoke some command
-            try {
-                commands.get(cmd).run();
-            }catch (Exception ex){
-                ex.printStackTrace(out);
-            }
-
-        } while (!cmd.startsWith("quit"));
-
-    }
     //endregion
 
     //region scanner operation
@@ -229,6 +188,43 @@ public class LaunchServer {
     public static void main(String[] args) {
         LaunchServer ls = new LaunchServer();
         ls.run();
+
+    }
+    /**
+     * This method is responsible for the creation of a single access point used to let players connect
+     * to the game. It also runs a thread which will accept users socket connection and exports the RMI
+     * access point in the registry.
+     */
+    public void run() {
+        // Create real AccessPoint server-side
+        AccessPointReal accessPointReal = new AccessPointReal();
+
+        // Create AccessPoint for Socket and start its socket listener
+        socketListener = new SocketListener(Settings.instance().getPort(), accessPointReal);
+        socketListener.start();
+        // Create AccessPoint for RMI and start it
+        try {
+            uniqueRmiAP = new APointRMI(accessPointReal);
+            APointRMI.bind(uniqueRmiAP);
+        } catch (IOException e ) {
+            e.printStackTrace(out);
+        }
+
+        String cmd ;
+        do {
+            out.println("Commands available:");
+            for(String s : commands.keySet().stream().sorted().collect(Collectors.toList())){
+                out.println(s);
+            }
+            cmd = in.nextLine();
+            // Invoke some command
+            try {
+                commands.get(cmd).run();
+            }catch (Exception ex){
+                ex.printStackTrace(out);
+            }
+
+        } while (!cmd.startsWith("quit"));
 
     }
 

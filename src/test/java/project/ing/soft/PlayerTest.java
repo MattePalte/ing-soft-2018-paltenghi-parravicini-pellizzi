@@ -13,7 +13,7 @@ import project.ing.soft.exceptions.RuleViolatedException;
 import org.junit.*;
 import project.ing.soft.model.cards.Constraint;
 import project.ing.soft.model.cards.objectives.privates.ShadesOfBlue;
-import project.ing.soft.view.ClientViewCLI;
+import project.ing.soft.cli.ClientViewCLI;
 
 import java.io.File;
 import java.io.IOException;

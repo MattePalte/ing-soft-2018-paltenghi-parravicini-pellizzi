@@ -22,9 +22,6 @@ import project.ing.soft.controller.IController;
 import project.ing.soft.view.IView;
 
 import java.rmi.Naming;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 
 public class SplashController {
 
@@ -178,7 +175,7 @@ public class SplashController {
     private void connectRMI(String nick){
         IAccessPoint accessPoint = null;
         try {
-            accessPoint = (IAccessPoint)Naming.lookup( Settings.instance().getRmiApName());
+            accessPoint = (IAccessPoint)Naming.lookup( Settings.instance().getRemoteRmiApName());
 
             System.out.println("1) AccessPoint reference obtained");
             IView realView = new RealView(stage, nick, this);
@@ -219,7 +216,7 @@ public class SplashController {
     private void reconnectRMI(String nick, String token){
         IAccessPoint accessPoint = null;
         try {
-            accessPoint = (IAccessPoint) Naming.lookup(Settings.instance().getRmiApName());
+            accessPoint = (IAccessPoint) Naming.lookup(Settings.instance().getRemoteRmiApName());
 
             System.out.println("1) AccessPoint reference obtained");
             IView realView = new RealView(stage, nick, this);

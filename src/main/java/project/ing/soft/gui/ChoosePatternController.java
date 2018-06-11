@@ -15,7 +15,7 @@ import project.ing.soft.controller.IController;
 import project.ing.soft.model.cards.WindowPattern;
 import project.ing.soft.model.cards.WindowPatternCard;
 import project.ing.soft.model.cards.objectives.privates.PrivateObjective;
-import project.ing.soft.model.gamemanager.events.PatternCardDistributedEvent;
+import project.ing.soft.model.gamemodel.events.PatternCardDistributedEvent;
 
 import java.util.ArrayList;
 import java.util.List;

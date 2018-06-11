@@ -3,7 +3,7 @@ package project.ing.soft.model.cards.toolcards;
 import project.ing.soft.exceptions.ToolCardApplicationException;
 import project.ing.soft.model.Die;
 import project.ing.soft.exceptions.UserInterruptActionException;
-import project.ing.soft.model.gamemanager.IGameManager;
+import project.ing.soft.model.gamemodel.IGameModel;
 import project.ing.soft.model.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
 import project.ing.soft.model.Colour;
@@ -20,7 +20,7 @@ public class LensCutter extends ToolCardSingleState {
     }
 
     @Override
-    public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
+    public void checkParameters(Player p, IGameModel m) throws MalformedToolCardException {
         //check parameters integrity, otherwise send MalformedToolCardException
         validateDie(dieFromDraft);
         validateDie(dieFromRoundTracker);
@@ -35,7 +35,7 @@ public class LensCutter extends ToolCardSingleState {
     }
 
     @Override
-    public void apply(Player p, IGameManager m) throws ToolCardApplicationException {
+    public void apply(Player p, IGameModel m) throws ToolCardApplicationException {
 
         m.removeFromDraft(dieFromDraft);
         m.swapWithRoundTracker(dieFromDraft,dieFromRoundTracker);

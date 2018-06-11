@@ -23,7 +23,7 @@ public interface IAccessPoint extends Remote{
      * @param nickname the nickname chosen by the client for that game
      * @param clientView the view object representing the client
      * @return an IController that will be the principal means of communication for the client throughout the entire game
-     * @throws Exception
+     * @throws Exception if the connection does not succed
      */
     IController connect(String nickname, IView clientView) throws Exception;
 
@@ -36,7 +36,7 @@ public interface IAccessPoint extends Remote{
      * @param code a code to help the server to connect the client to the right game
      * @param clientView the view object representing the client
      * @return an IController that will be the principal means of communication for the client throughout the entire game
-     * @throws Exception
+     * @throws Exception if the connection does not succed
      */
     IController reconnect(String nickname, String code, IView clientView) throws Exception;
 }

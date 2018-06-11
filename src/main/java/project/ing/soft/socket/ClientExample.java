@@ -2,7 +2,7 @@ package project.ing.soft.socket;
 
 
 import project.ing.soft.exceptions.NickNameAlreadyTakenException;
-import project.ing.soft.view.ClientViewCLI;
+import project.ing.soft.cli.ClientViewCLI;
 
 import java.util.Scanner;
 

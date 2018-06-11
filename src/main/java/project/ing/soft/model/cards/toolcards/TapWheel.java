@@ -5,7 +5,7 @@ import project.ing.soft.model.Colour;
 import project.ing.soft.model.Coordinate;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.cards.WindowPattern;
-import project.ing.soft.model.gamemanager.IGameManager;
+import project.ing.soft.model.gamemodel.IGameModel;
 import project.ing.soft.model.Player;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class TapWheel extends ToolCardSingleState {
     }
 
     @Override
-    public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
+    public void checkParameters(Player p, IGameModel m) throws MalformedToolCardException {
         WindowPattern pattern = m.getCurrentPlayer().getPattern();
         Die[][] placedDice = m.getCurrentPlayer().getPlacedDice();
         if(diceChosen == null || moveTo == null )
@@ -57,7 +57,7 @@ public class TapWheel extends ToolCardSingleState {
     }
 
     @Override
-    public void apply(Player p, IGameManager m) throws Exception {
+    public void apply(Player p, IGameModel m) throws Exception {
         p.moveDice(diceChosen, moveTo, true, true, true);
     }
 

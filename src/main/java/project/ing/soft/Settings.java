@@ -84,7 +84,7 @@ public class Settings {
         return TURN_TIMEOUT_ENABLED;
     }
 
-    public boolean isGAME_START_TIMEOUT_ENABLED() {
+    public boolean isGameStartTimeoutEnabled() {
         return GAME_START_TIMEOUT_ENABLED;
     }
 
@@ -92,7 +92,7 @@ public class Settings {
         return TURN_TIMEOUT;
     }
 
-    public long getGAME_START_TIMEOUT() {
+    public long getGameStartTimeout() {
         return GAME_START_TIMEOUT;
     }
 
@@ -156,14 +156,17 @@ public class Settings {
         return tokenProperty;
     }
 
-    public String getRmiApName() {
-        StringBuilder sb = new StringBuilder("//");
+    public String getRemoteRmiApName() {
+        StringBuilder sb = new StringBuilder("rmi://");
         sb.append(defaultIpForRMI);
         sb.append(":");
         sb.append(1099);
         sb.append("/");
         sb.append(defaultRmiApName);
         return new String(sb);
+    }
+    public String getRmiApName(){
+        return defaultRmiApName;
     }
     //endregion
 

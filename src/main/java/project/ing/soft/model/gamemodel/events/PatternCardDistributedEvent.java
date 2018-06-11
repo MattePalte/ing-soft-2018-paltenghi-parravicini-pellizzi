@@ -1,4 +1,4 @@
-package project.ing.soft.model.gamemanager.events;
+package project.ing.soft.model.gamemodel.events;
 
 import project.ing.soft.model.cards.WindowPatternCard;
 import project.ing.soft.model.cards.objectives.privates.PrivateObjective;

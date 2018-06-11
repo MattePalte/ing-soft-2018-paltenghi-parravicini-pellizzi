@@ -6,7 +6,7 @@ import project.ing.soft.exceptions.GameInvalidException;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.cards.WindowPatternCard;
 import project.ing.soft.model.cards.toolcards.ToolCard;
-import project.ing.soft.model.gamemanager.events.Event;
+import project.ing.soft.model.gamemodel.events.Event;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -21,10 +21,10 @@ import java.util.logging.Logger;
  * Every instance of this class is engaged in a 1-1 relationship with a client that uses rmi to get to the server.
  * It has the responsibility of ensuring that a user do not fake it's name.
  */
-public class PlayerControllerOverRmi implements IController, Remote, Unreferenced {
-    private final GameController realController;
+public class PlayerControllerOverRmi extends UnicastRemoteObject implements IController, Remote, Unreferenced {
     private final String associatedNickname;
-    private final Logger logger;
+    private final transient GameController realController;
+    private final transient Logger logger;
 
     /**
      * When an instance of this class is created a
@@ -32,14 +32,13 @@ public class PlayerControllerOverRmi implements IController, Remote, Unreference
      * @param associatedNickname . Since this kind of controller has a 1-1 relationship with the user connected
      *                                      to the game. The name of the actual user has to be said explicitly. This parameter can be
      *                                      used in order to avoid other user to imitate another user in the game
-     * @throws RemoteException when the object gets an error while being exported
      */
     PlayerControllerOverRmi(GameController realController, String associatedNickname) throws RemoteException {
+        super(0);
         this.realController     = realController;
         this.associatedNickname = associatedNickname;
         this.logger = Logger.getLogger(this.getClass().getCanonicalName()+"("+ associatedNickname +")");
         this.logger.setLevel(Level.SEVERE);
-        UnicastRemoteObject.exportObject(this, 0);
     }
 
     @Override
@@ -100,4 +99,13 @@ public class PlayerControllerOverRmi implements IController, Remote, Unreference
        logger.log(Level.INFO, "Player {0} was disconnected due to an Unreferenced call ",associatedNickname);
     }
 
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 }

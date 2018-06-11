@@ -1,7 +1,7 @@
 package project.ing.soft.gui;
 
-import project.ing.soft.model.gamemanager.events.Event;
-import project.ing.soft.model.gamemanager.events.IEventHandler;
+import project.ing.soft.model.gamemodel.events.Event;
+import project.ing.soft.model.gamemodel.events.IEventHandler;
 
 public class EventRunnable implements Runnable {
     private Event eventToExecute;

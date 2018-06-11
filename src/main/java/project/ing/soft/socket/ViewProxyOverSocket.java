@@ -3,7 +3,7 @@ package project.ing.soft.socket;
 import project.ing.soft.Settings;
 import project.ing.soft.controller.GameController;
 import project.ing.soft.controller.IController;
-import project.ing.soft.model.gamemanager.events.Event;
+import project.ing.soft.model.gamemodel.events.Event;
 import project.ing.soft.socket.request.*;
 import project.ing.soft.socket.response.*;
 import project.ing.soft.view.IView;

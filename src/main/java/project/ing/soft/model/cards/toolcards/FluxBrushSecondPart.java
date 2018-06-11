@@ -6,9 +6,9 @@ import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.Coordinate;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Player;
-import project.ing.soft.model.gamemanager.IGameManager;
-import project.ing.soft.model.gamemanager.events.ModelChangedEvent;
-import project.ing.soft.model.gamemanager.events.MyTurnStartedEvent;
+import project.ing.soft.model.gamemodel.IGameModel;
+import project.ing.soft.model.gamemodel.events.ModelChangedEvent;
+import project.ing.soft.model.gamemodel.events.MyTurnStartedEvent;
 
 import java.io.Serializable;
 
@@ -21,7 +21,7 @@ public class FluxBrushSecondPart implements IToolCardState, Serializable {
     }
 
     @Override
-    public void checkParameters(ToolCard ctx,Player p, IGameManager m) throws MalformedToolCardException {
+    public void checkParameters(ToolCard ctx,Player p, IGameModel m) throws MalformedToolCardException {
         //check parameters integrity, otherwise send MalformedToolCardException
         ctx.validateDie(dieToBePlaced);
         ctx.validatePresenceOfDieIn(dieToBePlaced, m.getDraftPool());
@@ -33,7 +33,7 @@ public class FluxBrushSecondPart implements IToolCardState, Serializable {
     }
 
     @Override
-    public void play(ToolCard ctx,Player p, IGameManager m) throws ToolCardApplicationException {
+    public void play(ToolCard ctx,Player p, IGameModel m) throws ToolCardApplicationException {
         try{
             checkParameters(ctx, p, m);
 
@@ -47,7 +47,7 @@ public class FluxBrushSecondPart implements IToolCardState, Serializable {
         }
     }
 
-    public void apply(Player p, IGameManager m) throws Exception  {
+    public void apply(Player p, IGameModel m) throws Exception  {
         p.placeDie(dieToBePlaced, cord.getRow(), cord.getCol(), true);
         m.removeFromDraft(dieToBePlaced);
     }

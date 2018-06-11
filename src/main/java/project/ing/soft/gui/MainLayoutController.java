@@ -24,7 +24,6 @@ import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import javafx.util.Pair;
 import project.ing.soft.Settings;
 import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.*;
@@ -34,8 +33,8 @@ import project.ing.soft.model.cards.WindowPatternCard;
 import project.ing.soft.model.cards.objectives.publics.PublicObjective;
 import project.ing.soft.model.cards.toolcards.*;
 import project.ing.soft.controller.IController;
-import project.ing.soft.model.gamemanager.events.*;
-import project.ing.soft.model.gamemanager.IGameManager;
+import project.ing.soft.model.gamemodel.events.*;
+import project.ing.soft.model.gamemodel.IGameModel;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -50,7 +49,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class MainLayoutController extends UnicastRemoteObject implements IEventHandler, IToolCardParametersAcquirer,  Serializable{
-    private IGameManager localCopyOfTheStatus;
+    private IGameModel localCopyOfTheStatus;
     private Player myPlayer;
     private String ownerNameOfTheView;
     private transient IController gameController;
@@ -199,7 +198,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     public void setOwnerNameOfTheView(String ownerNameOfTheView) {
         this.ownerNameOfTheView = ownerNameOfTheView;
     }
-    public void setLocalCopyOfTheStatus(IGameManager localCopyOfTheStatus) {
+    public void setLocalCopyOfTheStatus(IGameModel localCopyOfTheStatus) {
         this.localCopyOfTheStatus = localCopyOfTheStatus;
         for (Player p : localCopyOfTheStatus.getPlayerList()){
             if (p.getName().equals(ownerNameOfTheView)) {

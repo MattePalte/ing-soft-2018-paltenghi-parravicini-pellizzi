@@ -10,12 +10,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import project.ing.soft.controller.IController;
 import project.ing.soft.model.Player;
-import project.ing.soft.model.gamemanager.IGameManager;
-import project.ing.soft.model.gamemanager.events.*;
+import project.ing.soft.model.gamemodel.IGameModel;
+import project.ing.soft.model.gamemodel.events.*;
 import project.ing.soft.view.IView;
 
 import java.io.IOException;
@@ -35,7 +34,7 @@ import java.util.logging.Logger;
  */
 
 public class RealView extends UnicastRemoteObject implements IView, IEventHandler, Serializable{
-    private IGameManager localCopyOfTheStatus;
+    private IGameModel localCopyOfTheStatus;
     private Player myPlayer;
     private String ownerNameOfTheView;
     private transient IController myController;

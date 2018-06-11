@@ -4,7 +4,7 @@ import project.ing.soft.exceptions.MalformedToolCardException;
 import project.ing.soft.exceptions.ToolCardApplicationException;
 import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.Player;
-import project.ing.soft.model.gamemanager.IGameManager;
+import project.ing.soft.model.gamemodel.IGameModel;
 
 import java.io.Serializable;
 
@@ -37,7 +37,7 @@ public interface IToolCardState extends Serializable {
      * @param m game model
      * @throws MalformedToolCardException when some parameter is clearly wrong
      */
-    void checkParameters(ToolCard ctx, Player p, IGameManager m)
+    void checkParameters(ToolCard ctx, Player p, IGameModel m)
             throws MalformedToolCardException;
 
     /**
@@ -49,7 +49,7 @@ public interface IToolCardState extends Serializable {
      * @throws ToolCardApplicationException when the action couldn't be correctly completed
      * because of an error
      */
-    void play           (ToolCard ctx, Player p, IGameManager m)
+    void play           (ToolCard ctx, Player p, IGameModel m)
             throws ToolCardApplicationException ;
 
     /**
@@ -60,7 +60,7 @@ public interface IToolCardState extends Serializable {
      * @throws ToolCardApplicationException when the action couldn't be correctly completed
      * because of an error
      */
-    void apply          (Player p, IGameManager m)
+    void apply          (Player p, IGameModel m)
             throws Exception ;
 
 }

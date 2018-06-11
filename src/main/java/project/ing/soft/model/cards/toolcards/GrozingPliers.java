@@ -4,7 +4,7 @@ import project.ing.soft.exceptions.RuleViolatedException;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Colour;
 import project.ing.soft.exceptions.UserInterruptActionException;
-import project.ing.soft.model.gamemanager.IGameManager;
+import project.ing.soft.model.gamemodel.IGameModel;
 import project.ing.soft.model.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
 
@@ -20,7 +20,7 @@ public class GrozingPliers extends ToolCardSingleState {
     }
 
     @Override
-    public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
+    public void checkParameters(Player p, IGameModel m) throws MalformedToolCardException {
         //check parameters integrity, otherwise send MalformedToolCardException
         validateDie(chosenDie);
         validatePresenceOfDieIn(chosenDie, m.getDraftPool());
@@ -35,7 +35,7 @@ public class GrozingPliers extends ToolCardSingleState {
     }
 
     @Override
-    public void apply(Player p, IGameManager m) throws Exception {
+    public void apply(Player p, IGameModel m) throws Exception {
         m.removeFromDraft(chosenDie);
         if ((chosenDie.getValue() == 6 && toBeIncreased) || (chosenDie.getValue() == 1 && !toBeIncreased))
             throw new RuleViolatedException("invalid operation: 6-> 1 or 1->6");

@@ -3,7 +3,7 @@ package project.ing.soft.rmi;
 import project.ing.soft.Settings;
 import project.ing.soft.controller.GameController;
 import project.ing.soft.controller.IController;
-import project.ing.soft.model.gamemanager.events.Event;
+import project.ing.soft.model.gamemodel.events.Event;
 import project.ing.soft.view.IView;
 
 import java.io.IOException;
@@ -82,9 +82,12 @@ public class ViewProxyOverRmi extends Thread implements IView {
                 }
                 rmiView.update(aEvent);
             }
-        }catch (InterruptedException | IOException ex){
+        }catch (InterruptedException ex){
+            log.log(Level.INFO, "an interrupt was raised");
+        } catch(IOException ex){
             log.log(Level.SEVERE, "Event dispatcher thread got an error.", ex);
-            log.log(Level.SEVERE, "Event dispatcher marked {0} as disconnected ", nickname);
+        }finally {
+            log.log(Level.INFO, "Event dispatcher marked {0} as disconnected ", nickname);
             gameController.markAsDisconnected(nickname);
             //the interrupt exception makes possible the thread ending or
             //the update function raise an exception because the update couldn't be completed
@@ -94,12 +97,17 @@ public class ViewProxyOverRmi extends Thread implements IView {
 
     @Override
     public void interrupt() {
-        super.interrupt();
-        try {
-            UnicastRemoteObject.unexportObject(controllerOverRmi, true);
-        } catch (NoSuchObjectException ex) {
-            log.log(Level.SEVERE, "Error while removing controllerOverRmi from registry ", ex);
+        if(controllerOverRmi != null) {
+
+            try {
+                UnicastRemoteObject.unexportObject(controllerOverRmi, true);
+            } catch (NoSuchObjectException ex) {
+                log.log(Level.SEVERE, "Error while removing controllerOverRmi from registry ", ex);
+            }
+            controllerOverRmi = null;
+            gameController    = null;
         }
+        super.interrupt();
     }
 
 
@@ -116,8 +124,8 @@ public class ViewProxyOverRmi extends Thread implements IView {
         if (gameController == null)
             return null;
         log.log(Level.INFO, "Stub controller built");
-
         controllerOverRmi = new PlayerControllerOverRmi(gameController,nickname);
+
         return controllerOverRmi;
     }
 }

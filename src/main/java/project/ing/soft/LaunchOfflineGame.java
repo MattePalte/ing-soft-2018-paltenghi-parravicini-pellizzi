@@ -1,7 +1,7 @@
 package project.ing.soft;
 
 import project.ing.soft.controller.GameController;
-import project.ing.soft.view.ClientViewCLI;
+import project.ing.soft.cli.ClientViewCLI;
 import project.ing.soft.view.IView;
 import project.ing.soft.controller.IController;
 
@@ -14,12 +14,12 @@ public class LaunchOfflineGame
     public static void main(String[] args) throws Exception {
 
         // Create the controller which contains the game
-        IController fantasticController = new GameController(3, UUID.randomUUID().toString());
+        IController fantasticController = new GameController(3);
 
         // Create two views (that correspond to clients in RMI context)
-        IView viewMatteo = new ClientViewCLI("Matteo");
-        IView viewDaniele = new ClientViewCLI("Daniele");
-        IView viewKris = new ClientViewCLI("Kris");
+        IView viewMatteo    = new ClientViewCLI("Matteo");
+        IView viewDaniele   = new ClientViewCLI("Daniele");
+        IView viewKris      = new ClientViewCLI("Kris");
 
         // give each view its controller (that correspond to a remote obj in RMI context)
         viewMatteo.attachController(fantasticController);
@@ -31,7 +31,7 @@ public class LaunchOfflineGame
         //fantasticController.joinTheGame("Daniele", viewDaniele);
         //fantasticController.joinTheGame("Kris", viewKris);
 
-    System.out.println("This is the end of the game. Hope you enjoyed");
+        System.out.println("This is the end of the game. Hope you enjoyed");
 
     }
 }

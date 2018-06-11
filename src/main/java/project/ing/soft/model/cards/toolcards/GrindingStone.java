@@ -2,7 +2,7 @@ package project.ing.soft.model.cards.toolcards;
 
 import project.ing.soft.model.Die;
 import project.ing.soft.exceptions.UserInterruptActionException;
-import project.ing.soft.model.gamemanager.IGameManager;
+import project.ing.soft.model.gamemodel.IGameModel;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Player;
 import project.ing.soft.exceptions.MalformedToolCardException;
@@ -18,7 +18,7 @@ public class GrindingStone extends ToolCardSingleState {
 
 
     @Override
-    public void checkParameters(Player p, IGameManager m) throws MalformedToolCardException {
+    public void checkParameters(Player p, IGameModel m) throws MalformedToolCardException {
         validateDie(chosenDie);
         validatePresenceOfDieIn(chosenDie, m.getDraftPool());
     }
@@ -29,7 +29,7 @@ public class GrindingStone extends ToolCardSingleState {
     }
 
     @Override
-    public void apply(Player p, IGameManager m) {
+    public void apply(Player p, IGameModel m) {
 
         m.removeFromDraft(chosenDie);
         m.addToDraft(chosenDie.flipDie());

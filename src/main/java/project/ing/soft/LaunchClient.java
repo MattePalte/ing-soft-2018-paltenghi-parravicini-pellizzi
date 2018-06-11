@@ -6,8 +6,8 @@ import project.ing.soft.controller.IController;
 
 import project.ing.soft.exceptions.NickNameAlreadyTakenException;
 import project.ing.soft.model.Colour;
-import project.ing.soft.view.ClientViewCLI;
-import project.ing.soft.view.Console;
+import project.ing.soft.cli.ClientViewCLI;
+import project.ing.soft.cli.Console;
 import project.ing.soft.view.IView;
 
 import java.io.PrintStream;
@@ -107,7 +107,7 @@ public class LaunchClient {
 
                 //args[0] should be the ip address of the machine running the registry
                 try {
-                    accessPoint = (IAccessPoint) Naming.lookup(Settings.instance().getRmiApName());
+                    accessPoint = (IAccessPoint) Naming.lookup(Settings.instance().getRemoteRmiApName());
                 } catch (Exception ex){
                     ex.printStackTrace(out);
                 }
@@ -156,11 +156,15 @@ public class LaunchClient {
      * @param args arguments passed from the terminal
      * @param out PrintStream on which the method should print information for the user
      * @param scan Scanner used to get user input
-     * @return
+     * @return name of the player
      */
     private static String getPlayerName(String[] args, PrintStream out, Scanner scan) {
         out.println("Enter your name:");
-        String name = args.length > 0 ? args[0] : scan.next();
+        if(args.length > 0 ) {
+            return args[0];
+        }
+
+        String name = scan.next();
         scan.nextLine();
         return name;
     }

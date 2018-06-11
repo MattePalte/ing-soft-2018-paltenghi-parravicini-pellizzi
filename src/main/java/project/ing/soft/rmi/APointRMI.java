@@ -7,7 +7,7 @@ import project.ing.soft.controller.IController;
 import project.ing.soft.view.IView;
 
 import java.io.IOException;
-import java.rmi.Naming;
+import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 public class APointRMI extends UnicastRemoteObject implements IAccessPoint {
 
     private final transient Logger log;
-    private final AccessPointReal accessPointReal;
+    private final transient AccessPointReal accessPointReal;
 
     public APointRMI(AccessPointReal accessPointReal) throws RemoteException {
         super();
@@ -32,6 +32,7 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint {
 
     public static void bind(APointRMI ap) throws IOException {
         Registry registry ;
+        System.setProperty("java.rmi.dgc.leaseValue", "10000");
         try {
             registry = LocateRegistry.createRegistry(1099);
         } catch (ExportException ex) {
@@ -40,14 +41,18 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint {
             ap.log.log(Level.SEVERE, "error while getting the registry" , ex);
             throw ex;
         }
-        System.setProperty("java.rmi.dgc.leaseValue", "10000");
-        Naming.rebind(Settings.instance().getRmiApName(), ap);
+        try {
+            registry.bind(Settings.instance().getRmiApName(), ap);
+        } catch (AlreadyBoundException e) {
+            registry.rebind(Settings.instance().getRmiApName(), ap);
+        }
+
         ap.log.log(Level.INFO,"AccessPoint RMI published on the registry");
     }
 
     public static void unbind(APointRMI ap) throws RemoteException, NotBoundException {
         Registry registry = LocateRegistry.getRegistry();
-        registry.unbind(Settings.instance().getRmiApName());
+        registry.unbind(Settings.instance().getRemoteRmiApName());
         ap.log.log(Level.INFO,"AccessPoint RMI removed from the registry");
     }
 
@@ -87,4 +92,13 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint {
         return proxyOverRmi.buildAStubController();
     }
 
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 }

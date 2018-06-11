@@ -6,9 +6,9 @@ import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.Coordinate;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.Player;
-import project.ing.soft.model.gamemanager.IGameManager;
-import project.ing.soft.model.gamemanager.events.ModelChangedEvent;
-import project.ing.soft.model.gamemanager.events.MyTurnStartedEvent;
+import project.ing.soft.model.gamemodel.IGameModel;
+import project.ing.soft.model.gamemodel.events.ModelChangedEvent;
+import project.ing.soft.model.gamemodel.events.MyTurnStartedEvent;
 
 import java.io.Serializable;
 
@@ -17,12 +17,12 @@ public class FluxRemoverSecondPart implements IToolCardState, Serializable {
     private int newValue;
     private Coordinate cord;
 
-    public FluxRemoverSecondPart(Die toBePlaced){
+    FluxRemoverSecondPart(Die toBePlaced){
         this.toBePlaced = toBePlaced;
     }
 
     @Override
-    public void checkParameters(ToolCard ctx, Player p, IGameManager m) throws MalformedToolCardException {
+    public void checkParameters(ToolCard ctx, Player p, IGameModel m) throws MalformedToolCardException {
         ctx.validatePresenceOfDieIn(toBePlaced, m.getDraftPool());
         ctx.validateCoordinate(cord, p.getPattern().getHeight(), p.getPattern().getWidth());
     }
@@ -40,7 +40,7 @@ public class FluxRemoverSecondPart implements IToolCardState, Serializable {
      * @throws ToolCardApplicationException
      */
     @Override
-    public void play(ToolCard ctx,Player p, IGameManager m) throws ToolCardApplicationException {
+    public void play(ToolCard ctx,Player p, IGameModel m) throws ToolCardApplicationException {
         try{
             checkParameters(ctx, p, m);
 
@@ -55,7 +55,7 @@ public class FluxRemoverSecondPart implements IToolCardState, Serializable {
     }
 
     @Override
-    public void apply(Player p, IGameManager m) throws Exception {
+    public void apply(Player p, IGameModel m) throws Exception {
         p.placeDie(new Die(newValue, toBePlaced.getColour()), cord.getRow(), cord.getCol(), true);
         m.removeFromDraft(toBePlaced);
     }

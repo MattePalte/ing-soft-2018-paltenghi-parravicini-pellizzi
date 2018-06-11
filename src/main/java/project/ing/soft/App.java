@@ -3,7 +3,7 @@ package project.ing.soft;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Game;
 import project.ing.soft.model.Player;
-import project.ing.soft.view.ClientViewCLI;
+import project.ing.soft.cli.ClientViewCLI;
 
 import java.io.FileNotFoundException;
 import java.rmi.RemoteException;
@@ -19,7 +19,7 @@ public class App
         Game theGame = createGame();
 
         /*if (theGame.isValid()) {
-            IGameManager referee = new GameManagerMulti(theGame);
+            IGameModel referee = new GameModel(theGame);
 
             referee.countPlayersPoints();
             Player p = referee.getWinner();
