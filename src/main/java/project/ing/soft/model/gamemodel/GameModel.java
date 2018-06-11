@@ -38,6 +38,7 @@ public class GameModel implements IGameModel, Serializable {
     private Map<String, Integer>        toolCardCost;
     private Map<String, Integer>        favours;
 
+    private transient Timestamp currentPlayerEndTime;
     private transient Logger logger;
     //Constructor
     //@Signals Exception aGame.isValid() || aGame.numOfPlayers() <= 1 or aGame.numOfPlayers()> 4
@@ -285,7 +286,7 @@ public class GameModel implements IGameModel, Serializable {
         if(status == GAME_MANAGER_STATUS.WAITING_FOR_PATTERNCARD)
             player.update(new PatternCardDistributedEvent(player.getPrivateObjective(), player.getPossiblePatternCard().get(0), player.getPossiblePatternCard().get(1)));
         else if(status == GAME_MANAGER_STATUS.ONGOING && getCurrentPlayer().equals(player))
-            player.update(new MyTurnStartedEvent());
+            player.update(new MyTurnStartedEvent(currentPlayerEndTime));
 
     }
 
@@ -320,7 +321,8 @@ public class GameModel implements IGameModel, Serializable {
 
         drawDice();
         broadcastEvents(new FinishedSetupEvent(), new ModelChangedEvent(new GameModel(this)));
-        getCurrentPlayer().update( new MyTurnStartedEvent( new Timestamp(System.currentTimeMillis() + Settings.instance().getTURN_TIMEOUT())));
+        currentPlayerEndTime = new Timestamp(System.currentTimeMillis() + Settings.instance().getTURN_TIMEOUT() + Settings.instance().getSYNCH_TIME());
+        getCurrentPlayer().update( new MyTurnStartedEvent(currentPlayerEndTime));
     }
 
     @Override
@@ -406,7 +408,8 @@ public class GameModel implements IGameModel, Serializable {
         Player nextPlayer = getCurrentPlayer();
 
         broadcastEvents(new ModelChangedEvent(new GameModel(this)));
-        nextPlayer.update(new MyTurnStartedEvent(new Timestamp(System.currentTimeMillis() + Settings.instance().getTURN_TIMEOUT())));
+        currentPlayerEndTime = new Timestamp(System.currentTimeMillis() + Settings.instance().getTURN_TIMEOUT());
+        nextPlayer.update(new MyTurnStartedEvent(currentPlayerEndTime));
     }
 
     private GameFinishedEvent buildGameFinishedEvent() {

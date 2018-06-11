@@ -25,6 +25,7 @@ public class ViewProxyOverRmi extends Thread implements IView {
     private final String nickname;
     private final ArrayList<Event> eventsToForward;
     private final Logger log;
+    private boolean isStarted;
 
     private GameController          gameController;
     private PlayerControllerOverRmi controllerOverRmi;
@@ -69,6 +70,7 @@ public class ViewProxyOverRmi extends Thread implements IView {
      */
     @Override
     public void run() {
+        isStarted = true;
         log.log(Level.INFO, "Event dispatcher thread started");
         Event aEvent;
         try {
@@ -88,15 +90,18 @@ public class ViewProxyOverRmi extends Thread implements IView {
             log.log(Level.SEVERE, "Event dispatcher thread got an error.", ex);
         }finally {
             log.log(Level.INFO, "Event dispatcher marked {0} as disconnected ", nickname);
-            gameController.markAsDisconnected(nickname);
-            //the interrupt exception makes possible the thread ending or
-            //the update function raise an exception because the update couldn't be completed
-            Thread.currentThread().interrupt();
+            if(isStarted) {
+                gameController.markAsDisconnected(nickname);
+                //the interrupt exception makes possible the thread ending or
+                //the update function raise an exception because the update couldn't be completed
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
     @Override
     public void interrupt() {
+        isStarted = false;
         if(controllerOverRmi != null) {
 
             try {
