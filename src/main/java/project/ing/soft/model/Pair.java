@@ -2,7 +2,7 @@ package project.ing.soft.model;
 
 import java.io.Serializable;
 
-public class Pair<T,V> implements Serializable {
+public class Pair<T extends Serializable,V extends Serializable> implements Serializable {
     private T key;
     private V value;
 
