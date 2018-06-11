@@ -52,7 +52,7 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint {
 
     public static void unbind(APointRMI ap) throws RemoteException, NotBoundException {
         Registry registry = LocateRegistry.getRegistry();
-        registry.unbind(Settings.instance().getRemoteRmiApName());
+        registry.unbind(Settings.instance().getRmiApName());
         ap.log.log(Level.INFO,"AccessPoint RMI removed from the registry");
     }
 

@@ -85,6 +85,19 @@ public class Console extends PrintStream {
 
     }
 
+    //http://ascii-table.com/ansi-escape-sequences-vt-100.php
+    public void clear(){
+        println("\u001B[2J");
+    }
+
+    public void saveCursorPosition(){
+        println("\u001B[s");
+    }
+
+    public void restoreCursorPosition(){
+        println("\u001B[u");
+    }
+
 
     /**
      * Attempts to print text to the Windows console.

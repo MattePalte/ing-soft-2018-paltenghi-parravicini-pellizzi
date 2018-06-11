@@ -18,6 +18,7 @@ import project.ing.soft.view.IView;
 import java.io.*;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.Level;
@@ -31,8 +32,9 @@ public class ClientViewCLI extends UnicastRemoteObject
 
     private final String                    ownerNameOfTheView;
     private String                          personalToken;
-    private IGameModel localCopyOfTheStatus;
-
+    private IGameModel                      localCopyOfTheStatus;
+    private Timestamp                       expectedEndTurn;
+    private static final Integer PROGRESS_BAR_LENGTH = 40;
     private transient IController           controller;
 
     private transient Logger                log;
@@ -64,7 +66,7 @@ public class ClientViewCLI extends UnicastRemoteObject
         this.scanner              = new NonBlockingScanner(System.in);
         this.localCopyOfTheStatus = null;
 
-
+        this.expectedEndTurn      = null;
         this.commands             = new LinkedHashMap<>();
         this.commands.put("Placing a die"     ,           this::placeDieOperation);
         this.commands.put("Playing a ToolCard" ,           this::playAToolCardOperation);
@@ -171,6 +173,7 @@ public class ClientViewCLI extends UnicastRemoteObject
     @Override
     public void respondTo(MyTurnStartedEvent event) {
         log.log(Level.INFO, "Turn started event received");
+        expectedEndTurn = event.getEndTurnTimeStamp();
         if(userThread != null ) {
             userThread.cancel(true);
         }
@@ -241,7 +244,12 @@ public class ClientViewCLI extends UnicastRemoteObject
     private void takeTurn() {
         String cmd;
 
+
         do{
+            out.clear();
+            out.saveCursorPosition();
+            float percentage =(float) (expectedEndTurn.getTime() - System.currentTimeMillis())/Settings.instance().getTURN_TIMEOUT();
+            out.print("["+String.format("%-"+PROGRESS_BAR_LENGTH+"s"+"]", new String(new char[(int)(PROGRESS_BAR_LENGTH*percentage)]).replace("\0","=")));
             displayMySituation();
             out.println("Take your turn " + localCopyOfTheStatus.getCurrentPlayer().getName());
             cmd = null;
