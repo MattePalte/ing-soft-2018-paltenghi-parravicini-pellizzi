@@ -55,7 +55,7 @@ public class Diagonals extends PublicObjective {
         }
 
         colIndex = 0;
-        for(rowIndex = height - 1; rowIndex > 0; rowIndex--){
+        for(rowIndex = height - 2; rowIndex > 0; rowIndex--){
             ret += checkBL2TRDiagonal(placedDice,rowIndex, colIndex);
         }
 
@@ -85,6 +85,7 @@ public class Diagonals extends PublicObjective {
         }
 
         ret += diagonal.size() > 1 ? diagonal.size() : 0;
+
         return ret;
     }
 
@@ -111,6 +112,7 @@ public class Diagonals extends PublicObjective {
         }
 
         ret += diagonal.size() > 1 ? diagonal.size() : 0;
+
         return ret;
 
     }

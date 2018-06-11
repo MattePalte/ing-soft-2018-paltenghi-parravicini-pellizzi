@@ -423,6 +423,7 @@ public class GameModel implements IGameModel, Serializable {
             int sum = 0;
             int tmpCount = p.countPrivateObjectivesPoints();
             sb.append(String.format("%s gave %d points%n", p.getPrivateObjective().getTitle(), tmpCount));
+            sum += tmpCount;
 
             for (ObjectiveCard pubObj : getPublicObjective()){
                 tmpCount = pubObj.countPoints(p);

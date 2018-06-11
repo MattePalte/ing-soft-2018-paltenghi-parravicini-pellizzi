@@ -270,6 +270,59 @@ public class ObjectiveUnitTest {
 
         Assert.assertEquals(6, tested.checkCondition(playerStub));
 
+        for(int i = 0; i < placedDice.length; i++){
+            for(int j = 0; j < placedDice[0].length; j++){
+                placedDice[i][j] = null;
+            }
+        }
+
+        placedDice[0][0] = new Die(Colour.WHITE);
+        placedDice[1][1] = new Die(Colour.WHITE);
+        placedDice[0][2] = new Die(Colour.WHITE);
+        placedDice[1][3] = new Die(Colour.WHITE);
+        placedDice[0][4] = new Die(Colour.WHITE);
+
+        Assert.assertEquals(8, tested.checkCondition(playerStub));
+
+        for(int i = 0; i < placedDice.length; i++){
+            for(int j = 0; j < placedDice[0].length; j++){
+                placedDice[i][j] = null;
+            }
+        }
+
+        placedDice[2][0] = new Die(Colour.WHITE);
+        placedDice[1][1] = new Die(Colour.WHITE);
+        placedDice[0][2] = new Die(Colour.WHITE);
+        placedDice[1][3] = new Die(Colour.WHITE);
+        placedDice[2][4] = new Die(Colour.WHITE);
+        placedDice[2][2] = new Die(Colour.WHITE);
+
+        Assert.assertEquals(10, tested.checkCondition(playerStub));
+
+        for(int i = 0; i < placedDice.length; i++){
+            for(int j = 0; j < placedDice[0].length; j++){
+                placedDice[i][j] = null;
+            }
+        }
+
+        placedDice[0][0] = new Die(Colour.GREEN);
+        placedDice[0][1] = new Die(Colour.YELLOW);
+        placedDice[0][3] = new Die(Colour.WHITE);
+        placedDice[1][0] = new Die(Colour.YELLOW);
+        placedDice[1][1] = new Die(Colour.GREEN);
+        placedDice[1][2] = new Die(Colour.RED);
+        placedDice[1][3] = new Die(Colour.WHITE);
+        placedDice[1][4] = new Die(Colour.WHITE);
+        placedDice[2][1] = new Die(Colour.RED);
+        placedDice[2][3] = new Die(Colour.RED);
+        placedDice[2][4] = new Die(Colour.WHITE);
+        placedDice[3][0] = new Die(Colour.RED);
+        placedDice[3][2] = new Die(Colour.RED);
+        placedDice[3][4] = new Die(Colour.RED);
+
+        Assert.assertEquals(18, tested.checkCondition(playerStub));
+
+
     }
 
 
