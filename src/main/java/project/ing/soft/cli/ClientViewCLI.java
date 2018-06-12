@@ -174,7 +174,8 @@ public class ClientViewCLI extends UnicastRemoteObject
     @Override
     public void respondTo(MyTurnStartedEvent event) {
         log.log(Level.INFO, "Turn started event received");
-        expectedEndTurn = event.getEndTurnTimeStamp();
+        if(event.getEndTurnTimeStamp() != null)
+            expectedEndTurn = event.getEndTurnTimeStamp();
         if(userThread != null ) {
             userThread.cancel(true);
         }
@@ -195,7 +196,7 @@ public class ClientViewCLI extends UnicastRemoteObject
                 out.println(event.getMyPrivateObjective());
                 WindowPatternCard aCard = (WindowPatternCard) chooseFrom(
                         new ArrayList<WindowPatternCard>(Arrays.asList(event.getOne(), event.getOne()))
-                        );
+                );
                 int isFront = chooseIndexFrom(
                         new ArrayList<WindowPattern>(Arrays.asList(aCard.getFrontPattern(), aCard.getRearPattern()))
                 );
@@ -217,6 +218,7 @@ public class ClientViewCLI extends UnicastRemoteObject
         ToolCard aToolCard = chooseFromToolCard(localCopyOfTheStatus.getToolCards());
         aToolCard.fill(this);
         controller.playToolCard(ownerNameOfTheView, aToolCard);
+        Thread.currentThread().interrupt();
     }
 
     private void completeToolCardOperation(ToolcardActionRequestEvent event) {
@@ -244,6 +246,7 @@ public class ClientViewCLI extends UnicastRemoteObject
         Die chosenDie = (Die) chooseFrom(localCopyOfTheStatus.getDraftPool());
         Coordinate placePosition = chooseDieCoordinate("Enter where you want to place your die");
         controller.placeDie(ownerNameOfTheView, chosenDie, placePosition.getRow(), placePosition.getCol());
+        Thread.currentThread().interrupt();
     }
 
     private void takeTurn() {
@@ -252,9 +255,8 @@ public class ClientViewCLI extends UnicastRemoteObject
 
         do{
             out.clear();
-            out.saveCursorPosition();
-            float percentage =(float) (expectedEndTurn.getTime() - System.currentTimeMillis())/Settings.instance().getTURN_TIMEOUT();
-            out.print("["+String.format("%-"+PROGRESS_BAR_LENGTH+"s"+"]", new String(new char[(int)(PROGRESS_BAR_LENGTH*percentage)]).replace("\0","=")));
+            float percentage = (float)(expectedEndTurn.getTime() - System.currentTimeMillis())/Settings.instance().getTURN_TIMEOUT();
+            out.print("[" + String.format("%-" + PROGRESS_BAR_LENGTH + "s" + "]", new String(new char[(int) (PROGRESS_BAR_LENGTH * percentage)]).replace("\0", "=")));
             displayMySituation();
             out.println("Take your turn " + localCopyOfTheStatus.getCurrentPlayer().getName());
             cmd = null;

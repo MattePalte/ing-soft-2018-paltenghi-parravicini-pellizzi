@@ -104,7 +104,7 @@ public class Console extends PrintStream {
      * @param message Message to print
      * @return True if text was correctly printed to a windows console
      */
-    private boolean attemptWindowsPrint(String message) {
+    private synchronized boolean attemptWindowsPrint(String message) {
         boolean successful = false;
         if (instance != null) {
             char[] buffer = message.toCharArray();

@@ -187,12 +187,7 @@ public class GameController implements IController {
 
             if(gameModel.getStatus() == IGameModel.GAME_MANAGER_STATUS.ONGOING) {
                 log.log(Level.INFO, "Match started");
-                timer.schedule(new TimerTask(){
-                    @Override
-                    public void run() {
-                        resetTurnEndAndStartTimer();
-                    }
-                }, Settings.instance().getSYNCH_TIME());
+                resetTurnEndAndStartTimer();
             }
         }
 
