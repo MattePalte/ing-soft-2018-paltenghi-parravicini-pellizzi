@@ -7,6 +7,8 @@ import project.ing.soft.model.Colour;
 import project.ing.soft.model.gamemodel.IGameModel;
 import project.ing.soft.model.Player;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Lathekin extends ToolCardSingleState {
@@ -40,8 +42,9 @@ public class Lathekin extends ToolCardSingleState {
 
     @Override
     public void apply(Player p, IGameModel m) throws Exception {
-            p.moveDice( List.of(firstDieStartPosition,secondDieStartPosition),
-                    List.of(firstDieEndPosition, secondDieEndPosition),
+            p.moveDice(
+                    new ArrayList<Coordinate>(Arrays.asList(firstDieStartPosition, secondDieStartPosition)),
+                    new ArrayList<Coordinate>(Arrays.asList(firstDieEndPosition, secondDieEndPosition)),
                     true, true, true);
 
     }

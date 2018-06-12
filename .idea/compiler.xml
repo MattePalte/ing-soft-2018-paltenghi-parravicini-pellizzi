@@ -10,12 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="ing-soft-2018-paltenghi-parravicini-pellizzi" target="9" />
+      <module name="ing-soft-2018-paltenghi-parravicini-pellizzi" target="8" />
     </bytecodeTargetLevel>
-  </component>
-  <component name="JavacSettings">
-    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="ing-soft-2018-paltenghi-parravicini-pellizzi" options="--add-exports=jdk.jfr/jdk.jfr.internal=ALL-UNNAMED" />
-    </option>
   </component>
 </project>

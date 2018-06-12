@@ -71,7 +71,7 @@ public class Constraint implements Serializable {
     public String getImgPath(){
         if(getColour() != Colour.WHITE || getValue() == 0)
             return "";
-        String path = String.format("/windowpattern/dice/constraint/%d.jpg", getValue());
+        String path = String.format("/windowpatterns/dice/constraint/%d.jpg", getValue());
         URL urlResource =  Constraint.class.getResource(path);
         if(urlResource != null) {
             return path;

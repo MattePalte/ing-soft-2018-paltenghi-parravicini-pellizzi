@@ -423,7 +423,8 @@ public class ToolCardTest {
 
         Die diceBagDie = new Die(remaining.get(new Random().nextInt(remaining.size()))).rollDie();
         draftPoolStub.add(dieToBeChosenForRolling);
-        diceBagStub = new ArrayList<>(List.of(diceBagDie));
+        diceBagStub =
+                new ArrayList<Die>(Arrays.asList(diceBagDie));
 
         IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
 
@@ -441,8 +442,10 @@ public class ToolCardTest {
         Assert.assertTrue(diceBagStub.stream().anyMatch( aDie-> aDie.getColour() == diceBagDie.getColour()) ||
                                     diceBagStub.stream().anyMatch( aDie-> aDie.getColour() == dieToBeChosenForRolling.getColour()));
         //Nella draftpool è finito uno dei due dadi
-        Assert.assertTrue(diceBagStub.stream().anyMatch( aDie-> List.of(dieToBeChosenForRolling.getColour(),diceBagDie.getColour()).contains(aDie.getColour())));
-        Assert.assertTrue(draftPoolStub.stream().anyMatch( aDie-> List.of(dieToBeChosenForRolling.getColour(),diceBagDie.getColour()).contains(aDie.getColour())));
+        Assert.assertTrue(diceBagStub.stream().anyMatch( aDie->
+                new ArrayList<Colour>(Arrays.asList(dieToBeChosenForRolling.getColour(),diceBagDie.getColour())).contains(aDie.getColour())));
+        Assert.assertTrue(draftPoolStub.stream().anyMatch( aDie->
+                        new ArrayList<Colour>(Arrays.asList(dieToBeChosenForRolling.getColour(),diceBagDie.getColour())).contains(aDie.getColour())));
         Assert.assertTrue( (   diceBagStub.stream().anyMatch( aDie-> aDie.getColour() == diceBagDie.getColour()) &&
                                         ( draftPoolStub.stream().anyMatch( aDie-> aDie.getColour() == dieToBeChosenForRolling.getColour()))
                                     )||( diceBagStub.stream().anyMatch( aDie-> aDie.getColour() == dieToBeChosenForRolling.getColour()) &&

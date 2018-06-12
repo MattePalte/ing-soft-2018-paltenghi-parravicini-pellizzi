@@ -131,7 +131,7 @@ public class ChoosePatternController {
         // Create "choose this patten" button to invoke controller
         Button btnChooseThis = new Button();
         btnChooseThis.setText("Choose this");
-        btnChooseThis.setOnAction(new EventHandler<>() {
+        btnChooseThis.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
                 chooseThis(pattern);

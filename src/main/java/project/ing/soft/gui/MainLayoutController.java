@@ -468,7 +468,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
             paneDraft.add(currentCell, pos,0);
             currentCell.setGraphic(bg);
             currentCell.setStyle(FX_BACKGROUND + WHITE);
-            currentCell.setOnAction(new EventHandler<>() {
+            currentCell.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent e) {
                     disableAll();
@@ -490,7 +490,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
             pane.add(currentCell, pos,0);
             currentCell.setStyle(FX_BACKGROUND + WHITE);
             currentCell.setText(Integer.toString(currentValue));
-            currentCell.setOnAction(new EventHandler<>() {
+            currentCell.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent e) {
                     disableAll();
@@ -539,7 +539,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
             paneRoundTracker.add(currentCell, col, row);
             currentCell.setGraphic(bg);
             currentCell.setStyle(FX_BACKGROUND + WHITE);
-            currentCell.setOnAction(new EventHandler<>() {
+            currentCell.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent e) {
                     disableAll();
@@ -565,7 +565,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
             pane.getChildren().add(0, iv);
             StyleBooster.forToolCardCard(pane, 7);
             int finalIndex = index;
-            iv.setOnMouseClicked(new EventHandler<>() {
+            iv.setOnMouseClicked(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent event) {
                     disableAll();
@@ -724,7 +724,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                 Button currentCell = (Button) scene.lookup("#pos" + row + col);
                 int finalRow = row;
                 int finalCol = col;
-                currentCell.setOnAction(new EventHandler<>() {
+                currentCell.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent e) {
                         disableAll();

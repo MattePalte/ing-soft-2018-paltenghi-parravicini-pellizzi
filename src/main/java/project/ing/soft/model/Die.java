@@ -116,7 +116,7 @@ public class Die implements Serializable {
     public String getImgPath() {
         if (getColour() == Colour.WHITE || getValue() == 0)
             return "";
-        String path = String.format("/windowpattern/dice/%s/%d.png", getColour().name().toLowerCase(), getValue());
+        String path = String.format("/windowpatterns/dice/%s/%d.png", getColour().name().toLowerCase(), getValue());
         URL urlResource = Die.class.getResource(path);
         if (urlResource != null) {
             return path;

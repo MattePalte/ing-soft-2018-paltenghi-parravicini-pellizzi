@@ -11,6 +11,7 @@ import project.ing.soft.model.gamemodel.GameModel;
 import project.ing.soft.exceptions.MalformedToolCardException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -58,7 +59,8 @@ public class ToolCardCheckParametersTest {
         when(param.getDieFromDraft(any(String.class)))
                 .then(args -> rndDie);
 
-        when(stubModel.getDraftPool()).thenReturn(List.of(rndDie));
+        when(stubModel.getDraftPool()).thenReturn(
+                new ArrayList<Die>(Arrays.asList(rndDie)));
         try {
             pinzaSgrossatrice.fill(param);
             pinzaSgrossatrice.checkParameters(stubPlayer,stubModel);
@@ -83,7 +85,8 @@ public class ToolCardCheckParametersTest {
         when(param.getValue(anyString(), anyInt(), anyInt()))
                 .then(args-> randomBoolean() ? +1 : -1);
 
-        when(stubModel.getDraftPool()).thenReturn(List.of(rndDie));
+        when(stubModel.getDraftPool()).thenReturn(
+                new ArrayList<Die>(Arrays.asList(rndDie)));
         try {
             pinzaSgrossatrice.fill(param);
             pinzaSgrossatrice.checkParameters(stubPlayer,stubModel);
@@ -102,7 +105,8 @@ public class ToolCardCheckParametersTest {
         when(param.getDieFromDraft(anyString()))
                 .then(args-> rndDie);
 
-        when(stubModel.getDraftPool()).thenReturn(List.of());
+        when(stubModel.getDraftPool()).thenReturn(
+                new ArrayList<Die>(Arrays.asList()));
         try {
 
 
@@ -272,7 +276,8 @@ public class ToolCardCheckParametersTest {
         myDiceLeft.add(rndDieRoundTracker);
         when(stubRoundTracker.getDiceLeftFromRound()).thenReturn(myDiceLeft);
 
-        when(stubModel.getDraftPool()).thenReturn(List.of(rndDieDraftPool));
+        when(stubModel.getDraftPool()).thenReturn(
+                new ArrayList<Die>(Arrays.asList(rndDieDraftPool)));
 
         IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
         when(param.getDieFromRound(anyString()))
@@ -305,7 +310,8 @@ public class ToolCardCheckParametersTest {
         ArrayList<Die> myDiceLeft = new ArrayList<>();
         myDiceLeft.add(rndDieRoundTracker);
         when(stubRoundTracker.getDiceLeftFromRound()).thenReturn(myDiceLeft);
-        when(stubModel.getDraftPool()).thenReturn(List.of());
+        when(stubModel.getDraftPool()).thenReturn(
+                new ArrayList<Die>(Arrays.asList()));
 
         IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
         when(param.getDieFromDraft(anyString()))
@@ -340,7 +346,8 @@ public class ToolCardCheckParametersTest {
         when(param.getDieFromDraft(anyString()))
                 .then( args -> aDieFromDraft);
 
-        when(stubModel.getDraftPool()).thenReturn(List.of(aDieFromDraft));
+        when(stubModel.getDraftPool()).thenReturn(
+                new ArrayList<Die>(Arrays.asList(aDieFromDraft)));
 
         try {
             taglierinaCircolare.fill(param);
@@ -353,8 +360,10 @@ public class ToolCardCheckParametersTest {
 
     @Test
     public void martellettoKoTest(){
-        when(stubModel.getCurrentTurnList()).thenReturn(List.of(stubPlayer, stubPlayer));
-        when(stubModel.getPlayerList()).thenReturn(List.of(stubPlayer));
+        when(stubModel.getCurrentTurnList()).thenReturn(
+                new ArrayList<Player>(Arrays.asList(stubPlayer,stubPlayer)));
+        when(stubModel.getPlayerList()).thenReturn(
+                new ArrayList<Player>(Arrays.asList(stubPlayer)));
         try{
             GlazingHammer martelletto = new GlazingHammer();
             martelletto.fill(mock(IToolCardParametersAcquirer.class));
@@ -373,7 +382,8 @@ public class ToolCardCheckParametersTest {
         boolean isExHappend = false;
         pennelloPastaSalda = new FluxBrush();
 
-        when(stubModel.getDraftPool()).thenReturn(List.of(rndDie));
+        when(stubModel.getDraftPool()).thenReturn(
+                new ArrayList<Die>(Arrays.asList(rndDie)));
 
         IToolCardParametersAcquirer param = mock(IToolCardParametersAcquirer.class);
         when(param.getDieFromDraft(anyString()))
@@ -401,7 +411,8 @@ public class ToolCardCheckParametersTest {
                 .then( args -> rndDie);
 
 
-        when(stubModel.getDraftPool()).thenReturn(List.of());
+        when(stubModel.getDraftPool()).thenReturn(
+                new ArrayList<Die>(Arrays.asList()));
         try {
             pennelloPastaSalda.fill(param);
             pennelloPastaSalda.checkParameters(stubPlayer,stubModel);
@@ -442,7 +453,8 @@ public class ToolCardCheckParametersTest {
     }
 
     private boolean randomBoolean(){
-        return List.of(true, false). get (new Random().nextInt(1));
+        ArrayList<Boolean> rndList = new ArrayList<Boolean>(Arrays.asList(Boolean.TRUE,Boolean.FALSE));
+        return rndList. get (new Random().nextInt(1));
     }
 
 }

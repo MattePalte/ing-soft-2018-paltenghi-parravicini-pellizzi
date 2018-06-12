@@ -6,6 +6,8 @@ import project.ing.soft.model.gamemodel.IGameModel;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Player;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class EglomiseBrush extends ToolCardSingleState {
@@ -36,7 +38,10 @@ public class EglomiseBrush extends ToolCardSingleState {
 
     @Override
     public void apply(Player p, IGameModel m) throws Exception{
-        p.moveDice(List.of(startPosition), List.of(endPosition), false, true, true);
+        p.moveDice(
+                new ArrayList<Coordinate>(Arrays.asList(startPosition)),
+                new ArrayList<Coordinate>(Arrays.asList(endPosition)),
+                false, true, true);
     }
 
     @Override

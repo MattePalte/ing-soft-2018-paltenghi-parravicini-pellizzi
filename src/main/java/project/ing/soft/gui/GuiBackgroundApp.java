@@ -52,7 +52,7 @@ public class GuiBackgroundApp extends Application {
         stage.show();
 
         // Listener to handle closing of the window and all related thread
-        stage.setOnCloseRequest(new EventHandler<>() {
+        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent e) {
                 Platform.exit();

@@ -7,6 +7,7 @@ import project.ing.soft.model.Die;
 import project.ing.soft.model.Pair;
 import project.ing.soft.model.Player;
 import project.ing.soft.model.cards.Card;
+import project.ing.soft.model.cards.WindowPattern;
 import project.ing.soft.model.cards.toolcards.*;
 import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.gamemodel.IGameModel;
@@ -192,8 +193,12 @@ public class ClientViewCLI extends UnicastRemoteObject
             try {
                 out.println("This is your private objective: ");
                 out.println(event.getMyPrivateObjective());
-                WindowPatternCard aCard = (WindowPatternCard) chooseFrom(List.of(event.getOne(), event.getTwo()));
-                int isFront = chooseIndexFrom(List.of(aCard.getFrontPattern(), aCard.getRearPattern()));
+                WindowPatternCard aCard = (WindowPatternCard) chooseFrom(
+                        new ArrayList<WindowPatternCard>(Arrays.asList(event.getOne(), event.getOne()))
+                        );
+                int isFront = chooseIndexFrom(
+                        new ArrayList<WindowPattern>(Arrays.asList(aCard.getFrontPattern(), aCard.getRearPattern()))
+                );
 
                 out.println("Wait for other players to choose their pattern card.");
                 controller.choosePattern(ownerNameOfTheView, aCard, isFront == 1);
