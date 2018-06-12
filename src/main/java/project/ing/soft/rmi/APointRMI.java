@@ -72,24 +72,23 @@ public class APointRMI extends UnicastRemoteObject implements IAccessPoint {
     @Override
     public IController connect(String nickname, IView clientView) throws Exception{
         log.log(Level.INFO,"{0} request to connect", nickname);
-        ViewProxyOverRmi proxyOverRmi = new ViewProxyOverRmi(clientView, nickname);
-        IController gameController = accessPointReal.connect(nickname, proxyOverRmi);
+        ViewProxyOverRmi viewOverRmi = new ViewProxyOverRmi(clientView, nickname);
+        IController gameController = accessPointReal.connect(nickname, viewOverRmi);
         // POST CONNECT ->
-        proxyOverRmi.attachController(gameController);
-        proxyOverRmi.start();
-
-        return proxyOverRmi.buildAStubController();
+        viewOverRmi.attachController(gameController);
+        viewOverRmi.start();
+        return viewOverRmi.buildAStubController();
     }
 
     @Override
     public IController reconnect(String nickname, String code, IView clientView) throws Exception {
         log.log(Level.INFO,"{0} requested to reconnect", nickname);
-        ViewProxyOverRmi proxyOverRmi = new ViewProxyOverRmi(clientView, nickname);
-        IController newController = accessPointReal.reconnect(nickname, code, proxyOverRmi);
+        ViewProxyOverRmi viewProxyOverRmi = new ViewProxyOverRmi(clientView, nickname);
+        IController newController = accessPointReal.reconnect(nickname, code, viewProxyOverRmi);
         // POST CONNECT ->
-        proxyOverRmi.attachController(newController);
-        proxyOverRmi.start();
-        return proxyOverRmi.buildAStubController();
+        viewProxyOverRmi.attachController(newController);
+        viewProxyOverRmi.start();
+        return viewProxyOverRmi.buildAStubController();
     }
 
     @Override

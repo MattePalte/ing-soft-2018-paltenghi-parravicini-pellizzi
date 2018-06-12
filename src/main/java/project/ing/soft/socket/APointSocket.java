@@ -66,6 +66,7 @@ public class APointSocket implements Callable<Boolean>, ConnectionRequestHandler
             } catch (Exception e) {
                 oos.writeObject(new ConnectionRefusedResponse(e));
                 clientSocket.close();
+                //TODO: ask kri about delete
                 viewProxy.interrupt();
                 return true;
             }
@@ -88,6 +89,7 @@ public class APointSocket implements Callable<Boolean>, ConnectionRequestHandler
         String nickname = request.nickname;
         viewProxy = new ViewProxyOverSocket(clientSocket, oos, ois, nickname);
         accessPointReal.connect(nickname, viewProxy);
+        // POST CONNECT ->
         oos.writeObject(new ConnectionEstabilishedResponse());
         viewProxy.start();
     }
@@ -105,6 +107,7 @@ public class APointSocket implements Callable<Boolean>, ConnectionRequestHandler
         String nickname = request.nickname;
         viewProxy = new ViewProxyOverSocket(clientSocket, oos, ois, nickname);
         accessPointReal.reconnect(nickname, code, viewProxy);
+        // POST CONNECT ->
         // Notify everything went well
         oos.writeObject(new ConnectionEstabilishedResponse());
         viewProxy.start();

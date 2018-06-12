@@ -54,7 +54,6 @@ public class APProxySocket implements IAccessPoint, ConnectionResponseHandler {
     @Override
     public synchronized IController connect(String nickname, IView clientView) throws Exception {
         ControllerProxyOverSocket controllerProxy;
-        //TODO: ask kri about the previous try
         log.log(Level.INFO,"{0} request to connect", nickname);
         oos.writeObject(new APConnectRequest(nickname));
         ConnectionResponse response = (ConnectionResponse)ois.readObject();
@@ -63,7 +62,7 @@ public class APProxySocket implements IAccessPoint, ConnectionResponseHandler {
         controllerProxy = new ControllerProxyOverSocket(clientView, mySocket, oos, ois);
         clientView.attachController(controllerProxy);
         controllerProxy.start();
-        //in order to avoid request superpostion
+        //in order to avoid request superposition
         mySocket = null;
         ois = null;
         oos = null;
@@ -80,7 +79,7 @@ public class APProxySocket implements IAccessPoint, ConnectionResponseHandler {
         ControllerProxyOverSocket controllerProxy = new ControllerProxyOverSocket(clientView, mySocket, oos, ois);
         clientView.attachController(controllerProxy);
         controllerProxy.start();
-        //in order to avoid request superpostion
+        //in order to avoid request superposition
         mySocket = null;
         ois = null;
         oos = null;

@@ -18,7 +18,7 @@ import java.util.Scanner;
 /**
  * This class is the entry point of the program to launch a CLI client
  */
-public class LaunchClient {
+public class LaunchClientCli {
 
 
     /**
@@ -46,6 +46,16 @@ public class LaunchClient {
         // and attach the chosen controller (Rmi or Socket) to it
         IView view = new ClientViewCLI(name);
         out.println("View created successfully");
+        IController controller = getController(out, scan, name, accessPoint, connectionMethod, view);
+
+
+        out.println("Controller retrieved from AccessPoint");
+        view.attachController(controller);
+        out.println("Controller attached to the view");
+
+    }
+
+    private static IController getController(PrintStream out, Scanner scan, String name, IAccessPoint accessPoint, int connectionMethod, IView view) throws Exception {
         IController controller = null;
         switch (connectionMethod){
             case 0:
@@ -60,7 +70,6 @@ public class LaunchClient {
                         name = scan.nextLine();
                         out.println("Your nickname is " + name);
                         // Create a new view with the up-to-date name. The view is started after this method ends
-                        view = new ClientViewCLI(name);
                         nicknameAlreadyTaken = true;
                     }
                 } while (nicknameAlreadyTaken);
@@ -78,12 +87,7 @@ public class LaunchClient {
             default:
 
         }
-
-
-        out.println("Controller retrieved from AccessPoint");
-        view.attachController(controller);
-        out.println("Controller attached to the view");
-
+        return controller;
     }
 
     /**

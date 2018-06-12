@@ -27,7 +27,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>project.ing.soft.LaunchClient</mainClass>
+                            <mainClass>project.ing.soft.LaunchClientCli</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

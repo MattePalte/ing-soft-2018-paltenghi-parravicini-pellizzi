@@ -10,8 +10,8 @@ import project.ing.soft.view.IView;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,6 +27,7 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
     private Socket                      aSocket;
 
     private String                      associatedNickname;
+    private final AtomicBoolean         isConnected;
     private boolean                     isStarted;
     private final ArrayList<IResponse>  buffer;
     private final ObjectOutputStream    toClient;
@@ -54,6 +55,7 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
         this.logger = Logger.getLogger(this.getClass().getCanonicalName()+"(" +nickname+")");
         this.logger.setLevel(Settings.instance().getDefaultLoggingLevel());
         this.associatedNickname = nickname;
+        this.isConnected    = new AtomicBoolean(true);
         this.isStarted      = false;
         this.buffer         = new ArrayList<>();
     }
@@ -95,18 +97,10 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
                     toClient.reset();
                 }
             }
-        }catch(SocketException ex){
-            if(isStarted) {
-                logger.log(Level.INFO, "{0} disconnected", associatedNickname);
-                gameController.markAsDisconnected(associatedNickname);
-            }
+        }catch(Exception ex){
+            logger.log(Level.INFO, "{0} disconnected", associatedNickname);
             // else user asked for reconnection, so disconnection is done elsewhere
-        } catch (Exception ex){
-            logger.log(Level.SEVERE,"Exception occurred", ex);
-            gameController.markAsDisconnected(associatedNickname);
-
-        }finally {
-            logger.log(Level.INFO,"disconnected");
+            this.interrupt();
         }
 
     }
@@ -120,26 +114,30 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
         // if user asked for reconnection calls interrupt, and the boolean
         // is set to false as a flag to distinguish from disconnection
         // due to network problems or client crashes
-        isStarted = false;
-        try {
-            if (fromClient != null)
-                fromClient.close();
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Error while closing ObjectInputStream", e);
-        }
+        if(isConnected.getAndSet(false)) {
+            super.interrupt();
+            logger.log(Level.INFO, "Event dispatcher marked {0} as disconnected ", associatedNickname);
+            gameController.markAsDisconnected(associatedNickname);
+            try {
+                if (fromClient != null)
+                    fromClient.close();
+            } catch (IOException e) {
+                logger.log(Level.SEVERE, "Error while closing ObjectInputStream", e);
+            }
 
-        try {
-            if (toClient != null)
-                toClient.close();
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Error while closing ObjectOutputStream", e);
-        }
+            try {
+                if (toClient != null)
+                    toClient.close();
+            } catch (IOException e) {
+                logger.log(Level.SEVERE, "Error while closing ObjectOutputStream", e);
+            }
 
-        try {
-            if (aSocket != null)
-                aSocket.close();
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Error while closing socket", e);
+            try {
+                if (aSocket != null)
+                    aSocket.close();
+            } catch (IOException e) {
+                logger.log(Level.SEVERE, "Error while closing socket", e);
+            }
         }
     }
 

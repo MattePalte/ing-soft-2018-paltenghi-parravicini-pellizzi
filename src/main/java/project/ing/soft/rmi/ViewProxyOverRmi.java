@@ -11,6 +11,7 @@ import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,10 +23,10 @@ import java.util.logging.Logger;
 public class ViewProxyOverRmi extends Thread implements IView {
 
     private final IView rmiView;
-    private final String nickname;
+    private final String associatedNickname;
     private final ArrayList<Event> eventsToForward;
-    private final Logger log;
-
+    private final Logger logger;
+    private final AtomicBoolean     isConnected;
     private GameController          gameController;
     private PlayerControllerOverRmi controllerOverRmi;
 
@@ -34,24 +35,25 @@ public class ViewProxyOverRmi extends Thread implements IView {
      * both {@link IView},{@link java.rmi.Remote} is needed.
      * This would be used in order to send a notification to the player via {@link #update(Event)} method.
      * @param rmiView that extend {@link java.rmi.Remote}
-     * @param nickname a name that identifies the player
+     * @param associatedNickname a name that identifies the player
      */
-    public ViewProxyOverRmi(IView rmiView, String nickname) {
+    public ViewProxyOverRmi(IView rmiView, String associatedNickname) {
         this.rmiView            = rmiView;
         this.eventsToForward    = new ArrayList<>();
-        this.nickname           = nickname;
+        this.associatedNickname = associatedNickname;
         this.controllerOverRmi  = null;
-        this.log                = Logger.getLogger(this.getClass().getCanonicalName()+"("+nickname+")");
-        this.log.setLevel(Settings.instance().getDefaultLoggingLevel());
+        this.isConnected        = new AtomicBoolean(true);
+        this.logger = Logger.getLogger(this.getClass().getCanonicalName()+"("+ associatedNickname +")");
+        this.logger.setLevel(Settings.instance().getDefaultLoggingLevel());
     }
 
     @Override
     public void update(Event event) {
-        log.log(Level.INFO, "Event {0} received", event);
+        logger.log(Level.INFO, "Event {0} received", event);
         synchronized (eventsToForward){
             eventsToForward.add(event);
             eventsToForward.notifyAll();
-            log.log(Level.INFO, "Event {0} presence notified", event);
+            logger.log(Level.INFO, "Event {0} presence notified", event);
         }
     }
 
@@ -69,7 +71,7 @@ public class ViewProxyOverRmi extends Thread implements IView {
      */
     @Override
     public void run() {
-        log.log(Level.INFO, "Event dispatcher thread started");
+        logger.log(Level.INFO, "Event dispatcher thread started");
         Event aEvent;
         try {
             while (!Thread.currentThread().isInterrupted()) {
@@ -83,26 +85,28 @@ public class ViewProxyOverRmi extends Thread implements IView {
                 rmiView.update(aEvent);
             }
         }catch (InterruptedException ex){
-            log.log(Level.INFO, "an interrupt was raised");
+            logger.log(Level.INFO, "an interrupt was raised");
         } catch(IOException ex){
-            log.log(Level.SEVERE, "Event dispatcher thread got an error.", ex);
-            log.log(Level.INFO, "Event dispatcher marked {0} as disconnected ", nickname);
-            gameController.markAsDisconnected(nickname);
+            logger.log(Level.SEVERE, "Event dispatcher thread got an error.", ex);
+
         }finally {
             //the interrupt exception makes possible the thread ending or
             //the update function raise an exception because the update couldn't be completed
-            Thread.currentThread().interrupt();
+            this.interrupt();
         }
     }
 
     @Override
     public void interrupt() {
-        if(controllerOverRmi != null) {
 
+        if( isConnected.getAndSet(false)) {
+            super.interrupt();
+            logger.log(Level.INFO, "Event dispatcher marked {0} as disconnected ", associatedNickname);
+            gameController.markAsDisconnected(associatedNickname);
             try {
                 UnicastRemoteObject.unexportObject(controllerOverRmi, true);
             } catch (NoSuchObjectException ex) {
-                log.log(Level.SEVERE, "Error while removing controllerOverRmi from registry ", ex);
+                logger.log(Level.SEVERE, "Error while removing controllerOverRmi from registry ", ex);
             }
             controllerOverRmi = null;
 
@@ -123,8 +127,8 @@ public class ViewProxyOverRmi extends Thread implements IView {
     IController buildAStubController() throws RemoteException {
         if (gameController == null)
             return null;
-        log.log(Level.INFO, "Stub controller built");
-        controllerOverRmi = new PlayerControllerOverRmi(gameController,nickname);
+        logger.log(Level.INFO, "Stub controller built");
+        controllerOverRmi = new PlayerControllerOverRmi(gameController, associatedNickname);
 
         return controllerOverRmi;
     }
