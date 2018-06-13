@@ -91,11 +91,15 @@ public class Console extends PrintStream {
     }
 
     public void saveCursorPosition(){
-        println("\u001B[s");
+        print("\u001B[s");
     }
 
     public void restoreCursorPosition(){
-        println("\u001B[u");
+        print("\u001B[u");
+    }
+
+    public void setCursorPosition(int row, int col){
+        print(String.format("\u001B[%d;%dH", row, col));
     }
 
 

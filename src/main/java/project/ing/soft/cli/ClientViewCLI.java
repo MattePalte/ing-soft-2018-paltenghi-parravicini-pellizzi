@@ -35,7 +35,7 @@ public class ClientViewCLI extends UnicastRemoteObject
     private String                          personalToken;
     private IGameModel                      localCopyOfTheStatus;
     private Timestamp                       expectedEndTurn;
-    private static final Integer PROGRESS_BAR_LENGTH = 40;
+
     private transient IController           controller;
 
     private transient Logger                log;
@@ -52,6 +52,10 @@ public class ClientViewCLI extends UnicastRemoteObject
     private transient Future                userThread;
     private transient Future                eventHandler;
 
+
+    private static final Integer PROGRESS_BAR_LENGTH = 40;
+    private transient Timer timer;
+    private transient TimerTask progressBarTask;
     public ClientViewCLI(String ownerNameOfTheView, IController controller) throws RemoteException {
         this(ownerNameOfTheView);
         this.controller           = controller;
@@ -68,6 +72,7 @@ public class ClientViewCLI extends UnicastRemoteObject
         this.localCopyOfTheStatus = null;
 
         this.expectedEndTurn      = null;
+        this.timer                = new Timer();
         this.commands             = new LinkedHashMap<>();
         this.commands.put("Placing a die"     ,           this::placeDieOperation);
         this.commands.put("Playing a ToolCard" ,           this::playAToolCardOperation);
@@ -174,8 +179,18 @@ public class ClientViewCLI extends UnicastRemoteObject
     @Override
     public void respondTo(MyTurnStartedEvent event) {
         log.log(Level.INFO, "Turn started event received");
-        if(event.getEndTurnTimeStamp() != null)
+        if(event.getEndTurnTimeStamp() != null) {
+            if(progressBarTask != null)
+                progressBarTask.cancel();
             expectedEndTurn = event.getEndTurnTimeStamp();
+            progressBarTask = new TimerTask() {
+                @Override
+                public void run() {
+                    printProgressBar();
+                }
+            };
+            timer.schedule(progressBarTask, 2000, 2000);
+        }
         if(userThread != null ) {
             userThread.cancel(true);
         }
@@ -195,10 +210,10 @@ public class ClientViewCLI extends UnicastRemoteObject
                 out.println("This is your private objective: ");
                 out.println(event.getMyPrivateObjective());
                 WindowPatternCard aCard = (WindowPatternCard) chooseFrom(
-                        new ArrayList<WindowPatternCard>(Arrays.asList(event.getOne(), event.getOne()))
+                        new ArrayList<>(Arrays.asList(event.getOne(), event.getOne()))
                 );
                 int isFront = chooseIndexFrom(
-                        new ArrayList<WindowPattern>(Arrays.asList(aCard.getFrontPattern(), aCard.getRearPattern()))
+                        new ArrayList<>(Arrays.asList(aCard.getFrontPattern(), aCard.getRearPattern()))
                 );
 
                 out.println("Wait for other players to choose their pattern card.");
@@ -255,8 +270,7 @@ public class ClientViewCLI extends UnicastRemoteObject
 
         do{
             out.clear();
-            float percentage = (float)(expectedEndTurn.getTime() - System.currentTimeMillis())/Settings.instance().getTURN_TIMEOUT();
-            out.print("[" + String.format("%-" + PROGRESS_BAR_LENGTH + "s" + "]", new String(new char[(int) (PROGRESS_BAR_LENGTH * percentage)]).replace("\0", "=")));
+            printProgressBar();
             displayMySituation();
             out.println("Take your turn " + localCopyOfTheStatus.getCurrentPlayer().getName());
             cmd = null;
@@ -274,11 +288,23 @@ public class ClientViewCLI extends UnicastRemoteObject
         }while(!Thread.currentThread().isInterrupted());
     }
 
+    private void printProgressBar() {
+        if(expectedEndTurn == null)
+            return;
+
+        out.saveCursorPosition();
+        out.setCursorPosition(0,0);
+        float percentage = (float)(expectedEndTurn.getTime() - System.currentTimeMillis())/Settings.instance().getTURN_TIMEOUT();
+        out.print( String.format( String.format("[%%-%ds]", PROGRESS_BAR_LENGTH), new String(new char[(int) (PROGRESS_BAR_LENGTH * percentage)]).replace("\0", "=")));
+        out.restoreCursorPosition();
+    }
+
     //endregion
     @Override
     public void respondTo(MyTurnEndedEvent event){
         out.println("You had plenty of time and you didn't used.. the turn was ended by the server");
         userThread.cancel(true);
+        progressBarTask.cancel();
     }
 
     @Override
