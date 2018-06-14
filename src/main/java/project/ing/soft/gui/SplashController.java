@@ -28,12 +28,6 @@ public class SplashController {
     @FXML StackPane stackBox;
     @FXML ImageView ivSplash;
 
-    /*
-        private AtomicReference<Double> currentHeight = new AtomicReference<>();
-        private AtomicReference<Double> currentWidth = new AtomicReference<>();
-        private final double startWidth = 500;
-        private final double startHeight = 422;
-    */
     private Stage stage;
 
     @FXML private Text msgLabel;
@@ -48,47 +42,6 @@ public class SplashController {
 
     public void setStage(Stage stage) {
         this.stage = stage;
-    }
-
-    @FXML
-    protected void initialize(){
-        /*Image img = new Image("gui/sagrada_small_splash.png");
-        ivSplash.setImage(img);
-        ivSplash.setFitWidth(startWidth);
-        ivSplash.setFitHeight(startHeight);*/
-    }
-
-    public void collectDimension(Scene scene){
-        /*scene.widthProperty().addListener(new ChangeListener<Number>() {
-            @Override public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneWidth, Number newSceneWidth) {
-                System.out.println("Width: " + newSceneWidth);
-                currentWidth.set(newSceneWidth.doubleValue());
-                updateDimension(scene);
-
-            }
-        });
-        scene.heightProperty().addListener(new ChangeListener<Number>() {
-            @Override public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneHeight, Number newSceneHeight) {
-                System.out.println("Height: " + newSceneHeight);
-                currentHeight.set(newSceneHeight.doubleValue());
-                updateDimension(scene);
-            }
-        });*/
-    }
-
-    private synchronized void updateDimension(Scene scene){
-        /*Stage stage = (Stage) scene.getWindow();
-        if (currentWidth.get() == null || currentHeight.get() == null) return;
-        Double curWidth = currentWidth.get();
-        Double curHeight = currentHeight.get();
-        Double ratio = startWidth/startHeight;
-        Double widthImposedByHeight = curHeight*ratio;
-        Double heightImposedBywidth = curWidth/ratio;
-        //which is the constrain? height or width?
-        Double desiredWidth = Math.min(widthImposedByHeight, curWidth);
-        Double desiredHeight = Math.min(heightImposedBywidth, curHeight);
-        ivSplash.setFitWidth(desiredWidth);
-        ivSplash.setFitHeight(desiredHeight);*/
     }
 
     public void connect(){

@@ -24,7 +24,7 @@
         </ImageView>
         <VBox fx:id="content" alignment="BOTTOM_CENTER" spacing="10">
             <padding><Insets bottom="35" left="25" right="25" top="25" /></padding>
-            <Text fx:id="msgLabel" text="Welcome" fill="red">
+            <Text fx:id="msgLabel" text="Welcome">
             </Text>
             <HBox alignment="CENTER" spacing="10">
                 <Text text="Insert your NickName" />

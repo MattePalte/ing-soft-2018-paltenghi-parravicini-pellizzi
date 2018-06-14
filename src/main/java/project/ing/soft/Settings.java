@@ -132,7 +132,7 @@ public class Settings {
         return MATRIX_NR_COL;
     }
 
-    public double getMIN_SCREEN_SIZE() {
+    public double getMinScreenSize() {
         return MIN_SCREEN_SIZE;
     }
 

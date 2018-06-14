@@ -36,15 +36,16 @@ import java.util.logging.Logger;
 public class RealView extends UnicastRemoteObject implements IView, IEventHandler, Serializable{
     private IGameModel localCopyOfTheStatus;
     private Player myPlayer;
-    private String ownerNameOfTheView;
+    private final transient String ownerNameOfTheView;
     private transient IController myController;
     private transient String token;
     private boolean stopResponding = false;
-    private MainLayoutController mainBoard;
-    private SplashController splashController;
+    private transient MainLayoutController mainBoard;
+    private transient SplashController splashController;
     private final transient Queue<Event> eventsReceived = new LinkedList<>();
-    private final Stage stage;
+    private final transient Stage stage;
     private final transient Logger log;
+    private final double rateo = 16/9;
 
 
     public RealView(Stage stage, String nick, SplashController splashController) throws RemoteException{
@@ -52,8 +53,8 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         this.stage = stage;
         this.ownerNameOfTheView = nick;
         this.splashController = splashController;
-        startTaskForEventsListening();
         this.log = Logger.getLogger(Objects.toString(this));
+        startTaskForEventsListening();
     }
 
     /**
@@ -113,7 +114,8 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         try {
             root = fxmlLoader.load();
         } catch (IOException e) {
-            log.log(Level.INFO,"Cause: "+e.getCause() + "\n Message " + e.getMessage());
+            printExceptionMsgAndCause(e);
+            return;
         }
 
         Scene scene = new Scene(root);
@@ -144,6 +146,7 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         if (mainBoard != null) {
             mainBoard.respondTo(event);
         }
+        stopResponding = true;
     }
 
     @Override
@@ -154,7 +157,7 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         try {
             root = fxmlLoader.load();
         } catch (IOException e) {
-            log.log(Level.INFO,"Cause: "+e.getCause() + "\n Message " + e.getMessage());
+            printExceptionMsgAndCause(e);
             return;
         }
         // prepare transition
@@ -298,15 +301,19 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
     private void displayError(Exception ex){
         //TODO: display graphical effor messagebox
         ex.printStackTrace();
-        Platform.runLater(new Runnable() {
-            @Override public void run() {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Exeption");
-                alert.setHeaderText("Information Alert");
-                alert.setContentText(ex.getMessage());
-                alert.show();
-            }
-        });
+        Platform.runLater(
+                () -> {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Exeption");
+                    alert.setHeaderText("Information Alert");
+                    alert.setContentText(ex.getMessage());
+                    alert.show();
+                }
+        );
+    }
+
+    private void printExceptionMsgAndCause(Exception e ){
+        log.log(Level.INFO,"Cause: "+e.getCause() + "\n Message " + e.getMessage());
     }
 
     @Override

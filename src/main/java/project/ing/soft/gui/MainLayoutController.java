@@ -5,6 +5,7 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -29,7 +30,6 @@ import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.*;
 import project.ing.soft.model.cards.Constraint;
 import project.ing.soft.model.cards.WindowPattern;
-import project.ing.soft.model.cards.WindowPatternCard;
 import project.ing.soft.model.cards.objectives.publics.PublicObjective;
 import project.ing.soft.model.cards.toolcards.*;
 import project.ing.soft.controller.IController;
@@ -54,50 +54,40 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     private String ownerNameOfTheView;
     private transient IController gameController;
     private transient String token;
-    private boolean stopResponding = false;
     private transient PrintStream out;
-    private ArrayList<WindowPattern> possiblePatterns;
-    private ArrayList<WindowPatternCard> possiblePatternCard;
-    private int currentIndexPatternDisplayed;
     private Stage primaryStage;
 
     //region Constants
     // default configuration for sockets
-    private Map<Colour, String> mapBgColour;
-    private Map<Colour, String> mapDieColour;
-    private final String STORNG_FOCUS = "#f47a42";
-    private final String LIGHT_FOCUS = "#19e4ff";
-    private final String NEUTRAL_BG_COLOR = "#c4c4c4";
-    private final String WHITE = "#fff";
-    private final String CONSTRAIN_TEXT_COLOR = "#b8bab9";
-    private final String FX_BACKGROUND = "-fx-background-color:";
-    private final int NR_TOOLCARD = 3;
-    private double SCREEN_WIDTH;
-    private double CELL_DIMENSION;
-    private double SMALL_CELL_DIMENSION;
+    private static final String FOCUS_BG_COLOR = "#19e4ff";
+    private static final String WHITE = "#fff";
+    private static final String FX_BACKGROUND = "-fx-background-color:";
+    private double screenWidth;
+    private double cellDimension;
+    private double smallCellDimension;
 
-    private final String ID_DRAFTPOOL = "draftPool";
-    private final String ID_MATRIX = "matrixPane";
-    private final String ID_ROUNDTRACKER = "roundtracker";
-    private final String ID_TOOLCARDBOX = "toolcardBox";
-    private final String ID_BOX_VALUE = "valueBox";
-    private final String ID_BOX_ACTION = "main_actions";
-    private final String AREA_IDS[] = {ID_DRAFTPOOL, ID_ROUNDTRACKER, ID_MATRIX, ID_TOOLCARDBOX, ID_BOX_ACTION};
+    private static final String ID_DRAFTPOOL = "draftPool";
+    private static final String ID_MATRIX = "matrixBox";
+    private static final String ID_ROUNDTRACKER = "roundtracker";
+    private static final String ID_TOOLCARDBOX = "toolcardBox";
+    private static final String ID_BOX_VALUE = "valueBox";
+    private static final String ID_BOX_ACTION = "main_actions";
+    private static final String[] AREA_IDS = {ID_DRAFTPOOL, ID_ROUNDTRACKER, ID_MATRIX, ID_TOOLCARDBOX, ID_BOX_ACTION};
     //endregion
 
     //region Retrieving parameters methods
     private transient ExecutorService turnExecutor;
-    private List<Object> parameters = new ArrayList<>();
+    private final transient  List<Object> parameters = new ArrayList<>();
     private transient Future waitingForParameters;
 
-    public void put(Object obj) {
+    private void put(Object obj) {
         synchronized (parameters) {
             parameters.add(obj);
             parameters.notifyAll();
         }
     }
 
-    public Object getObj() throws InterruptedException {
+    private Object getObj() throws InterruptedException {
         synchronized (parameters){
             while (parameters.isEmpty()) parameters.wait();
             Object objRemoved = parameters.remove(0);
@@ -106,7 +96,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         }
     }
 
-    public Coordinate getCoord() throws InterruptedException {
+    private Coordinate getCoord() throws InterruptedException {
         Object obj = null;
         do {
             obj = getObj();
@@ -128,19 +118,19 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         return (Integer) obj;
     }
 
-    public void collectCoordinate(Coordinate coord){
+    private void collectCoordinate(Coordinate coord){
         put(coord);
     }
 
-    public void collectDie(Die die){
+    private void collectDie(Die die){
         put(die);
     }
 
-    public void collectValue(Integer value){
+    private void collectValue(Integer value){
         put(value);
     }
 
-    public void collectToolcardIndex(Integer index) {
+    private void collectToolcardIndex(Integer index) {
         put(index);
     }
 
@@ -149,33 +139,19 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
     @FXML
     protected void initialize(){
-        // Initialize maps for conversion between code and resources
-        mapBgColour = new HashMap<>();
-        mapBgColour.put(Colour.BLUE, "#4286f4");
-        mapBgColour.put(Colour.VIOLET, "#b762fc");
-        mapBgColour.put(Colour.RED, "#fc5067");
-        mapBgColour.put(Colour.GREEN, "#6af278");
-        mapBgColour.put(Colour.YELLOW, "#f5f97a");
-        mapBgColour.put(Colour.WHITE, "#ffffff");
-
-        mapDieColour = new HashMap<>();
-        mapDieColour.put(Colour.BLUE, "#033e9e");
-        mapDieColour.put(Colour.VIOLET, "#4a0284");
-        mapDieColour.put(Colour.RED, "#a80200");
-        mapDieColour.put(Colour.GREEN, "#278431");
-        mapDieColour.put(Colour.YELLOW, "#92961e");
-        mapDieColour.put(Colour.WHITE, "#ffffff");
-
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-        SCREEN_WIDTH = primaryScreenBounds.getWidth();
-        //SCREEN_WIDTH = Settings.instance().getMIN_SCREEN_SIZE();
-        CELL_DIMENSION = SCREEN_WIDTH/30;
-        SMALL_CELL_DIMENSION = CELL_DIMENSION/2;
+        if (Settings.instance().getMinScreenSize() > primaryScreenBounds.getWidth()) {
+            screenWidth = primaryScreenBounds.getWidth();
+        } else {
+            screenWidth = Settings.instance().getMinScreenSize();
+        }
+        cellDimension = screenWidth /30;
+        smallCellDimension = cellDimension /1.5;
 
         mainScrollPane.setMaxHeight(primaryScreenBounds.getHeight());
         mainScrollPane.setMinHeight(primaryScreenBounds.getWidth());
-        roundtrackerScrollPane.setMinHeight(SMALL_CELL_DIMENSION + 30);
-        roundtrackerScrollPane.setMaxHeight(SMALL_CELL_DIMENSION + 30);
+        roundtrackerScrollPane.setMinHeight(smallCellDimension + 30);
+        roundtrackerScrollPane.setMaxHeight(smallCellDimension + 30);
         roundtrackerScrollPane.setFitToWidth(true);
         roundtrackerScrollPane.setFitToHeight(true);
         StyleBooster.forInstructionBox(instructionBox, 5);
@@ -225,7 +201,6 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     @FXML private Text turnlist;
     @FXML private Text instructionTxt;
     @FXML private Pane instructionBox;
-    @FXML private GridPane matrixPane;
 
     // PHASE 2 - ACTIONS
     @FXML private Button btnPlaceDie;
@@ -241,30 +216,23 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     @FXML private Pane imgPrivateObjective;
 
     public MainLayoutController() throws RemoteException {
-
+        super();
     }
 
     //region Event Responding
     @Override
     public void respondTo(ToolcardActionRequestEvent event) {
         // PRE-SETUP
-        initializeButtons();
         endingOperation();
         btnCancel.setDisable(false);
         IToolCardParametersAcquirer myAcquirer = this;
         // CREATE AN ANONYMOUS THREAD WAITING FOR INPUT
         waitingForParameters = turnExecutor.submit(
-                new Runnable() {
-                    private IToolCardParametersAcquirer acquirer;
-                    {
-                        this.acquirer = myAcquirer;
-                    }
-                    @Override
-                    public void run() {
+                () -> {
                         try {
 
                             ToolCard chosenToolCard = event.getCard();
-                            chosenToolCard.fill(acquirer);
+                            chosenToolCard.fill(myAcquirer);
                             gameController.playToolCard(ownerNameOfTheView, chosenToolCard);
                         } catch (InterruptedException e) {
                             displayError(e);
@@ -275,7 +243,6 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                             btnPlayToolCard.setDisable(false);
                         }
                     }
-                }
         );
     }
 
@@ -291,7 +258,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
     @Override
     public void respondTo(FinishedSetupEvent event) {
-        displayPrivateObjective(getPrimaryStage().getScene());
+        displayPrivateObjective();
         displayToolCard(getPrimaryStage().getScene());
         displayPublicCard(getPrimaryStage().getScene());
         synchronized (this) {
@@ -306,19 +273,19 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Final Rank:");
-        String s = "";
+        StringBuilder stringBuilder = new StringBuilder();
         Map<String, String> pointsDescriptor = event.getPointsDescriptor();
         for(Player p : localCopyOfTheStatus.getPlayerList()){
-            s += (pointsDescriptor.get(p.getName()));
+            stringBuilder.append(pointsDescriptor.get(p.getName()));
         }
         for (Pair<Player, Integer> aPair : event.getRank()){
-            s += aPair.getKey().getName() + " => " + aPair.getValue() + "\n";
+            String playerLine = aPair.getKey().getName() + " => " + aPair.getValue() + "\n";
+            stringBuilder.append(playerLine);
             out.println(aPair.getKey() + " => " + aPair.getValue());
         }
-        alert.setHeaderText(s);
+        alert.setHeaderText(stringBuilder.toString());
         alert.show();
-        out.println(s);
-        stopResponding = true;
+        out.println(stringBuilder.toString());
     }
 
     @Override
@@ -334,7 +301,9 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         if(endTurn != null) {
             long initialValue = endTurn.getTime() - System.currentTimeMillis();
             DoubleProperty time = new SimpleDoubleProperty(initialValue);
+            timeout.setStyle("-fx-accent: " + FOCUS_BG_COLOR +";");
             timeout.progressProperty().bind(time.divide(Settings.instance().getTURN_TIMEOUT()));
+
             timeLine.getKeyFrames().add(new KeyFrame(Duration.millis(initialValue), new KeyValue(time, 0)));
             timeLine.play();
         }
@@ -357,11 +326,13 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         displayOtherPlayerSituation(primaryStage.getScene());
         drawDraftPool();
         drawRoundTracker();
-        initializeButtons();
         disableAll();
         if (localCopyOfTheStatus.getFavours().get(ownerNameOfTheView) != null) {
             int favoursLeft = localCopyOfTheStatus.getFavours().get(ownerNameOfTheView);
-            favourField.setText(String.valueOf(favoursLeft));
+            String oneFavour = " * ";
+            favourField.setText(
+                    new String(new char[favoursLeft]).replace("\0", oneFavour));
+            favourField.setStyle("-fx-font-size: 20px;");
         }
     }
 
@@ -371,9 +342,14 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         out.println("Timeeeer");
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Timer expired");
-        String s ="Turn finished";
+        String s ="I'm sorry, you have finished your time...";
         alert.setHeaderText(s);
         alert.show();
+        synchronized (this) {
+            btnCancel.setDisable(true);
+            timeout.progressProperty().bind(new SimpleDoubleProperty(0));
+            instructionTxt.setText("");
+        }
     }
     //endregion
 
@@ -391,62 +367,18 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     //region Draw Things
 
     private synchronized void drawMySituation() {
-        WindowPattern wndPtrn = null;
-        Die[][] placedDie = null;
-        Constraint[][] constraints = null;
         // get stuff of the owner of the view
-        for (Player p : localCopyOfTheStatus.getPlayerList()) {
-            if (p.getName().equals(ownerNameOfTheView)) {
-                wndPtrn = p.getPattern();
-                placedDie = p.getPlacedDice();
-            }
-        }
+        WindowPattern wndPtrn = myPlayer.getPattern();
+        Die[][] placedDie = myPlayer.getPlacedDice();
         // if no pattern setted yet -> draw nothing
         if (wndPtrn == null) return;
-        constraints = wndPtrn.getConstraintsMatrix();
         Scene scene = getPrimaryStage().getScene();
         // print die and constraint
-        for (int row = 0 ; row < wndPtrn.getHeight(); row++) {
-            for (int col = 0 ; col < wndPtrn.getWidth(); col++) {
-                Button currentCell = (Button) scene.lookup("#pos" + row + col);
-                Die currentDie = placedDie[row][col];
-                Constraint constraint = constraints[row][col];
-                if (currentDie == null ) {
-                    if (!constraint.getImgPath().equals("")) {
-                        Image image = new Image(constraint.getImgPath());
-                        ImageView bg = new ImageView(image);
-                        bg.setFitHeight(CELL_DIMENSION);
-                        bg.setFitWidth(CELL_DIMENSION);
-                        bg.setPreserveRatio(true);
-                        bg.setSmooth(true);
-                        bg.setCache(true);
-                        currentCell.setGraphic(bg);
-                    } else {
-                        ImageView bg = new ImageView();
-                        bg.setFitHeight(CELL_DIMENSION);
-                        bg.setFitWidth(CELL_DIMENSION);
-                        currentCell.setGraphic(bg);
-
-                    }
-                    currentCell.setStyle(FX_BACKGROUND + mapBgColour.get(constraint.getColour()));
-                } else {
-                    if (!currentDie.getImgPath().equals("")) {
-                        Image image = new Image(currentDie.getImgPath());
-                        ImageView bg = new ImageView(image);
-                        bg.setFitHeight(CELL_DIMENSION);
-                        bg.setFitWidth(CELL_DIMENSION);
-                        bg.setPreserveRatio(true);
-                        bg.setSmooth(true);
-                        bg.setCache(true);
-                        currentCell.setGraphic(bg);
-                    }
-                    currentCell.setStyle(FX_BACKGROUND + mapBgColour.get(constraint.getColour()));
-                }
-            }
-        }
-
-
-
+        Pane matrixContainer = (Pane) scene.lookup("#" + ID_MATRIX);
+        GridPane matrixPane = ElementCreator.createClickablePattern(wndPtrn, placedDie, (int) cellDimension, "pos");
+        matrixContainer.getChildren().clear();
+        matrixContainer.getChildren().add(0, matrixPane);
+        initializeMatrixButtons(matrixPane, "pos");
     }
     private synchronized void drawDraftPool() {
         Scene scene = getPrimaryStage().getScene();
@@ -458,14 +390,14 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
             // Create Image
             Image image = new Image(currentDie.getImgPath());
             ImageView bg = new ImageView(image);
-            bg.setFitHeight(SMALL_CELL_DIMENSION);
-            bg.setFitWidth(SMALL_CELL_DIMENSION);
+            bg.setFitHeight(smallCellDimension);
+            bg.setFitWidth(smallCellDimension);
             bg.setPreserveRatio(true);
             bg.setSmooth(true);
             bg.setCache(true);
             // Create Button
             Button currentCell = new Button();
-            paneDraft.add(currentCell, pos,0);
+            paneDraft.add(currentCell, pos/5,pos%5);
             currentCell.setGraphic(bg);
             currentCell.setStyle(FX_BACKGROUND + WHITE);
             currentCell.setOnAction(new EventHandler<ActionEvent>() {
@@ -505,21 +437,21 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         RoundTracker roundTracker = localCopyOfTheStatus.getRoundTracker();
         // Draw round number and turn list
         roundnumber.setText("Round nr: " + roundTracker.getCurrentRound());
-        String listOfTurn = "";
+        StringBuilder listOfTurn = new StringBuilder();
         for (Player p : localCopyOfTheStatus.getCurrentTurnList()) {
-            listOfTurn += p.getName() + " > ";
+            listOfTurn.append(p.getName());
+            listOfTurn.append(" > ");
         }
         if (roundTracker.getCurrentRound() < Settings.instance().getNrOfRound()) {
-            listOfTurn += "round " + (roundTracker.getCurrentRound() + 1);
+            listOfTurn.append("round ");
+            listOfTurn.append(roundTracker.getCurrentRound() + 1);
         } else {
-            listOfTurn += "end";
+            listOfTurn.append("end ");
         }
-        turnlist.setText(listOfTurn);
+        turnlist.setText(listOfTurn.toString());
         // Draw content of the roundtracker
         Scene scene = getPrimaryStage().getScene();
         GridPane paneRoundTracker = (GridPane) scene.lookup("#" + ID_ROUNDTRACKER);
-        //roundtrackerScrollPane = new ScrollPane(paneRoundTracker);
-        //roundtrackerScrollPane.setFitToWidth(true);
         List<Die> diceLeft = roundTracker.getDiceLeftFromRound();
         paneRoundTracker.getChildren().clear();
         for (int pos = 0 ; pos < diceLeft.size(); pos++) {
@@ -529,8 +461,8 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
             // Create Image
             Image image = new Image(currentDie.getImgPath());
             ImageView bg = new ImageView(image);
-            bg.setFitHeight(SMALL_CELL_DIMENSION);
-            bg.setFitWidth(SMALL_CELL_DIMENSION);
+            bg.setFitHeight(smallCellDimension);
+            bg.setFitWidth(smallCellDimension);
             bg.setPreserveRatio(true);
             bg.setSmooth(true);
             bg.setCache(true);
@@ -547,20 +479,18 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                 }
             });
         }
-        //roundtrackerScrollPane.setContent(paneRoundTracker);
     }
-    private synchronized void displayPrivateObjective(Scene scene) {
-        ImageView ivPrivateObj = ElementCreator.createCard(myPlayer.getPrivateObjective(), (int) SCREEN_WIDTH/6);
-        System.out.println(imgPrivateObjective.getId());
+    private synchronized void displayPrivateObjective() {
+        ImageView ivPrivateObj = ElementCreator.createCard(myPlayer.getPrivateObjective(), getPrimaryStage());
         imgPrivateObjective.getChildren().add(0, ivPrivateObj);
-        imgPrivateObjective.setMaxHeight(SCREEN_WIDTH/6);
+        imgPrivateObjective.setMaxHeight(screenWidth /6);
         StyleBooster.forObjectiveCard(imgPrivateObjective, 5);
     }
     private synchronized void displayToolCard(Scene scene) {
         List<ToolCard> tCard = localCopyOfTheStatus.getToolCards();
         for (int index = 0; index<3; index++) {
             ToolCard currentTool = tCard.get(index);
-            ImageView iv = ElementCreator.createCard(currentTool, (int) SCREEN_WIDTH/6);
+            ImageView iv = ElementCreator.createCard(currentTool, getPrimaryStage());
             Pane pane = (Pane) scene.lookup("#toolcard" + index);
             pane.getChildren().add(0, iv);
             StyleBooster.forToolCardCard(pane, 7);
@@ -575,8 +505,9 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         }
     }
     private synchronized void displayOtherPlayerSituation(Scene scene) {
+        if (localCopyOfTheStatus == null) return;
         List<Player> listOfPlayer = localCopyOfTheStatus.getPlayerList();
-        if (localCopyOfTheStatus == null || listOfPlayer == null) return;
+        if (listOfPlayer == null) return;
         Pane area = (Pane) scene.lookup("#otherPlayersArea");
         for (int index = 0; index < listOfPlayer.size(); index++){
             Player p = listOfPlayer.get(index);
@@ -605,7 +536,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         List<PublicObjective> pubCard = localCopyOfTheStatus.getPublicObjective();
         for (int index = 0; index<3; index++) {
             PublicObjective currentPub = pubCard.get(index);
-            ImageView iv = ElementCreator.createCard(currentPub, (int) SCREEN_WIDTH/6);
+            ImageView iv = ElementCreator.createCard(currentPub, getPrimaryStage());
             Pane pane = (Pane) scene.lookup("#publicCard" + index);
             pane.getChildren().add(0, iv);
             StyleBooster.forObjectiveCard(pane, 7);
@@ -626,27 +557,17 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
     public void btnPlaceDieOnCLick() throws Exception {
         // PRE-SETUP
-        initializeButtons();
         endingOperation();
         synchronized (this) {
             btnCancel.setDisable(false);
         }
-        IToolCardParametersAcquirer myAcquirer = this;
         // CREATE AN ANONYMOUS THREAD WAITING FOR INPUT
         waitingForParameters = turnExecutor.submit(
-                new Runnable() {
-                    private IToolCardParametersAcquirer acquirer;
-                    {
-                        this.acquirer = myAcquirer;
-                    }
-                    @Override
-                    public void run() {
+                () -> {
                         try {
                             Coordinate chosenCoord = getCoordinate("Choose a position to place the Die");
                             Die chosenDie = getDieFromDraft("Chose a die to place");
                             disableAll();
-                            System.out.println("owner name : " + getOwnerNameOfTheView());
-                            System.out.println("gameController : " + gameController);
                             gameController.placeDie(getOwnerNameOfTheView(), chosenDie, chosenCoord.getRow(), chosenCoord.getCol());
                         } catch (InterruptedException e) {
                             out.println( getTime() + " - " + "Interrupted place die of " + ownerNameOfTheView);
@@ -657,13 +578,11 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                             enableActions();
                         }
                     }
-                }
         );
     }
 
     public void btnPlayToolCardOnCLick() throws Exception {
         // PRE-SETUP
-        initializeButtons();
         endingOperation();
         synchronized (this) {
             btnCancel.setDisable(false);
@@ -671,18 +590,12 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         IToolCardParametersAcquirer myAcquirer = this;
         // CREATE AN ANONYMOUS THREAD WAITING FOR INPUT
         waitingForParameters = turnExecutor.submit(
-                new Runnable() {
-                    private IToolCardParametersAcquirer acquirer;
-                    {
-                        this.acquirer = myAcquirer;
-                    }
-                    @Override
-                    public void run() {
+                () -> {
                         try {
                             showPickToolCardIndex("Choose a toolcard to use");
                             Integer chosenIndex = getValue();
                             ToolCard chosenToolCard = localCopyOfTheStatus.getToolCards().get(chosenIndex);
-                            chosenToolCard.fill(acquirer);
+                            chosenToolCard.fill(myAcquirer);
                             gameController.playToolCard(ownerNameOfTheView, chosenToolCard);
                         } catch (InterruptedException e) {
                             out.println("Interrupted play toolcard of " + ownerNameOfTheView);
@@ -693,7 +606,6 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                             enableActions();
                         }
                     }
-                }
         );
     }
 
@@ -706,22 +618,21 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     }
     public void btnEndTurnOnCLick() throws Exception {
         endingOperation();
-        btnCancel.setDisable(true);
-        timeout.progressProperty().bind(new SimpleDoubleProperty(0));
-        gameController.endTurn(ownerNameOfTheView);
         synchronized (this) {
+            btnCancel.setDisable(true);
+            timeout.progressProperty().bind(new SimpleDoubleProperty(0));
             instructionTxt.setText("");
         }
+        gameController.endTurn(ownerNameOfTheView);
     }
     //endregion
 
-    public synchronized void initializeButtons(){
-        Scene scene = getPrimaryStage().getScene();
-        StyleBooster.forPatternCard(matrixPane, 3);
+    private synchronized void initializeMatrixButtons(GridPane matrixPane, String prefixTag){
+        StyleBooster.forPatternCard(matrixPane, 15);
         // set button of pattern
         for (int row = 0; row < Settings.instance().getMATRIX_NR_ROW(); row++) {
             for (int col = 0; col < Settings.instance().getMATRIX_NR_COL(); col++) {
-                Button currentCell = (Button) scene.lookup("#pos" + row + col);
+                Button currentCell = (Button) matrixPane.lookup("#" + prefixTag + row + col);
                 int finalRow = row;
                 int finalCol = col;
                 currentCell.setOnAction(new EventHandler<ActionEvent>() {
@@ -740,13 +651,12 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         Scene scene = getPrimaryStage().getScene();
         Pane pane = (Pane) scene.lookup("#" + idPane);
         if (isFocused) {
-            //TODO: implement CSS class change
-            pane.setStyle(FX_BACKGROUND + LIGHT_FOCUS);
+            pane.setStyle(FX_BACKGROUND + FOCUS_BG_COLOR);
             for (Node n : pane.getChildren()) {
                 n.setDisable(false);
             }
         } else {
-            pane.setStyle(FX_BACKGROUND + NEUTRAL_BG_COLOR);
+            pane.setStyle("");
             for (Node n : pane.getChildren()) {
                 n.setDisable(true);
             }
@@ -766,13 +676,13 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         focus(idPane, false);
     }
 
-    public synchronized void disableAll(){
+    private synchronized void disableAll(){
         for (String id : AREA_IDS) {
             focusOff(id);
         }
     }
 
-    public synchronized void enableOnly(String idPane, String message) {
+    private synchronized void enableOnly(String idPane, String message) {
         for (String id : AREA_IDS) {
             if (id.equals(idPane)) {
                 focusOn(id, message);
@@ -782,7 +692,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         }
     }
 
-    public synchronized void enableActions(){
+    private synchronized void enableActions(){
         btnPlaceDie.setDisable(false);
         btnEndTurn.setDisable(false);
         btnPlayToolCard.setDisable(false);
@@ -793,7 +703,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
 
     //region Possile View Interface
-    public synchronized void showPickValues(String message, Integer... values) {
+    private synchronized void showPickValues(String message, Integer... values) {
         Platform.runLater(new Runnable() {
             @Override public void run() {
                 FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/gui/layout/chose_value.fxml"));
@@ -802,6 +712,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                     root1 = (Parent) fxmlLoader.load();
                 } catch (IOException e) {
                     e.printStackTrace();
+                    return;
                 }
                 fxmlLoader.setController(this);
                 Stage stage = new Stage();
@@ -812,7 +723,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
             }
         });
     }
-    public synchronized void showPickToolCardIndex(String message) {
+    private synchronized void showPickToolCardIndex(String message) {
         enableOnly(ID_TOOLCARDBOX, message);
     }
     //endregion
@@ -853,15 +764,14 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     private void displayError(Exception ex){
         //TODO: display graphical effor messagebox
         ex.printStackTrace();
-        Platform.runLater(new Runnable() {
-            @Override public void run() {
+        Platform.runLater(() -> {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Exeption");
                 alert.setHeaderText("Information Alert");
                 alert.setContentText(ex.getMessage());
                 alert.show();
             }
-        });
+        );
     }
 
 }
