@@ -7,7 +7,6 @@ import project.ing.soft.model.Die;
 import project.ing.soft.model.Pair;
 import project.ing.soft.model.Player;
 import project.ing.soft.model.cards.Card;
-import project.ing.soft.model.cards.WindowPattern;
 import project.ing.soft.model.cards.toolcards.*;
 import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.gamemodel.IGameModel;
@@ -26,6 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
 
 
 public class ClientViewCLI extends UnicastRemoteObject
@@ -198,7 +198,7 @@ public class ClientViewCLI extends UnicastRemoteObject
     }
 
     //region operations
-    private void endTurnOperation()  throws Exception {
+    private void endTurnOperation() throws Exception {
         controller.endTurn(ownerNameOfTheView);
         Thread.currentThread().interrupt();
     }
@@ -295,6 +295,7 @@ public class ClientViewCLI extends UnicastRemoteObject
         out.saveCursorPosition();
         out.setCursorPosition(0,0);
         float percentage = (float)(expectedEndTurn.getTime() - System.currentTimeMillis())/Settings.instance().getTURN_TIMEOUT();
+        percentage = Float.max(percentage, 0);
         out.print( String.format( String.format("[%%-%ds]", PROGRESS_BAR_LENGTH), new String(new char[(int) (PROGRESS_BAR_LENGTH * percentage)]).replace("\0", "=")));
         out.restoreCursorPosition();
     }
