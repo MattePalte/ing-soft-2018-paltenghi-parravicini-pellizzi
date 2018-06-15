@@ -10,14 +10,14 @@ import project.ing.soft.model.Player;
 public class DarkShades extends PublicObjective {
 
     /**
-     * DarkShades constructor. It takes information about the specific objective from
+     * DARK_SHADES constructor. It takes information about the specific objective from
      * class Settings
      */
     public DarkShades(){
-        super(  Settings.ObjectivesProperties.DarkShades.getTitle(),
-                Settings.ObjectivesProperties.DarkShades.getDescription(),
-                Settings.ObjectivesProperties.DarkShades.getPoints(),
-                Settings.ObjectivesProperties.DarkShades.getPath());
+        super(  Settings.ObjectivesProperties.DARK_SHADES.getTitle(),
+                Settings.ObjectivesProperties.DARK_SHADES.getDescription(),
+                Settings.ObjectivesProperties.DARK_SHADES.getPoints(),
+                Settings.ObjectivesProperties.DARK_SHADES.getPath());
     }
 
     /**

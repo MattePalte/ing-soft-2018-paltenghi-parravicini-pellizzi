@@ -9,10 +9,10 @@ import java.util.Arrays;
 public class RowShadeVariety extends PublicObjective {
 
     public RowShadeVariety(){
-        super(  Settings.ObjectivesProperties.RowShadeVariety.getTitle(),
-                Settings.ObjectivesProperties.RowShadeVariety.getDescription(),
-                Settings.ObjectivesProperties.RowShadeVariety.getPoints(),
-                Settings.ObjectivesProperties.RowShadeVariety.getPath());
+        super(  Settings.ObjectivesProperties.ROW_SHADE_VARIETY.getTitle(),
+                Settings.ObjectivesProperties.ROW_SHADE_VARIETY.getDescription(),
+                Settings.ObjectivesProperties.ROW_SHADE_VARIETY.getPoints(),
+                Settings.ObjectivesProperties.ROW_SHADE_VARIETY.getPath());
     }
 
     public int checkCondition(Player window) {

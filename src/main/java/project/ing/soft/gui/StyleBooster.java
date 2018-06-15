@@ -2,7 +2,6 @@ package project.ing.soft.gui;
 
 import javafx.geometry.Insets;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 
 class StyleBooster {
 

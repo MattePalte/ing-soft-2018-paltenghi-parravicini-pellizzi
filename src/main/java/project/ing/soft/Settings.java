@@ -1,7 +1,6 @@
 package project.ing.soft;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import javafx.scene.paint.Color;
 
 import java.io.*;
@@ -18,21 +17,21 @@ public class Settings {
     private String host;
     private String defaultIpForRMI;
     // CLI settings
-    private int TEXT_CARD_WIDTH;
-    private int TEXT_CARD_HEIGHT;
+    private int textCardWidth;
+    private int textCardHeight;
     // GUI settings
-    private int MATRIX_NR_ROW;
-    private int MATRIX_NR_COL;
-    private double MIN_SCREEN_SIZE;
-    private int CELL_DIMENSION;
-    private int CARD_HEIGHT;
-    private Color BG_SCENE_COLOR;
+    private int matrixNrRow;
+    private int matrixNrCol;
+    private double minScreenSize;
+    private int cellDimension;
+    private int cardHeight;
+    private Color bgSceneColor;
 
-    private boolean GAME_START_TIMEOUT_ENABLED;
-    private boolean TURN_TIMEOUT_ENABLED;
-    private long TURN_TIMEOUT;
-    private long GAME_START_TIMEOUT;
-    private long SYNCH_TIME ;
+    private boolean gameStartTimeoutEnabled;
+    private boolean turnTimeoutEnabled;
+    private long turnTimeout;
+    private long gameStartTimeout;
+    private long synchTime;
 
     private String tokenProperty;
     private Level defaultLoggingLevel;
@@ -67,33 +66,31 @@ public class Settings {
             while (scanner.hasNextLine()) {
                 sb.append(scanner.nextLine());
             }
-            //System.out.println("Settings content -> " + sb.toString());
             internalInstance = gson.fromJson(sb.toString(), Settings.class);
-            //System.out.println("Settings loaded -> " + internalInstance);
         }
         return internalInstance;
     }
 
     //region getter
 
-    public long getSYNCH_TIME(){
-        return SYNCH_TIME;
+    public long getSynchTime(){
+        return synchTime;
     }
 
-    public boolean isTURN_TIMEOUT_ENABLED(){
-        return TURN_TIMEOUT_ENABLED;
+    public boolean isTurnTimeoutEnabled(){
+        return turnTimeoutEnabled;
     }
 
     public boolean isGameStartTimeoutEnabled() {
-        return GAME_START_TIMEOUT_ENABLED;
+        return gameStartTimeoutEnabled;
     }
 
-    public long getTURN_TIMEOUT() {
-        return TURN_TIMEOUT;
+    public long getTurnTimeout() {
+        return turnTimeout;
     }
 
     public long getGameStartTimeout() {
-        return GAME_START_TIMEOUT;
+        return gameStartTimeout;
     }
 
     public int getNrPlayersOfNewMatch() {
@@ -116,36 +113,36 @@ public class Settings {
         return defaultIpForRMI;
     }
 
-    public int getTEXT_CARD_WIDTH() {
-        return TEXT_CARD_WIDTH;
+    public int getTextCardWidth() {
+        return textCardWidth;
     }
 
-    public int getTEXT_CARD_HEIGHT() {
-        return TEXT_CARD_HEIGHT;
+    public int getTextCardHeight() {
+        return textCardHeight;
     }
 
-    public int getMATRIX_NR_ROW() {
-        return MATRIX_NR_ROW;
+    public int getMatrixNrRow() {
+        return matrixNrRow;
     }
 
-    public int getMATRIX_NR_COL() {
-        return MATRIX_NR_COL;
+    public int getMatrixNrCol() {
+        return matrixNrCol;
     }
 
     public double getMinScreenSize() {
-        return MIN_SCREEN_SIZE;
+        return minScreenSize;
     }
 
-    public int getCELL_DIMENSION() {
-        return CELL_DIMENSION;
+    public int getCellDimension() {
+        return cellDimension;
     }
 
-    public int getCARD_HEIGHT() {
-        return CARD_HEIGHT;
+    public int getCardHeight() {
+        return cardHeight;
     }
 
-    public Color getBG_SCENE_COLOR() {
-        return BG_SCENE_COLOR;
+    public Color getBgSceneColor() {
+        return bgSceneColor;
     }
 
     public Level getDefaultLoggingLevel() {
@@ -172,21 +169,21 @@ public class Settings {
 
     public enum ObjectivesProperties{
 
-        ShadesOfRed("Shades Of Red", "Sum of values of red dice", "objectives/private/30%/objectives-13.png", 1),
-        ShadesOfBlue("Shades Of Blue", "Sum of values of blue dice", "objectives/private/30%/objectives-16.png", 1),
-        ShadesOfPurple("Shades Of Purple", "Sum of values of violet dice", "objectives/private/30%/objectives-17.png", 1),
-        ShadesOfYellow("Shades Of Yellow", "Sum of values of yellow dice", "objectives/private/30%/objectives-14.png", 1),
-        ShadesOfGreen("Shades Of Green", "Sum of values of green dice", "objectives/private/30%/objectives-15.png", 1),
-        ColourVariety("Colour Variety", "Sets of pieces of each colour", "objectives/public/30%/objectives-11.png", 4),
-        RowColourVariety("Row Colour Variety", "Rows with no repeated colours", "objectives/public/30%/objectives-2.png", 6),
-        ColumnColourVariety("Column Colour Variety", "Columns with no repeated colours", "objectives/public/30%/objectives-3.png", 5),
-        Diagonals("Diagonals", "2 or more pieces of the same colour placed on a diagonal", "objectives/public/30%/objectives-10.png", 1),
-        ShadeVariety("Shade Variety", "Sets of pieces of each shade", "objectives/public/30%/objectives-9.png", 5),
-        RowShadeVariety("Row Shade Variety", "Rows with no repeated shades", "objectives/public/30%/objectives-4.png", 5),
-        ColumnShadeVariety("Column Shade Variety", "Columns with no repeated shades", "objectives/public/30%/objectives-5.png", 4),
-        LightShades("Light Shades", "Sets of (1,2)", "objectives/public/30%/objectives-6.png", 2),
-        MediumShades("Medium Shades", "Sets of (3,4)", "objectives/public/30%/objectives-7.png", 2),
-        DarkShades("Dark Shades", "Sets of (5,6)", "objectives/public/30%/objectives-8.png", 2);
+        SHADES_OF_RED("Shades Of Red", "Sum of values of red dice", "objectives/private/30%/objectives-13.png", 1),
+        SHADES_OF_BLUE("Shades Of Blue", "Sum of values of blue dice", "objectives/private/30%/objectives-16.png", 1),
+        SHADES_OF_PURPLE("Shades Of Purple", "Sum of values of violet dice", "objectives/private/30%/objectives-17.png", 1),
+        SHADES_OF_YELLOW("Shades Of Yellow", "Sum of values of yellow dice", "objectives/private/30%/objectives-14.png", 1),
+        SHADES_OF_GREEN("Shades Of Green", "Sum of values of green dice", "objectives/private/30%/objectives-15.png", 1),
+        COLOUR_VARIETY("Colour Variety", "Sets of pieces of each colour", "objectives/public/30%/objectives-11.png", 4),
+        ROW_COLOUR_VARIETY("Row Colour Variety", "Rows with no repeated colours", "objectives/public/30%/objectives-2.png", 6),
+        COLUMN_COLOUR_VARIETY("Column Colour Variety", "Columns with no repeated colours", "objectives/public/30%/objectives-3.png", 5),
+        DIAGONALS("Diagonals", "2 or more pieces of the same colour placed on a diagonal", "objectives/public/30%/objectives-10.png", 1),
+        SHADE_VARIETY("Shade Variety", "Sets of pieces of each shade", "objectives/public/30%/objectives-9.png", 5),
+        ROW_SHADE_VARIETY("Row Shade Variety", "Rows with no repeated shades", "objectives/public/30%/objectives-4.png", 5),
+        COLUMN_SHADE_VARIETY("Column Shade Variety", "Columns with no repeated shades", "objectives/public/30%/objectives-5.png", 4),
+        LIGHT_SHADES("Light Shades", "Sets of (1,2)", "objectives/public/30%/objectives-6.png", 2),
+        MEDIUM_SHADES("Medium Shades", "Sets of (3,4)", "objectives/public/30%/objectives-7.png", 2),
+        DARK_SHADES("Dark Shades", "Sets of (5,6)", "objectives/public/30%/objectives-8.png", 2);
 
         private String title;
         private String description;

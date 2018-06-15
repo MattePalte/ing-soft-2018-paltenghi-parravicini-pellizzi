@@ -294,7 +294,7 @@ public class ClientViewCLI extends UnicastRemoteObject
 
         out.saveCursorPosition();
         out.setCursorPosition(0,0);
-        float percentage = (float)(expectedEndTurn.getTime() - System.currentTimeMillis())/Settings.instance().getTURN_TIMEOUT();
+        float percentage = (float)(expectedEndTurn.getTime() - System.currentTimeMillis())/Settings.instance().getTurnTimeout();
         percentage = Float.max(percentage, 0);
         out.print( String.format( String.format("[%%-%ds]", PROGRESS_BAR_LENGTH), new String(new char[(int) (PROGRESS_BAR_LENGTH * percentage)]).replace("\0", "=")));
         out.restoreCursorPosition();

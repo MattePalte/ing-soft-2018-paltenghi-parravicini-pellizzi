@@ -13,14 +13,14 @@ import java.util.*;
 public class Diagonals extends PublicObjective {
 
     /**
-     * Diagonals constructor. It takes information about the specific objective from
+     * DIAGONALS constructor. It takes information about the specific objective from
      * class Settings
      */
     public Diagonals(){
-        super(  Settings.ObjectivesProperties.Diagonals.getTitle(),
-                Settings.ObjectivesProperties.Diagonals.getDescription(),
-                Settings.ObjectivesProperties.Diagonals.getPoints(),
-                Settings.ObjectivesProperties.Diagonals.getPath());
+        super(  Settings.ObjectivesProperties.DIAGONALS.getTitle(),
+                Settings.ObjectivesProperties.DIAGONALS.getDescription(),
+                Settings.ObjectivesProperties.DIAGONALS.getPoints(),
+                Settings.ObjectivesProperties.DIAGONALS.getPath());
     }
 
     /**

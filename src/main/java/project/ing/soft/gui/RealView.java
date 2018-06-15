@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
@@ -45,7 +46,6 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
     private final transient Queue<Event> eventsReceived = new LinkedList<>();
     private final transient Stage stage;
     private final transient Logger log;
-    private final double rateo = 16/9;
 
 
     public RealView(Stage stage, String nick, SplashController splashController) throws RemoteException{
@@ -120,7 +120,6 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
 
         Scene scene = new Scene(root);
         MainLayoutController mainLayoutController = fxmlLoader.getController();
-        mainLayoutController.setOut(System.out);
         mainLayoutController.setOwnerNameOfTheView(ownerNameOfTheView);
         mainLayoutController.setStage(stage);
         mainLayoutController.setToken(token);
@@ -228,7 +227,7 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
     @Override
     public void respondTo(SetTokenEvent event) {
         this.token = event.getToken();
-        System.out.println("TOKEN -> " + event.getToken());
+        log.log(Level.INFO,"TOKEN -> " + event.getToken());
         splashController.notifyConnectionEnstablished(event.getToken());
     }
 
@@ -243,7 +242,6 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         }
         Scene scene = new Scene(root);
         MainLayoutController mainLayoutController = fxmlLoader.getController();
-        mainLayoutController.setOut(System.out);
         mainLayoutController.setOwnerNameOfTheView(ownerNameOfTheView);
         mainLayoutController.setStage(stage);
         mainLayoutController.setToken(token);
@@ -277,7 +275,7 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
 
     @Override
     public void update(Event event) throws IOException {
-        System.out.println( "Real View - " + ownerNameOfTheView + " ha ricevuto un evento :" + event);
+        log.log(Level.INFO,getClass().getName() + " received an event :" + event);
 
         if (!stopResponding) {
             synchronized (eventsReceived) {
@@ -299,8 +297,8 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
 
 
     private void displayError(Exception ex){
-        //TODO: display graphical effor messagebox
-        ex.printStackTrace();
+        String stack = Arrays.toString(ex.getStackTrace());
+        log.log(Level.INFO, stack);
         Platform.runLater(
                 () -> {
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -324,7 +322,7 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
 
         RealView realView = (RealView) o;
 
-        if (
+        return  !(
                 (stopResponding != realView.stopResponding) ||
                 (localCopyOfTheStatus != null ? !localCopyOfTheStatus.equals(realView.localCopyOfTheStatus) : realView.localCopyOfTheStatus != null) ||
                 (myPlayer != null ? !myPlayer.equals(realView.myPlayer) : realView.myPlayer != null) ||
@@ -335,9 +333,7 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
                 (!eventsReceived.equals(realView.eventsReceived)) ||
                 (stage != null ? !stage.equals(realView.stage) : realView.stage != null) ||
                 !(log != null ? log.equals(realView.log) : realView.log == null)
-            )
-            return false;
-        return true;
+            );
     }
 
     @Override

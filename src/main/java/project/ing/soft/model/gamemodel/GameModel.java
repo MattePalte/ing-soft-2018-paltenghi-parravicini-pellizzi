@@ -327,7 +327,7 @@ public class GameModel implements IGameModel, Serializable {
 
         drawDice();
         broadcastEvents(new FinishedSetupEvent(), new ModelChangedEvent(new GameModel(this)));
-        currentPlayerEndTime = new Timestamp(System.currentTimeMillis() + Settings.instance().getTURN_TIMEOUT());
+        currentPlayerEndTime = new Timestamp(System.currentTimeMillis() + Settings.instance().getTurnTimeout());
         getCurrentPlayer().update( new MyTurnStartedEvent(currentPlayerEndTime));
     }
 
@@ -413,7 +413,7 @@ public class GameModel implements IGameModel, Serializable {
         Player nextPlayer = getCurrentPlayer();
 
         broadcastEvents(new ModelChangedEvent(new GameModel(this)));
-        currentPlayerEndTime = new Timestamp(System.currentTimeMillis() + Settings.instance().getTURN_TIMEOUT());
+        currentPlayerEndTime = new Timestamp(System.currentTimeMillis() + Settings.instance().getTurnTimeout());
         nextPlayer.update(new MyTurnStartedEvent(currentPlayerEndTime));
     }
 

@@ -9,14 +9,14 @@ import project.ing.soft.model.Colour;
 public class ShadesOfGreen extends PrivateObjective {
 
     /**
-     * ShadesOfGreen constructor. It takes information about the specific objective from
+     * SHADES_OF_GREEN constructor. It takes information about the specific objective from
      * class Settings
      */
     public ShadesOfGreen(){
-        super(  Settings.ObjectivesProperties.ShadesOfGreen.getTitle(),
-                Settings.ObjectivesProperties.ShadesOfGreen.getDescription(),
-                Settings.ObjectivesProperties.ShadesOfGreen.getPath(),
-                Settings.ObjectivesProperties.ShadesOfGreen.getPoints(),
+        super(  Settings.ObjectivesProperties.SHADES_OF_GREEN.getTitle(),
+                Settings.ObjectivesProperties.SHADES_OF_GREEN.getDescription(),
+                Settings.ObjectivesProperties.SHADES_OF_GREEN.getPath(),
+                Settings.ObjectivesProperties.SHADES_OF_GREEN.getPoints(),
                 Colour.GREEN);
     }
 

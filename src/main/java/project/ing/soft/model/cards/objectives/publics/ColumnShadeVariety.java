@@ -12,14 +12,14 @@ import java.util.Arrays;
 public class ColumnShadeVariety extends PublicObjective {
 
     /**
-     * ColumnShadeVariety constructor. It takes information about the specific objective from
+     * COLUMN_SHADE_VARIETY constructor. It takes information about the specific objective from
      * class Settings
      */
     public ColumnShadeVariety(){
-        super(  Settings.ObjectivesProperties.ColumnShadeVariety.getTitle(),
-                Settings.ObjectivesProperties.ColumnShadeVariety.getDescription(),
-                Settings.ObjectivesProperties.ColumnShadeVariety.getPoints(),
-                Settings.ObjectivesProperties.ColumnShadeVariety.getPath());
+        super(  Settings.ObjectivesProperties.COLUMN_SHADE_VARIETY.getTitle(),
+                Settings.ObjectivesProperties.COLUMN_SHADE_VARIETY.getDescription(),
+                Settings.ObjectivesProperties.COLUMN_SHADE_VARIETY.getPoints(),
+                Settings.ObjectivesProperties.COLUMN_SHADE_VARIETY.getPath());
     }
 
     /**

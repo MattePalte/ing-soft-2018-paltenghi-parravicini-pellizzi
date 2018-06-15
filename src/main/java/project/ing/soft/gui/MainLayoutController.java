@@ -5,7 +5,6 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.Property;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -28,7 +27,6 @@ import javafx.util.Duration;
 import project.ing.soft.Settings;
 import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.*;
-import project.ing.soft.model.cards.Constraint;
 import project.ing.soft.model.cards.WindowPattern;
 import project.ing.soft.model.cards.objectives.publics.PublicObjective;
 import project.ing.soft.model.cards.toolcards.*;
@@ -37,16 +35,16 @@ import project.ing.soft.model.gamemodel.events.*;
 import project.ing.soft.model.gamemodel.IGameModel;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MainLayoutController extends UnicastRemoteObject implements IEventHandler, IToolCardParametersAcquirer,  Serializable{
     private IGameModel localCopyOfTheStatus;
@@ -54,8 +52,8 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     private String ownerNameOfTheView;
     private transient IController gameController;
     private transient String token;
-    private transient PrintStream out;
     private Stage primaryStage;
+    private final transient Logger log = Logger.getLogger(Objects.toString(this));
 
     //region Constants
     // default configuration for sockets
@@ -168,9 +166,6 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     public Stage getPrimaryStage() {
         return primaryStage;
     }
-    public void setOut(PrintStream out) {
-        this.out = out;
-    }
     public void setOwnerNameOfTheView(String ownerNameOfTheView) {
         this.ownerNameOfTheView = ownerNameOfTheView;
     }
@@ -236,7 +231,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                             gameController.playToolCard(ownerNameOfTheView, chosenToolCard);
                         } catch (InterruptedException e) {
                             displayError(e);
-                            out.println("Interrupted play toolcard of " + ownerNameOfTheView);
+                            log.log(Level.INFO,"Interrupted play toolcard of " + ownerNameOfTheView);
                             Thread.currentThread().interrupt();
                         } catch (Exception e) {
                             displayError(e);
@@ -269,7 +264,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
     @Override
     public void respondTo(GameFinishedEvent event) {
-        out.println("Game finished!");
+        log.log(Level.INFO,"Game finished!");
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Final Rank:");
@@ -281,11 +276,12 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         for (Pair<Player, Integer> aPair : event.getRank()){
             String playerLine = aPair.getKey().getName() + " => " + aPair.getValue() + "\n";
             stringBuilder.append(playerLine);
-            out.println(aPair.getKey() + " => " + aPair.getValue());
+            log.log(Level.INFO,aPair.getKey() + " => " + aPair.getValue());
         }
-        alert.setHeaderText(stringBuilder.toString());
+        String str = stringBuilder.toString();
+        alert.setHeaderText(str);
         alert.show();
-        out.println(stringBuilder.toString());
+        log.log(Level.INFO, str);
     }
 
     @Override
@@ -302,7 +298,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
             long initialValue = endTurn.getTime() - System.currentTimeMillis();
             DoubleProperty time = new SimpleDoubleProperty(initialValue);
             timeout.setStyle("-fx-accent: " + FOCUS_BG_COLOR +";");
-            timeout.progressProperty().bind(time.divide(Settings.instance().getTURN_TIMEOUT()));
+            timeout.progressProperty().bind(time.divide(Settings.instance().getTurnTimeout()));
 
             timeLine.getKeyFrames().add(new KeyFrame(Duration.millis(initialValue), new KeyValue(time, 0)));
             timeLine.play();
@@ -321,7 +317,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
             }
         }
         // Draw other things
-        out.println("gestione di model changed");
+        log.log(Level.INFO,getClass().getName() + " is handling model changed event");
         drawMySituation();
         displayOtherPlayerSituation(primaryStage.getScene());
         drawDraftPool();
@@ -339,7 +335,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     @Override
     public void respondTo(MyTurnEndedEvent event) {
         endingOperation();
-        out.println("Timeeeer");
+        log.log(Level.INFO,"Timeeeer event happened");
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Timer expired");
         String s ="I'm sorry, you have finished your time...";
@@ -518,7 +514,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
             playerBox.setAlignment(Pos.CENTER);
             StyleBooster.forPatternCard(playerBox, 10);
             // Create GridPane for pattern Card
-            GridPane playerPattern = ElementCreator.createPattern(p.getPattern(), p.getPlacedDice(), Settings.instance().getCELL_DIMENSION());
+            GridPane playerPattern = ElementCreator.createPattern(p.getPattern(), p.getPlacedDice(), Settings.instance().getCellDimension());
             // Add elements
             playerBox.getChildren().add(0,txtPlayerName);
             playerBox.getChildren().add(0,playerPattern);
@@ -546,11 +542,6 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
     //region IView interface
 
-    private String getTime() {
-        Calendar c = Calendar.getInstance(); //automatically set to current time
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-        return dateFormat.format(c.getTime());
-    }
     //endregion
 
     //region Fixed Button Handling
@@ -570,7 +561,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                             disableAll();
                             gameController.placeDie(getOwnerNameOfTheView(), chosenDie, chosenCoord.getRow(), chosenCoord.getCol());
                         } catch (InterruptedException e) {
-                            out.println( getTime() + " - " + "Interrupted place die of " + ownerNameOfTheView);
+                            log.log(Level.INFO,"Interrupted place die of " + ownerNameOfTheView);
                             Thread.currentThread().interrupt();
                         } catch (Exception e) {
                             displayError(e);
@@ -598,7 +589,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                             chosenToolCard.fill(myAcquirer);
                             gameController.playToolCard(ownerNameOfTheView, chosenToolCard);
                         } catch (InterruptedException e) {
-                            out.println("Interrupted play toolcard of " + ownerNameOfTheView);
+                            log.log(Level.INFO,"Interrupted play toolcard of " + ownerNameOfTheView);
                             Thread.currentThread().interrupt();
                         } catch (Exception e) {
                             displayError(e);
@@ -609,29 +600,34 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         );
     }
 
-    public void btnCancelOnCLick() throws Exception{
+    public void btnCancelOnCLick() {
         endingOperation();
         enableActions();
         synchronized (this) {
             instructionTxt.setText("");
         }
     }
-    public void btnEndTurnOnCLick() throws Exception {
+    public void btnEndTurnOnCLick() {
         endingOperation();
         synchronized (this) {
             btnCancel.setDisable(true);
             timeout.progressProperty().bind(new SimpleDoubleProperty(0));
             instructionTxt.setText("");
         }
-        gameController.endTurn(ownerNameOfTheView);
+        try {
+            gameController.endTurn(ownerNameOfTheView);
+        } catch (Exception e) {
+            log.log(Level.INFO, getClass().getName() + " -> Cause: "+e.getCause() + "\n Message " + e.getMessage());
+            log.log(Level.INFO, Arrays.toString(e.getStackTrace()));
+        }
     }
     //endregion
 
     private synchronized void initializeMatrixButtons(GridPane matrixPane, String prefixTag){
         StyleBooster.forPatternCard(matrixPane, 15);
         // set button of pattern
-        for (int row = 0; row < Settings.instance().getMATRIX_NR_ROW(); row++) {
-            for (int col = 0; col < Settings.instance().getMATRIX_NR_COL(); col++) {
+        for (int row = 0; row < Settings.instance().getMatrixNrRow(); row++) {
+            for (int col = 0; col < Settings.instance().getMatrixNrCol(); col++) {
                 Button currentCell = (Button) matrixPane.lookup("#" + prefixTag + row + col);
                 int finalRow = row;
                 int finalCol = col;
@@ -711,7 +707,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                 try {
                     root1 = (Parent) fxmlLoader.load();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.log(Level.INFO, Arrays.toString(e.getStackTrace()));
                     return;
                 }
                 fxmlLoader.setController(this);
@@ -762,8 +758,8 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     }
 
     private void displayError(Exception ex){
-        //TODO: display graphical effor messagebox
-        ex.printStackTrace();
+        String stack = Arrays.toString(ex.getStackTrace());
+        log.log(Level.INFO, stack);
         Platform.runLater(() -> {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Exeption");

@@ -2,7 +2,6 @@ package project.ing.soft.gui;
 
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
@@ -22,6 +21,9 @@ import project.ing.soft.controller.IController;
 import project.ing.soft.view.IView;
 
 import java.rmi.Naming;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class SplashController {
 
@@ -29,6 +31,7 @@ public class SplashController {
     @FXML ImageView ivSplash;
 
     private Stage stage;
+    private  final Logger log = Logger.getLogger(Objects.toString(this));
 
     @FXML private Text msgLabel;
     @FXML private TextField txtName;
@@ -40,6 +43,13 @@ public class SplashController {
     @FXML private Pane content;
     @FXML private ToggleGroup connectionTypeGroup;
 
+    private static final String INFO_1_ACCESS_POINT_RMI = "1) AccessPoint reference obtained";
+    private static final String INFO_1_ACCESS_POINT_SOCKET = "1) AccessPoint Proxy created and connected";
+    private static final String INFO_2_VIEW_CREATED = "2) view object created in BackGround";
+    private static final String INFO_3_CONTROLLER_LINKED = "3) controller given to the view";
+    private static final String INFO_SERVER_ERROR_RMI = "x) Probably the server is down (no remote object or no registry)";
+    private static final String INFO_SERVER_ERROR_SOCKET = "x) Probably the server is down";
+
     public void setStage(Stage stage) {
         this.stage = stage;
     }
@@ -48,7 +58,7 @@ public class SplashController {
         String nick = txtName.getText();
         RadioButton selectedOption = (RadioButton) connectionTypeGroup.getSelectedToggle();
         String chosenType = selectedOption.getText();
-        System.out.println("connect with -> " + selectedOption.getText());
+        log.log(Level.INFO,"connect with -> {0}", selectedOption.getText());
         if (chosenType.toLowerCase().contains("rmi")) {
             connectRMI(nick);
         } else {
@@ -60,7 +70,7 @@ public class SplashController {
         String token = txtToken.getText();
         RadioButton selectedOption = (RadioButton) connectionTypeGroup.getSelectedToggle();
         String chosenType = selectedOption.getText();
-        System.out.println("reconnect with -> " + selectedOption.getText());
+        log.log(Level.INFO,"reconnect with -> {0}",  selectedOption.getText());
         if (chosenType.toLowerCase().contains("rmi")) {
             reconnectRMI(nick, token);
         } else {
@@ -72,14 +82,14 @@ public class SplashController {
         String nick = txtName.getText();
         Text msg = new Text("You are now connected with the nick: " + nick);
         Text tokenLbl = new Text("This is your token for reconnection: ");
-        TextField txtToken = new TextField();
-        txtToken.setText(token);
-        txtToken.setEditable(false);
+        TextField txtWithNewToken = new TextField();
+        txtWithNewToken.setText(token);
+        txtWithNewToken.setEditable(false);
         content.setPadding(new Insets(50,50,100,50));
         content.getChildren().clear();
         content.getChildren().add(msg);
         content.getChildren().add(tokenLbl);
-        content.getChildren().add(txtToken);
+        content.getChildren().add(txtWithNewToken);
     }
 
     private int getPort(){
@@ -106,7 +116,7 @@ public class SplashController {
     private boolean validIP(String ip) {
         try {
             String[] parts = ip.split( "\\." );
-            if ( ip == null || ip.isEmpty() || parts.length != 4 || ip.endsWith(".")) {
+            if ( ip.isEmpty() || parts.length != 4 || ip.endsWith(".")) {
                 return false;
             }
             for ( String s : parts ) {
@@ -130,39 +140,37 @@ public class SplashController {
         try {
             accessPoint = (IAccessPoint)Naming.lookup( Settings.instance().getRemoteRmiApName());
 
-            System.out.println("1) AccessPoint reference obtained");
+            log.log(Level.INFO, INFO_1_ACCESS_POINT_RMI);
             IView realView = new RealView(stage, nick, this);
-            System.out.println("2) view object created in BackGround");
+            log.log(Level.INFO, INFO_2_VIEW_CREATED);
             IController gameController = accessPoint.connect(nick, realView);
             realView.attachController(gameController);
-            System.out.println("3) controller given to the view");
+            log.log(Level.INFO, INFO_3_CONTROLLER_LINKED);
         } catch (NickNameAlreadyTakenException ex){
-            System.out.println("x) " + ex.getMessage());
+            log.log(Level.INFO,"x) " + ex.getMessage());
             msgLabel.setText(ex.getMessage());
         } catch (Exception ex) {
-            System.out.println("x) Probably the server is down (no remote object or no registry)");
+            log.log(Level.INFO, INFO_SERVER_ERROR_RMI);
             msgLabel.setText(ex.getMessage());
-            return;
         }
     }
 
     private void connectSocket(String nick){
         IAccessPoint accessPoint = null;
         accessPoint = new APProxySocket(getIP(), getPort());
-        System.out.println("1) AccessPoint Proxy created and connected");
+        log.log(Level.INFO, INFO_1_ACCESS_POINT_SOCKET);
         try {
             IView realView = new RealView(stage, nick, this);
-            System.out.println("2) view object created in BackGround");
+            log.log(Level.INFO, INFO_2_VIEW_CREATED);
             IController gameController = accessPoint.connect(nick, realView);
             realView.attachController(gameController);
-            System.out.println("3) controller given to the view");
+            log.log(Level.INFO, INFO_3_CONTROLLER_LINKED);
         } catch (NickNameAlreadyTakenException ex){
-            System.out.println("x) " + ex.getMessage());
+            log.log(Level.INFO,"x) " + ex.getMessage());
             msgLabel.setText(ex.getMessage());
         } catch (Exception ex) {
-            System.out.println("x) Probably the server is down");
+            log.log(Level.INFO, INFO_SERVER_ERROR_SOCKET);
             msgLabel.setText(ex.getMessage());
-            return;
         }
     }
 
@@ -171,39 +179,37 @@ public class SplashController {
         try {
             accessPoint = (IAccessPoint) Naming.lookup(Settings.instance().getRemoteRmiApName());
 
-            System.out.println("1) AccessPoint reference obtained");
+            log.log(Level.INFO, INFO_1_ACCESS_POINT_RMI);
             IView realView = new RealView(stage, nick, this);
-            System.out.println("2) view object created in BackGround");
+            log.log(Level.INFO, INFO_2_VIEW_CREATED);
             IController gameController = accessPoint.reconnect(nick, token, realView);
             realView.attachController(gameController);
-            System.out.println("3) controller given to the view");
+            log.log(Level.INFO, INFO_3_CONTROLLER_LINKED);
         } catch (ActionNotPermittedException | CodeInvalidException ex){
-            System.out.println("x) " + ex.getMessage());
+            log.log(Level.INFO,"x) " + ex.getMessage());
             msgLabel.setText(ex.getMessage());
         } catch (Exception ex) {
-            System.out.println("x) Probably the server is down (no remote object or no registry)");
+            log.log(Level.INFO, INFO_SERVER_ERROR_RMI);
             msgLabel.setText(ex.getMessage());
-            return;
         }
     }
 
     private void reconnectSocket(String nick, String token){
         IAccessPoint accessPoint = null;
         accessPoint = new APProxySocket(getIP(), getPort());
-        System.out.println("1) AccessPoint Proxy created and connected");
+        log.log(Level.INFO, INFO_1_ACCESS_POINT_SOCKET);
         try {
             IView realView = new RealView(stage, nick, this);
-            System.out.println("2) view object created in BackGround");
+            log.log(Level.INFO, INFO_2_VIEW_CREATED);
             IController gameController = accessPoint.reconnect(nick, token, realView);
             realView.attachController(gameController);
-            System.out.println("3) controller given to the view");
+            log.log(Level.INFO, INFO_3_CONTROLLER_LINKED);
         } catch (ActionNotPermittedException | CodeInvalidException ex){
-            System.out.println("x) " + ex.getMessage());
+            log.log(Level.INFO,"x) " + ex.getMessage());
             msgLabel.setText(ex.getMessage());
         } catch (Exception ex) {
-            System.out.println("x) Probably the server is down");
+            log.log(Level.INFO, INFO_SERVER_ERROR_SOCKET);
             msgLabel.setText(ex.getMessage());
-            return;
         }
     }
 

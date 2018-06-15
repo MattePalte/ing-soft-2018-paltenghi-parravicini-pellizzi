@@ -12,12 +12,17 @@ import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
 import java.io.IOException;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Main class of the GUI. It extends Application class of JavaFX
  */
 
 public class GuiBackgroundApp extends Application {
+
+    private  final Logger    log = Logger.getLogger(Objects.toString(this));
 
     /**
      * Method that is automatically called during startup.
@@ -33,7 +38,7 @@ public class GuiBackgroundApp extends Application {
         try {
             root = fxmlLoader.load();
         } catch (IOException e) {
-            System.out.println(" BackGroundApp -> Cause: "+e.getCause() + "\n Message " + e.getMessage());
+            log.log(Level.INFO, getClass().getName() + " -> Cause: "+e.getCause() + "\n Message " + e.getMessage());
             return;
         }
         // prepare transition

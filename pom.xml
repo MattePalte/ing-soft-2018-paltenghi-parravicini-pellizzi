@@ -4,7 +4,7 @@
 
     <groupId>provaGr</groupId>
     <artifactId>ing-soft-2018-paltenghi-parravicini-pellizzi</artifactId>
-    <version>1.1</version>
+    <version>1.11</version>
 
     <build>
         <plugins>
@@ -27,7 +27,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>project.ing.soft.LaunchClientCli</mainClass>
+                            <mainClass>project.ing.soft.LaunchClientGui</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

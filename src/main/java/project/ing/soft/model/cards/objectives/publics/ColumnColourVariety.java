@@ -13,14 +13,14 @@ import java.util.Arrays;
 public class ColumnColourVariety extends PublicObjective {
 
     /**
-     * ColumnColourVariety constructor. It takes information about the specific objective from
+     * COLUMN_COLOUR_VARIETY constructor. It takes information about the specific objective from
      * class Settings
      */
     public ColumnColourVariety(){
-        super(  Settings.ObjectivesProperties.ColumnColourVariety.getTitle(),
-                Settings.ObjectivesProperties.ColumnColourVariety.getDescription(),
-                Settings.ObjectivesProperties.ColumnColourVariety.getPoints(),
-                Settings.ObjectivesProperties.ColumnColourVariety.getPath());
+        super(  Settings.ObjectivesProperties.COLUMN_COLOUR_VARIETY.getTitle(),
+                Settings.ObjectivesProperties.COLUMN_COLOUR_VARIETY.getDescription(),
+                Settings.ObjectivesProperties.COLUMN_COLOUR_VARIETY.getPoints(),
+                Settings.ObjectivesProperties.COLUMN_COLOUR_VARIETY.getPath());
     }
 
     /**

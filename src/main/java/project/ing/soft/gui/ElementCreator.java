@@ -7,7 +7,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import project.ing.soft.Settings;
@@ -29,8 +28,8 @@ class ElementCreator {
         gPane.setHgap(10);
         gPane.setAlignment(Pos.CENTER);
         // Create cells
-        for (int row = 0; row < Settings.instance().getMATRIX_NR_ROW(); row++) {
-            for (int col = 0; col < Settings.instance().getMATRIX_NR_COL(); col++) {
+        for (int row = 0; row < Settings.instance().getMatrixNrRow(); row++) {
+            for (int col = 0; col < Settings.instance().getMatrixNrCol(); col++) {
                 Constraint constraint = pattern.getConstraintsMatrix()[row][col];
                 ImageView bg;
                 if (constraint != null && constraint.getImgPath() != "") {
@@ -61,7 +60,6 @@ class ElementCreator {
         Image img = new Image(card.getImgPath());
         ImageView iv = new ImageView(img);
         iv.setImage(img);
-        //iv.setFitHeight(height);
         iv.fitHeightProperty().bind(stage.heightProperty().multiply(0.25));
         iv.setPreserveRatio(true);
         iv.setSmooth(true);
@@ -75,8 +73,8 @@ class ElementCreator {
     static GridPane createPattern(WindowPattern pattern, Die[][] placedDie, int cellDimension){
         GridPane pane = createPattern(pattern, cellDimension);
         // Create cells
-        for (int row = 0; row < Settings.instance().getMATRIX_NR_ROW(); row++) {
-            for (int col = 0; col < Settings.instance().getMATRIX_NR_COL(); col++) {
+        for (int row = 0; row < Settings.instance().getMatrixNrRow(); row++) {
+            for (int col = 0; col < Settings.instance().getMatrixNrCol(); col++) {
                 if (placedDie[row][col] == null) continue;
                 Die currentDie = placedDie[row][col];
                 Image image = new Image(currentDie.getImgPath());
@@ -100,8 +98,8 @@ class ElementCreator {
         gPane.setAlignment(Pos.CENTER);
         Constraint[][] constraints = pattern.getConstraintsMatrix();
         // Create cells
-        for (int row = 0; row < Settings.instance().getMATRIX_NR_ROW(); row++) {
-            for (int col = 0; col < Settings.instance().getMATRIX_NR_COL(); col++) {
+        for (int row = 0; row < Settings.instance().getMatrixNrRow(); row++) {
+            for (int col = 0; col < Settings.instance().getMatrixNrCol(); col++) {
                 Constraint constraint = constraints[row][col];
                 Button currentCell = new Button();
                 currentCell.setId(prefixTag + row + col);

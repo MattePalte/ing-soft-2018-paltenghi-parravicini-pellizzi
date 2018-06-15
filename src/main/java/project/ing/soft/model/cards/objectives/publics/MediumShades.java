@@ -10,14 +10,14 @@ import project.ing.soft.model.Player;
 public class MediumShades extends PublicObjective{
 
     /**
-     * MediumShades constructor. It takes information about the specific objective from
+     * MEDIUM_SHADES constructor. It takes information about the specific objective from
      * class Settings
      */
     public MediumShades(){
-        super(  Settings.ObjectivesProperties.MediumShades.getTitle(),
-                Settings.ObjectivesProperties.MediumShades.getDescription(),
-                Settings.ObjectivesProperties.MediumShades.getPoints(),
-                Settings.ObjectivesProperties.MediumShades.getPath());
+        super(  Settings.ObjectivesProperties.MEDIUM_SHADES.getTitle(),
+                Settings.ObjectivesProperties.MEDIUM_SHADES.getDescription(),
+                Settings.ObjectivesProperties.MEDIUM_SHADES.getPoints(),
+                Settings.ObjectivesProperties.MEDIUM_SHADES.getPath());
     }
 
     /**

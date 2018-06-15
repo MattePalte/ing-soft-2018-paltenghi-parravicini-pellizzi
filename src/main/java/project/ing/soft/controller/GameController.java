@@ -309,11 +309,11 @@ public class GameController implements IController {
      * Method used to reset the timer for turns timeout
      */
     private void resetTurnEndAndStartTimer(){
-        if(Settings.instance().isTURN_TIMEOUT_ENABLED()) {
+        if(Settings.instance().isTurnTimeoutEnabled()) {
             turnEnded.set(false);
             //set true the
             endTimeoutTask = buildTurnTimeoutTask();
-            timer.schedule(endTimeoutTask, Settings.instance().getTURN_TIMEOUT());
+            timer.schedule(endTimeoutTask, Settings.instance().getTurnTimeout());
         }
     }
 

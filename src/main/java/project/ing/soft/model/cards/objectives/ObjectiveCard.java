@@ -75,7 +75,7 @@ public abstract class ObjectiveCard implements Serializable, Card{
 
     @Override
     public String toString() {
-        StringBoxBuilder aBuilder = new StringBoxBuilder(new StringBoxBuilder.DOUBLELINESQUAREANGLE(),Settings.instance().getTEXT_CARD_WIDTH(), Settings.instance().getTEXT_CARD_HEIGHT());
+        StringBoxBuilder aBuilder = new StringBoxBuilder(new StringBoxBuilder.DOUBLELINESQUAREANGLE(),Settings.instance().getTextCardWidth(), Settings.instance().getTextCardHeight());
         aBuilder.appendInAboxToTop(getTitle());
         aBuilder.appendToTop(getDescription());
         aBuilder.prependInAboxToBottom("Punti: "+ getPoints());

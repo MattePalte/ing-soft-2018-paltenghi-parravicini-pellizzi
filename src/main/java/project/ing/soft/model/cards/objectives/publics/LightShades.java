@@ -10,14 +10,14 @@ import project.ing.soft.model.Player;
 public class LightShades extends PublicObjective {
 
     /**
-     * LightShades constructor. It takes information about the specific objective from
+     * LIGHT_SHADES constructor. It takes information about the specific objective from
      * class Settings
      */
     public LightShades(){
-        super(  Settings.ObjectivesProperties.LightShades.getTitle(),
-                Settings.ObjectivesProperties.LightShades.getDescription(),
-                Settings.ObjectivesProperties.LightShades.getPoints(),
-                Settings.ObjectivesProperties.LightShades.getPath());
+        super(  Settings.ObjectivesProperties.LIGHT_SHADES.getTitle(),
+                Settings.ObjectivesProperties.LIGHT_SHADES.getDescription(),
+                Settings.ObjectivesProperties.LIGHT_SHADES.getPoints(),
+                Settings.ObjectivesProperties.LIGHT_SHADES.getPath());
     }
 
     /**

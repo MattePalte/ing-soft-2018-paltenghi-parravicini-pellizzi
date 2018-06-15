@@ -18,7 +18,11 @@ import project.ing.soft.model.cards.objectives.privates.PrivateObjective;
 import project.ing.soft.model.gamemodel.events.PatternCardDistributedEvent;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class ChoosePatternController {
@@ -28,6 +32,7 @@ public class ChoosePatternController {
     private Stage stage;
     private PatternCardDistributedEvent event;
     private PrivateObjective privObj;
+    private  final Logger log = Logger.getLogger(Objects.toString(this));
 
     @FXML private Text txtTitle;
     @FXML private VBox frontFirst;
@@ -63,10 +68,6 @@ public class ChoosePatternController {
      * It add to the title the nick name of current player
      */
     public void renderThings(){
-        /*Image img = new Image("gui/sagrada_small_splash.png");
-        ivSplash.setImage(img);
-        ivSplash.setFitWidth(startWidth);
-        ivSplash.setFitHeight(startHeight);*/
         txtTitle.setText(nick + " choose a pattern");
         populate(frontFirst, event.getOne().getFrontPattern());
         populate(rearFirst, event.getOne().getRearPattern());
@@ -86,17 +87,14 @@ public class ChoosePatternController {
             possiblePatternCard.add(event.getOne());
             possiblePatternCard.add(event.getTwo());
             for (WindowPatternCard c : possiblePatternCard) {
-                if (c.getFrontPattern() == pattern) {
-                    gameController.choosePattern(nick, c, false);
-                    break;
-                }
-                if (c.getRearPattern() == pattern) {
-                    gameController.choosePattern(nick, c, true);
+                if (c.getFrontPattern() == pattern || c.getRearPattern() == pattern) {
+                    gameController.choosePattern(nick, c, c.getRearPattern() == pattern);
                     break;
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            String stack = Arrays.toString(e.getStackTrace());
+            log.log(Level.INFO, stack);
         }
     }
 
@@ -113,7 +111,7 @@ public class ChoosePatternController {
             img = new Image("objectives/private/30%/objectives-12.png");
         }
         imgPrivateObjective.setImage(img);
-        imgPrivateObjective.setFitHeight(Settings.instance().getCARD_HEIGHT());
+        imgPrivateObjective.setFitHeight(Settings.instance().getCardHeight());
         imgPrivateObjective.setPreserveRatio(true);
         imgPrivateObjective.setSmooth(true);
         imgPrivateObjective.setCache(true);
@@ -142,7 +140,7 @@ public class ChoosePatternController {
         Text txtFavour = new Text();
         txtFavour.setText("Favour: "+pattern.getDifficulty());
         // Create GridPane for pattern Card
-        GridPane gridPattern = ElementCreator.createPattern(pattern, Settings.instance().getCELL_DIMENSION());
+        GridPane gridPattern = ElementCreator.createPattern(pattern, Settings.instance().getCellDimension());
         // Add new element to box
         vBox.getChildren().add(gridPattern);
         vBox.getChildren().add(txtFavour);

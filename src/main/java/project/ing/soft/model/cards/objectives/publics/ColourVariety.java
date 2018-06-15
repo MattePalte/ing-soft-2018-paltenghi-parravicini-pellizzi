@@ -13,14 +13,14 @@ import java.util.*;
 public class ColourVariety extends PublicObjective {
 
     /**
-     * ColourVariety constructor. It takes information about the specific objective from
+     * COLOUR_VARIETY constructor. It takes information about the specific objective from
      * class Settings
      */
     public ColourVariety(){
-        super(  Settings.ObjectivesProperties.ColourVariety.getTitle(),
-                Settings.ObjectivesProperties.ColourVariety.getDescription(),
-                Settings.ObjectivesProperties.ColourVariety.getPoints(),
-                Settings.ObjectivesProperties.ColourVariety.getPath());
+        super(  Settings.ObjectivesProperties.COLOUR_VARIETY.getTitle(),
+                Settings.ObjectivesProperties.COLOUR_VARIETY.getDescription(),
+                Settings.ObjectivesProperties.COLOUR_VARIETY.getPoints(),
+                Settings.ObjectivesProperties.COLOUR_VARIETY.getPath());
     }
 
     /**
