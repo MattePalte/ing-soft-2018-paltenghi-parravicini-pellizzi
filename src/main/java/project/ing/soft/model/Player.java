@@ -596,10 +596,10 @@ public class Player implements Serializable{
      * @param myView player's new view reference
      */
     public void reconnectView(IView myView){
-        isConnected = true;
         if(this.myView != null)
             ((Thread) this.myView).interrupt();
         this.myView = myView;
+        isConnected = true;
     }
 
     //endregion

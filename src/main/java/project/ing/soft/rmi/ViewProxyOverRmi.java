@@ -111,7 +111,6 @@ public class ViewProxyOverRmi extends Thread implements IView {
             controllerOverRmi = null;
 
         }
-        super.interrupt();
     }
 
 

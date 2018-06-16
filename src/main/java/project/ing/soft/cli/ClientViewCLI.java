@@ -16,6 +16,7 @@ import project.ing.soft.controller.IController;
 import project.ing.soft.view.IView;
 
 import java.io.*;
+import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.Timestamp;
@@ -221,7 +222,9 @@ public class ClientViewCLI extends UnicastRemoteObject
                 done = true;
             } catch (UserInterruptActionException ex) {
                 out.println("The game can't start until you select a window pattern");
-
+            } catch(NoSuchObjectException e){
+                displayError(e);
+                break;
             } catch (Exception e) {
                 displayError(e);
             }
@@ -296,7 +299,7 @@ public class ClientViewCLI extends UnicastRemoteObject
         out.setCursorPosition(0,0);
         float percentage = (float)(expectedEndTurn.getTime() - System.currentTimeMillis())/Settings.instance().getTurnTimeout();
         percentage = Float.max(percentage, 0);
-        out.print( String.format( String.format("[%%-%ds]", PROGRESS_BAR_LENGTH), new String(new char[(int) (PROGRESS_BAR_LENGTH * percentage)]).replace("\0", "=")));
+        out.println( String.format( String.format("[%%-%ds]", PROGRESS_BAR_LENGTH), new String(new char[(int) (PROGRESS_BAR_LENGTH * percentage)]).replace("\0", "=")));
         out.restoreCursorPosition();
     }
 
