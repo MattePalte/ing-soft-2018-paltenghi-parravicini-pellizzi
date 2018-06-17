@@ -40,7 +40,7 @@ public class FluxBrushSecondPart implements IToolCardState, Serializable {
             apply(p, m);
 
             ctx.setState(new FluxBrushFirstPart());
-            p.update(new ModelChangedEvent(m.copy()));
+            p.update(new ModelChangedEvent(m.copy(p)));
             p.update(new MyTurnStartedEvent());
         }catch (Exception ex){
             throw new ToolCardApplicationException(ex);

@@ -211,7 +211,7 @@ public class ClientViewCLI extends UnicastRemoteObject
                 out.println("This is your private objective: ");
                 out.println(event.getMyPrivateObjective());
                 WindowPatternCard aCard = (WindowPatternCard) chooseFrom(
-                        new ArrayList<>(Arrays.asList(event.getOne(), event.getOne()))
+                        new ArrayList<>(Arrays.asList(event.getOne(), event.getTwo()))
                 );
                 int isFront = chooseIndexFrom(
                         new ArrayList<>(Arrays.asList(aCard.getFrontPattern(), aCard.getRearPattern()))

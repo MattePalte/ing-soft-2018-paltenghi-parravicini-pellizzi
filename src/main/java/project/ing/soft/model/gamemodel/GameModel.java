@@ -111,11 +111,14 @@ public class GameModel implements IGameModel, Serializable {
     }
 
     //Copy constructor
-    private GameModel(GameModel from){
+    private GameModel(GameModel from, Player recipient){
         from.logger.log(Level.INFO, "A game manager was cloned from this");
         this.logger             = Logger.getAnonymousLogger();
         this.logger.setLevel(Settings.instance().getDefaultLoggingLevel());
         this.currentGame        = new Game(from.currentGame);
+        for(Player p : this.currentGame.getPlayers())
+            if(!p.getName().equals(recipient.getName()))
+                p.setPrivateObjective(null);
         this.diceBag            = new ArrayList<> (from.diceBag);
         this.draftPool          = new ArrayList<> (from.draftPool);
         this.roundTracker       = new RoundTracker(from.roundTracker);
@@ -123,7 +126,10 @@ public class GameModel implements IGameModel, Serializable {
         this.toolCards          = new ArrayList<> (from.toolCards);
         this.currentTurnList    = new ArrayList<>();
         for(Player p : from.currentTurnList){
-            this.currentTurnList.add(new Player(p));
+            Player toAdd = new Player(p);
+            if(!toAdd.getName().equals(recipient.getName()))
+                toAdd.setPrivateObjective(null);
+            this.currentTurnList.add(toAdd);
         }
         this.toolCardCost       = new HashMap<>   (from.toolCardCost);
         this.favours            = new HashMap<>   (from.favours);
@@ -133,8 +139,8 @@ public class GameModel implements IGameModel, Serializable {
     }
     //
     @Override
-    public IGameModel copy(){
-        return new GameModel(this);
+    public IGameModel copy(Player recipient){
+        return new GameModel(this, recipient);
     }
 
     //region Getter
@@ -270,7 +276,7 @@ public class GameModel implements IGameModel, Serializable {
         logger.log(Level.INFO, "Setup phase started");
         //distribute event for selecting a WindowPatternCard
         for(Player p : getPlayerList()) {
-            p.update(   new ModelChangedEvent(new GameModel(this)),
+            p.update(   new ModelChangedEvent(new GameModel(this, p)),
                         new PatternCardDistributedEvent(p.getPrivateObjective(), p.getPossiblePatternCard().get(0), p.getPossiblePatternCard().get(1)));
 
         }
@@ -326,14 +332,14 @@ public class GameModel implements IGameModel, Serializable {
         setStatus(GAME_MANAGER_STATUS.ONGOING);
 
         drawDice();
-        broadcastEvents(new FinishedSetupEvent(), new ModelChangedEvent(new GameModel(this)));
+        currentGame.getPlayers().forEach(p -> p.update(new FinishedSetupEvent(), new ModelChangedEvent(new GameModel(this, p))));
         currentPlayerEndTime = new Timestamp(System.currentTimeMillis() + Settings.instance().getTurnTimeout());
         getCurrentPlayer().update( new MyTurnStartedEvent(currentPlayerEndTime));
     }
 
     @Override
     public void requestUpdate() {
-        broadcastEvents( new ModelChangedEvent( new GameModel(this)));
+        currentGame.getPlayers().forEach(p -> p.update(new ModelChangedEvent(new GameModel(this, p))));
     }
 
     private void broadcastEvents(Event ... events){
@@ -352,7 +358,7 @@ public class GameModel implements IGameModel, Serializable {
         getCurrentPlayer().placeDie(aDie,rowIndex,colIndex, true);
         removeFromDraft(aDie);
 
-        getCurrentPlayer().update(new ModelChangedEvent(new GameModel(this)), new MyTurnStartedEvent());
+        getCurrentPlayer().update(new ModelChangedEvent(new GameModel(this, getCurrentPlayer())), new MyTurnStartedEvent());
 
     }
 
@@ -412,7 +418,7 @@ public class GameModel implements IGameModel, Serializable {
         aToolcardUsedDuringThisTurn = false;
         Player nextPlayer = getCurrentPlayer();
 
-        broadcastEvents(new ModelChangedEvent(new GameModel(this)));
+        currentGame.getPlayers().forEach(p -> p.update(new ModelChangedEvent(new GameModel(this, p))));
         currentPlayerEndTime = new Timestamp(System.currentTimeMillis() + Settings.instance().getTurnTimeout());
         nextPlayer.update(new MyTurnStartedEvent(currentPlayerEndTime));
     }

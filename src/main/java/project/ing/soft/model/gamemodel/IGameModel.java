@@ -110,7 +110,7 @@ public interface IGameModel extends Serializable {
     void endTurn(boolean timeoutOccurred) throws GameInvalidException;
     void reconnectPlayer(String playerName, IView view);
     void disconnectPlayer(String playerToDisconnect);
-    IGameModel copy();
+    IGameModel copy(Player recipient);
 
 
     enum GAME_MANAGER_STATUS{

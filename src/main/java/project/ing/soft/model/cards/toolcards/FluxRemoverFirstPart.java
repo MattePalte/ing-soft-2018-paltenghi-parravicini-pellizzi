@@ -38,7 +38,7 @@ public class FluxRemoverFirstPart implements IToolCardState, Serializable {
             m.payToolCard(ctx);
 
             ctx.setState(new FluxRemoverSecondPart(toBePlaced));
-            p.update(new ModelChangedEvent(m.copy()));
+            p.update(new ModelChangedEvent(m.copy(p)));
             p.update(new ToolcardActionRequestEvent(ctx.copy()));
         }catch(Exception e){
             throw new ToolCardApplicationException(e);

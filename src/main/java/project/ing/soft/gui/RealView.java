@@ -176,7 +176,6 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         stage.hide();
         stage.setResizable(true);
         stage.setTitle("Choose Pattern Card");
-        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
         stage.centerOnScreen();
         stage.setScene(scene);
         stage.sizeToScene();
@@ -275,7 +274,7 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
 
     @Override
     public void update(Event event) throws IOException {
-        log.log(Level.INFO,getClass().getName() + " received an event :" + event);
+        log.log(Level.INFO,"{0} received an event : {1}", new Object[]{getClass().getName(), event});
 
         if (!stopResponding) {
             synchronized (eventsReceived) {

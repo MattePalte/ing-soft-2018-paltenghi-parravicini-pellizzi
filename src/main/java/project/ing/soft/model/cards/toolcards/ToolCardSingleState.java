@@ -35,7 +35,7 @@ public abstract class ToolCardSingleState extends ToolCard{
 
             m.payToolCard(this);
 
-            p.update(new ModelChangedEvent(m.copy()));
+            p.update(new ModelChangedEvent(m.copy(p)));
             p.update(new MyTurnStartedEvent());
         }catch (Exception ex){
             throw new ToolCardApplicationException(ex);

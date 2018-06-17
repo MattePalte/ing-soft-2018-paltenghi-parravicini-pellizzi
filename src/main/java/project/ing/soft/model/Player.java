@@ -647,7 +647,7 @@ public class Player implements Serializable{
         return "---------------------\n" +
                 getName() +
                 "'s situation ...\n" +
-                Card.drawNear("Private objective : \n" + (myPrivateObjective == null ? "Not already assigned a private objective" : myPrivateObjective.toString()),
+                Card.drawNear("Private objective : \n" + (myPrivateObjective == null ? "Ehi! No peeking allowed!!" : myPrivateObjective.toString()),
                         "Player game board: \n\n" + stringifyPlayerGameBoard()) +
                 "---------------------\n";
     }
