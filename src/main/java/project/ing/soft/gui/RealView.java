@@ -47,7 +47,14 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
     private final transient Stage stage;
     private final transient Logger log;
 
-
+    /**
+     * Default constructor
+     * @param stage main window of the game
+     * @param nick nickname of the current client
+     * @param splashController Fxml Controller to handle very fist phases of the game
+     * @throws RemoteException useless Exception because this view is created client side
+     * on the same machine, but needed because it implements IView interface
+     */
     public RealView(Stage stage, String nick, SplashController splashController) throws RemoteException{
         super();
         this.stage = stage;
@@ -99,13 +106,25 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
     }
 
 
+    /**
+     * Method to respond to the event of Player Changed
+     * It forward the event to mainBoard object if exists.
+     * @param event of type CurrentPlayerChangedEvent
+     */
     @Override
     public void respondTo(CurrentPlayerChangedEvent event) {
         if (mainBoard != null) {
             mainBoard.respondTo(event);
         }
     }
-
+    /**
+     * Method to respond to the event that indicates that the
+     * setup is finished and the match will start soon.
+     * It creates the last and most important scene of the game: the main Board.
+     * It initialize mainBoard object that will be responsible of
+     * responding to events by changing things on the GUI.
+     * @param event of type FinishedSetupEvent
+     */
     @Override
     public void respondTo(FinishedSetupEvent event) {
         Parent root = null;
@@ -140,6 +159,11 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         stage.show();
     }
 
+    /**
+     * Method to respond to the event of Game finished.
+     * It forward the event to mainBoard object if exists.
+     * @param event of type GameFinishedEvent, it contains the final score of the players
+     */
     @Override
     public void respondTo(GameFinishedEvent event) {
         if (mainBoard != null) {
@@ -148,6 +172,15 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         stopResponding = true;
     }
 
+    /**
+     * Method to respond to the event that indicates that pattern cards
+     * have been distributed to players. It means that players have to choose
+     * a pattern with which play the entire match.
+     * It crates a new scene to handle this choice, by passing to its controller
+     * all the useful object to achieve this task.
+     * @param event of type PatternCardDistributedEvent, it contains the possible cards
+     *              of this client
+     */
     @Override
     public void respondTo(PatternCardDistributedEvent event) {
         Parent root = null;
@@ -182,7 +215,11 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         ft.play();
         stage.show();
     }
-
+    /**
+     * Method to respond to the event of the start of the turn of this client.
+     * It forward the event to mainBoard object if exists.
+     * @param event of type MyTurnStartedEvent, it is an empty event, used only as a message
+     */
     @Override
     public void respondTo(MyTurnStartedEvent event) {
         if (mainBoard != null) {
@@ -190,6 +227,13 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         }
     }
 
+    /**
+     * Method to respond to the event that indicates that something has changed
+     * in the model of the server.
+     * It updates the local copy of the model and then forward the event to the
+     * mainBoard to let him update its model too.
+     * @param event of type ModelChangedEvent, it contains a copy of the model
+     */
     @Override
     public void respondTo(ModelChangedEvent event) {
         this.localCopyOfTheStatus = event.getaGameCopy();
@@ -208,7 +252,11 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
             createBoardAfterReconnection(event);
         }
     }
-
+    /**
+     * Method to respond to the event of the end of the turn of this client.
+     * It forward the event to mainBoard object if exists.
+     * @param event of type MyTurnEndedEvent, it is an empty event, used only as a message
+     */
     @Override
     public void respondTo(MyTurnEndedEvent event) {
         if (mainBoard != null) {
@@ -216,13 +264,24 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         }
     }
 
+    /**
+     * Method to respond to the signal to the client to continue with the flow of actions
+     * belonging to a specific toolcard.
+     * It forward the event to mainBoard object if exists.
+     * @param event of type ToolcardActionRequestEvent, it contains info about the
+     *              toolcard to be executed
+     */
     @Override
     public void respondTo(ToolcardActionRequestEvent event) {
         if (mainBoard != null) {
             mainBoard.respondTo(event);
         }
     }
-
+    /**
+     * Method to handle the event containing the token of this client
+     * It saves the token and displays it in a text box.
+     * @param event containing the token to reconnect to the match
+     */
     @Override
     public void respondTo(SetTokenEvent event) {
         this.token = event.getToken();
@@ -230,6 +289,11 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         splashController.notifyConnectionEnstablished(event.getToken());
     }
 
+    /**
+     * It's a specific method to recreate the scene of the mainBoard
+     * after a reconnection
+     * @param event of type ModelChangedEvent containing a copy of the model
+     */
     private void createBoardAfterReconnection(ModelChangedEvent event){
         Parent root = null;
         String sceneFile = "/gui/layout/main_layout.fxml";
@@ -272,6 +336,11 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
     }
 
 
+    /**
+     * It add the event to a queue of events, and notifies all the consumers.
+     * @param event to be trasmitted to the view
+     * @throws IOException
+     */
     @Override
     public void update(Event event) throws IOException {
         log.log(Level.INFO,"{0} received an event : {1}", new Object[]{getClass().getName(), event});
@@ -284,6 +353,11 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         }
     }
 
+    /**
+     * It saves a reference of the controller.
+     * @param gameController that can be used to carry out operation on the server
+     * @throws IOException
+     */
     @Override
     public void attachController(IController gameController) throws IOException {
         this.myController = gameController;
@@ -295,6 +369,10 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
     }
 
 
+    /**
+     * Method used to show information in a alert box
+     * @param ex type of exception that occurred
+     */
     private void displayError(Exception ex){
         String stack = Arrays.toString(ex.getStackTrace());
         log.log(Level.INFO, stack);
@@ -309,6 +387,10 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         );
     }
 
+    /**
+     * Used to conviniently print exceptions in a log
+     * @param e exception
+     */
     private void printExceptionMsgAndCause(Exception e ){
         log.log(Level.INFO,"Cause: "+e.getCause() + "\n Message " + e.getMessage());
     }

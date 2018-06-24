@@ -21,6 +21,9 @@ public class GameModelTest {
     private IGameModel model;
     private int nrPlayers;
 
+    /**
+     * Stub view to enable set up phase
+     */
     class CustomView implements IView{
         String owner;
 
@@ -117,4 +120,7 @@ public class GameModelTest {
         Assert.assertTrue(draftAfter.get(0).getColour() == dieToAdd.getColour());
         Assert.assertTrue(draftAfter.get(0).getValue() == dieToAdd.getValue());
     }
+
+
+
 }

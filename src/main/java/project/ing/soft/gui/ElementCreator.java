@@ -15,11 +15,27 @@ import project.ing.soft.model.cards.Card;
 import project.ing.soft.model.cards.Constraint;
 import project.ing.soft.model.cards.WindowPattern;
 
+/**
+ * Class used to create custom elements for the GUI such as:
+ * - pattern cards
+ * - toolcards
+ * - objective cards
+ * It relies only on static methods.
+ */
+
 class ElementCreator {
 
     private ElementCreator() {
     }
 
+    /**
+     * Method to create a patter card as a grid pane,
+     * it is used during the initial phase of the match to choose the
+     * pattern card.
+     * @param pattern to be drawn/represented
+     * @param cellDimension dimension of the cell
+     * @return gridPane representing the pattern card
+     */
     static GridPane createPattern(WindowPattern pattern, int cellDimension) {
         // Create Grid for matrix of this pattern
         GridPane gPane = new GridPane();
@@ -56,6 +72,15 @@ class ElementCreator {
         return gPane;
     }
 
+    /**
+     * Method to create a generic imageview containing a card.
+     * The card can be an objective card or a toolcard, in both cases
+     * the image path is retrieved from the getPath method of the card class.
+     * THe image aumatically resize itself depending on the screen dimension.
+     * @param card to be shown
+     * @param stage to get the height of the current window
+     * @return the ImageView containing the image of the card
+     */
     static ImageView createCard(Card card, Stage stage){
         Image img = new Image(card.getImgPath());
         ImageView iv = new ImageView(img);
@@ -70,6 +95,15 @@ class ElementCreator {
         return iv;
     }
 
+    /**
+     * It relies on the createPattern method to draw the basic pattern
+     * then it added dice on top of it. The dice passed should be those belonging
+     * to that specific player.
+     * @param pattern to be drawn/represented
+     * @param placedDie die to be printed on the pattern card
+     * @param cellDimension dimension of the cell
+     * @return gridPane representing the pattern card
+     */
     static GridPane createPattern(WindowPattern pattern, Die[][] placedDie, int cellDimension){
         GridPane pane = createPattern(pattern, cellDimension);
         // Create cells
@@ -90,6 +124,15 @@ class ElementCreator {
         return pane;
     }
 
+    /**
+     * It creates a pattern card with buttons with specific IDs. In this way
+     * the main tread can access them and set On click listener on them.
+     * @param pattern to be drawn/represented
+     * @param placedDie die to be printed on the pattern card
+     * @param cellDimension dimension of the cell
+     * @param prefixTag that will be added to the ID of each button
+     * @return gridPane representing the pattern card
+     */
     static GridPane createClickablePattern(WindowPattern pattern, Die[][] placedDie, int cellDimension, String prefixTag){
         // Create Grid for matrix of this pattern
         GridPane gPane = new GridPane();
