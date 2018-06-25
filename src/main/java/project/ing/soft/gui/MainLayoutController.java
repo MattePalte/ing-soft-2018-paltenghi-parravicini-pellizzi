@@ -93,7 +93,12 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
             return objRemoved;
         }
     }
-
+    /**
+     * Method to wait until the player select a Coordinate. It means that a Coordinate
+     * object has been added to the waiting queue (list of parameters).
+     * @return a Coordinate
+     * @throws InterruptedException if the player interrupt the movement
+     */
     private Coordinate getCoord() throws InterruptedException {
         Object obj = null;
         do {
@@ -101,6 +106,13 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         } while (! (obj instanceof Coordinate));
         return (Coordinate) obj;
     }
+
+    /**
+     * Method to wait until the player select a Die. It means that a Die object
+     * has been added to the waiting queue (list of parameters).
+     * @return a Die
+     * @throws InterruptedException if the player interrupt the movement
+     */
     public Die getDie() throws InterruptedException {
         Object obj = null;
         do {
@@ -108,6 +120,13 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         } while (! (obj instanceof Die));
         return (Die) obj;
     }
+
+    /**
+     * Method to wait until the player select a Value. It means that an integer
+     * has been added to the waiting queue (list of parameters).
+     * @return a Value
+     * @throws InterruptedException if the player interrupt the movement
+     */
     public Integer getValue() throws InterruptedException {
         Object obj = null;
         do {
@@ -116,18 +135,32 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         return (Integer) obj;
     }
 
+    /**
+     * Method to add a Coordinate to the waiting queue (list of parameters).
+     * @param coord Coordinate selected by the user
+     */
     private void collectCoordinate(Coordinate coord){
         put(coord);
     }
-
+    /**
+     * Method to add a Die to the waiting queue (list of parameters).
+     * @param die Die selected by the user
+     */
     private void collectDie(Die die){
         put(die);
     }
-
+    /**
+     * Method to add an Integer to the waiting queue (list of parameters).
+     * @param value Coordinate selected by the user
+     */
     private void collectValue(Integer value){
         put(value);
     }
-
+    /**
+     * Method to add an Integer representing a toolcard index to the waiting queue
+     * (list of parameters).
+     * @param index Index selected by the user
+     */
     private void collectToolcardIndex(Integer index) {
         put(index);
     }
@@ -157,15 +190,36 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     }
 
     //region Getter e Setter
+
+    /**
+     * Saves the stage as an internal reference to modify its Scene or dimensions
+     * if needed.
+     * @param primaryStage main window of the game
+     */
     public void setStage(Stage primaryStage) {
         this.primaryStage = primaryStage;
     }
+
+    /**
+     * Saves the token for reconnection
+     * @param token for reconnection
+     */
     public void setToken(String token) {
         this.token = token;
     }
+
+    /**
+     * Retrieve the main window of the game
+     * @return main window stage of the game.
+     */
     public Stage getPrimaryStage() {
         return primaryStage;
     }
+
+    /**
+     * Saves the nickname to use during each method call to the controller
+     * @param ownerNameOfTheView nickname of the current player
+     */
     public void setOwnerNameOfTheView(String ownerNameOfTheView) {
         this.ownerNameOfTheView = ownerNameOfTheView;
     }
@@ -179,6 +233,10 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         }
     }
 
+    /**
+     * Get the nick name of owner of this running client
+     * @return nickname of the owner of the client
+     */
     public String getOwnerNameOfTheView() {
         return ownerNameOfTheView;
     }
@@ -349,6 +407,9 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     }
     //endregion
 
+    /**
+     * Method to interrupt al running operation and let the user perform a new one
+     */
     private void endingOperation() {
         disableAll();
         synchronized (this) {
@@ -362,6 +423,9 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
     //region Draw Things
 
+    /**
+     * Method to represent current player situation
+     */
     private synchronized void drawMySituation() {
         // get stuff of the owner of the view
         WindowPattern wndPtrn = myPlayer.getPattern();
@@ -376,6 +440,10 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         matrixContainer.getChildren().add(0, matrixPane);
         initializeMatrixButtons(matrixPane, "pos");
     }
+
+    /**
+     * Method to represent the draftpool
+     */
     private synchronized void drawDraftPool() {
         Scene scene = getPrimaryStage().getScene();
         GridPane paneDraft = (GridPane) scene.lookup("#" + ID_DRAFTPOOL);
@@ -405,6 +473,15 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
             });
         }
     }
+
+    /**
+     * Method to draw possible integer values. It is used on a newly created scene with
+     * specific buttons, one for each possible value.
+     * @param scene that contains the buttons
+     * @param idPane name of the container of the button
+     * @param message message to guide the user
+     * @param values possible value numbers
+     */
     private synchronized void drawValues(Scene scene, String idPane, String message, Integer... values) {
         GridPane pane = (GridPane) scene.lookup("#" + idPane);
         Text lblMessage = (Text) scene.lookup("#lblMessage");
@@ -429,6 +506,10 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
             });
         }
     }
+
+    /**
+     * Method to represent RoundTracker
+     */
     private synchronized void drawRoundTracker() {
         RoundTracker roundTracker = localCopyOfTheStatus.getRoundTracker();
         // Draw round number and turn list
@@ -482,6 +563,11 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         imgPrivateObjective.setMaxHeight(screenWidth /6);
         StyleBooster.forObjectiveCard(imgPrivateObjective, 5);
     }
+
+    /**
+     * Method to represent Toolcard
+     * @param scene where toolcard FXML eleemnts can be found
+     */
     private synchronized void displayToolCard(Scene scene) {
         List<ToolCard> tCard = localCopyOfTheStatus.getToolCards();
         for (int index = 0; index<3; index++) {
@@ -500,6 +586,11 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
             });
         }
     }
+
+    /**
+     * Method to display the situation of other players
+     * @param scene where the container exists
+     */
     private synchronized void displayOtherPlayerSituation(Scene scene) {
         if (localCopyOfTheStatus == null) return;
         List<Player> listOfPlayer = localCopyOfTheStatus.getPlayerList();
@@ -528,6 +619,10 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
     }
 
+    /**
+     * Method to represent public cards
+     * @param scene where public card FXML eleemnts can be found
+     */
     private synchronized void displayPublicCard(Scene scene) {
         List<PublicObjective> pubCard = localCopyOfTheStatus.getPublicObjective();
         for (int index = 0; index<3; index++) {
@@ -546,6 +641,11 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
     //region Fixed Button Handling
 
+    /**
+     * Listener attached through FXML to the starting of an action.
+     * The game action is: placement of a die on the pattern window.
+     * @throws Exception if something goes wrong
+     */
     public void btnPlaceDieOnCLick() throws Exception {
         // PRE-SETUP
         endingOperation();
@@ -571,7 +671,11 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                     }
         );
     }
-
+    /**
+     * Listener attached through FXML to the starting of an action.
+     * The game action is: select a toolcard and use it.
+     * @throws Exception if something goes wrong
+     */
     public void btnPlayToolCardOnCLick() throws Exception {
         // PRE-SETUP
         endingOperation();
@@ -599,7 +703,11 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                     }
         );
     }
-
+    /**
+     * Listener attached through FXML to the starting of an action.
+     * The game action is: cancel current action and let the user select a new one.
+     * @throws Exception if something goes wrong
+     */
     public void btnCancelOnCLick() {
         endingOperation();
         enableActions();
@@ -607,6 +715,11 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
             instructionTxt.setText("");
         }
     }
+    /**
+     * Listener attached through FXML to the starting of an action.
+     * The game action is: say that you have finished your turn.
+     * @throws Exception if something goes wrong
+     */
     public void btnEndTurnOnCLick() {
         endingOperation();
         synchronized (this) {
@@ -623,6 +736,13 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     }
     //endregion
 
+    /**
+     * Method to initialize the button of the window pattern of the current client.
+     * Each button will add to the waiting queue (list of parameters) a Coordinate
+     * representing its position in the window pattern.
+     * @param matrixPane container of the cells
+     * @param prefixTag tag used as a prefix of current window pattern's cells
+     */
     private synchronized void initializeMatrixButtons(GridPane matrixPane, String prefixTag){
         StyleBooster.forPatternCard(matrixPane, 15);
         // set button of pattern
@@ -726,24 +846,49 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
     //region parameter acquirer
 
+    /**
+     * Method to wait until the player select a Die of the draftpool.
+     * It means that a Die object has been added to the
+     * waiting queue (list of parameters).
+     * @return a Die
+     * @throws InterruptedException if the player interrupt the movement
+     */
     @Override
     public Die getDieFromDraft(String message) throws InterruptedException, UserInterruptActionException {
         enableOnly(ID_DRAFTPOOL,message);
         return getDie();
     }
-
+    /**
+     * Method to wait until the player select a Die of the RoundTracker.
+     * It means that a Die object has been added to the
+     * waiting queue (list of parameters).
+     * @return a Die
+     * @throws InterruptedException if the player interrupt the movement
+     */
     @Override
     public Die getDieFromRound(String message) throws InterruptedException, UserInterruptActionException {
         enableOnly(ID_ROUNDTRACKER,message);
         return getDie();
     }
-
+    /**
+     * Method to wait until the player select a Coordinate on his/her window pattern.
+     * It means that a Coordinate object has been added to the
+     * waiting queue (list of parameters).
+     * @return a Coordinate
+     * @throws InterruptedException if the player interrupt the movement
+     */
     @Override
     public Coordinate getCoordinate(String message) throws InterruptedException, UserInterruptActionException {
         enableOnly(ID_MATRIX,message);
         return getCoord();
     }
-
+    /**
+     * Method to wait until the player select a value from the given list.
+     * It means that an Integer has been added to the
+     * waiting queue (list of parameters).
+     * @return an int
+     * @throws InterruptedException if the player interrupt the movement
+     */
     @Override
     public int getValue(String message, Integer... values) throws InterruptedException, UserInterruptActionException {
         showPickValues(message, values);
@@ -753,10 +898,19 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
     //endregion
 
+    /**
+     * Saves the controller of the MVC as a reference to ask for actions to the server.
+     * @param gameController controller of the game
+     */
     public void setGameController(IController gameController) {
         this.gameController = gameController;
     }
 
+    /**
+     * It is used to display msgbox to the user in case o exception server side
+     * or client side
+     * @param ex Exception occurred
+     */
     private void displayError(Exception ex){
         String stack = Arrays.toString(ex.getStackTrace());
         log.log(Level.INFO, stack);

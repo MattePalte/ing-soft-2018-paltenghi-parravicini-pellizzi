@@ -42,22 +42,42 @@ public class ChoosePatternController {
     @FXML private VBox vMyObjective;
     @FXML private ImageView imgPrivateObjective;
 
+    /**
+     * Saves the controller of the MVC as a reference to ask for actions to the server.
+     * @param gameController controller of the game
+     */
     public void setGameController(IController gameController){
         this.gameController = gameController;
     }
-
+    /**
+     * Saves the window of the GUI to be able to manipulate it, if needed
+     * @param stage main window frame of the game
+     */
     public void setStage(Stage stage){
         this.stage = stage;
     }
-
+    /**
+     * Saves the nickname of the current client
+     * @param nick nickname of the player
+     */
     public void setNick(String nick) {
         this.nick = nick;
     }
 
+    /**
+     * Method to give the this class the event containing all information
+     * to carry out its duty: show the user the possible window pattern and
+     * let him choose one of them.
+     * @param event containing two possible pattern card
+     */
     public void setPatternEvent(PatternCardDistributedEvent event) {
         this.event = event;
     }
 
+    /**
+     * Saves private objective reference
+     * @param privObj private objective of the current client
+     */
     public void setPrivObj(PrivateObjective privObj) {
         this.privObj = privObj;
     }

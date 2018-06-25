@@ -50,10 +50,17 @@ public class SplashController {
     private static final String INFO_SERVER_ERROR_RMI = "x) Probably the server is down (no remote object or no registry)";
     private static final String INFO_SERVER_ERROR_SOCKET = "x) Probably the server is down";
 
+    /**
+     * Saves the window of the GUI to be able to manipulate it, if needed
+     * @param stage main window frame of the game
+     */
     public void setStage(Stage stage) {
         this.stage = stage;
     }
 
+    /**
+     * Method to request connection to the server
+     */
     public void connect(){
         String nick = txtName.getText();
         RadioButton selectedOption = (RadioButton) connectionTypeGroup.getSelectedToggle();
@@ -65,6 +72,10 @@ public class SplashController {
             connectSocket(nick);
         }
     }
+
+    /**
+     * Method to request reconnection to the server with a token
+     */
     public void reconnect(){
         String nick = txtName.getText();
         String token = txtToken.getText();
@@ -78,6 +89,11 @@ public class SplashController {
         }
     }
 
+    /**
+     * Method to print on the screen the message of successful connection
+     * and the token retrieved by the server
+     * @param token to use for reconnection
+     */
     public void notifyConnectionEnstablished(String token){
         String nick = txtName.getText();
         Text msg = new Text("You are now connected with the nick: " + nick);
@@ -92,6 +108,10 @@ public class SplashController {
         content.getChildren().add(txtWithNewToken);
     }
 
+    /**
+     * Method to get the port from the user interface
+     * @return the port number as an integer
+     */
     private int getPort(){
         String insertedPort = txtServerPort.getText();
         if (insertedPort.equals("")) return Settings.instance().getPort();
@@ -103,6 +123,10 @@ public class SplashController {
         }
     }
 
+    /**
+     * Method to the ip number from the user interface
+     * @return ip number in the right format as a String
+     */
     private String getIP() {
         String insertedIP = txtServerIP.getText();
         if (insertedIP.equals("")) return Settings.instance().getHost();
@@ -113,6 +137,11 @@ public class SplashController {
         }
     }
 
+    /**
+     * Method to check that the given IP is valid
+     * @param ip to check
+     * @return true -> is valid or false -> invalid IP
+     */
     private boolean validIP(String ip) {
         try {
             String[] parts = ip.split( "\\." );
@@ -130,11 +159,21 @@ public class SplashController {
             return false;
         }
     }
+
+    /**
+     * Method to check that the given port is valid
+     * @param port to check
+     * @return true -> is valid or false -> invalid port number
+     */
     private boolean validPort(String port) {
         int portNumber = Integer.parseInt(port);
         return portNumber > 1024 && portNumber <= 49151;
     }
 
+    /**
+     * Connect to the server via RMI
+     * @param nick nickname of the current client
+     */
     private void connectRMI(String nick){
         IAccessPoint accessPoint = null;
         try {
@@ -154,7 +193,10 @@ public class SplashController {
             msgLabel.setText(ex.getMessage());
         }
     }
-
+    /**
+     * Connect to the server via Socket
+     * @param nick nickname of the current client
+     */
     private void connectSocket(String nick){
         IAccessPoint accessPoint = null;
         accessPoint = new APProxySocket(getIP(), getPort());
@@ -173,7 +215,11 @@ public class SplashController {
             msgLabel.setText(ex.getMessage());
         }
     }
-
+    /**
+     * Reconnect to the server via RMI
+     * @param nick nickname of the current client
+     * @param token code to reconnect
+     */
     private void reconnectRMI(String nick, String token){
         IAccessPoint accessPoint = null;
         try {
@@ -193,7 +239,11 @@ public class SplashController {
             msgLabel.setText(ex.getMessage());
         }
     }
-
+    /**
+     * Reconnect to the server via Socket
+     * @param nick nickname of the current client
+     * @param token code to reconnect
+     */
     private void reconnectSocket(String nick, String token){
         IAccessPoint accessPoint = null;
         accessPoint = new APProxySocket(getIP(), getPort());
