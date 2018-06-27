@@ -3,6 +3,7 @@ package project.ing.soft.gui;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
@@ -10,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import project.ing.soft.controller.IController;
 import project.ing.soft.model.Player;
@@ -58,6 +60,16 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
     public RealView(Stage stage, String nick, SplashController splashController) throws RemoteException{
         super();
         this.stage = stage;
+        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                myController = null;
+                System.gc();
+                //Thread.currentThread().interrupt();
+                Platform.exit();
+                System.exit(0);
+            }
+        });
         this.ownerNameOfTheView = nick;
         this.splashController = splashController;
         this.log = Logger.getLogger(Objects.toString(this));
@@ -287,6 +299,18 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         this.token = event.getToken();
         log.log(Level.INFO,"TOKEN -> " + event.getToken());
         splashController.notifyConnectionEnstablished(event.getToken());
+    }
+
+    @Override
+    public void respondTo(PlayerReconnectedEvent event) {
+        if(mainBoard != null)
+            mainBoard.respondTo(event);
+    }
+
+    @Override
+    public void respondTo(PlayerDisconnectedEvent event) {
+        if(mainBoard != null)
+            mainBoard.respondTo(event);
     }
 
     /**

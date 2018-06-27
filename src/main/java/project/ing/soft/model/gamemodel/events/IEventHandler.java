@@ -18,4 +18,6 @@ public interface IEventHandler {
     void respondTo(MyTurnEndedEvent             event);
     void respondTo(ToolcardActionRequestEvent   event);
     void respondTo(SetTokenEvent                event);
+    void respondTo(PlayerReconnectedEvent       event);
+    void respondTo(PlayerDisconnectedEvent      event);
 }

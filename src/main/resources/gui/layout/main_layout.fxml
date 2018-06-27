@@ -33,8 +33,9 @@
             <VBox alignment="CENTER" spacing="10">
                 <padding><Insets bottom="25" left="25" right="25" top="25" /></padding>
                 <Text text="RoundTraker" />
-                <Text fx:id="roundnumber" />
-                <Text fx:id="turnlist" />
+                <Text fx:id="roundnumber"/>
+                <HBox alignment="CENTER" fx:id="turnlist" >
+                </HBox>
                 <ScrollPane fx:id="roundtrackerScrollPane">
                     <GridPane fx:id="roundtracker" alignment="center" hgap="10" vgap="10">
                         <padding><Insets bottom="5.0" left="5.0" right="5.0" top="5.0" /></padding>

@@ -173,7 +173,7 @@ public class Player implements Serializable{
      * @return a boolean flag which indicates if the player is still connected
      */
     public boolean isConnected() {
-        return myView != null && isConnected;
+        return isConnected;
     }
 
     /**

@@ -251,7 +251,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     @FXML private Text status;
     @FXML private HBox content;
     @FXML private Text roundnumber;
-    @FXML private Text turnlist;
+    @FXML private HBox turnlist;
     @FXML private Text instructionTxt;
     @FXML private Pane instructionBox;
 
@@ -302,6 +302,18 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     @Override
     public void respondTo(SetTokenEvent event) {
         this.token = event.getToken();
+    }
+
+    @Override
+    public void respondTo(PlayerReconnectedEvent event) {
+        log.log(Level.INFO, event.getNickname() + ": reconnected");
+        drawDraftPool();
+    }
+
+    @Override
+    public void respondTo(PlayerDisconnectedEvent event) {
+        log.log(Level.INFO, event.getNickname() + ": disconnected");
+        drawDraftPool();
     }
 
     @Override
@@ -514,18 +526,22 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         RoundTracker roundTracker = localCopyOfTheStatus.getRoundTracker();
         // Draw round number and turn list
         roundnumber.setText("Round nr: " + roundTracker.getCurrentRound());
-        StringBuilder listOfTurn = new StringBuilder();
-        for (Player p : localCopyOfTheStatus.getCurrentTurnList()) {
-            listOfTurn.append(p.getName());
-            listOfTurn.append(" > ");
+        turnlist.getChildren().clear();
+        for(Player p : localCopyOfTheStatus.getCurrentTurnList()){
+            TextField text = new TextField(p.getName());
+            text.setEditable(false);
+            text.setAlignment(Pos.CENTER);
+            if(p.isConnected())
+                text.setStyle("-fx-text-inner-color:" + Colour.GREEN.getWebColor());
+            else
+                text.setStyle("-fx-text-inner-color:" + Colour.RED.getWebColor());
+            turnlist.getChildren().add(text);
+            turnlist.getChildren().add(new Text(">"));
         }
-        if (roundTracker.getCurrentRound() < Settings.instance().getNrOfRound()) {
-            listOfTurn.append("round ");
-            listOfTurn.append(roundTracker.getCurrentRound() + 1);
-        } else {
-            listOfTurn.append("end ");
-        }
-        turnlist.setText(listOfTurn.toString());
+        if(roundTracker.getCurrentRound() < Settings.instance().getNrOfRound())
+            turnlist.getChildren().add(new Text("Next Round"));
+        else
+            turnlist.getChildren().add(new Text("End of the game"));
         // Draw content of the roundtracker
         Scene scene = getPrimaryStage().getScene();
         GridPane paneRoundTracker = (GridPane) scene.lookup("#" + ID_ROUNDTRACKER);

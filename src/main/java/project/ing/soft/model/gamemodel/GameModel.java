@@ -297,8 +297,9 @@ public class GameModel implements IGameModel, Serializable {
         player.update(new ModelChangedEvent(this));
         if(status == GAME_MANAGER_STATUS.WAITING_FOR_PATTERNCARD)
             player.update(new PatternCardDistributedEvent(player.getPrivateObjective(), player.getPossiblePatternCard().get(0), player.getPossiblePatternCard().get(1)));
-        else if(status == GAME_MANAGER_STATUS.ONGOING && getCurrentPlayer().equals(player))
+        else if(status == GAME_MANAGER_STATUS.ONGOING && getCurrentPlayer().getName().equals(player.getName()))
             player.update(new MyTurnStartedEvent(currentPlayerEndTime));
+        getPlayerList().stream().filter(p -> p.isConnected() && !p.getName().equals(nickname)).forEach(p -> p.update(new ModelChangedEvent(new GameModel(this, p)), new PlayerReconnectedEvent(nickname)));
 
     }
 
@@ -311,6 +312,7 @@ public class GameModel implements IGameModel, Serializable {
                 logger.log(Level.INFO, "Player {0} disconnected", playerToDisconnect);
             }
         }
+        getPlayerList().stream().filter(Player::isConnected).forEach(p -> p.update(new ModelChangedEvent(new GameModel(this, p)), new PlayerDisconnectedEvent(playerToDisconnect)));
     }
     //endregion
 
@@ -354,6 +356,8 @@ public class GameModel implements IGameModel, Serializable {
         logger.log(Level.INFO, "Player {0} would like to place die {1} on ({2}, {3})", new Object[]{getCurrentPlayer().getName(),aDie,rowIndex, colIndex });
         if(aDie.getValue() == 0)
             throw new RuleViolatedException("This die can't be placed!");
+        if(!draftPool.contains(aDie))
+            throw new RuleViolatedException("This die is not in the draftpool");
 
         getCurrentPlayer().placeDie(aDie,rowIndex,colIndex, true);
         removeFromDraft(aDie);

@@ -2,10 +2,7 @@ package project.ing.soft.cli;
 
 import project.ing.soft.IExceptionalProcedure;
 import project.ing.soft.Settings;
-import project.ing.soft.model.Coordinate;
-import project.ing.soft.model.Die;
-import project.ing.soft.model.Pair;
-import project.ing.soft.model.Player;
+import project.ing.soft.model.*;
 import project.ing.soft.model.cards.Card;
 import project.ing.soft.model.cards.toolcards.*;
 import project.ing.soft.exceptions.UserInterruptActionException;
@@ -169,6 +166,19 @@ public class ClientViewCLI extends UnicastRemoteObject
         out.println("Connection established. Please, wait for the game to start");
 
     }
+
+    @Override
+    public void respondTo(PlayerReconnectedEvent event) {
+        log.log(Level.INFO, event.getNickname() + ": player reconnected");
+        out.println(Colour.RED.colourForeground(event.getNickname() + " reconnected to the game"));
+    }
+
+    @Override
+    public void respondTo(PlayerDisconnectedEvent event) {
+        log.log(Level.INFO, event.getNickname() +": player disconnected");
+        out.println(Colour.RED.colourForeground(event.getNickname() + " disconnected from the game"));
+    }
+
     @Override
     public void respondTo(ToolcardActionRequestEvent event) {
         log.log(Level.INFO, "ToolCard action request");
@@ -384,8 +394,9 @@ public class ClientViewCLI extends UnicastRemoteObject
         boolean done = false;
 
         do{
+            String input = scanner.readLine();
             try{
-                ret = Integer.valueOf(scanner.readLine());
+                ret = Integer.valueOf(input);
                 done = ret >= 0 && ret <= upperBound;
             }
             catch( NumberFormatException ignored){
@@ -393,9 +404,9 @@ public class ClientViewCLI extends UnicastRemoteObject
             }
 
             if(!done){
-                out.println("You entered a value that does not fit into the correct interval. Enter q to interrupt the operation");
-                if(scanner.readLine().startsWith("q"))
+                if(input.startsWith("q"))
                     throw new UserInterruptActionException();
+                out.println("You entered a value that does not fit into the correct interval. Enter q to interrupt the operation");
 
             }
         }while(!done);
