@@ -10,10 +10,12 @@ import java.util.*;
 /**
  * This class contains a game basic information about the players who joined it
  */
-public class Game implements Serializable{
+public class Game implements Serializable, Iterable<Player>{
 
     private final int maxNumPlayer;
-    private ArrayList<Player> players;
+    private final Map<String,Integer> nameToIndex;
+    private final List<Player> players;
+
 
 
     /**
@@ -25,6 +27,7 @@ public class Game implements Serializable{
         maxNumPlayer = theMaxNumOfPlayer;
         // initialize empty list of player
         players = new ArrayList<>();
+        nameToIndex = new HashMap<>();
     }
 
     /**
@@ -33,10 +36,13 @@ public class Game implements Serializable{
      */
     public Game(Game aGame){
         this.maxNumPlayer = aGame.maxNumPlayer;
+        this.nameToIndex = new HashMap<>();
         this.players = new ArrayList<>();
-        for(Player p : aGame.players){
-            this.players.add(new Player(p));
+        for (int i = 0; i < aGame.players.size(); i++) {
+            this.players.add(new Player(aGame.players.get(i)));
+            this.nameToIndex.put(aGame.players.get(i).getName(), i );
         }
+
     }
 
     /**
@@ -54,8 +60,16 @@ public class Game implements Serializable{
      */
     public void add(Player newPlayer) {
         if (players.size() < maxNumPlayer) {
-            players.add(newPlayer);
+            players.add( newPlayer);
+            nameToIndex.put(newPlayer.getName(),players.indexOf(newPlayer));
         }
+    }
+
+    public Player getPlayerFromName(String nickname){
+        Integer i = nameToIndex.get(nickname);
+        if(i == null)
+            return null;
+        return players.get(i);
     }
 
     /**
@@ -65,12 +79,11 @@ public class Game implements Serializable{
      * @param view player's new view reference
      */
     public void reconnect(String playerName, IView view){
-        Player playerInfoBackup = players.stream().filter(p -> p.getName().equals(playerName)).findFirst().orElse(null);
-        if(playerInfoBackup == null)
+        Player p = getPlayerFromName(playerName);
+        if(p == null)
             return;
-        int indexBackup = players.indexOf(playerInfoBackup);
-        players.remove(playerInfoBackup);
-        players.add(indexBackup, new Player(playerInfoBackup, view));
+        p.reconnectView(view);
+
     }
 
 
@@ -101,17 +114,6 @@ public class Game implements Serializable{
         return players.size() <= maxNumPlayer;
     }
 
-    /**
-     * Method used to execute a circular left shift of the players list. It's useful to create the list
-     * of the turns during the game
-     */
-    public void leftShiftPlayers(){
-        ArrayList<Player> shiftedList = new ArrayList<>();
-        for(int i = 0; i < players.size(); i++){
-            shiftedList.add(i, players.get((i + 1) % players.size()));
-        }
-        players = shiftedList;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -124,7 +126,17 @@ public class Game implements Serializable{
 
     @Override
     public int hashCode() {
-
         return Objects.hash(maxNumPlayer, players);
     }
+
+    /**
+     * Returns an iterator over elements of type {@code T}.
+     * @return an Iterator.
+     */
+    @Override
+    public Iterator<Player> iterator() {
+        return players.iterator();
+    }
+
+
 }

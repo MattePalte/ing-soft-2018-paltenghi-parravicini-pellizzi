@@ -160,7 +160,6 @@ public class ClientViewCLI extends UnicastRemoteObject
     public void respondTo(SetTokenEvent event) {
         log.log(Level.INFO,"Token received");
         log.log(Level.INFO,"Your token to ask reconnection is {0} " , event.getToken());
-        System.setProperty(Settings.instance().tokenProperty(), event.getToken());
         personalToken = event.getToken();
         out.println("Your token to ask reconnection is "+event.getToken());
         out.println("Connection established. Please, wait for the game to start");
@@ -194,13 +193,15 @@ public class ClientViewCLI extends UnicastRemoteObject
             if(progressBarTask != null)
                 progressBarTask.cancel();
             expectedEndTurn = event.getEndTurnTimeStamp();
-            progressBarTask = new TimerTask() {
-                @Override
-                public void run() {
-                    printProgressBar();
-                }
-            };
-            timer.schedule(progressBarTask, 2000, 2000);
+            if(Settings.instance().isDeploy()) {
+                progressBarTask = new TimerTask() {
+                    @Override
+                    public void run() {
+                        printProgressBar();
+                    }
+                };
+                timer.schedule(progressBarTask, 2000, 2000);
+            }
         }
         if(userThread != null ) {
             userThread.cancel(true);
@@ -211,6 +212,10 @@ public class ClientViewCLI extends UnicastRemoteObject
     //region operations
     private void endTurnOperation() throws Exception {
         controller.endTurn(ownerNameOfTheView);
+
+        if(progressBarTask != null)
+            progressBarTask.cancel();
+
         Thread.currentThread().interrupt();
     }
 
@@ -306,10 +311,10 @@ public class ClientViewCLI extends UnicastRemoteObject
             return;
 
         out.saveCursorPosition();
-        out.setCursorPosition(0,0);
+        out.setCursorPosition(1,1);
         float percentage = (float)(expectedEndTurn.getTime() - System.currentTimeMillis())/Settings.instance().getTurnTimeout();
         percentage = Float.max(percentage, 0);
-        out.println( String.format( String.format("[%%-%ds]", PROGRESS_BAR_LENGTH), new String(new char[(int) (PROGRESS_BAR_LENGTH * percentage)]).replace("\0", "=")));
+        out.println( "Time left: "+String.format( String.format("[%%-%ds]", PROGRESS_BAR_LENGTH), new String(new char[(int) (PROGRESS_BAR_LENGTH * percentage)]).replace("\0", "=")));
         out.restoreCursorPosition();
     }
 
@@ -318,7 +323,8 @@ public class ClientViewCLI extends UnicastRemoteObject
     public void respondTo(MyTurnEndedEvent event){
         out.println("You had plenty of time and you didn't used.. the turn was ended by the server");
         userThread.cancel(true);
-        progressBarTask.cancel();
+        if(progressBarTask != null)
+            progressBarTask.cancel();
     }
 
     @Override

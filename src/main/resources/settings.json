@@ -28,5 +28,9 @@
     "value": 1000,
     "resourceBundleName": "sun.util.logging.resources.logging"
   },
-  "defaultRmiApName": "accessPoint"
+  "defaultRmiApName": "accessPoint",
+  "deploy": false,
+  "properties": {
+
+  }
 }

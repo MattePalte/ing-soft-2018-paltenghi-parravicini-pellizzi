@@ -28,7 +28,7 @@ public class LaunchClientCli {
      * @throws Exception if anything went wrong during connection to the server
      */
     public static void main(String[] args) throws Exception {
-        PrintStream out = new Console(System.out);
+        Console out = new Console(System.out);
 
         System.setProperty("java.rmi.dgc.leaseValue", "10000");
         printLandingPage(out);
@@ -47,11 +47,12 @@ public class LaunchClientCli {
         IView view = new ClientViewCLI(name);
         out.println("View created successfully");
         IController controller = getController(out, scan, name, accessPoint, connectionMethod, view);
-
-
+        if(controller==null)
+            return;
         out.println("Controller retrieved from AccessPoint");
         view.attachController(controller);
         out.println("Controller attached to the view");
+        out.clear();
 
     }
 

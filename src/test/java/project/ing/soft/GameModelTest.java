@@ -55,10 +55,9 @@ public class GameModelTest {
 
     /**
      * Create a model
-     * @throws Exception
      */
     @Before
-    public void setUp() throws Exception {
+    public void setUp()  {
         Game game = new Game(2);
         game.add(new Player("Alice", new CustomView("Alice")));
         game.add(new Player("Bob", new CustomView("Bob")));

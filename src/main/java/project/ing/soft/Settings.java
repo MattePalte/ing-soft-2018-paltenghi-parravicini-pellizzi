@@ -1,9 +1,12 @@
 package project.ing.soft;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import javafx.scene.paint.Color;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.logging.Level;
 
@@ -36,24 +39,9 @@ public class Settings {
     private String tokenProperty;
     private Level defaultLoggingLevel;
     private String defaultRmiApName;
+    private boolean deploy;
 
     private Settings() {
-        // methods to create file of backup settings when changing
-        // some attributes in this class
-//        PrintWriter writer = null;
-//        try {
-//            String path = "C:\\Users\\Matteo\\Desktop\\settings.json";
-//            File f = new File(path);
-//            writer = new PrintWriter(f);
-//            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-//            writer.println(gson.toJson(this));
-//            System.out.println("Successfully Copied JSON Object to File...");
-//            writer.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            if (writer != null) writer.close();
-//        }
     }
 
     public static Settings instance(){
@@ -71,6 +59,37 @@ public class Settings {
         return internalInstance;
     }
 
+    public void save(String name){
+
+        // methods to create file of backup settings when changing
+        // some attributes in this class
+        PrintWriter writer = null;
+        try {
+            writer = new PrintWriter( Settings.class.getResource(name).getFile());
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            writer.println(gson.toJson(this));
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (writer != null) writer.close();
+        }
+
+    }
+
+    public String getProperty(String key){
+        if(properties!= null)
+            return properties.get(key);
+        return null;
+    }
+
+    public void setProperty(String name, String value){
+        if(properties== null)
+            properties = new HashMap<>();
+        properties.put(name, value);
+    }
+
+    private Map<String,String> properties;
     //region getter
 
     public long getSynchTime(){
@@ -165,6 +184,8 @@ public class Settings {
     public String getRmiApName(){
         return defaultRmiApName;
     }
+
+    public boolean isDeploy(){ return deploy;}
     //endregion
 
     public enum ObjectivesProperties{
@@ -213,5 +234,6 @@ public class Settings {
             return points;
         }
     }
+
 
 }

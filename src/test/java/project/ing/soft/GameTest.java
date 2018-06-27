@@ -1,18 +1,34 @@
 package project.ing.soft;
 
 
+import project.ing.soft.accesspoint.IAccessPoint;
+import project.ing.soft.controller.GameController;
+import project.ing.soft.controller.IController;
+import project.ing.soft.exceptions.GameInvalidException;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Game;
 import project.ing.soft.model.Player;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.util.List;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.Random;
 
 
 import org.junit.*;
 import project.ing.soft.cli.ClientViewCLI;
+import project.ing.soft.model.Round;
+import project.ing.soft.model.gamemodel.events.Event;
+import project.ing.soft.model.gamemodel.events.PatternCardDistributedEvent;
+import project.ing.soft.model.gamemodel.events.SetTokenEvent;
+import project.ing.soft.socket.APProxySocket;
+import project.ing.soft.socket.APointSocket;
+import project.ing.soft.view.IView;
 
 public class GameTest {
 
@@ -49,7 +65,7 @@ public class GameTest {
             toBeCopied.add(new Player("TestPlayer", new ClientViewCLI("TestPlayer")));
         }
         Game copy = new Game(toBeCopied);
-        Assert.assertFalse(copy == toBeCopied);
+        Assert.assertSame(copy , toBeCopied);
         Assert.assertEquals(players, copy.getMaxNumPlayers());
         Assert.assertEquals(players, copy.getNumberOfPlayers());
         Assert.assertEquals(toBeCopied.getPlayers(), copy.getPlayers());
@@ -58,24 +74,57 @@ public class GameTest {
 
     @Test
     public void shiftTest() throws RemoteException {
-        int players = rndGen.nextInt(4) + 1;
-        Game toBeTested = new Game(players);
-        for(int i = 0; i < players; i++){
-            toBeTested.add(new Player("Test", new ClientViewCLI("Test")));
-        }
-        Player firstPlayer = toBeTested.getPlayers().get(0);
-        //Repeat shift operation until the result is equal to the first list
-        do {
-            List<Player> playersInGame = toBeTested.getPlayers();
-            toBeTested.leftShiftPlayers();
+        for(int players = 1; players <6; players++) {
+            Game toBeTested = new Game(players);
             for (int i = 0; i < players; i++) {
-                //checking if the list has been correctly shifted
-                if (i < players - 1)
-                    Assert.assertEquals(playersInGame.get(i + 1), toBeTested.getPlayers().get(i));
-                else
-                    Assert.assertEquals(playersInGame.get(0), toBeTested.getPlayers().get(players - 1));
+                toBeTested.add(new Player("Test" + i, new ClientViewCLI("Test" + i)));
             }
-        } while(!toBeTested.getPlayers().get(0).equals(firstPlayer));
+
+            //Repeat shift operation until the result is equal to the first list
+            Round r = new Round(0,toBeTested);
+            Round rPlus = r.nextRound();
+            for (int j = 0; j < players; j++) {
+                Player first = r.getCurrent();
+                for (int i = 0; i < players; i++, rPlus.next()) {
+
+                    //checking if the list has been correctly shifted
+                    if (i < players - 1)
+                        Assert.assertEquals(r.next(), rPlus.getCurrent());
+                    else
+                        Assert.assertEquals(first, rPlus.getCurrent());
+                }
+                r = r.nextRound();
+                rPlus = rPlus.nextRound();
+            }
+
+            for (int i = 0; i < players; i++,r.next()) {
+                Assert.assertEquals(r.getCurrent(), toBeTested.getPlayers().get(i));
+            }
+
+
+        }
+    }
+
+    @Test
+    public void testTurn() throws RemoteException {
+        Game g = new Game(3);
+        g.add(new Player("a", new ClientViewCLI("a")));
+        g.add(new Player("b", new ClientViewCLI("b")));
+        g.add(new Player("c", new ClientViewCLI("c")));
+        Round round;
+        int i;
+        for (i = 0,  round = new Round(0,g); i < 10; i++, round = round.nextRound()) {
+            System.out.println("Round: "+i);
+
+
+            Player p = round.getCurrent();
+            System.out.println(p.getName());
+            while(round.hasNext()){
+                p = round.next();
+                System.out.println(p.getName());
+            }
+
+        }
     }
 
     @Test
@@ -104,6 +153,70 @@ public class GameTest {
         gameBackup = new Game(toBeTested);
         toBeTested.reconnect("Johnny", new ClientViewCLI("Johnny"));
         Assert.assertEquals(gameBackup, toBeTested);
+    }
+
+
+    /**
+     * Stub view to enable set up phase
+     */
+    class CustomView extends UnicastRemoteObject implements IView , Serializable  {
+        String owner;
+        String code;
+        IController ctrl;
+
+        CustomView(String nick) throws RemoteException {
+            super();
+            owner = nick;
+        }
+
+        @Override
+        public void update(Event event) throws IOException {
+            if (event instanceof PatternCardDistributedEvent) {
+                try {
+                    ctrl.choosePattern(owner, ((PatternCardDistributedEvent) event).getOne(), true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }else if(event instanceof SetTokenEvent){
+                code = ((SetTokenEvent) event).getToken();
+            }
+        }
+
+        @Override
+        public void run() throws IOException {
+
+        }
+
+        @Override
+        public void attachController(IController gameController) throws IOException {
+            ctrl = gameController;
+        }
+    }
+
+    @Test
+    public void reconnectionTest() throws Exception {
+        Thread server = new Thread(new LaunchServer()::run);
+        server.start();
+        IAccessPoint apRmi = (IAccessPoint) Naming.lookup(Settings.instance().getRemoteRmiApName());
+        IAccessPoint apSock = new APProxySocket(Settings.instance().getHost(), Settings.instance().getPort());
+        CustomView tom = new CustomView("Tom"),
+                matt = new CustomView("matt");
+        tom.attachController(apRmi.connect(tom.owner, tom ));
+        matt.attachController(apSock.connect(matt.owner, matt));
+
+        Thread.sleep(Settings.instance().getGameStartTimeout()+1000);
+        CustomView matt2 = new CustomView("matt");
+        matt2.attachController(apRmi.reconnect(matt2.owner, matt.code, matt2));
+        
+        Thread.sleep(1000);
+        Assert.assertEquals(matt2.code, matt.code);
+        apSock = new APProxySocket(Settings.instance().getHost(), Settings.instance().getPort());
+        CustomView matt3 = new CustomView("matt");
+        matt2.attachController(apSock.reconnect(matt3.owner, matt2.code, matt3));
+        Thread.sleep(1000);
+        Assert.assertEquals(matt3.code, matt3.code);
+
+
     }
 
 /*

@@ -258,13 +258,10 @@ public class Player implements Serializable{
      * @return a boolean flag which indicates whether the player has already placed a die
      * in this turn or not
      */
-    public boolean getHasPlacedADieInThisTurn(){
+    private boolean getHasPlacedADieInThisTurn(){
         return hasPlacedADieInThisTurn;
     }
 
-    public String getPlayerSecurityCode(){
-        return UUID.randomUUID().toString();
-    }
 //endregion
 
     /**
@@ -585,7 +582,7 @@ public class Player implements Serializable{
      */
     public void disconnectView(){
         isConnected = false;
-        if(myView != null)
+        if( this.myView instanceof Thread)
             ((Thread) myView).interrupt();
         myView = null;
     }
@@ -596,7 +593,7 @@ public class Player implements Serializable{
      * @param myView player's new view reference
      */
     public void reconnectView(IView myView){
-        if(this.myView != null)
+        if( this.myView instanceof Thread)
             ((Thread) this.myView).interrupt();
         this.myView = myView;
         isConnected = true;

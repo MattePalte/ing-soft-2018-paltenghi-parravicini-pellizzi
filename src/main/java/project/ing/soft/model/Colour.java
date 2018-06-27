@@ -1,5 +1,6 @@
 package project.ing.soft.model;
 
+import project.ing.soft.Settings;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -22,16 +23,15 @@ public enum Colour implements Serializable{
     //http://jkorpela.fi/chars/spaces.html
     // Because ⚄ is an irregular width character -> 1+1/3 em
 
-    BLUE  ("\u001B[96m", "\u001B[44m", "#4286f4"),
-    GREEN ("\u001B[92m", "\u001B[42m", "#6af278"),
+    BLUE  (Settings.instance().isDeploy() ? "\u001B[38;2;1;111;187m"  : "\u001B[96m", Settings.instance().isDeploy() ? "\u001B[48;2;136;184;301m"   : "\u001B[44m", "#4286f4"),
+    GREEN (Settings.instance().isDeploy() ? "\u001B[38;2;1;187;0m"    : "\u001B[92m", Settings.instance().isDeploy() ? "\u001B[48;2;178;202;45m"    : "\u001B[42m", "#6af278"),
     RED   ("\u001B[91m","\u001B[41m", "#fc5067"),
-    VIOLET("\u001B[95m", "\u001B[45m", "#b762fc"),
-    YELLOW("\u001B[93m", "\u001B[43m", "#f5f97a"),
-
-    WHITE("\u001B[97m", "\u001B[47m", "#ffffff");
+    VIOLET(Settings.instance().isDeploy() ? "\u001B[38;2;174;138;190m": "\u001B[95m", Settings.instance().isDeploy() ? "\u001B[48;2;184;148;200m"   : "\u001B[45m", "#b762fc"),
+    YELLOW(Settings.instance().isDeploy() ? "\u001B[38;2;194;171;33m" : "\u001B[93m", Settings.instance().isDeploy() ? "\u001B[48;2;214;191;85m"    : "\u001B[43m", "#f5f97a"),
+    WHITE (Settings.instance().isDeploy() ? "\u001B[38;2;0;0;0m"      : "\u001B[97m", Settings.instance().isDeploy() ? "\u001B[48;2;153;153;153m"   : "\u001B[47m", "#ffffff");
 
     private static final String ANSI_RESET = "\u001B[0m";
-    private static List<Colour> validColours;
+    private static final List<Colour> validColours;
     //https://stackoverflow.com/questions/2420389/static-initialization-blocks
     static{
         validColours = new ArrayList<>(Arrays.asList(values()));

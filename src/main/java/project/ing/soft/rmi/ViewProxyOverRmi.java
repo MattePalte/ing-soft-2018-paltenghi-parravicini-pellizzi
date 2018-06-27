@@ -102,14 +102,15 @@ public class ViewProxyOverRmi extends Thread implements IView {
         if( isConnected.getAndSet(false)) {
             super.interrupt();
             logger.log(Level.INFO, "Event dispatcher marked {0} as disconnected ", associatedNickname);
-            gameController.markAsDisconnected(associatedNickname);
-            try {
-                UnicastRemoteObject.unexportObject(controllerOverRmi, true);
-            } catch (NoSuchObjectException ex) {
-                logger.log(Level.SEVERE, "Error while removing controllerOverRmi from registry ", ex);
-            }
-            controllerOverRmi = null;
+            if(gameController != null) {
 
+                try {
+                    UnicastRemoteObject.unexportObject(controllerOverRmi, true);
+                } catch (NoSuchObjectException ex) {
+                    logger.log(Level.SEVERE, "Error while removing controllerOverRmi from registry ", ex);
+                }
+                controllerOverRmi = null;
+            }
         }
     }
 

@@ -31,7 +31,7 @@ public class GameModel implements IGameModel, Serializable {
     private ArrayList<Die>              diceBag;
     private ArrayList<Die>              draftPool;
 
-    private ArrayList<Player>           currentTurnList;
+    private Round                       currentRound;
 
     private ArrayList<PublicObjective>  publicObjectives;
     private ArrayList<ToolCard>         toolCards;
@@ -61,7 +61,7 @@ public class GameModel implements IGameModel, Serializable {
 
         setStatus(GAME_MANAGER_STATUS.WAITING_FOR_PATTERNCARD);
 
-        currentGame = new Game(aGame);
+        currentGame = aGame;
         // initialize empty draft pool
         draftPool = new ArrayList<>();
         // initialize Round Tracker obj
@@ -91,7 +91,7 @@ public class GameModel implements IGameModel, Serializable {
         ArrayList<WindowPatternCard> windowPatterns   = availableWindowPatternCards.stream().
                 limit((long)currentGame.getNumberOfPlayers()*2).collect(Collectors.toCollection(ArrayList::new));
 
-        this.currentTurnList = createTurns(currentGame.getPlayers());
+        this.currentRound = new Round(0,currentGame);
         logger.log(Level.INFO, "created turns");
         // do 1, 2 operation for each player
         for (Player p : currentGame.getPlayers()) {
@@ -124,12 +124,11 @@ public class GameModel implements IGameModel, Serializable {
         this.roundTracker       = new RoundTracker(from.roundTracker);
         this.publicObjectives   = new ArrayList<> (from.publicObjectives);
         this.toolCards          = new ArrayList<> (from.toolCards);
-        this.currentTurnList    = new ArrayList<>();
-        for(Player p : from.currentTurnList){
+        this.currentRound       = new Round(from.currentRound, currentGame);
+        for(Player p : from.currentGame){
             Player toAdd = new Player(p);
             if(!toAdd.getName().equals(recipient.getName()))
                 toAdd.setPrivateObjective(null);
-            this.currentTurnList.add(toAdd);
         }
         this.toolCardCost       = new HashMap<>   (from.toolCardCost);
         this.favours            = new HashMap<>   (from.favours);
@@ -154,19 +153,13 @@ public class GameModel implements IGameModel, Serializable {
     }
     @Override
     public List<Player> getCurrentTurnList(){
-        return new ArrayList<>(currentTurnList);
+        return currentRound.getRemaining();
     }
     @Override
-    public List<Player> getPlayerList() {
-        return currentGame
-                .getPlayers()
-                .stream()
-                .sorted(Comparator.comparing(Player::getName))
-                .collect(Collectors.toCollection(ArrayList :: new));
-    }
+    public List<Player> getPlayerList() { return currentGame.getPlayers(); }
     @Override
     public Player getCurrentPlayer() {
-        return currentTurnList.get(0);
+        return currentRound.getCurrent();
     }
     @Override
     public List<Die> getDraftPool() {
@@ -196,7 +189,7 @@ public class GameModel implements IGameModel, Serializable {
     }
     //endregion
 
-    //region operations exposed for toolcard
+    //region operations exposed for ToolCards
     @Override
     public void addToDraft(Die aDie) {
         draftPool.add(new Die(aDie));
@@ -223,14 +216,7 @@ public class GameModel implements IGameModel, Serializable {
     }
     @Override
     public void samePlayerAgain(){
-        for(int i = currentTurnList.size() - 1; i >= 0; i--){
-            if(currentTurnList.get(i).getName().equals(getCurrentPlayer().getName())) {
-                currentTurnList.remove(i);
-                break;
-            }
-        }
-        currentTurnList.add(1, getCurrentPlayer());
-
+        currentRound.repeatCurrentPlayer();
     }
 
     /**
@@ -239,8 +225,6 @@ public class GameModel implements IGameModel, Serializable {
      */
     @Override
     public void payToolCard(ToolCard aToolCard) {
-
-
         int actualFavours = favours.get(getCurrentPlayer().getName());
         if  (actualFavours < toolCardCost.get(aToolCard.getTitle()))
             return;
@@ -275,7 +259,7 @@ public class GameModel implements IGameModel, Serializable {
     public void setupPhase() {
         logger.log(Level.INFO, "Setup phase started");
         //distribute event for selecting a WindowPatternCard
-        for(Player p : getPlayerList()) {
+        for(Player p : currentGame) {
             p.update(   new ModelChangedEvent(new GameModel(this, p)),
                         new PatternCardDistributedEvent(p.getPrivateObjective(), p.getPossiblePatternCard().get(0), p.getPossiblePatternCard().get(1)));
 
@@ -285,15 +269,12 @@ public class GameModel implements IGameModel, Serializable {
     //region player connection
     @Override
     public void reconnectPlayer(String nickname, IView view){
-        Player player = currentGame.getPlayers()
-                .stream()
-                .filter(p-> p.getName().equals(nickname)).findFirst().orElse(null);
-
+        Player player = currentGame.getPlayerFromName(nickname);
         if(player == null){
             return;
         }
+        currentGame.reconnect(nickname, view);
 
-        player.reconnectView(view);
         player.update(new ModelChangedEvent(this));
         if(status == GAME_MANAGER_STATUS.WAITING_FOR_PATTERNCARD)
             player.update(new PatternCardDistributedEvent(player.getPrivateObjective(), player.getPossiblePatternCard().get(0), player.getPossiblePatternCard().get(1)));
@@ -306,42 +287,40 @@ public class GameModel implements IGameModel, Serializable {
 
     @Override
     public void disconnectPlayer(String playerToDisconnect) {
-        for (Player p : getPlayerList()) {
-            if (p.getName().equals(playerToDisconnect) ) {
-                p.disconnectView();
-                logger.log(Level.INFO, "Player {0} disconnected", playerToDisconnect);
-            }
+        Player player = currentGame.getPlayerFromName(playerToDisconnect);
+        if(player != null) player.disconnectView();
+
+        logger.log(Level.INFO, "Player {0} disconnected", playerToDisconnect);
+        getPlayerList().forEach(p -> p.update(new ModelChangedEvent(new GameModel(this, p)), new PlayerDisconnectedEvent(playerToDisconnect)));
+
         }
-        getPlayerList().stream().filter(Player::isConnected).forEach(p -> p.update(new ModelChangedEvent(new GameModel(this, p)), new PlayerDisconnectedEvent(playerToDisconnect)));
-    }
     //endregion
 
     @Override
     public void bindPatternAndPlayer(String nickname, WindowPatternCard windowCard, Boolean side) throws GameInvalidException {
         logger.log(Level.INFO, "Player {0} chosen a pattern card", nickname);
-        for (Player p : getPlayerList()){
-            if (p.getName().equals(nickname)){
-                p.setPatternCard(windowCard);
-                p.setPatternFlipped(side);
-                favours.put(p.getName(), p.getPattern().getDifficulty());
-            }
-        }
+        Player player = currentGame.getPlayerFromName(nickname);
+
+        player.setPatternCard(windowCard);
+        player.setPatternFlipped(side);
+        favours.put(player.getName(), player.getPattern().getDifficulty());
+
         // check if all players have chosen their card
-        for (Player p : getPlayerList()) {
-            if (p.getPatternCard() == null) return;
+        for (Player other : currentGame) {
+            if (other.getPatternCard() == null) return;
         }
         // if all have chosen their card start the match
         setStatus(GAME_MANAGER_STATUS.ONGOING);
 
         drawDice();
-        currentGame.getPlayers().forEach(p -> p.update(new FinishedSetupEvent(), new ModelChangedEvent(new GameModel(this, p))));
+        currentGame.forEach(p -> p.update(new FinishedSetupEvent(), new ModelChangedEvent(new GameModel(this, p))));
         currentPlayerEndTime = new Timestamp(System.currentTimeMillis() + Settings.instance().getTurnTimeout());
         getCurrentPlayer().update( new MyTurnStartedEvent(currentPlayerEndTime));
     }
 
     @Override
     public void requestUpdate() {
-        currentGame.getPlayers().forEach(p -> p.update(new ModelChangedEvent(new GameModel(this, p))));
+        currentGame.forEach(p -> p.update(new ModelChangedEvent(new GameModel(this, p))));
     }
 
     private void broadcastEvents(Event ... events){
@@ -354,7 +333,7 @@ public class GameModel implements IGameModel, Serializable {
     @Override
     public void placeDie(Die aDie, int rowIndex, int colIndex) throws PatternConstraintViolatedException, PositionOccupiedException, RuleViolatedException {
         logger.log(Level.INFO, "Player {0} would like to place die {1} on ({2}, {3})", new Object[]{getCurrentPlayer().getName(),aDie,rowIndex, colIndex });
-        if(aDie.getValue() == 0)
+        if(aDie.getValue() == 0 )
             throw new RuleViolatedException("This die can't be placed!");
         if(!draftPool.contains(aDie))
             throw new RuleViolatedException("This die is not in the draftpool");
@@ -393,24 +372,20 @@ public class GameModel implements IGameModel, Serializable {
         if(timeoutOccurred)
             currentPlayer.update(new MyTurnEndedEvent());
         currentPlayer.endTurn();
-        currentTurnList.remove(0);
-        // if a single player is online, end the game due to insufficiency of players
-        if(getPlayerList().stream().filter(Player :: isConnected).count() == 1){
-            endGame();
-            return;
-        }
-        // Making all disconnected players jump its turn
-        while(!currentTurnList.isEmpty() && !currentTurnList.get(0).isConnected()){
-            currentTurnList.remove(0);
-        }
 
-        if(currentTurnList.isEmpty() && roundTracker.getCurrentRound() == Settings.instance().getNrOfRound()) {
+        // Making all disconnected players jump their turn
+        do {
+            currentRound.next();
+        }while( currentRound.hasNext() && !currentRound.getCurrent().isConnected());
+
+        // if a single player is online, end the game due to insufficiency of players
+        if( (currentRound.hasNext() && roundTracker.getCurrentRound() == Settings.instance().getNrOfRound()) ||
+            (getPlayerList().stream().filter(Player :: isConnected).count() == 1)) {
             endGame();
             return;
-        }else if(currentTurnList.isEmpty()){
+        }else if(!currentRound.hasNext()){
             logger.log(Level.INFO, "Round {0} finished.", roundTracker.getCurrentRound());
-            currentGame.leftShiftPlayers();
-            currentTurnList = createTurns(currentGame.getPlayers());
+            currentRound = currentRound.nextRound();
             roundTracker.addDiceLeft(draftPool);
             roundTracker.nextRound();
             draftPool.clear();
@@ -466,16 +441,6 @@ public class GameModel implements IGameModel, Serializable {
 
         return new GameFinishedEvent(rank, new HashMap<>(pointDescription));
 
-    }
-
-    private ArrayList<Player> createTurns(List<Player> players){
-        // create p1 p2 p3
-        ArrayList<Player> turn = new ArrayList<>(players);
-        // add p3 p2 p1
-        Collections.reverse(players);
-        turn.addAll(new ArrayList<>(players));
-
-        return turn; // result: p1 p2 p3 p3 p2 p1
     }
 
     private void drawDice() throws GameInvalidException {

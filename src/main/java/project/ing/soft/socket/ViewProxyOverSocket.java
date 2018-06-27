@@ -117,7 +117,11 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
         if(isConnected.getAndSet(false)) {
             super.interrupt();
             logger.log(Level.INFO, "Event dispatcher marked {0} as disconnected ", associatedNickname);
-            gameController.markAsDisconnected(associatedNickname);
+
+            if(gameController !=null) {
+                gameController.markAsDisconnected(associatedNickname);
+            }
+
             try {
                 if (fromClient != null)
                     fromClient.close();

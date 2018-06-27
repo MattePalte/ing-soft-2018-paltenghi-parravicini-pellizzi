@@ -30,7 +30,7 @@ public class LaunchServer {
      * Server default constructor. It creates maps to save on going games and players actually playing and
      * exposes commands to enable and disable loggers
      */
-    private LaunchServer() {
+    public LaunchServer() {
 
         manager  = LogManager.getLogManager();
 

@@ -82,15 +82,11 @@ public class GameController implements IController {
      */
     public synchronized void joinTheGame(String playerName, IView view) throws GameFullException, GameInvalidException {
         log.log(Level.INFO,"Add player request received from {0} ", playerName);
-        Optional<Player> player = theGame.getPlayers()
-                .stream()
-                .filter(p->p.getName().equals(playerName))
-                .findFirst();
+        Player player = theGame.getPlayerFromName(playerName);
 
-        if(player.isPresent()){
+        if(player != null){
 
             if(gameModel != null && gameModel.getStatus() != IGameModel.GAME_MANAGER_STATUS.ENDED) {
-                theGame.reconnect(playerName, view);
                 gameModel.reconnectPlayer(playerName, view);
             }else{
                 theGame.reconnect(playerName, view);
@@ -172,11 +168,9 @@ public class GameController implements IController {
     @Override
     public synchronized void choosePattern(String nickname, WindowPatternCard windowCard, Boolean side) throws GameInvalidException, ActionNotPermittedException {
 
-        Optional<Player> player = gameModel.getPlayerList().stream()
-                .filter((Player p) ->  p.getName().equals(nickname))
-                .findAny();
+        Player player = theGame.getPlayerFromName(nickname);
 
-        if (!player.isPresent() ){
+        if(player == null){
             log.log(Level.INFO, "Somebody is trying to penetrate our program");
             throw new ActionNotPermittedException();
         }else {
