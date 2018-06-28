@@ -5,6 +5,7 @@ import project.ing.soft.exceptions.*;
 import project.ing.soft.model.*;
 import project.ing.soft.model.cards.objectives.ObjectiveCard;
 import project.ing.soft.model.cards.objectives.privates.PrivateObjective;
+import project.ing.soft.model.cards.objectives.privates.RearPrivateObjective;
 import project.ing.soft.model.cards.objectives.publics.PublicObjective;
 import project.ing.soft.model.cards.toolcards.ToolCard;
 import project.ing.soft.model.gamemodel.events.*;
@@ -115,21 +116,13 @@ public class GameModel implements IGameModel, Serializable {
         from.logger.log(Level.INFO, "A game manager was cloned from this");
         this.logger             = Logger.getAnonymousLogger();
         this.logger.setLevel(Settings.instance().getDefaultLoggingLevel());
-        this.currentGame        = new Game(from.currentGame);
-        for(Player p : this.currentGame.getPlayers())
-            if(!p.getName().equals(recipient.getName()))
-                p.setPrivateObjective(null);
+        this.currentGame        = new Game(from.currentGame, recipient);
         this.diceBag            = new ArrayList<> (from.diceBag);
         this.draftPool          = new ArrayList<> (from.draftPool);
         this.roundTracker       = new RoundTracker(from.roundTracker);
         this.publicObjectives   = new ArrayList<> (from.publicObjectives);
         this.toolCards          = new ArrayList<> (from.toolCards);
         this.currentRound       = new Round(from.currentRound, currentGame);
-        for(Player p : from.currentGame){
-            Player toAdd = new Player(p);
-            if(!toAdd.getName().equals(recipient.getName()))
-                toAdd.setPrivateObjective(null);
-        }
         this.toolCardCost       = new HashMap<>   (from.toolCardCost);
         this.favours            = new HashMap<>   (from.favours);
         this.aToolCardUsedDuringThisTurn = from.aToolCardUsedDuringThisTurn;
@@ -206,12 +199,12 @@ public class GameModel implements IGameModel, Serializable {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
     @Override
-    public void addToDicebag(Die aDie){
+    public void addToDiceBag(Die aDie){
         diceBag.add(aDie);
         Collections.shuffle(diceBag);
     }
     @Override
-    public Die drawFromDicebag(){
+    public Die drawFromDiceBag(){
         return diceBag.remove(new Random().nextInt(diceBag.size())).rollDie();
     }
     @Override
@@ -275,7 +268,7 @@ public class GameModel implements IGameModel, Serializable {
         }
         currentGame.reconnect(nickname, view);
 
-        player.update(new ModelChangedEvent(this));
+        player.update(new ModelChangedEvent(new GameModel(this, player)));
         if(status == GAME_MANAGER_STATUS.WAITING_FOR_PATTERNCARD)
             player.update(new PatternCardDistributedEvent(player.getPrivateObjective(), player.getPossiblePatternCard().get(0), player.getPossiblePatternCard().get(1)));
         else if(status == GAME_MANAGER_STATUS.ONGOING && getCurrentPlayer().getName().equals(player.getName()))
@@ -374,22 +367,14 @@ public class GameModel implements IGameModel, Serializable {
             currentPlayer.update(new MyTurnEndedEvent());
         currentPlayer.endTurn();
 
-        boolean ended = true;
-        // Making all disconnected players jump their turn
-        if(currentRound.hasNext()) {
-            do {
-                currentRound.next();
-            }
-            while (currentRound.hasNext() && !currentRound.getCurrent().isConnected());
-            ended = !currentRound.getCurrent().isConnected();
-        }
-        // if a single player is online, end the game due to insufficiency of players
-        if( (ended && roundTracker.getCurrentRound() == Settings.instance().getNrOfRound()) ||
+        // if there's no suitable player online
+        // or only a single player is online, end the game due to insufficiency of players
+        if( (!currentRound.hasNext() && roundTracker.getCurrentRound() == Settings.instance().getNrOfRound()) ||
             (getPlayerList().stream().filter(Player :: isConnected).count() == 1)) {
             logger.log(Level.INFO, "Game finished.");
             endGame();
             return;
-        }else if(ended){
+        }else if(!currentRound.hasNext()){
             logger.log(Level.INFO, "Round {0} finished.", roundTracker.getCurrentRound());
             currentRound = currentRound.nextRound();
             roundTracker.addDiceLeft(draftPool);
@@ -398,6 +383,8 @@ public class GameModel implements IGameModel, Serializable {
             logger.log(Level.INFO, "Round {0} just started.", roundTracker.getCurrentRound());
 
             drawDice();
+        }else{
+            currentRound.next();
         }
 
         aToolCardUsedDuringThisTurn = false;
