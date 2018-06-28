@@ -31,6 +31,7 @@ public class ClientViewCLI extends UnicastRemoteObject
 
     private final String                    ownerNameOfTheView;
     private String                          personalToken;
+    private boolean                         gameOnGoing;
     private IGameModel                      localCopyOfTheStatus;
     private Timestamp                       expectedEndTurn;
 
@@ -67,6 +68,7 @@ public class ClientViewCLI extends UnicastRemoteObject
         this.log.setLevel(Level.OFF);
         this.out                  = new Console(System.out);
         this.scanner              = new NonBlockingScanner(System.in);
+        this.gameOnGoing          = true;
         this.localCopyOfTheStatus = null;
 
         this.expectedEndTurn      = null;
@@ -90,7 +92,7 @@ public class ClientViewCLI extends UnicastRemoteObject
     private boolean eventHandlingFunction() throws InterruptedException {
         Event toRespond;
 
-        while(gameOngoing()) {
+        while(gameOnGoing) {
 
             synchronized (eventsReceived) {
                 while (eventsReceived.isEmpty())
@@ -105,10 +107,6 @@ public class ClientViewCLI extends UnicastRemoteObject
         return true;
     }
 
-    private boolean gameOngoing(){
-        return (localCopyOfTheStatus == null || localCopyOfTheStatus.getStatus() != IGameModel.GAME_MANAGER_STATUS.ENDED);
-    }
-
     @Override
     public void attachController(IController aController){
         this.controller = aController;
@@ -119,7 +117,7 @@ public class ClientViewCLI extends UnicastRemoteObject
     public void update(Event aEvent) {
         log.log(Level.INFO,  "{0} received an event : {1}" ,new Object[]{ ownerNameOfTheView, aEvent});
 
-        if (gameOngoing()) {
+        if (gameOnGoing) {
             synchronized (eventsReceived) {
                 eventsReceived.add(aEvent);
                 eventsReceived.notifyAll();
@@ -151,9 +149,7 @@ public class ClientViewCLI extends UnicastRemoteObject
     @Override
     public void respondTo(PatternCardDistributedEvent event) {
         log.info("PatternCardEvent received");
-        if(userThread != null)
-            userThread.cancel(true);
-        userThread = threadPool.submit( ()-> choosePatternCardOperation(event));
+        threadPool.submit( ()-> choosePatternCardOperation(event));
     }
 
     @Override
@@ -221,29 +217,33 @@ public class ClientViewCLI extends UnicastRemoteObject
 
     private void choosePatternCardOperation(PatternCardDistributedEvent event){
         boolean done = false;
+        WindowPatternCard aCard = null;
+        int isFront = 0;
+
         do {
             try {
                 out.println("This is your private objective: ");
                 out.println(event.getMyPrivateObjective());
-                WindowPatternCard aCard = (WindowPatternCard) chooseFrom(
+                aCard = (WindowPatternCard) chooseFrom(
                         new ArrayList<>(Arrays.asList(event.getOne(), event.getTwo()))
                 );
-                int isFront = chooseIndexFrom(
+                isFront = chooseIndexFrom(
                         new ArrayList<>(Arrays.asList(aCard.getFrontPattern(), aCard.getRearPattern()))
                 );
-
-                out.println("Wait for other players to choose their pattern card.");
-                controller.choosePattern(ownerNameOfTheView, aCard, isFront == 1);
                 done = true;
             } catch (UserInterruptActionException ex) {
                 out.println("The game can't start until you select a window pattern");
-            } catch(NoSuchObjectException e){
-                displayError(e);
-                break;
             } catch (Exception e) {
                 displayError(e);
             }
         } while (!done);
+
+        try {
+            out.println("Wait for other players to choose their pattern card.");
+            controller.choosePattern(ownerNameOfTheView, aCard, isFront == 1);
+        } catch (Exception e) {
+            displayError(e);
+        }
     }
 
     private void playAToolCardOperation() throws Exception {
@@ -329,6 +329,7 @@ public class ClientViewCLI extends UnicastRemoteObject
 
     @Override
     public void respondTo(GameFinishedEvent event) {
+        gameOnGoing = false;
         out.println("Game finished!");
 
         Map<String, String> pointsDescriptor = event.getPointsDescriptor();
@@ -339,6 +340,7 @@ public class ClientViewCLI extends UnicastRemoteObject
         for (Pair<Player, Integer> aPair : event.getRank()){
             out.println(aPair.getKey() + " => " + aPair.getValue());
         }
+        stop();
     }
 
     //endregion
@@ -479,11 +481,13 @@ public class ClientViewCLI extends UnicastRemoteObject
     //endregion
 
     private void stop(){
-        userThread.cancel(true);
+        if(userThread != null)
+            userThread.cancel(true);
         eventHandler.cancel(true);
         threadPool.shutdown();
         this.controller = null;
-        out.println("To reconnect you can use this token: " + personalToken);
+        if(localCopyOfTheStatus.getStatus() != IGameModel.GAME_MANAGER_STATUS.ENDED)
+            out.println("To reconnect you can use this token: " + personalToken);
         //the following line must remain. In other case no unreferenced() get called!
         System.gc();
         System.exit(0);

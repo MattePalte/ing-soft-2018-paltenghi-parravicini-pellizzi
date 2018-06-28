@@ -269,9 +269,11 @@ public class GameModel implements IGameModel, Serializable {
         currentGame.reconnect(nickname, view);
 
         player.update(new ModelChangedEvent(new GameModel(this, player)));
+        if(status == GAME_MANAGER_STATUS.ENDED)
+            player.update(buildGameFinishedEvent());
         if(status == GAME_MANAGER_STATUS.WAITING_FOR_PATTERNCARD)
             player.update(new PatternCardDistributedEvent(player.getPrivateObjective(), player.getPossiblePatternCard().get(0), player.getPossiblePatternCard().get(1)));
-        else if(status == GAME_MANAGER_STATUS.ONGOING && getCurrentPlayer().getName().equals(player.getName()))
+        if(status == GAME_MANAGER_STATUS.ONGOING && getCurrentPlayer().getName().equals(player.getName()))
             player.update(new MyTurnStartedEvent(currentPlayerEndTime));
 
         getPlayerList().stream().filter(p -> p.isConnected() && !p.getName().equals(nickname)).forEach(p -> p.update(new ModelChangedEvent(new GameModel(this, p)), new PlayerReconnectedEvent(nickname)));
@@ -355,7 +357,7 @@ public class GameModel implements IGameModel, Serializable {
 
     private void endGame(){
         setStatus(GAME_MANAGER_STATUS.ENDED);
-        currentGame.forEach(p -> p.update( new ModelChangedEvent(new GameModel(this, p))));
+        getPlayerList().forEach(p -> p.update( new ModelChangedEvent(new GameModel(this, p))));
         broadcastEvents(buildGameFinishedEvent());
     }
 

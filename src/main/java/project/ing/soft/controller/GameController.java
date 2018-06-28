@@ -86,7 +86,7 @@ public class GameController implements IController {
 
         if(player != null){
 
-            if(gameModel != null && gameModel.getStatus() != IGameModel.GAME_MANAGER_STATUS.ENDED) {
+            if(gameModel != null) {
                 gameModel.reconnectPlayer(playerName, view);
             }else{
                 theGame.reconnect(playerName, view);
