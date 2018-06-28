@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 public class RearPrivateObjective extends PrivateObjective implements Serializable {
     public RearPrivateObjective() {
-        super("SAGRADA", "Rear of a card", "", 0,Colour.WHITE);
+        super("sagrada", "Rear of a card", "", 0,Colour.WHITE);
     }
 
     @Override
@@ -20,7 +20,7 @@ public class RearPrivateObjective extends PrivateObjective implements Serializab
     public String toString(){
         StringBoxBuilder aBuilder = new StringBoxBuilder(new StringBoxBuilder.DOUBLELINESQUAREANGLE(),Settings.instance().getTextCardWidth(), Settings.instance().getTextCardHeight());
         aBuilder.appendToTop(this.getTitle());
-        aBuilder.prependToBottom(this.getTitle());
+        aBuilder.prependToBottom("ɐpɐɹƃɐs");
         return aBuilder.toString();
     }
 
