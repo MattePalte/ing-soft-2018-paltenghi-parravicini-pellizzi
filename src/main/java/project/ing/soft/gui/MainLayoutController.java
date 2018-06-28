@@ -342,6 +342,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         Map<String, String> pointsDescriptor = event.getPointsDescriptor();
         for(Player p : localCopyOfTheStatus.getPlayerList()){
             stringBuilder.append(pointsDescriptor.get(p.getName()));
+            stringBuilder.append("\n");
         }
         for (Pair<Player, Integer> aPair : event.getRank()){
             String playerLine = aPair.getKey().getName() + " => " + aPair.getValue() + "\n";
@@ -350,6 +351,10 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         }
         String str = stringBuilder.toString();
         alert.setHeaderText(str);
+        alert.setOnCloseRequest((DialogEvent) -> {
+            Platform.exit();
+            System.exit(0);
+        });
         alert.show();
         log.log(Level.INFO, str);
     }
@@ -392,7 +397,8 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         displayOtherPlayerSituation(primaryStage.getScene());
         drawDraftPool();
         drawRoundTracker();
-        disableAll();
+        if(!localCopyOfTheStatus.getCurrentPlayer().getName().equals(ownerNameOfTheView))
+            disableAll();
         if (localCopyOfTheStatus.getFavours().get(ownerNameOfTheView) != null) {
             int favoursLeft = localCopyOfTheStatus.getFavours().get(ownerNameOfTheView);
             String oneFavour = " * ";

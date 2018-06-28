@@ -109,6 +109,7 @@ public class ChoosePatternController {
             for (WindowPatternCard c : possiblePatternCard) {
                 if (c.getFrontPattern() == pattern || c.getRearPattern() == pattern) {
                     gameController.choosePattern(nick, c, c.getRearPattern() == pattern);
+                    gameController = null;
                     break;
                 }
             }

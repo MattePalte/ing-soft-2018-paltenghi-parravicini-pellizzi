@@ -60,15 +60,13 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
     public RealView(Stage stage, String nick, SplashController splashController) throws RemoteException{
         super();
         this.stage = stage;
-        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent event) {
-                myController = null;
-                System.gc();
-                //Thread.currentThread().interrupt();
-                Platform.exit();
-                System.exit(0);
-            }
+        stage.setOnCloseRequest((WindowEvent) -> {
+            myController = null;
+            if(mainBoard != null)
+                mainBoard.setGameController(null);
+            System.gc();
+            Platform.exit();
+            System.exit(0);
         });
         this.ownerNameOfTheView = nick;
         this.splashController = splashController;
@@ -429,16 +427,16 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
 
         return  !(
                 (stopResponding != realView.stopResponding) ||
-                (localCopyOfTheStatus != null ? !localCopyOfTheStatus.equals(realView.localCopyOfTheStatus) : realView.localCopyOfTheStatus != null) ||
-                (myPlayer != null ? !myPlayer.equals(realView.myPlayer) : realView.myPlayer != null) ||
-                (ownerNameOfTheView != null ? !ownerNameOfTheView.equals(realView.ownerNameOfTheView) : realView.ownerNameOfTheView != null) ||
-                (myController != null ? !myController.equals(realView.myController) : realView.myController != null) ||
-                (token != null ? !token.equals(realView.token) : realView.token != null) ||
-                (mainBoard != null ? !mainBoard.equals(realView.mainBoard) : realView.mainBoard != null) ||
-                (!eventsReceived.equals(realView.eventsReceived)) ||
-                (stage != null ? !stage.equals(realView.stage) : realView.stage != null) ||
-                !(log != null ? log.equals(realView.log) : realView.log == null)
-            );
+                        (localCopyOfTheStatus != null ? !localCopyOfTheStatus.equals(realView.localCopyOfTheStatus) : realView.localCopyOfTheStatus != null) ||
+                        (myPlayer != null ? !myPlayer.equals(realView.myPlayer) : realView.myPlayer != null) ||
+                        (ownerNameOfTheView != null ? !ownerNameOfTheView.equals(realView.ownerNameOfTheView) : realView.ownerNameOfTheView != null) ||
+                        (myController != null ? !myController.equals(realView.myController) : realView.myController != null) ||
+                        (token != null ? !token.equals(realView.token) : realView.token != null) ||
+                        (mainBoard != null ? !mainBoard.equals(realView.mainBoard) : realView.mainBoard != null) ||
+                        (!eventsReceived.equals(realView.eventsReceived)) ||
+                        (stage != null ? !stage.equals(realView.stage) : realView.stage != null) ||
+                        !(log != null ? log.equals(realView.log) : realView.log == null)
+        );
     }
 
     @Override

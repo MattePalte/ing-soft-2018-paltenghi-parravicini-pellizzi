@@ -58,7 +58,8 @@ public class Round implements Serializable {
     }
 
     public List<Player> getRemaining(){
-        return Arrays.stream(playerIndexes).filter(i-> i>= curr).mapToObj( aGame.getPlayers()::get).collect(Collectors.toList());
+        int[] remainingTurns = Arrays.copyOfRange(playerIndexes, curr, playerIndexes.length);
+        return Arrays.stream(remainingTurns).mapToObj( aGame.getPlayers()::get).collect(Collectors.toList());
     }
 
     public Player getCurrent(){

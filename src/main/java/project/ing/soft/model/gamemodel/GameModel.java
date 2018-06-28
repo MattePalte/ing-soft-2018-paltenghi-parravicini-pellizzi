@@ -280,6 +280,7 @@ public class GameModel implements IGameModel, Serializable {
             player.update(new PatternCardDistributedEvent(player.getPrivateObjective(), player.getPossiblePatternCard().get(0), player.getPossiblePatternCard().get(1)));
         else if(status == GAME_MANAGER_STATUS.ONGOING && getCurrentPlayer().getName().equals(player.getName()))
             player.update(new MyTurnStartedEvent(currentPlayerEndTime));
+
         getPlayerList().stream().filter(p -> p.isConnected() && !p.getName().equals(nickname)).forEach(p -> p.update(new ModelChangedEvent(new GameModel(this, p)), new PlayerReconnectedEvent(nickname)));
 
     }
@@ -292,7 +293,8 @@ public class GameModel implements IGameModel, Serializable {
 
         logger.log(Level.INFO, "Player {0} disconnected", playerToDisconnect);
         getPlayerList().forEach(p -> p.update(new ModelChangedEvent(new GameModel(this, p)), new PlayerDisconnectedEvent(playerToDisconnect)));
-
+        if(getPlayerList().stream().filter(Player::isConnected).count() <= 1)
+            endGame();
         }
     //endregion
 
@@ -415,7 +417,7 @@ public class GameModel implements IGameModel, Serializable {
 
 
         for (Player p : getPlayerList()){
-            StringBuilder sb = new StringBuilder( "List of points:\n");
+            StringBuilder sb = new StringBuilder( "List of " + p.getName() + "'s points:\n");
             int sum = 0;
             int tmpCount = p.countPrivateObjectivesPoints();
             sb.append(String.format("%s gave %d points%n", p.getPrivateObjective().getTitle(), tmpCount));
