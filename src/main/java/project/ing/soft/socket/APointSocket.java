@@ -32,8 +32,8 @@ import java.util.concurrent.Callable;
  * It's created by {@link SocketListener} after the {@link ServerSocket#accept()}
  */
 public class APointSocket implements Callable<Boolean>, ConnectionRequestHandler, IAccessPoint {
-    private Socket clientSocket;
-    private AccessPointReal accessPointReal;
+    private final Socket clientSocket;
+    private final AccessPointReal accessPointReal;
     private ObjectOutputStream oos;
     private ObjectInputStream ois;
     private ViewProxyOverSocket viewProxy;

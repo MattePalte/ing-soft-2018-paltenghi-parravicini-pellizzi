@@ -99,7 +99,7 @@ public class ChoosePatternController {
     /**
      * Get pattern card and frontSide from pattern
      * and then send our chosen card to the game controller
-     * @param pattern
+     * @param pattern to be chosen
      */
     private void chooseThis(WindowPattern pattern) {
         try {

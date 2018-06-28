@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 
 public class MyTurnStartedEvent implements Event, Serializable {
 
-    private Timestamp endTurnTimeStamp;
+    private final Timestamp endTurnTimeStamp;
 
     public MyTurnStartedEvent(){
         endTurnTimeStamp = null;

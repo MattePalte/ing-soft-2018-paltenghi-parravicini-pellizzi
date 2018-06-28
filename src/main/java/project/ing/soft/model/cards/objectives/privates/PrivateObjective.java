@@ -13,7 +13,7 @@ import java.io.Serializable;
  */
 public class PrivateObjective extends ObjectiveCard implements Serializable {
 
-    private Colour colour;
+    private final Colour colour;
 
     /**
      *  PrivateObjective constructor

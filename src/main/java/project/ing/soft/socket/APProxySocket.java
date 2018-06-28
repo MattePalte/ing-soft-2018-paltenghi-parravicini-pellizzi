@@ -33,7 +33,7 @@ public class APProxySocket implements IAccessPoint, ConnectionResponseHandler {
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
 
-    private Logger log;
+    private final Logger log;
 
     public APProxySocket(String host, int port){
         this.log  = Logger.getLogger(Objects.toString(this));

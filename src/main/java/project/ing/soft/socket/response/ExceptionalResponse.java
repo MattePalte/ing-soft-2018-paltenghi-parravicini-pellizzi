@@ -2,7 +2,7 @@ package project.ing.soft.socket.response;
 
 public class ExceptionalResponse implements IResponse{
     private final int id;
-    private Exception ex;
+    private final Exception ex;
 
     public ExceptionalResponse(Exception ex, int id) {
         this.id = id;

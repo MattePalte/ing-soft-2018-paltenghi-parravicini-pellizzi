@@ -10,9 +10,9 @@ public class PatternCardDistributedEvent implements Event, Serializable {
     // which have to decide which card to use and comunicate their decision
     // to the model through the controller
 
-    private WindowPatternCard one;
-    private WindowPatternCard two;
-    private PrivateObjective myPrivateObjective;
+    private final WindowPatternCard one;
+    private final WindowPatternCard two;
+    private final PrivateObjective myPrivateObjective;
 
     public PatternCardDistributedEvent(PrivateObjective myPrivateObjective, WindowPatternCard one, WindowPatternCard two) {
         this.one = one;

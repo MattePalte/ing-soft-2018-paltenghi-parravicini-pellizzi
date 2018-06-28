@@ -17,9 +17,9 @@ public class WindowPatternCard implements Serializable {
     /**
      * requires title != null && description != null && frontPattern != null && rearPattern != null &&
      *          rearPattern != frontPattern && rearPattern.toString() != frontPattern.toString()
-     * @param title
-     * @param frontPattern
-     * @param rearPattern
+     * @param title of the pattern card
+     * @param frontPattern front of the card
+     * @param rearPattern rear if the card
      * @throws GameInvalidException
      */
     private WindowPatternCard(String title, WindowPattern frontPattern, WindowPattern rearPattern) throws GameInvalidException {

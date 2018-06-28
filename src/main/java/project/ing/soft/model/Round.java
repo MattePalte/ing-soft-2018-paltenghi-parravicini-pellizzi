@@ -7,10 +7,10 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 public class Round implements Serializable {
-    private int [] playerIndexes;
+    private final int [] playerIndexes;
+    private final int roundNumber;
+    private final Game aGame;
     private int curr;
-    private int roundNumber;
-    private Game aGame;
 
 
     public Round(int roundNumber, Game aGame){

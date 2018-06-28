@@ -2,7 +2,7 @@ package project.ing.soft.socket.response.connectionresponse;
 
 public class ConnectionRefusedResponse implements ConnectionResponse {
 
-    private Exception cause;
+    private final Exception cause;
 
     public ConnectionRefusedResponse(Exception cause){
         this.cause = cause;

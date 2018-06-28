@@ -35,9 +35,9 @@ public class FluxRemoverSecondPart implements IToolCardState, Serializable {
 
     /**
      * This particular play does not pay any favour and terminate the usage of diluente per pasta salda
-     * @param p
-     * @param m
-     * @throws ToolCardApplicationException
+     * @param p actual player using the ToolCard
+     * @param m current model where to apply the ToolCard
+     * @throws ToolCardApplicationException whether an error occurred
      */
     @Override
     public void play(ToolCard ctx,Player p, IGameModel m) throws ToolCardApplicationException {

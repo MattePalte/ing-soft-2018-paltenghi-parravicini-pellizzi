@@ -3,8 +3,8 @@ package project.ing.soft.model;
 import java.io.Serializable;
 
 public class Pair<T extends Serializable,V extends Serializable> implements Serializable {
-    private T key;
-    private V value;
+    private final T key;
+    private final V value;
 
     public Pair(T key, V value){
         this.key = key;

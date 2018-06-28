@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class GameFinishedEvent  implements Event, Serializable {
 
-    private List<Pair<Player,Integer>> rank;
+    private final List<Pair<Player,Integer>> rank;
     private Map<String, String> pointsDescriptor;
 
     public GameFinishedEvent(List<Pair<Player, Integer>> theRank, Map<String, String> pointsDescriptor) {

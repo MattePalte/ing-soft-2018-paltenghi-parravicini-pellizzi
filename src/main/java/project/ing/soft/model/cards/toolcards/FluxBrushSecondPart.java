@@ -13,7 +13,7 @@ import project.ing.soft.model.gamemodel.events.MyTurnStartedEvent;
 import java.io.Serializable;
 
 public class FluxBrushSecondPart implements IToolCardState, Serializable {
-    private Die dieToBePlaced;
+    private final Die dieToBePlaced;
     private Coordinate cord;
 
     FluxBrushSecondPart(Die dieToBePlaced) {

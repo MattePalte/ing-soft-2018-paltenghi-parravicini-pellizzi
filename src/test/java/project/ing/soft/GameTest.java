@@ -14,7 +14,6 @@ import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Random;
-import java.util.Set;
 import java.util.logging.Level;
 
 
@@ -64,7 +63,7 @@ public class GameTest {
             toBeCopied.add(new Player("TestPlayer", new ClientViewCLI("TestPlayer")));
         }
         Game copy = new Game(toBeCopied);
-        Assert.assertSame(copy , toBeCopied);
+        Assert.assertNotSame(copy , toBeCopied);
         Assert.assertEquals(players, copy.getMaxNumPlayers());
         Assert.assertEquals(players, copy.getNumberOfPlayers());
         Assert.assertEquals(toBeCopied.getPlayers(), copy.getPlayers());

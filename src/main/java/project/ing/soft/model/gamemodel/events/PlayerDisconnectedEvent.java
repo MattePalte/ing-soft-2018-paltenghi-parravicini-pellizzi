@@ -2,7 +2,7 @@ package project.ing.soft.model.gamemodel.events;
 
 public class PlayerDisconnectedEvent implements Event {
 
-    private String nickname;
+    private final String nickname;
 
     public PlayerDisconnectedEvent(String nickname){
         this.nickname = nickname;

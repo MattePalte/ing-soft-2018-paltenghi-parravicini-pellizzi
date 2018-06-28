@@ -5,7 +5,7 @@ import project.ing.soft.model.Game;
 import java.util.List;
 
 public class InformationResponse implements IResponse {
-    private List<Game> gamesAvailable;
+    private final List<Game> gamesAvailable;
     public InformationResponse(List<Game> gamesAvailable){
         this.gamesAvailable = gamesAvailable;
     }

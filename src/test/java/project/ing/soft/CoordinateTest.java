@@ -27,6 +27,6 @@ public class CoordinateTest {
         Coordinate toBeCopied = new Coordinate(row, col);
         Coordinate copy = new Coordinate(toBeCopied);
         Assert.assertEquals(toBeCopied, copy);
-        Assert.assertFalse(copy == toBeCopied);
+        Assert.assertNotSame(copy, toBeCopied);
     }
 }

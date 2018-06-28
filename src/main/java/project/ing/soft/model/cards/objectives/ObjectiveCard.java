@@ -12,10 +12,10 @@ import java.io.Serializable;
  */
 public abstract class ObjectiveCard implements Serializable, Card{
 
-    private String title;
-    private String description;
-    private String imgPath;
-    private int points;
+    private final String title;
+    private final String description;
+    private final String imgPath;
+    private final int points;
 
     /**
      * ObjectiveCard constructor

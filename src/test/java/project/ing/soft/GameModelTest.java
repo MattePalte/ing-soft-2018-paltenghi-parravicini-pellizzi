@@ -15,7 +15,6 @@ import project.ing.soft.view.IView;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Random;
 
 public class GameModelTest {
     private IGameModel model;
@@ -25,7 +24,7 @@ public class GameModelTest {
      * Stub view to enable set up phase
      */
     class CustomView implements IView{
-        String owner;
+        final String owner;
 
         CustomView(String nick) {
             owner = nick;
@@ -91,9 +90,9 @@ public class GameModelTest {
             draftBefore.remove(draftAfter.get(i));
         }
 
-        Assert.assertTrue(draftBefore.size() ==  1);
-        Assert.assertTrue(draftBefore.get(0).getColour() == dieToRemove.getColour());
-        Assert.assertTrue(draftBefore.get(0).getValue() == dieToRemove.getValue());
+        Assert.assertEquals(1, draftBefore.size());
+        Assert.assertSame(draftBefore.get(0).getColour(), dieToRemove.getColour());
+        Assert.assertEquals(draftBefore.get(0).getValue(), dieToRemove.getValue());
 
     }
 
@@ -109,15 +108,15 @@ public class GameModelTest {
 
         model.addToDraft(dieToAdd);
         draftAfter = model.getDraftPool();
-        Assert.assertTrue(draftAfter.size() == (draftBefore.size() + 1));
+        Assert.assertEquals(draftAfter.size(), (draftBefore.size() + 1));
 
         for (int i = 0; i < draftBefore.size(); i++) {
             draftAfter.remove(draftBefore.get(i));
         }
 
-        Assert.assertTrue(draftAfter.size() ==  1);
-        Assert.assertTrue(draftAfter.get(0).getColour() == dieToAdd.getColour());
-        Assert.assertTrue(draftAfter.get(0).getValue() == dieToAdd.getValue());
+        Assert.assertEquals(1, draftAfter.size());
+        Assert.assertSame(draftAfter.get(0).getColour(), dieToAdd.getColour());
+        Assert.assertEquals(draftAfter.get(0).getValue(), dieToAdd.getValue());
     }
 
 

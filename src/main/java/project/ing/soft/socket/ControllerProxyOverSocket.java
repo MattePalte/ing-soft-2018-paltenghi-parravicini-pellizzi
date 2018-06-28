@@ -30,8 +30,8 @@ import java.util.logging.Logger;
 public class ControllerProxyOverSocket extends Thread implements IResponseHandler ,IController, Runnable {
     private Socket socket;
 
-    private ObjectInputStream  fromServer;
-    private ObjectOutputStream toServer;
+    private final ObjectInputStream  fromServer;
+    private final ObjectOutputStream toServer;
     private final Logger logger;
     private IView view;
 
@@ -87,8 +87,6 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
                 }
             } catch (IOException ex) {
                 logger.log(Level.SEVERE, "Error while closing ObjectInputStream", ex);
-            }finally {
-                fromServer = null;
             }
 
             try {
@@ -98,8 +96,6 @@ public class ControllerProxyOverSocket extends Thread implements IResponseHandle
                 }
             } catch (IOException ex) {
                 logger.log(Level.SEVERE, "Error while closing ObjectOutputStream", ex);
-            }finally {
-                toServer = null;
             }
 
     }

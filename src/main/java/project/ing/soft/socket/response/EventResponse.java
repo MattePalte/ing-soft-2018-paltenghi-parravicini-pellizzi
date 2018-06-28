@@ -3,7 +3,7 @@ package project.ing.soft.socket.response;
 import project.ing.soft.model.gamemodel.events.Event;
 
 public class EventResponse implements IResponse {
-    private Event event;
+    private final Event event;
 
     public EventResponse(Event event) {
         this.event = event;
