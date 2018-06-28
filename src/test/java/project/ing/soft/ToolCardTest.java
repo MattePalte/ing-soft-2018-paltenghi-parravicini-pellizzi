@@ -82,11 +82,11 @@ public class ToolCardTest {
 
         doAnswer((invocation) ->
              diceBagStub.remove(new Random().nextInt(diceBagStub.size())).rollDie()
-        ).when(gameManagerStub).drawFromDicebag();
+        ).when(gameManagerStub).drawFromDiceBag();
 
         doAnswer((invocation) ->
                 diceBagStub.add(invocation.getArgument(0))
-        ).when(gameManagerStub).addToDicebag(any(Die.class));
+        ).when(gameManagerStub).addToDiceBag(any(Die.class));
 
         doAnswer((invocation) -> {
             diceLeftStub.remove(invocation.getArgument(1));

@@ -1,6 +1,7 @@
 package project.ing.soft.model;
 
 
+import project.ing.soft.model.cards.objectives.privates.RearPrivateObjective;
 import project.ing.soft.view.IView;
 
 import java.io.Serializable;
@@ -30,16 +31,33 @@ public class Game implements Serializable, Iterable<Player>{
         nameToIndex = new HashMap<>();
     }
 
-    /**
-     * Game producer. It creates a copy of the Game passed as a parameter
-     * @param aGame the Game to be copied
-     */
     public Game(Game aGame){
         this.maxNumPlayer = aGame.maxNumPlayer;
         this.nameToIndex = new HashMap<>();
         this.players = new ArrayList<>();
         for (int i = 0; i < aGame.players.size(); i++) {
-            this.players.add(new Player(aGame.players.get(i)));
+            Player p = new Player(aGame.players.get(i));
+            this.players.add(p);
+
+            this.nameToIndex.put(aGame.players.get(i).getName(), i );
+        }
+
+    }
+
+    /**
+     * Game producer. It creates a copy of the Game passed as a parameter
+     * @param aGame the Game to be copied
+     */
+    public Game(Game aGame, Player recipient){
+        this.maxNumPlayer = aGame.maxNumPlayer;
+        this.nameToIndex = new HashMap<>();
+        this.players = new ArrayList<>();
+        for (int i = 0; i < aGame.players.size(); i++) {
+            Player p = new Player(aGame.players.get(i));
+            if(!p.getName().equals(recipient.getName()))
+                p.setPrivateObjective(new RearPrivateObjective());
+            this.players.add(p);
+
             this.nameToIndex.put(aGame.players.get(i).getName(), i );
         }
 

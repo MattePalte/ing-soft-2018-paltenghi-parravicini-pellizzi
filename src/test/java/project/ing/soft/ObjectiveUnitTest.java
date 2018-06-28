@@ -479,6 +479,12 @@ public class ObjectiveUnitTest {
         Assert.assertEquals(27, tested.checkCondition(playerStub));
     }
 
+    @Test
+    public void testRearObjectiveCard(){
+        RearPrivateObjective rear = new RearPrivateObjective();
+        Assert.assertEquals(0, rear.getPoints());
+    }
+
     private Die[][] placeDie(Die aDie, int row, int col){
         placedDice[row][col] = aDie;
         return placedDice;

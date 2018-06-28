@@ -126,6 +126,32 @@ public class GameTest {
     }
 
     @Test
+    public void testRepeatingTurn() throws RemoteException {
+        Game g = new Game(4);
+        g.add(new Player("a", new ClientViewCLI("a")));
+        g.add(new Player("b", new ClientViewCLI("b")));
+        g.add(new Player("c", new ClientViewCLI("c")));
+        g.add(new Player("d", new ClientViewCLI("d")));
+        Round round;
+        int i;
+        for (i = 0,  round = new Round(0,g); i < 10; i++, round = round.nextRound()) {
+            System.out.println("Round: "+i);
+
+            Player p = round.getCurrent();
+            round.repeatCurrentPlayer();
+            System.out.println(p.getName());
+            Assert.assertEquals(p, round.next());
+            System.out.println(p.getName());
+            while(round.hasNext()){
+                p = round.next();
+                System.out.println(p.getName());
+            }
+
+        }
+    }
+
+
+    @Test
     public void reconnectTest() throws RemoteException {
         int players = rndGen.nextInt(4) + 1;
         Game toBeTested = new Game(players);

@@ -68,7 +68,7 @@ public interface IGameModel extends Serializable {
      * Remove a random Die from the Dice Bag. Its value is also random.
      * @return random Die from Dice Bag
      */
-    Die drawFromDicebag();
+    Die drawFromDiceBag();
 
     /**
      * Methods to removed a given Die from the draft pool
@@ -91,7 +91,7 @@ public interface IGameModel extends Serializable {
      * Method to add a given Die to the DiceBag
      * @param aDie to be added to diceBag
      */
-    void    addToDicebag(Die aDie);
+    void addToDiceBag(Die aDie);
 
     /**
      * It swaps the to given dice. The toAdd is added to the round tracker

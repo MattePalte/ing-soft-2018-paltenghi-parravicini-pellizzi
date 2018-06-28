@@ -6,13 +6,20 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+/**
+ * This class manages the player's appearance during the round
+ */
 public class Round implements Serializable {
     private final int [] playerIndexes;
     private final int roundNumber;
     private final Game aGame;
     private int curr;
 
-
+    /**
+     * A round is built from
+     * @param roundNumber that identifies the round
+     * @param aGame that carries the players
+     */
     public Round(int roundNumber, Game aGame){
         this.aGame = aGame;
         this.curr = 0;
@@ -24,7 +31,13 @@ public class Round implements Serializable {
         }
     }
 
-
+    /**
+     * Since the round object it's strictly connected with
+     * the game from which the player's information can be gathered
+     * when a round is copied the reference to it's game has to change
+     * @param other round to copy
+     * @param aGame that would be connected to the copy of the round
+     */
     public Round(Round other, Game aGame){
         this.aGame = aGame;
         this.curr  = other.curr;
@@ -32,46 +45,68 @@ public class Round implements Serializable {
         this.playerIndexes = Arrays.copyOf(other.playerIndexes,other.playerIndexes.length);
     }
 
+    private int firstNextConnectedPlayer() {
+        int i = curr+1;
+        while(i < playerIndexes.length && !aGame.getPlayers().get(playerIndexes[i]).isConnected() ) {
+            i++;
+        }
+        return i;
+
+    }
 
     public boolean hasNext() {
-        return curr +1 < playerIndexes.length;
+
+        return firstNextConnectedPlayer() < playerIndexes.length;
     }
 
     public Player next() {
-
-        if(!hasNext()) {
+        curr = firstNextConnectedPlayer();
+        if(curr >= playerIndexes.length) {
             throw  new NoSuchElementException();
         }else{
-            curr++;
             return aGame.getPlayers().get(playerIndexes[curr]);
         }
 
     }
 
     public void repeatCurrentPlayer(){
-        int key = playerIndexes[curr];
-        int tmp = Arrays.binarySearch(playerIndexes, curr, playerIndexes.length,key );
-        if(tmp < 0 || curr+1 >= playerIndexes.length)
-            return;
-        playerIndexes[tmp] = playerIndexes[curr +1];
-        playerIndexes[curr +1] = key;
+        int i = playerIndexes.length-1;
+        while(i > curr && playerIndexes[i] != playerIndexes[curr]){
+            //find the first right occurrence of the same player
+            i--;
+        }
+        //if an occurrence got found
+        if( playerIndexes[i] == playerIndexes[curr]) {
+            //the sub array (curr,..,i] gets right shifted
+            while (i > curr) {
+                playerIndexes[i] = playerIndexes[i - 1];
+                i--;
+            }
+        }
     }
 
+    /**
+     * @return the turn list of players that will follow the game
+     */
     public List<Player> getRemaining(){
         int[] remainingTurns = Arrays.copyOfRange(playerIndexes, curr, playerIndexes.length);
         return Arrays.stream(remainingTurns).mapToObj( aGame.getPlayers()::get).collect(Collectors.toList());
     }
 
+    /**
+     * @return the player that has the right to play this turn
+     */
     public Player getCurrent(){
         return aGame.getPlayers().get(playerIndexes[curr]);
     }
 
+    /**
+     * Used to get through the next round
+     * @return the round that follows
+     */
     public Round nextRound(){
         return new Round(roundNumber+1, this.aGame);
 
     }
 
-    public boolean isOver() {
-        return true;
-    }
 }
