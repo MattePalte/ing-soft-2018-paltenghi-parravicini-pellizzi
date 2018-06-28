@@ -66,7 +66,6 @@ public class APointSocket implements Callable<Boolean>, ConnectionRequestHandler
             } catch (Exception e) {
                 oos.writeObject(new ConnectionRefusedResponse(e));
                 clientSocket.close();
-                //TODO: ask kri about delete
                 viewProxy.interrupt();
                 return true;
             }

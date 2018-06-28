@@ -220,7 +220,7 @@ public class GameTest {
         Thread.sleep(500);
         Assert.assertEquals(matt3.code, matt3.code);
         for (int i = 0; i < Settings.instance().getNrOfRound(); i++) {
-            while(matt3.gm.getStatus() != IGameModel.GAME_MANAGER_STATUS.ENDED) {
+            for (int j = 0; j <4 ; j++) {
                 System.out.println(matt3.gm.getPlayerList());
                 if (matt3.gm.getCurrentPlayer().getName().equals(matt3.owner)){
                     matt3.ctrl.endTurn(matt3.owner);
@@ -230,6 +230,7 @@ public class GameTest {
                 Thread.sleep(1000);
             }
         }
+        Assert.assertEquals(IGameModel.GAME_MANAGER_STATUS.ENDED,matt3.gm.getStatus());
 
 
     }

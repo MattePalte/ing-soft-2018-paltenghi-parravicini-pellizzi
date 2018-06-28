@@ -368,23 +368,28 @@ public class GameModel implements IGameModel, Serializable {
     public void endTurn(boolean timeoutOccurred) throws GameInvalidException {
         if (status == GAME_MANAGER_STATUS.ENDED) return;
 
-        logger.log(Level.INFO, "Player {0} ended the turn",getCurrentPlayer().getName());
         Player currentPlayer = getCurrentPlayer();
+        logger.log(Level.INFO, "Player {0} ended the turn",currentPlayer.getName());
         if(timeoutOccurred)
             currentPlayer.update(new MyTurnEndedEvent());
         currentPlayer.endTurn();
 
+        boolean ended = false;
         // Making all disconnected players jump their turn
-        do {
-            currentRound.next();
-        }while( currentRound.hasNext() && !currentRound.getCurrent().isConnected());
-
+        if(currentRound.hasNext()) {
+            do {
+                currentRound.next();
+            }
+            while (currentRound.hasNext() && !currentRound.getCurrent().isConnected());
+            ended = currentRound.getCurrent().isConnected();
+        }
         // if a single player is online, end the game due to insufficiency of players
-        if( (currentRound.hasNext() && roundTracker.getCurrentRound() == Settings.instance().getNrOfRound()) ||
+        if( (!ended && roundTracker.getCurrentRound() == Settings.instance().getNrOfRound()) ||
             (getPlayerList().stream().filter(Player :: isConnected).count() == 1)) {
+            logger.log(Level.INFO, "Game finished.");
             endGame();
             return;
-        }else if(!currentRound.hasNext()){
+        }else if(!ended){
             logger.log(Level.INFO, "Round {0} finished.", roundTracker.getCurrentRound());
             currentRound = currentRound.nextRound();
             roundTracker.addDiceLeft(draftPool);

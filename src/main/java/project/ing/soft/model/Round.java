@@ -70,4 +70,7 @@ public class Round implements Serializable {
 
     }
 
+    public boolean isOver() {
+        return true;
+    }
 }
