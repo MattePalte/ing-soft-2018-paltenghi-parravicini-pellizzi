@@ -119,8 +119,16 @@ public class GameController implements IController {
      * @param playerName name of the player who disconnected from the game
      */
     public synchronized void markAsDisconnected(String playerName) {
-        if(gameModel != null)
+        if(gameModel != null) {
             gameModel.disconnectPlayer(playerName);
+            if(gameModel.getStatus() == IGameModel.GAME_MANAGER_STATUS.ENDED && publishingAp != null) {
+                publishingAp.remove(this);
+                for(Player p : theGame){
+                    p.disconnectView();
+                }
+            }
+
+        }
     }
     //endregion
 
@@ -291,6 +299,9 @@ public class GameController implements IController {
             resetTurnEndAndStartTimer();
         }else if(publishingAp != null) {
             publishingAp.remove(this);
+            for(Player p : theGame){
+                p.disconnectView();
+            }
         }
 
 

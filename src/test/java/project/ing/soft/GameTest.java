@@ -230,9 +230,11 @@ public class GameTest {
         IAccessPoint apRmi = (IAccessPoint) Naming.lookup(Settings.instance().getRemoteRmiApName());
         IAccessPoint apSock = new APProxySocket(Settings.instance().getHost(), Settings.instance().getPort());
         CustomView tom = new CustomView("Tom"),
-                matt = new CustomView("matt");
+                matt = new CustomView("matt"),
+                mario = new CustomView("mario");
         tom.attachController(apRmi.connect(tom.owner, tom ));
         matt.attachController(apSock.connect(matt.owner, matt));
+        mario.attachController(apRmi.connect(mario.owner, mario));
 
         Thread.sleep(Settings.instance().getGameStartTimeout()+500);
         CustomView matt2 = new CustomView("matt");
@@ -246,12 +248,14 @@ public class GameTest {
         Thread.sleep(500);
         Assert.assertEquals(matt3.code, matt3.code);
         for (int i = 0; i < Settings.instance().getNrOfRound(); i++) {
-            for (int j = 0; j <4 ; j++) {
+            for (int j = 0; j < matt3.gm.getPlayerList().size()*2 ; j++) {
                 System.out.println(matt3.gm.getPlayerList());
                 if (matt3.gm.getCurrentPlayer().getName().equals(matt3.owner)){
                     matt3.ctrl.endTurn(matt3.owner);
-                }else {
+                }else if(matt3.gm.getCurrentPlayer().getName().equals(tom.owner)) {
                     tom.ctrl.endTurn(tom.owner);
+                }else{
+                    mario.ctrl.endTurn(mario.owner);
                 }
                 Thread.sleep(1000);
             }
