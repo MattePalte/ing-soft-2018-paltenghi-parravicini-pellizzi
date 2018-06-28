@@ -37,7 +37,7 @@ public class GameModel implements IGameModel, Serializable {
     private ArrayList<ToolCard>         toolCards;
     private Map<String, Integer>        toolCardCost;
     private Map<String, Integer>        favours;
-    private boolean aToolcardUsedDuringThisTurn;
+    private boolean aToolCardUsedDuringThisTurn;
 
     private transient Timestamp currentPlayerEndTime;
     private transient Logger logger;
@@ -94,7 +94,7 @@ public class GameModel implements IGameModel, Serializable {
         this.currentRound = new Round(0,currentGame);
         logger.log(Level.INFO, "created turns");
         // do 1, 2 operation for each player
-        for (Player p : currentGame.getPlayers()) {
+        for (Player p : currentGame) {
             // 1 - randomly distribute PrivateObjectiveCards
             PrivateObjective randomPrivateObjective = privateObjectives.remove(0);
             p.setPrivateObjective(randomPrivateObjective);
@@ -106,7 +106,7 @@ public class GameModel implements IGameModel, Serializable {
             }
             p.givePossiblePatternCard(new ArrayList<>(selectedPatternCards));
         }
-        aToolcardUsedDuringThisTurn = false;
+        aToolCardUsedDuringThisTurn = false;
         logger.log(Level.INFO, "distributed cards");
     }
 
@@ -132,7 +132,7 @@ public class GameModel implements IGameModel, Serializable {
         }
         this.toolCardCost       = new HashMap<>   (from.toolCardCost);
         this.favours            = new HashMap<>   (from.favours);
-        this.aToolcardUsedDuringThisTurn = from.aToolcardUsedDuringThisTurn;
+        this.aToolCardUsedDuringThisTurn = from.aToolCardUsedDuringThisTurn;
         this.setStatus(from.status);
 
     }
@@ -229,7 +229,7 @@ public class GameModel implements IGameModel, Serializable {
         if  (actualFavours < toolCardCost.get(aToolCard.getTitle()))
             return;
 
-        aToolcardUsedDuringThisTurn = true;
+        aToolCardUsedDuringThisTurn = true;
         favours.replace(getCurrentPlayer().getName(), actualFavours - toolCardCost.get(aToolCard.getTitle()));
         toolCardCost.replace(aToolCard.getTitle(), 2);
         logger.log(Level.INFO, "Player {0} paid the ToolCard: {1}", new Object[]{getCurrentPlayer().getName(),aToolCard.getTitle()});
@@ -242,7 +242,7 @@ public class GameModel implements IGameModel, Serializable {
      */
     @Override
     public void canPayToolCard(ToolCard aToolCard) throws RuleViolatedException {
-        if(aToolcardUsedDuringThisTurn)
+        if(aToolCardUsedDuringThisTurn)
             throw new RuleViolatedException("Ehi! You can't play more than a ToolCard at turn");
         if (favours.get(getCurrentPlayer().getName()) < toolCardCost.get(aToolCard.getTitle()))
             throw new RuleViolatedException("Ehi! You don't have enough favours to do that, poor man!!");
@@ -374,22 +374,22 @@ public class GameModel implements IGameModel, Serializable {
             currentPlayer.update(new MyTurnEndedEvent());
         currentPlayer.endTurn();
 
-        boolean ended = false;
+        boolean ended = true;
         // Making all disconnected players jump their turn
         if(currentRound.hasNext()) {
             do {
                 currentRound.next();
             }
             while (currentRound.hasNext() && !currentRound.getCurrent().isConnected());
-            ended = currentRound.getCurrent().isConnected();
+            ended = !currentRound.getCurrent().isConnected();
         }
         // if a single player is online, end the game due to insufficiency of players
-        if( (!ended && roundTracker.getCurrentRound() == Settings.instance().getNrOfRound()) ||
+        if( (ended && roundTracker.getCurrentRound() == Settings.instance().getNrOfRound()) ||
             (getPlayerList().stream().filter(Player :: isConnected).count() == 1)) {
             logger.log(Level.INFO, "Game finished.");
             endGame();
             return;
-        }else if(!ended){
+        }else if(ended){
             logger.log(Level.INFO, "Round {0} finished.", roundTracker.getCurrentRound());
             currentRound = currentRound.nextRound();
             roundTracker.addDiceLeft(draftPool);
@@ -400,7 +400,7 @@ public class GameModel implements IGameModel, Serializable {
             drawDice();
         }
 
-        aToolcardUsedDuringThisTurn = false;
+        aToolCardUsedDuringThisTurn = false;
         Player nextPlayer = getCurrentPlayer();
 
         currentGame.getPlayers().forEach(p -> p.update(new ModelChangedEvent(new GameModel(this, p))));
@@ -415,7 +415,7 @@ public class GameModel implements IGameModel, Serializable {
 
 
         for (Player p : getPlayerList()){
-            StringBuilder sb = new StringBuilder( "List of points:\n");
+            StringBuilder sb = new StringBuilder( "List of ").append(p.getName()).append("'s points:\n");
             int sum = 0;
             int tmpCount = p.countPrivateObjectivesPoints();
             sb.append(String.format("%s gave %d points%n", p.getPrivateObjective().getTitle(), tmpCount));

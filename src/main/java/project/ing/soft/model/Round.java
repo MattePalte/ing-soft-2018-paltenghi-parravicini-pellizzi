@@ -49,12 +49,11 @@ public class Round implements Serializable {
     }
 
     public void repeatCurrentPlayer(){
-        int key = playerIndexes[curr];
-        int tmp = Arrays.binarySearch(playerIndexes, curr, playerIndexes.length,key );
-        if(tmp < 0 || curr+1 >= playerIndexes.length)
+
+        if(curr >= aGame.getPlayers().size())
             return;
-        playerIndexes[tmp] = playerIndexes[curr +1];
-        playerIndexes[curr +1] = key;
+        for (int i = playerIndexes.length-curr-1; curr<i; i--) playerIndexes[i] = playerIndexes[i - 1];
+
     }
 
     public List<Player> getRemaining(){
@@ -70,7 +69,4 @@ public class Round implements Serializable {
 
     }
 
-    public boolean isOver() {
-        return true;
-    }
 }
