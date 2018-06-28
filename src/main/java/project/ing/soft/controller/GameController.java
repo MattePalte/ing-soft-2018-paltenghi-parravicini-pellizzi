@@ -285,7 +285,7 @@ public class GameController implements IController {
      * @throws GameInvalidException if anything went wrong while trying to end current turn
      */
     private synchronized void internalEndTurn(boolean timeoutOccurred) throws GameInvalidException {
-        log.log(Level.INFO, "End turn {0} ", timeoutOccurred ? "called" : "forced from timer");
+        log.log(Level.INFO, "End turn {0} ", !timeoutOccurred ? "called" : "forced from timer");
         gameModel.endTurn(timeoutOccurred);
         if(gameModel.getStatus() != IGameModel.GAME_MANAGER_STATUS.ENDED) {
             resetTurnEndAndStartTimer();

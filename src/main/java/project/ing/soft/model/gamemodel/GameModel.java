@@ -360,6 +360,7 @@ public class GameModel implements IGameModel, Serializable {
 
     private void endGame(){
         setStatus(GAME_MANAGER_STATUS.ENDED);
+        currentGame.forEach(p -> p.update( new ModelChangedEvent(new GameModel(this, p))));
         broadcastEvents(buildGameFinishedEvent());
     }
 

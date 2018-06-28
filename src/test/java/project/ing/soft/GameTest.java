@@ -2,9 +2,7 @@ package project.ing.soft;
 
 
 import project.ing.soft.accesspoint.IAccessPoint;
-import project.ing.soft.controller.GameController;
 import project.ing.soft.controller.IController;
-import project.ing.soft.exceptions.GameInvalidException;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Game;
 import project.ing.soft.model.Player;
@@ -12,22 +10,23 @@ import project.ing.soft.model.Player;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.rmi.Naming;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Random;
+import java.util.Set;
+import java.util.logging.Level;
 
 
 import org.junit.*;
 import project.ing.soft.cli.ClientViewCLI;
 import project.ing.soft.model.Round;
+import project.ing.soft.model.gamemodel.IGameModel;
 import project.ing.soft.model.gamemodel.events.Event;
+import project.ing.soft.model.gamemodel.events.ModelChangedEvent;
 import project.ing.soft.model.gamemodel.events.PatternCardDistributedEvent;
 import project.ing.soft.model.gamemodel.events.SetTokenEvent;
 import project.ing.soft.socket.APProxySocket;
-import project.ing.soft.socket.APointSocket;
 import project.ing.soft.view.IView;
 
 public class GameTest {
@@ -163,6 +162,7 @@ public class GameTest {
         String owner;
         String code;
         IController ctrl;
+        IGameModel gm;
 
         CustomView(String nick) throws RemoteException {
             super();
@@ -179,7 +179,10 @@ public class GameTest {
                 }
             }else if(event instanceof SetTokenEvent){
                 code = ((SetTokenEvent) event).getToken();
+            }else if(event instanceof ModelChangedEvent){
+                gm = ((ModelChangedEvent) event).getaGameCopy();
             }
+
         }
 
         @Override
@@ -195,8 +198,10 @@ public class GameTest {
 
     @Test
     public void reconnectionTest() throws Exception {
+        Settings.instance().setDefaultLoggingLevel(Level.ALL);
         Thread server = new Thread(new LaunchServer()::run);
         server.start();
+
         IAccessPoint apRmi = (IAccessPoint) Naming.lookup(Settings.instance().getRemoteRmiApName());
         IAccessPoint apSock = new APProxySocket(Settings.instance().getHost(), Settings.instance().getPort());
         CustomView tom = new CustomView("Tom"),
@@ -204,17 +209,28 @@ public class GameTest {
         tom.attachController(apRmi.connect(tom.owner, tom ));
         matt.attachController(apSock.connect(matt.owner, matt));
 
-        Thread.sleep(Settings.instance().getGameStartTimeout()+1000);
+        Thread.sleep(Settings.instance().getGameStartTimeout()+500);
         CustomView matt2 = new CustomView("matt");
         matt2.attachController(apRmi.reconnect(matt2.owner, matt.code, matt2));
-        
-        Thread.sleep(1000);
+
+        Thread.sleep(500);
         Assert.assertEquals(matt2.code, matt.code);
         apSock = new APProxySocket(Settings.instance().getHost(), Settings.instance().getPort());
         CustomView matt3 = new CustomView("matt");
         matt2.attachController(apSock.reconnect(matt3.owner, matt2.code, matt3));
-        Thread.sleep(1000);
+        Thread.sleep(500);
         Assert.assertEquals(matt3.code, matt3.code);
+        for (int i = 0; i < Settings.instance().getNrOfRound(); i++) {
+            while(matt3.gm.getStatus() != IGameModel.GAME_MANAGER_STATUS.ENDED) {
+                System.out.println(matt3.gm.getPlayerList());
+                if (matt3.gm.getCurrentPlayer().getName().equals(matt3.owner)){
+                    matt3.ctrl.endTurn(matt3.owner);
+                }else {
+                    tom.ctrl.endTurn(tom.owner);
+                }
+                Thread.sleep(1000);
+            }
+        }
 
 
     }

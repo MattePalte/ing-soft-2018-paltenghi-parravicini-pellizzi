@@ -235,5 +235,9 @@ public class Settings {
         }
     }
 
+    public void setDefaultLoggingLevel(Level lvl){
+        defaultLoggingLevel = lvl;
+    }
+
 
 }
