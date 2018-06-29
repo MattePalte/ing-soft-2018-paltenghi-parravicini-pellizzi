@@ -85,7 +85,6 @@ public class GameController implements IController {
         Player player = theGame.getPlayerFromName(playerName);
 
         if(player != null){
-
             if(gameModel != null) {
                 gameModel.reconnectPlayer(playerName, view);
             }else{
@@ -97,17 +96,17 @@ public class GameController implements IController {
                 theGame.add(new Player(playerName, view));
 
                 log.log(Level.INFO,  "{0} added to the match ;)", playerName);
+                if (theGame.getNumberOfPlayers() == theGame.getMaxNumPlayers()) {
+                    startTimeoutTask.cancel();
+                    internalStartGame();
+                }else if(Settings.instance().isGameStartTimeoutEnabled() && theGame.getNumberOfPlayers() == 2) {
+                    startTimeoutTask = buildStartTimeoutTask();
+                    timer.schedule(startTimeoutTask, Settings.instance().getGameStartTimeout());
+                }
             } else {
                 throw new GameFullException(playerName+" wants to join the game... no space :(");
             }
 
-            if (theGame.getNumberOfPlayers() == theGame.getMaxNumPlayers()) {
-                startTimeoutTask.cancel();
-                internalStartGame();
-            }else if(Settings.instance().isGameStartTimeoutEnabled() && theGame.getNumberOfPlayers() == 2) {
-                startTimeoutTask = buildStartTimeoutTask();
-                timer.schedule(startTimeoutTask, Settings.instance().getGameStartTimeout());
-            }
         }
 
     }
@@ -119,15 +118,21 @@ public class GameController implements IController {
      * @param playerName name of the player who disconnected from the game
      */
     public synchronized void markAsDisconnected(String playerName) {
-        if(gameModel != null) {
+        //if the proper game isn't started we can delete player that
+        // get disconnected
+        if(gameModel == null) {
+            Player p = (Player) theGame.remove(playerName);
+            publishingAp.remove(p);
+            if(theGame.getNumberOfPlayers() == 0){
+                startTimeoutTask.cancel();
+            }
+        }else {
             gameModel.disconnectPlayer(playerName);
             if(gameModel.getStatus() == IGameModel.GAME_MANAGER_STATUS.ENDED && publishingAp != null) {
                 publishingAp.remove(this);
                 TimerTask disconnectPlayersTimeoutTask = buildDisconnectPlayersTimeoutTask();
                 timer.schedule(disconnectPlayersTimeoutTask, 60000);
-
             }
-
         }
     }
     //endregion

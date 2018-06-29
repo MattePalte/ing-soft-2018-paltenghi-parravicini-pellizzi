@@ -24,6 +24,8 @@ import java.rmi.Naming;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 public class SplashController {
 
@@ -31,7 +33,7 @@ public class SplashController {
     @FXML ImageView ivSplash;
 
     private Stage stage;
-    private  final Logger log = Logger.getLogger(Objects.toString(this));
+    private  final Logger log;
 
     @FXML private Text msgLabel;
     @FXML private TextField txtName;
@@ -49,6 +51,14 @@ public class SplashController {
     private static final String INFO_3_CONTROLLER_LINKED = "3) controller given to the view";
     private static final String INFO_SERVER_ERROR_RMI = "x) Probably the server is down (no remote object or no registry)";
     private static final String INFO_SERVER_ERROR_SOCKET = "x) Probably the server is down";
+
+    public SplashController(Stage stage) {
+        this.stage = stage;
+        this.log = Logger.getLogger(Objects.toString(this));
+        Preferences pref = Preferences.userRoot().node(Settings.instance().getProperty("preferences.location"));
+        this.txtToken.setText(pref.get(Settings.instance().getProperty("preferences.connection.token.location"), ""));
+
+    }
 
     /**
      * Saves the window of the GUI to be able to manipulate it, if needed
@@ -106,6 +116,14 @@ public class SplashController {
         content.getChildren().add(msg);
         content.getChildren().add(tokenLbl);
         content.getChildren().add(txtWithNewToken);
+
+        Preferences pref = Preferences.userRoot().node(Settings.instance().getProperty("preferences.location"));
+        pref.put(Settings.instance().getProperty("preferences.connection.token.location"), token);
+        try {
+            pref.flush();
+        } catch (BackingStoreException e) {
+            log.log(Level.INFO,"exception thrown while saving token" , e);
+        }
     }
 
     /**

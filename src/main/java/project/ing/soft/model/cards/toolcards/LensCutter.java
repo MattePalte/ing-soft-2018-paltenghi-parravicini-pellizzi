@@ -35,7 +35,7 @@ public class LensCutter extends ToolCardSingleState {
     }
 
     @Override
-    public void apply(Player p, IGameModel m) throws ToolCardApplicationException {
+    public void apply(Player p, IGameModel m) {
 
         m.removeFromDraft(dieFromDraft);
         m.swapWithRoundTracker(dieFromDraft,dieFromRoundTracker);

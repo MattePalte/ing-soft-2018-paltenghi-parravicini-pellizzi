@@ -29,8 +29,9 @@
     "resourceBundleName": "sun.util.logging.resources.logging"
   },
   "defaultRmiApName": "accessPoint",
-  "deploy": false,
+  "deploy": true,
   "properties": {
-
+    "preferences.location" :"sagrada",
+    "preferences.connection.token.location":"token"
   }
 }

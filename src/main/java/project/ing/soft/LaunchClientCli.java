@@ -1,5 +1,6 @@
 package project.ing.soft;
 
+import project.ing.soft.exceptions.CodeInvalidException;
 import project.ing.soft.socket.APProxySocket;
 import project.ing.soft.accesspoint.IAccessPoint;
 import project.ing.soft.controller.IController;
@@ -14,6 +15,7 @@ import java.io.PrintStream;
 import java.rmi.Naming;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.prefs.Preferences;
 
 /**
  * This class is the entry point of the program to launch a CLI client
@@ -39,47 +41,74 @@ public class LaunchClientCli {
         if (accessPoint == null) {
             return;
         }
-        int connectionMethod = getConnectionMethod(args, out, scan);
 
-        // create the CLI view
-        // launch it
-        // and attach the chosen controller (Rmi or Socket) to it
-        IView view = new ClientViewCLI(name);
-        out.println("View created successfully");
-        IController controller = getController(out, scan, name, accessPoint, connectionMethod, view);
-        if(controller==null)
-            return;
-        out.println("Controller retrieved from AccessPoint");
-        view.attachController(controller);
-        out.println("Controller attached to the view");
+        IController controller = null;
+        boolean nicknameAlreadyTaken = false;
+        do {
+            IView view = new ClientViewCLI(name);
+            out.println("View created successfully");
+            // create the CLI view
+            // launch it
+            // and attach the chosen controller (Rmi or Socket) to it
+            do {
+                try {
+                    nicknameAlreadyTaken = false;
+                    controller = getController(out, scan, name, accessPoint, view);
+                    out.println("Controller retrieved from AccessPoint");
+                    view.attachController(controller);
+                    out.println("Controller attached to the view");
+                } catch (NickNameAlreadyTakenException e) {
+                    out.println(e.getMessage());
+                    out.println("Please, enter another nickname");
+                    name = scan.nextLine();
+                    out.println("Your nickname is " + name);
+                    // Create a new view with the up-to-date name. The view is started after this method ends
+                    nicknameAlreadyTaken = true;
+                }catch (Exception ex){
+                    out.println(ex.getMessage());
+                }
+            } while (nicknameAlreadyTaken);
+        }while(controller == null);
+
+
+
         out.clear();
 
     }
 
-    private static IController getController(PrintStream out, Scanner scan, String name, IAccessPoint accessPoint, int connectionMethod, IView view) throws Exception {
+    /**
+     * Method used to ask the user if he wants to connect to a new game or reconnect to a old one
+     * @param out PrintStream on which the method should print information for the user
+     * @param scan the scanner used to get user input
+     * @return an int value representing the choice of the user
+     */
+
+    private static IController getController(PrintStream out, Scanner scan, String name, IAccessPoint accessPoint, IView view) throws Exception {
+        int connectionMethod;
+
+        do{
+            out.println("Select an action: ");
+            out.println("[0] to connect to a new game");
+            out.println("[1] to reconnect to the previous game started here");
+            out.println("[2] to reconnect to the previous game from code");
+            connectionMethod = scan.nextInt();
+            //Go to next line to clear scanner
+            scan.nextLine();
+        }while(connectionMethod < 0 || connectionMethod > 2);
+
+
         IController controller = null;
         switch (connectionMethod){
             case 0:
-                boolean nicknameAlreadyTaken = false;
-                do {
-                    try {
-                        nicknameAlreadyTaken = false;
-                        controller = accessPoint.connect(name, view);
-                    } catch (NickNameAlreadyTakenException e) {
-                        out.println(e.getMessage());
-                        out.println("Please, select another nickname");
-                        name = scan.nextLine();
-                        out.println("Your nickname is " + name);
-                        // Create a new view with the up-to-date name. The view is started after this method ends
-                        nicknameAlreadyTaken = true;
-                    }
-                } while (nicknameAlreadyTaken);
+                controller = accessPoint.connect(name, view);
             break;
             case 1:
-                // N.B: con RMI per evitare che dopo una reconnection il vecchio client possa
-                // inviare richieste è necessario salvare nel playerController una reference alla view e
-                // controllare che la richiesta arrivi da quella corrente
-                controller = accessPoint.reconnect(name, System.getProperty(Settings.instance().tokenProperty()), view);
+                Preferences pref = Preferences.userRoot().node(Settings.instance().getProperty("preferences.location"));
+                String token = pref.get(Settings.instance().getProperty("preferences.connection.token.location"), "");
+                if(!token.equals(""))
+                    controller = accessPoint.reconnect(name, token, view);
+                else
+                    throw new CodeInvalidException("Code does not seems to be saved");
                 break;
             case 2:
                 out.println("Insert the 32 characters long code you received when you connected to the game:");
@@ -134,27 +163,7 @@ public class LaunchClientCli {
     }
 
 
-    /**
-     * Method used to ask the user if he wants to connect to a new game or reconnect to a old one
-     * @param args arguments passed from the terminal
-     * @param out PrintStream on which the method should print information for the user
-     * @param scan the scanner used to get user input
-     * @return an int value representing the choice of the user
-     */
-    private static int getConnectionMethod(String[] args, PrintStream out, Scanner scan) {
-        int connectionMethod;
 
-        do{
-            out.println("Select an action: ");
-            out.println("[0] to connect to a new game");
-            out.println("[1] to reconnect to the previous game started here");
-            out.println("[2] to reconnect to the previous game from code");
-            connectionMethod = scan.nextInt();
-            //Go to next line to clear scanner
-            scan.nextLine();
-        }while(connectionMethod < 0 || connectionMethod > 2);
-        return connectionMethod;
-    }
 
     /**
      * Method called to ask user's name

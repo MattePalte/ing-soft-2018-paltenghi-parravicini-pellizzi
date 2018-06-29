@@ -676,7 +676,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
      * The game action is: placement of a die on the pattern window.
      * @throws Exception if something goes wrong
      */
-    public void btnPlaceDieOnCLick() throws Exception {
+    public void btnPlaceDieOnCLick() {
         // PRE-SETUP
         endingOperation();
         synchronized (this) {
@@ -706,7 +706,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
      * The game action is: select a toolcard and use it.
      * @throws Exception if something goes wrong
      */
-    public void btnPlayToolCardOnCLick() throws Exception {
+    public void btnPlayToolCardOnCLick() {
         // PRE-SETUP
         endingOperation();
         synchronized (this) {
@@ -884,7 +884,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
      * @throws InterruptedException if the player interrupt the movement
      */
     @Override
-    public Die getDieFromDraft(String message) throws InterruptedException, UserInterruptActionException {
+    public Die getDieFromDraft(String message) throws InterruptedException {
         enableOnly(ID_DRAFTPOOL,message);
         return getDie();
     }
@@ -896,7 +896,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
      * @throws InterruptedException if the player interrupt the movement
      */
     @Override
-    public Die getDieFromRound(String message) throws InterruptedException, UserInterruptActionException {
+    public Die getDieFromRound(String message) throws InterruptedException {
         enableOnly(ID_ROUNDTRACKER,message);
         return getDie();
     }
@@ -908,7 +908,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
      * @throws InterruptedException if the player interrupt the movement
      */
     @Override
-    public Coordinate getCoordinate(String message) throws InterruptedException, UserInterruptActionException {
+    public Coordinate getCoordinate(String message) throws InterruptedException {
         enableOnly(ID_MATRIX,message);
         return getCoord();
     }
@@ -920,13 +920,13 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
      * @throws InterruptedException if the player interrupt the movement
      */
     @Override
-    public int getValue(String message, Integer... values) throws InterruptedException, UserInterruptActionException {
+    public int getValue(String message, Integer... values) throws InterruptedException {
         showPickValues(message, values);
         return getValue();
     }
 
     @Override
-    public boolean getAnswer(String message) throws InterruptedException, UserInterruptActionException {
+    public boolean getAnswer(String message) {
         // TODO: implement method
         return false;
     }

@@ -31,7 +31,7 @@ public class GameModelTest {
         }
 
         @Override
-        public void update(Event event) throws IOException {
+        public void update(Event event) {
             if (event instanceof PatternCardDistributedEvent) {
                 try {
                     model.bindPatternAndPlayer(owner, ((PatternCardDistributedEvent) event).getOne(), true);
@@ -42,12 +42,12 @@ public class GameModelTest {
         }
 
         @Override
-        public void run() throws IOException {
+        public void run() {
 
         }
 
         @Override
-        public void attachController(IController gameController) throws IOException {
+        public void attachController(IController gameController) {
 
         }
     }
@@ -100,7 +100,7 @@ public class GameModelTest {
      * Test draftpool by inserting one die
      */
     @Test
-    public void testAddToDraft() throws Exception {
+    public void testAddToDraft() {
         List<Die> draftBefore;
         List<Die> draftAfter;
         draftBefore = model.getDraftPool();

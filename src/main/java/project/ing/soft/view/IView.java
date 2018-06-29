@@ -25,6 +25,6 @@ public interface IView extends Remote{
      * @param gameController that can be used to carry out operation on the server
      * @throws IOException whether network error is raised during the operation
      */
-    void attachController(IController gameController) throws IOException;
-    void run() throws IOException;
+    void attachController(IController gameController);
+    void run();
 }

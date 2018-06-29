@@ -732,6 +732,7 @@ public class ToolCardTest {
                 .then((args)-> endPos.get(0))
                 .then((args)-> startPos.get(1))
                 .then((args)-> endPos.get(1));
+        when(param.getAnswer(anyString())).thenReturn(true);
 
         try {
             tested.fill(param);

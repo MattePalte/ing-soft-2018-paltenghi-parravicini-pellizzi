@@ -1,6 +1,7 @@
 package project.ing.soft.model;
 
 
+import com.sun.istack.internal.NotNull;
 import project.ing.soft.model.cards.objectives.privates.RearPrivateObjective;
 import project.ing.soft.view.IView;
 
@@ -31,6 +32,10 @@ public class Game implements Serializable, Iterable<Player>{
         nameToIndex = new HashMap<>();
     }
 
+    /**
+     * Game producer. It creates a copy of the Game passed as a parameter
+     * @param aGame the Game to be copied
+     */
     public Game(Game aGame){
         this.maxNumPlayer = aGame.maxNumPlayer;
         this.nameToIndex = new HashMap<>();
@@ -38,15 +43,16 @@ public class Game implements Serializable, Iterable<Player>{
         for (int i = 0; i < aGame.players.size(); i++) {
             Player p = new Player(aGame.players.get(i));
             this.players.add(p);
-
             this.nameToIndex.put(aGame.players.get(i).getName(), i );
         }
 
     }
 
     /**
-     * Game producer. It creates a copy of the Game passed as a parameter
+     * Game producer. It creates a copy of the Game passed as a parameter that does not
+     * reveal private objectives of the players
      * @param aGame the Game to be copied
+     * @param recipient that will receive the copy of the game
      */
     public Game(Game aGame, Player recipient){
         this.maxNumPlayer = aGame.maxNumPlayer;
@@ -83,11 +89,19 @@ public class Game implements Serializable, Iterable<Player>{
         }
     }
 
+    public Object remove(String aPlayerName){
+        int i = nameToIndex.remove(aPlayerName);
+        return players.remove(i);
+    }
+
+    /**
+     * Retrieves the player based on the name
+     * @param nickname of the player
+     * @return a player that has @param nickname
+     */
     public Player getPlayerFromName(String nickname){
         Integer i = nameToIndex.get(nickname);
-        if(i == null)
-            return null;
-        return players.get(i);
+        return i == null ? null : players.get(i);
     }
 
     /**

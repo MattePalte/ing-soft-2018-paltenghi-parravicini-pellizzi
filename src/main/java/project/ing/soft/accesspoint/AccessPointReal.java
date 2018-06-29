@@ -4,6 +4,7 @@ import project.ing.soft.Settings;
 import project.ing.soft.controller.GameController;
 import project.ing.soft.controller.IController;
 import project.ing.soft.exceptions.*;
+import project.ing.soft.model.Player;
 import project.ing.soft.model.gamemodel.events.SetTokenEvent;
 import project.ing.soft.view.IView;
 
@@ -144,5 +145,14 @@ public class AccessPointReal implements IAccessPoint {
         log.log(Level.INFO, "A game controller {0} request a remove", aCompletedGameController);
         this.hostedGamesIds.remove(aCompletedGameController);
         this.playersInGame.values().removeIf(aContr->aContr == aCompletedGameController);
+    }
+
+    /**
+     * Entry point to delete a player that previously has been created by this AccessPoint
+     * @param player that has to be removed from a not started game
+     */
+    public synchronized void remove(Player player) {
+        log.log(Level.INFO, "The player {0} was request to be removed", player);
+        this.playersInGame.keySet().removeIf(name-> name.equals(player.getName()));
     }
 }

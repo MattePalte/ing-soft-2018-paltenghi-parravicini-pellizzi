@@ -33,7 +33,7 @@ public class GameTest {
     private Random rndGen = new Random();
 
     @Before
-    public void CreateGameAndAddPlayers() throws FileNotFoundException, Colour.ColorNotFoundException, RemoteException {
+    public void CreateGameAndAddPlayers() throws RemoteException {
         Game aMultiplePlayerGame = new Game(3);
         aMultiplePlayerGame.add(new Player("Matteo", new ClientViewCLI("Matteo")));
         aMultiplePlayerGame.add(new Player("Daniele", new ClientViewCLI("Daniele")));
@@ -50,7 +50,7 @@ public class GameTest {
     }
 
     @Before
-    public void CreateGameAndAddPlayer() throws FileNotFoundException, Colour.ColorNotFoundException, RemoteException {
+    public void CreateGameAndAddPlayer() throws RemoteException {
         Game aSinglePlayerGame = new Game(1);
         aSinglePlayerGame.add(new Player("Matteo",new ClientViewCLI("Matteo")));
     }
@@ -195,7 +195,7 @@ public class GameTest {
         }
 
         @Override
-        public void update(Event event) throws IOException {
+        public void update(Event event) {
             if (event instanceof PatternCardDistributedEvent) {
                 try {
                     ctrl.choosePattern(owner, ((PatternCardDistributedEvent) event).getOne(), true);
@@ -211,18 +211,18 @@ public class GameTest {
         }
 
         @Override
-        public void run() throws IOException {
+        public void run() {
 
         }
 
         @Override
-        public void attachController(IController gameController) throws IOException {
+        public void attachController(IController gameController) {
             ctrl = gameController;
         }
     }
 
     @Test
-    public void reconnectionTest() throws Exception {
+    public void reconnectionAndCompleteGameTest() throws Exception {
         Settings.instance().setDefaultLoggingLevel(Level.ALL);
         Thread server = new Thread(new LaunchServer()::run);
         server.start();
@@ -264,6 +264,7 @@ public class GameTest {
 
 
     }
+
 
 /*
     @Test

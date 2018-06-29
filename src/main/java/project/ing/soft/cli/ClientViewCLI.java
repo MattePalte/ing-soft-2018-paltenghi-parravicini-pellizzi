@@ -20,6 +20,8 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -155,6 +157,13 @@ public class ClientViewCLI extends UnicastRemoteObject
     public void respondTo(SetTokenEvent event) {
         log.log(Level.INFO,"Token received");
         log.log(Level.INFO,"Your token to ask reconnection is {0} " , event.getToken());
+        Preferences pref = Preferences.userRoot().node(Settings.instance().getProperty("preferences.location"));
+        pref.put(Settings.instance().getProperty("preferences.connection.token.location"), event.getToken());
+        try {
+            pref.flush();
+        } catch (BackingStoreException e) {
+            log.log(Level.INFO,"exception thrown while saving token" , e);
+        }
         personalToken = event.getToken();
         out.println("Your token to ask reconnection is "+event.getToken());
         out.println("Connection established. Please, wait for the game to start");
@@ -163,13 +172,13 @@ public class ClientViewCLI extends UnicastRemoteObject
 
     @Override
     public void respondTo(PlayerReconnectedEvent event) {
-        log.log(Level.INFO, event.getNickname() + ": player reconnected");
+        log.log(Level.INFO,  "{0}: player reconnected", event.getNickname() );
         out.println(Colour.RED.colourForeground(event.getNickname() + " reconnected to the game"));
     }
 
     @Override
     public void respondTo(PlayerDisconnectedEvent event) {
-        log.log(Level.INFO, event.getNickname() +": player disconnected");
+        log.log(Level.INFO, "{0}: player disconnected",event.getNickname());
         out.println(Colour.RED.colourForeground(event.getNickname() + " disconnected from the game"));
     }
 

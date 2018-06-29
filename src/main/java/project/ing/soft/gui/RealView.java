@@ -81,7 +81,7 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         IEventHandler eventHandler = this;
         // start long running task to execute events
         Task task = new Task<Void>() {
-            @Override public Void call() throws InterruptedException {
+            @Override public Void call() {
                 Event toRespond = null;
 
                 while(!isCancelled()) {
@@ -362,7 +362,7 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
      * @throws IOException
      */
     @Override
-    public void update(Event event) throws IOException {
+    public void update(Event event) {
         log.log(Level.INFO,"{0} received an event : {1}", new Object[]{getClass().getName(), event});
 
         if (!stopResponding) {
@@ -379,12 +379,12 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
      * @throws IOException
      */
     @Override
-    public void attachController(IController gameController) throws IOException {
+    public void attachController(IController gameController) {
         this.myController = gameController;
     }
 
     @Override
-    public void run() throws IOException {
+    public void run() {
         // useless method
     }
 

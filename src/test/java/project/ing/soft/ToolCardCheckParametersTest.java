@@ -284,6 +284,7 @@ public class ToolCardCheckParametersTest {
                 .then( args -> rndDieRoundTracker);
         when(param.getDieFromDraft(anyString()))
                 .then( args -> rndDieDraftPool);
+        when(param.getAnswer(anyString())).thenReturn(true);
 
 
         try {
@@ -333,7 +334,7 @@ public class ToolCardCheckParametersTest {
         Die aDie ;
         do {
          aDie= randomDie();
-        } while (myDiceLeft.contains(rndDieDraftPool));
+        } while (myDiceLeft.contains(aDie));
 
 
         param = mock(IToolCardParametersAcquirer.class);
@@ -345,9 +346,9 @@ public class ToolCardCheckParametersTest {
         Die aDieFromDraft = randomDie();
         when(param.getDieFromDraft(anyString()))
                 .then( args -> aDieFromDraft);
-
+        when(param.getAnswer(anyString())).thenReturn(true);
         when(stubModel.getDraftPool()).thenReturn(
-                new ArrayList<Die>(Arrays.asList(aDieFromDraft)));
+                new ArrayList<>(Arrays.asList(aDieFromDraft)));
 
         try {
             taglierinaCircolare.fill(param);
