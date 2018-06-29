@@ -11,4 +11,5 @@ public interface IToolCardParametersAcquirer extends Serializable {
     Die getDieFromRound(String message)  throws InterruptedException, UserInterruptActionException;
     Coordinate getCoordinate(String message) throws InterruptedException, UserInterruptActionException;
     int getValue(String message, Integer... values)  throws InterruptedException, UserInterruptActionException;
+    boolean getAnswer(String message) throws InterruptedException, UserInterruptActionException;
 }

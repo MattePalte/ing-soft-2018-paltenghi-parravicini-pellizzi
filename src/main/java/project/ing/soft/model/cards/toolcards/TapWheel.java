@@ -50,6 +50,8 @@ public class TapWheel extends ToolCardSingleState {
 
         diceChosen.add(acquirer.getCoordinate("Choose the position of a " + dieFromRoundTracker.getColour() + " placed die in your pattern"));
         moveTo.add(acquirer.getCoordinate("Choose where you want to move the die you have just chosen"));
+        if(!acquirer.getAnswer("Do you want to move another die?"))
+            return;
         diceChosen.add(acquirer.getCoordinate("Choose the position of a " + dieFromRoundTracker.getColour() + " placed die in your pattern"));
         moveTo.add(acquirer.getCoordinate("Choose where you want to move the die you have just chosen"));
 

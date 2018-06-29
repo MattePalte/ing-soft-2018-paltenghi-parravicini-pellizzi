@@ -488,6 +488,19 @@ public class ClientViewCLI extends UnicastRemoteObject
         out.println(message);
         return (Integer) chooseFrom( Arrays.asList(values) );
     }
+
+    /**
+     *
+     * @param message the message to be printed
+     * @return true if user choose "yes", false otherwise
+     * @throws InterruptedException if timeout expires while user is making his choice
+     * @throws UserInterruptActionException if user abort operation
+     */
+    @Override
+    public boolean getAnswer(String message) throws InterruptedException, UserInterruptActionException {
+        out.println(message);
+        return ((String) chooseFrom(Arrays.asList("yes", "no"))).toLowerCase().startsWith("y");
+    }
     //endregion
 
     private void stop(){

@@ -925,6 +925,12 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         return getValue();
     }
 
+    @Override
+    public boolean getAnswer(String message) throws InterruptedException, UserInterruptActionException {
+        // TODO: implement method
+        return false;
+    }
+
 
     //endregion
 
