@@ -267,6 +267,7 @@ public class ClientViewCLI extends UnicastRemoteObject
                 out.println("You can't leave in the middle of a ToolCard operation");
             } catch(InterruptedException ex) {
                 Thread.currentThread().interrupt();
+                break;
             }catch (Exception ex) {
                 displayError(ex);
             }

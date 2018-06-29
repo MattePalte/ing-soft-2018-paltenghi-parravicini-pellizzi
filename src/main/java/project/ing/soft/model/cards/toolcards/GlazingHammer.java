@@ -7,7 +7,7 @@ import project.ing.soft.model.Colour;
 
 public class GlazingHammer extends ToolCardSingleState {
     public GlazingHammer() {
-        super("Running Pliers", "Re-roll all dice in the Draft Pool. This may only be used on your second turn before drafting.",
+        super("Glazing Hammer", "Re-roll all dice in the Draft Pool. This may only be used on your second turn before drafting.",
                 "toolcard/30%/toolcards-8.png", Colour.BLUE);
     }
 
@@ -15,6 +15,8 @@ public class GlazingHammer extends ToolCardSingleState {
     public void checkParameters(Player p, IGameModel m) throws MalformedToolCardException {
         if(m.getCurrentTurnList().size() > m.getPlayerList().size())
             throw new MalformedToolCardException("This is not your second turn in this round");
+        if(m.getCurrentPlayer().getHasPlacedADieInThisTurn())
+            throw new MalformedToolCardException("You can't play this ToolCard if you have already placed a die");
     }
 
     @Override

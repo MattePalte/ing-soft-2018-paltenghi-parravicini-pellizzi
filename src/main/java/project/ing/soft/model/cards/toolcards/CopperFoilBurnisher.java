@@ -39,7 +39,7 @@ public class CopperFoilBurnisher extends ToolCardSingleState {
         p.moveDice(
                 new ArrayList<Coordinate>(Arrays.asList(startPosition)),
                 new ArrayList<Coordinate>(Arrays.asList(endPosition)),
-                true, true, true);
+                true, false, true);
     }
 
     @Override

@@ -258,7 +258,7 @@ public class Player implements Serializable{
      * @return a boolean flag which indicates whether the player has already placed a die
      * in this turn or not
      */
-    private boolean getHasPlacedADieInThisTurn(){
+    public boolean getHasPlacedADieInThisTurn(){
         return hasPlacedADieInThisTurn;
     }
 
