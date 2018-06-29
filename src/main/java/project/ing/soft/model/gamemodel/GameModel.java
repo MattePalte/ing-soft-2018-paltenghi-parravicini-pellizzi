@@ -5,7 +5,6 @@ import project.ing.soft.exceptions.*;
 import project.ing.soft.model.*;
 import project.ing.soft.model.cards.objectives.ObjectiveCard;
 import project.ing.soft.model.cards.objectives.privates.PrivateObjective;
-import project.ing.soft.model.cards.objectives.privates.RearPrivateObjective;
 import project.ing.soft.model.cards.objectives.publics.PublicObjective;
 import project.ing.soft.model.cards.toolcards.ToolCard;
 import project.ing.soft.model.gamemodel.events.*;

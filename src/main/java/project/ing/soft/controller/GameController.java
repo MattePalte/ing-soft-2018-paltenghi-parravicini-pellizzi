@@ -123,14 +123,30 @@ public class GameController implements IController {
             gameModel.disconnectPlayer(playerName);
             if(gameModel.getStatus() == IGameModel.GAME_MANAGER_STATUS.ENDED && publishingAp != null) {
                 publishingAp.remove(this);
-                for(Player p : theGame){
-                    p.disconnectView();
-                }
+                TimerTask disconnectPlayersTimeoutTask = buildDisconnectPlayersTimeoutTask();
+                timer.schedule(disconnectPlayersTimeoutTask, 60000);
+
             }
 
         }
     }
     //endregion
+
+    /**
+     * @return a TimerTask to use to disconnect players' thread from ended games only after last events
+     * have been sent
+     */
+
+    private TimerTask buildDisconnectPlayersTimeoutTask(){
+        return new TimerTask() {
+            @Override
+            public void run() {
+                for(Player p : theGame){
+                    p.disconnectView();
+                }
+            }
+        };
+    }
 
     /**
      * @return a TimerTask to use in GameController's Timer which makes the match start
@@ -299,9 +315,8 @@ public class GameController implements IController {
             resetTurnEndAndStartTimer();
         }else if(publishingAp != null) {
             publishingAp.remove(this);
-            for(Player p : theGame){
-                p.disconnectView();
-            }
+            TimerTask disconnectPlayersTimeoutTask = buildDisconnectPlayersTimeoutTask();
+            timer.schedule(disconnectPlayersTimeoutTask, 60000);
         }
 
 

@@ -13,7 +13,6 @@ import project.ing.soft.controller.IController;
 import project.ing.soft.view.IView;
 
 import java.io.*;
-import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.Timestamp;
@@ -330,17 +329,27 @@ public class ClientViewCLI extends UnicastRemoteObject
 
     @Override
     public void respondTo(GameFinishedEvent event) {
+        String winner;
         gameOnGoing = false;
-        out.println("Game finished!");
+        out.println("\nGame finished!");
 
         Map<String, String> pointsDescriptor = event.getPointsDescriptor();
         for(Player p : localCopyOfTheStatus.getPlayerList()){
             out.println(pointsDescriptor.get(p.getName()));
+            // Create an empty line between players' descriptors
+            out.println();
         }
         out.println("Final Rank:");
         for (Pair<Player, Integer> aPair : event.getRank()){
             out.println(aPair.getKey() + " => " + aPair.getValue());
+            out.println();
         }
+        List<Player> connectedPlayers = localCopyOfTheStatus.getPlayerList().stream().filter(Player::isConnected).collect(Collectors.toList());
+        if(connectedPlayers.size() == 1)
+            winner = connectedPlayers.get(0).getName();
+        else
+            winner = event.getRank().get(0).getKey().getName();
+        out.println("\nThe winner is " + winner);
         stop();
     }
 
@@ -487,6 +496,7 @@ public class ClientViewCLI extends UnicastRemoteObject
         eventHandler.cancel(true);
         threadPool.shutdown();
         this.controller = null;
+
         if(localCopyOfTheStatus.getStatus() != IGameModel.GAME_MANAGER_STATUS.ENDED)
             out.println("To reconnect you can use this token: " + personalToken);
         //the following line must remain. In other case no unreferenced() get called!

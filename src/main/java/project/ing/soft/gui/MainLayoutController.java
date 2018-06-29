@@ -45,6 +45,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class MainLayoutController extends UnicastRemoteObject implements IEventHandler, IToolCardParametersAcquirer,  Serializable{
     private IGameModel localCopyOfTheStatus;
@@ -349,9 +350,16 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
             stringBuilder.append(playerLine);
             log.log(Level.INFO,aPair.getKey() + " => " + aPair.getValue());
         }
+        List<Player> connectedPlayers = localCopyOfTheStatus.getPlayerList().stream().filter(Player::isConnected).collect(Collectors.toList());
+        String winner;
+        if(connectedPlayers.size() == 1)
+            winner = connectedPlayers.get(0).getName();
+        else
+            winner = event.getRank().get(0).getKey().getName();
+        stringBuilder.append("The winner is ").append(winner);
         String str = stringBuilder.toString();
         alert.setHeaderText(str);
-        alert.setOnCloseRequest((DialogEvent) -> {
+        alert.setOnCloseRequest(dialogEvent -> {
             Platform.exit();
             System.exit(0);
         });
