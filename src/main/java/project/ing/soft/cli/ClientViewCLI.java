@@ -453,11 +453,11 @@ public class ClientViewCLI extends UnicastRemoteObject
     }
 
     private ToolCard chooseFromToolCard(List<ToolCard> objs) throws UserInterruptActionException, InterruptedException {
-        out.println(Card.drawNear(IntStream.range(0,objs.size()).mapToObj(i -> "["+i+"]\n"+objs.get(i).toString()).collect(Collectors.toList())));
-        for(ToolCard t : objs) {
-            String title = t.getTitle();
-            out.println(String.format("Cost of %s : %d favours", title, localCopyOfTheStatus.getToolCardCost().get(title)));
-        }
+        out.println(Card.drawNear(IntStream.range(0,objs.size()).mapToObj(i ->
+                        "["+i+"]\n"+
+                        objs.get(i).toString()+"\n"+
+                        "Cost: " + localCopyOfTheStatus.getToolCardCost().get(objs.get(i).getTitle()))
+                .collect(Collectors.toList())));
         out.println(String.format("Enter a number between 0 and %d to select:", objs.size()-1));
         return objs.get(waitForUserInput(objs.size()-1));
     }

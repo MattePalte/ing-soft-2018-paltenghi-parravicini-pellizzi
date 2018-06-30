@@ -12,6 +12,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import project.ing.soft.controller.IController;
+import project.ing.soft.model.Pair;
 import project.ing.soft.model.Player;
 import project.ing.soft.model.gamemodel.IGameModel;
 import project.ing.soft.model.gamemodel.events.*;
@@ -21,12 +22,10 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Objects;
-import java.util.Queue;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  *  Class that emulates is the view Client-frontSide.
@@ -169,14 +168,40 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
 
     /**
      * Method to respond to the event of Game finished.
-     * It forward the event to mainBoard object if exists.
+     * It shows an ending message and terminate the program after the user click ok
      * @param event of type GameFinishedEvent, it contains the final score of the players
      */
     @Override
     public void respondTo(GameFinishedEvent event) {
-        if (mainBoard != null) {
-            mainBoard.respondTo(event);
+        log.log(Level.INFO,"Game finished!");
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Final Rank:");
+        StringBuilder stringBuilder = new StringBuilder();
+        Map<String, String> pointsDescriptor = event.getPointsDescriptor();
+        for(Player p : localCopyOfTheStatus.getPlayerList()){
+            stringBuilder.append(pointsDescriptor.get(p.getName()));
+            stringBuilder.append("\n");
         }
+        for (Pair<Player, Integer> aPair : event.getRank()){
+            String playerLine = aPair.getKey().getName() + " => " + aPair.getValue() + "\n";
+            stringBuilder.append(playerLine);
+            log.log(Level.INFO,aPair.getKey() + " => " + aPair.getValue());
+        }
+        List<Player> connectedPlayers = localCopyOfTheStatus.getPlayerList().stream().filter(Player::isConnected).collect(Collectors.toList());
+        String winner;
+        if(connectedPlayers.size() == 1)
+            winner = connectedPlayers.get(0).getName();
+        else
+            winner = event.getRank().get(0).getKey().getName();
+        stringBuilder.append("The winner is ").append(winner);
+        String str = stringBuilder.toString();
+        alert.setHeaderText(str);
+        alert.setOnCloseRequest(dialogEvent -> {
+            Platform.exit();
+            System.exit(0);
+        });
+        alert.show();
+        log.log(Level.INFO, str);
         stopResponding = true;
     }
 
@@ -301,12 +326,30 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
     public void respondTo(PlayerReconnectedEvent event) {
         if(mainBoard != null)
             mainBoard.respondTo(event);
+        Platform.runLater(
+                () -> {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Player reconected");
+                    alert.setHeaderText(String.format("%s still with us", event.getNickname()));
+                    alert.setContentText(String.format("Player %s has reconnected to the game", event.getNickname()));
+                    alert.show();
+                }
+        );
     }
 
     @Override
     public void respondTo(PlayerDisconnectedEvent event) {
         if(mainBoard != null)
             mainBoard.respondTo(event);
+        Platform.runLater(
+                () -> {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Player disonnected");
+                    alert.setHeaderText(String.format("%s left us :(", event.getNickname()));
+                    alert.setContentText(String.format("Player %s has left the game", event.getNickname()));
+                    alert.show();
+                }
+        );
     }
 
     /**

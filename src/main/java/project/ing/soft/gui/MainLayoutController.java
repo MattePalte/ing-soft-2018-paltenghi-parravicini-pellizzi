@@ -137,6 +137,14 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         return (Integer) obj;
     }
 
+    public String getString() throws InterruptedException {
+        Object obj = null;
+        do {
+            obj = getObj();
+        } while (! (obj instanceof String));
+        return (String) obj;
+    }
+
     /**
      * Method to add a Coordinate to the waiting queue (list of parameters).
      * @param coord Coordinate selected by the user
@@ -157,6 +165,10 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
      */
     private void collectValue(Integer value){
         put(value);
+    }
+
+    private void collectString(String strChosen){
+        put(strChosen);
     }
     /**
      * Method to add an Integer representing a toolcard index to the waiting queue
@@ -309,13 +321,13 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     @Override
     public void respondTo(PlayerReconnectedEvent event) {
         log.log(Level.INFO, event.getNickname() + ": reconnected");
-        drawDraftPool();
+        drawRoundTracker();
     }
 
     @Override
     public void respondTo(PlayerDisconnectedEvent event) {
         log.log(Level.INFO, event.getNickname() + ": disconnected");
-        drawDraftPool();
+        drawRoundTracker();
     }
 
     @Override
@@ -335,36 +347,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
     @Override
     public void respondTo(GameFinishedEvent event) {
-        log.log(Level.INFO,"Game finished!");
-
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Final Rank:");
-        StringBuilder stringBuilder = new StringBuilder();
-        Map<String, String> pointsDescriptor = event.getPointsDescriptor();
-        for(Player p : localCopyOfTheStatus.getPlayerList()){
-            stringBuilder.append(pointsDescriptor.get(p.getName()));
-            stringBuilder.append("\n");
-        }
-        for (Pair<Player, Integer> aPair : event.getRank()){
-            String playerLine = aPair.getKey().getName() + " => " + aPair.getValue() + "\n";
-            stringBuilder.append(playerLine);
-            log.log(Level.INFO,aPair.getKey() + " => " + aPair.getValue());
-        }
-        List<Player> connectedPlayers = localCopyOfTheStatus.getPlayerList().stream().filter(Player::isConnected).collect(Collectors.toList());
-        String winner;
-        if(connectedPlayers.size() == 1)
-            winner = connectedPlayers.get(0).getName();
-        else
-            winner = event.getRank().get(0).getKey().getName();
-        stringBuilder.append("The winner is ").append(winner);
-        String str = stringBuilder.toString();
-        alert.setHeaderText(str);
-        alert.setOnCloseRequest(dialogEvent -> {
-            Platform.exit();
-            System.exit(0);
-        });
-        alert.show();
-        log.log(Level.INFO, str);
+        // nothing to do, because it is handle primarly by the RealView itself
     }
 
     @Override
@@ -529,6 +512,31 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                     Stage currentStage = (Stage) ((Node) e.getSource()).getScene().getWindow();
                     currentStage.close();
                     collectValue(currentValue);
+                }
+            });
+        }
+    }
+
+    private synchronized void drawStrings(Scene scene, String idPane, String message, String... values) {
+        GridPane pane = (GridPane) scene.lookup("#" + idPane);
+        Text lblMessage = (Text) scene.lookup("#lblMessage");
+        lblMessage.setText(message);
+        pane.getChildren().clear();
+        for (int pos = 0 ; pos < values.length; pos++) {
+            String currentString = values[pos];
+            // Create Button
+            Button currentCell = new Button();
+            currentCell.setText(String.valueOf(pos));
+            pane.add(currentCell, pos,0);
+            currentCell.setStyle(FX_BACKGROUND + WHITE);
+            currentCell.setText(currentString);
+            currentCell.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent e) {
+                    disableAll();
+                    Stage currentStage = (Stage) ((Node) e.getSource()).getScene().getWindow();
+                    currentStage.close();
+                    collectString(currentString);
                 }
             });
         }
@@ -856,6 +864,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
 
 
     //region Possile View Interface
+
     private synchronized void showPickValues(String message, Integer... values) {
         Platform.runLater(new Runnable() {
             @Override public void run() {
@@ -873,6 +882,26 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
                 stage.setScene(pickValueScene);
                 stage.show();
                 drawValues(pickValueScene, ID_BOX_VALUE, message, values);
+            }
+        });
+    }
+    private synchronized void showPickString(String message, String... values) {
+        Platform.runLater(new Runnable() {
+            @Override public void run() {
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/gui/layout/chose_value.fxml"));
+                Parent root1 = null;
+                try {
+                    root1 = (Parent) fxmlLoader.load();
+                } catch (IOException e) {
+                    log.log(Level.INFO, Arrays.toString(e.getStackTrace()));
+                    return;
+                }
+                fxmlLoader.setController(this);
+                Stage stage = new Stage();
+                Scene pickValueScene = new Scene(root1);
+                stage.setScene(pickValueScene);
+                stage.show();
+                drawStrings(pickValueScene, ID_BOX_VALUE, message, values);
             }
         });
     }
@@ -933,9 +962,9 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     }
 
     @Override
-    public boolean getAnswer(String message) {
-        // TODO: implement method
-        return false;
+    public boolean getAnswer(String message) throws InterruptedException {
+        showPickString(message, "yes", "no");
+        return getString() == "yes";
     }
 
 

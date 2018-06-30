@@ -29,7 +29,8 @@ public class FluxBrushSecondPart implements IToolCardState, Serializable {
 
     @Override
     public void fill(ToolCard ctx,IToolCardParametersAcquirer acquirer) throws UserInterruptActionException, InterruptedException {
-        cord = acquirer.getCoordinate(String.format("Select where you want to place the die %s ", dieToBePlaced));
+        cord = acquirer.getCoordinate(String.format("Select where you want to place the die %s value %s",
+                dieToBePlaced.getColour().toString(), String.valueOf(dieToBePlaced.getValue())));
     }
 
     @Override
