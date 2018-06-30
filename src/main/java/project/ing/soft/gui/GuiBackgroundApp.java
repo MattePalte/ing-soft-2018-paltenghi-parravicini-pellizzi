@@ -38,7 +38,7 @@ public class GuiBackgroundApp extends Application {
         try {
             root = fxmlLoader.load();
         } catch (IOException e) {
-            log.log(Level.INFO, getClass().getName() + " -> Cause: "+e.getCause() + "\n Message " + e.getMessage());
+            log.log(Level.SEVERE, getClass().getName() + " -> Cause: "+e.getCause() + "\n Message " + e.getMessage());
             return;
         }
         // prepare transition

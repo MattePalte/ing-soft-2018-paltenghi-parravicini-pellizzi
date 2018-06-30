@@ -123,7 +123,7 @@ public class GameController implements IController {
         if(gameModel == null) {
             Player p = (Player) theGame.remove(playerName);
             publishingAp.remove(p);
-            if(theGame.getNumberOfPlayers() == 0){
+            if(theGame.getNumberOfPlayers() <= 1 && startTimeoutTask != null){
                 startTimeoutTask.cancel();
             }
         }else {

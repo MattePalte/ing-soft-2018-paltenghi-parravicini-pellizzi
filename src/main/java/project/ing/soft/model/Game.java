@@ -89,6 +89,11 @@ public class Game implements Serializable, Iterable<Player>{
         }
     }
 
+    /**
+     * Remove a player
+     * @param aPlayerName that identifies the player
+     * @return the player removed
+     */
     public Object remove(String aPlayerName){
         int i = nameToIndex.remove(aPlayerName);
         return players.remove(i);
@@ -166,7 +171,7 @@ public class Game implements Serializable, Iterable<Player>{
      * @return an Iterator.
      */
     @Override
-    public Iterator<Player> iterator() {
+    public Iterator<Player>  iterator() {
         return players.iterator();
     }
 

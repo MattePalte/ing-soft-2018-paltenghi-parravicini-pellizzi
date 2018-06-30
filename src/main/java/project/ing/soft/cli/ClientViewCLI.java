@@ -406,7 +406,6 @@ public class ClientViewCLI extends UnicastRemoteObject
         out.println("Draft pool : "+ localCopyOfTheStatus.getDraftPool());
     }
 
-    @Override
     public void run() {
         out.println(ownerNameOfTheView + " started ");
         out.println("Waiting for enough players to start the match...");

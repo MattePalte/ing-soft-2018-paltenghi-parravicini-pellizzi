@@ -383,7 +383,6 @@ public class RealView extends UnicastRemoteObject implements IView, IEventHandle
         this.myController = gameController;
     }
 
-    @Override
     public void run() {
         // useless method
     }

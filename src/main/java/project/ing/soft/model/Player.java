@@ -348,10 +348,22 @@ public class Player implements Serializable{
             queue.add(aDie);
         }
 
+        copyTest.hasEverPlacedADie = false;
+        for (int i = 0; i < copyTest.placedDice.length && !copyTest.hasEverPlacedADie ; i++) {
+            for (int j = 0; j < copyTest.placedDice[i].length && !copyTest.hasEverPlacedADie; j++) {
+                if (copyTest.placedDice[i][j] != null) {
+                    copyTest.hasEverPlacedADie = true;
+                }
+            }
+        }
+
         for (int i = 0; i < queue.size(); i++) {
 
             if (copyTest.getPlacedDice(end.get(i)) != null)
                 throw new RuleViolatedException("The destination cell is already occupied");
+            if(!copyTest.hasEverPlacedADie && this.getPlacedDice(end.get(i)) == null)
+                throw new RuleViolatedException("A die should remain in contact with the edge of the window pattern");
+
             copyTest.checkPlaceDie(queue.get(i),end.get(i), checkColour, checkValue, checkPresence);
             copyTest.placedDice[end.get(i).getRow()][end.get(i).getCol()] = queue.get(i);
         }

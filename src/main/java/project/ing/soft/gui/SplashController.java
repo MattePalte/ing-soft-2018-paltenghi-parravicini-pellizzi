@@ -52,12 +52,15 @@ public class SplashController {
     private static final String INFO_SERVER_ERROR_RMI = "x) Probably the server is down (no remote object or no registry)";
     private static final String INFO_SERVER_ERROR_SOCKET = "x) Probably the server is down";
 
-    public SplashController(Stage stage) {
-        this.stage = stage;
+    public SplashController() {
         this.log = Logger.getLogger(Objects.toString(this));
-        Preferences pref = Preferences.userRoot().node(Settings.instance().getProperty("preferences.location"));
-        this.txtToken.setText(pref.get(Settings.instance().getProperty("preferences.connection.token.location"), ""));
+    }
 
+    @FXML
+    public void initialize(){
+        Preferences pref = Preferences.userRoot().node(Settings.instance().getProperty("preferences.location"));
+        String token = pref.get(Settings.instance().getProperty("preferences.connection.token.location"), "");
+        txtToken.setText(token);
     }
 
     /**

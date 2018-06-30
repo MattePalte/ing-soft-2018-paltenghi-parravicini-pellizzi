@@ -37,8 +37,8 @@ public class CopperFoilBurnisher extends ToolCardSingleState {
     @Override
     public void apply(Player p, IGameModel m) throws Exception {
         p.moveDice(
-                new ArrayList<Coordinate>(Arrays.asList(startPosition)),
-                new ArrayList<Coordinate>(Arrays.asList(endPosition)),
+                new ArrayList<>(Arrays.asList(startPosition)),
+                new ArrayList<>(Arrays.asList(endPosition)),
                 true, false, true);
     }
 

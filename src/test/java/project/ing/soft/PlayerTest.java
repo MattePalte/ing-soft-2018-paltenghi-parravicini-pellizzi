@@ -700,10 +700,12 @@ public class PlayerTest {
             testPlayerWithWhitePatternCardNoMove.endTurn();
             testPlayerWithWhitePatternCardNoMove.placeDie(new Die(4, Colour.RED), 0, 1, true);
             testPlayerWithWhitePatternCardNoMove.moveDice(
-                    new ArrayList<Coordinate>(Arrays.asList(new Coordinate(0,1))),
-                    new ArrayList<Coordinate>(Arrays.asList(new Coordinate(0,0))),
+                    new ArrayList<>(Arrays.asList(new Coordinate(0,1), new Coordinate(0,0))),
+                    new ArrayList<>(Arrays.asList(new Coordinate(0,0), new Coordinate(0,1))),
                     true, true, true);
+
         } catch (Exception e) {
+           Assert.fail("An exception shouldn't have been thrown");
             e.printStackTrace();
         }
     }
@@ -715,11 +717,12 @@ public class PlayerTest {
             testPlayerWithWhitePatternCardNoMove.endTurn();
             testPlayerWithWhitePatternCardNoMove.placeDie(new Die(4, Colour.RED), 3, 1, true);
             testPlayerWithWhitePatternCardNoMove.moveDice(
-                    new ArrayList<Coordinate>(Arrays.asList(new Coordinate(2,0))),
-                    new ArrayList<Coordinate>(Arrays.asList(new Coordinate(3,1))),
+                    new ArrayList<>(Arrays.asList(new Coordinate(2,0))),
+                    new ArrayList<>(Arrays.asList(new Coordinate(3,1))),
                     true, true, true);
+            Assert.fail("An exception should be thrown instead");
         } catch (Exception e) {
-            e.printStackTrace();
+            //we're testing exceptional response
         }
     }
 

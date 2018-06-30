@@ -41,10 +41,6 @@ public class GameModelTest {
             }
         }
 
-        @Override
-        public void run() {
-
-        }
 
         @Override
         public void attachController(IController gameController) {

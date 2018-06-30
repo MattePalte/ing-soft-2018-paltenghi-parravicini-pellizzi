@@ -210,10 +210,6 @@ public class GameTest {
 
         }
 
-        @Override
-        public void run() {
-
-        }
 
         @Override
         public void attachController(IController gameController) {

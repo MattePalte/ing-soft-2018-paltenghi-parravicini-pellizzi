@@ -20,11 +20,10 @@ public interface IView extends Remote{
     /**
      * It
      * In order to permit view to be reused.
-     * E.g. a network failure causes the game to be interrrupted we can restablish a connection
+     * E.g. a network failure causes the game to be interrupted we can reestablish a connection
      * and the give back the controller to the view avoiding to re-initialize completely the view
      * @param gameController that can be used to carry out operation on the server
      * @throws IOException whether network error is raised during the operation
      */
-    void attachController(IController gameController);
-    void run();
+    void attachController(IController gameController)throws IOException ;
 }
