@@ -304,7 +304,7 @@ public class ToolCardCheckParametersTest {
     public void taglierinaCircolareKoTest() throws UserInterruptActionException, InterruptedException {
         Die rndDieRoundTracker = randomDie();
         Die rndDieDraftPool = randomDie();
-        boolean isExHappend = false;
+
         taglierinaCircolare = new LensCutter();
         // - the die selected is not in the draft pool
         when(stubModel.getRoundTracker()).thenReturn(stubRoundTracker);
@@ -319,14 +319,15 @@ public class ToolCardCheckParametersTest {
                 .then( args -> rndDieDraftPool);
         when(param.getDieFromRound(anyString()))
                 .then( args -> rndDieRoundTracker);
+        when(param.getAnswer(anyString())).thenReturn(false);
 
         try {
             taglierinaCircolare.fill(param);
             taglierinaCircolare.checkParameters(stubPlayer,stubModel);
+            Assert.fail();
         } catch (MalformedToolCardException e) {
-            isExHappend = true;
+            //exception catched
         }
-        assertTrue( isExHappend);
 
         // - the die selected is not on the roundtracker
         when(stubModel.getRoundTracker()).thenReturn(stubRoundTracker);
@@ -346,17 +347,17 @@ public class ToolCardCheckParametersTest {
         Die aDieFromDraft = randomDie();
         when(param.getDieFromDraft(anyString()))
                 .then( args -> aDieFromDraft);
-        when(param.getAnswer(anyString())).thenReturn(true);
+        when(param.getAnswer(anyString())).thenReturn(false);
         when(stubModel.getDraftPool()).thenReturn(
                 new ArrayList<>(Arrays.asList(aDieFromDraft)));
 
         try {
             taglierinaCircolare.fill(param);
             taglierinaCircolare.checkParameters(stubPlayer,stubModel);
+            Assert.fail();
         } catch (MalformedToolCardException e) {
-            isExHappend = true;
+            //exception catched
         }
-        assertTrue( isExHappend);
     }
 
     @Test
