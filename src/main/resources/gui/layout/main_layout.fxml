@@ -18,9 +18,9 @@
     <HBox fx:id="content" alignment="CENTER" >
         <VBox fx:id="toolcardBox" alignment="CENTER" spacing="10">
             <padding><Insets bottom="25" left="10" right="10" top="25" /></padding>
-            <VBox fx:id="toolcard0" alignment="CENTER" />
-            <VBox fx:id="toolcard1" alignment="CENTER" />
-            <VBox fx:id="toolcard2" alignment="CENTER" />
+            <StackPane fx:id="toolcard0" alignment="CENTER" />
+            <StackPane fx:id="toolcard1" alignment="CENTER" />
+            <StackPane fx:id="toolcard2" alignment="CENTER" />
         </VBox>
         <VBox fx:id="publicObjBox" alignment="CENTER" spacing="10">
             <padding><Insets bottom="25" left="10" right="10" top="25" /></padding>

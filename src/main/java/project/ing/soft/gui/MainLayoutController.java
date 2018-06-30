@@ -20,6 +20,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -325,7 +326,6 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     @Override
     public void respondTo(FinishedSetupEvent event) {
         displayPrivateObjective();
-        displayToolCard(getPrimaryStage().getScene());
         displayPublicCard(getPrimaryStage().getScene());
         synchronized (this) {
             // show connection info
@@ -404,6 +404,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         drawMySituation();
         displayOtherPlayerSituation(primaryStage.getScene());
         drawDraftPool();
+        displayToolCard(getPrimaryStage().getScene());
         drawRoundTracker();
         if(!localCopyOfTheStatus.getCurrentPlayer().getName().equals(ownerNameOfTheView))
             disableAll();
@@ -603,8 +604,14 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         for (int index = 0; index<3; index++) {
             ToolCard currentTool = tCard.get(index);
             ImageView iv = ElementCreator.createCard(currentTool, getPrimaryStage());
-            Pane pane = (Pane) scene.lookup("#toolcard" + index);
+            StackPane pane = (StackPane) scene.lookup("#toolcard" + index);
+            pane.getChildren().clear();
+            int cost = localCopyOfTheStatus.getToolCardCost().get(tCard.get(index).getTitle());
+            Text lblCost = new Text("Favours required -> " + String.valueOf(cost));
+            lblCost.setFill(Color.rgb(43, 161, 255));
             pane.getChildren().add(0, iv);
+            pane.getChildren().add(1, lblCost);
+            pane.setAlignment(lblCost, Pos.BOTTOM_LEFT);
             StyleBooster.forToolCardCard(pane, 7);
             int finalIndex = index;
             iv.setOnMouseClicked(new EventHandler<MouseEvent>() {

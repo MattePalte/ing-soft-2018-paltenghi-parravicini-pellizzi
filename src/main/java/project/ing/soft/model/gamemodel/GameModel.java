@@ -169,6 +169,10 @@ public class GameModel implements IGameModel, Serializable {
     public Map<String, Integer> getFavours(){
         return favours;
     }
+    @Override
+    public Map<String, Integer> getToolCardCost(){
+        return toolCardCost;
+    }
 
     @Override
     public RoundTracker getRoundTracker() {

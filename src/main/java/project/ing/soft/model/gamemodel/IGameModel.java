@@ -60,6 +60,7 @@ public interface IGameModel extends Serializable {
     List<PublicObjective>   getPublicObjective();
     List<Die>               getDraftPool();
     Map<String, Integer>    getFavours();
+    Map<String, Integer>    getToolCardCost();
     RoundTracker            getRoundTracker();
 
     void requestUpdate();
