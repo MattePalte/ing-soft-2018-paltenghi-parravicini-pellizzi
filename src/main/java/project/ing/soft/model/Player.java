@@ -361,8 +361,6 @@ public class Player implements Serializable{
 
             if (copyTest.getPlacedDice(end.get(i)) != null)
                 throw new RuleViolatedException("The destination cell is already occupied");
-            if(!copyTest.hasEverPlacedADie && this.getPlacedDice(end.get(i)) == null)
-                throw new RuleViolatedException("A die should remain in contact with the edge of the window pattern");
 
             copyTest.checkPlaceDie(queue.get(i),end.get(i), checkColour, checkValue, checkPresence);
             copyTest.placedDice[end.get(i).getRow()][end.get(i).getCol()] = queue.get(i);
