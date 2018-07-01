@@ -141,7 +141,7 @@ public class ClientViewCLI extends UnicastRemoteObject
         localCopyOfTheStatus = event.getaGameCopy();
 
         log.info("Model updated!");
-        if (!localCopyOfTheStatus.getCurrentPlayer().getName().equals(ownerNameOfTheView)) {
+        if (localCopyOfTheStatus.getCurrentPlayer() != null && localCopyOfTheStatus.getCurrentPlayer().getName().equals(ownerNameOfTheView)) {
             out.println("It's the turn of " + localCopyOfTheStatus.getCurrentPlayer().getName() + ". Wait for yours.");
         }
 

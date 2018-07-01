@@ -67,17 +67,19 @@ public class PlayerTest {
     @Test
     public void testMemento() throws PositionOccupiedException, RuleViolatedException, PatternConstraintViolatedException {
 
-       Player memento = testPlayerWithWhitePatternCardNoMove.getMemento();
+        Player memento = testPlayerWithWhitePatternCardNoMove.getMemento();
 
-            testPlayerWithWhitePatternCardNoMove.placeDie(new Die(1, Colour.BLUE), 0, 0, true);
-            testPlayerWithWhitePatternCardNoMove.moveDice(
-                    new ArrayList<Coordinate>(Arrays.asList(new Coordinate(0,0))),
-                    new ArrayList<Coordinate>(Arrays.asList(new Coordinate(1,0))),
-                    false, false, false);
-            testPlayerWithWhitePatternCardNoMove.endTurn();
-            Assert.assertNotEquals(testPlayerWithWhitePatternCardNoMove,memento);
-            testPlayerWithWhitePatternCardNoMove.saveMemento(memento);
-            Assert.assertEquals( testPlayerWithWhitePatternCardNoMove, memento);
+        testPlayerWithWhitePatternCardNoMove.placeDie(new Die(1, Colour.BLUE), 0, 0, true);
+        testPlayerWithWhitePatternCardNoMove.endTurn();
+        testPlayerWithWhitePatternCardNoMove.placeDie(new Die(4, Colour.RED), 0,1, true);
+        testPlayerWithWhitePatternCardNoMove.moveDice(
+            new ArrayList<Coordinate>(Arrays.asList(new Coordinate(0,1))),
+            new ArrayList<Coordinate>(Arrays.asList(new Coordinate(1,0))),
+            true, true, true);
+        testPlayerWithWhitePatternCardNoMove.endTurn();
+        Assert.assertNotEquals(testPlayerWithWhitePatternCardNoMove,memento);
+        testPlayerWithWhitePatternCardNoMove.saveMemento(memento);
+        Assert.assertEquals( testPlayerWithWhitePatternCardNoMove, memento);
 
 
     }
