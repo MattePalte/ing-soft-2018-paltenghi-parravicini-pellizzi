@@ -20,6 +20,7 @@ Index
 | Paltenghi 	  | Matteo 				 | Inserisci Matricola 	 | Inserisci Codice Persona |
 | Parravicini 	  | Daniele				 | Inserisci Matricola   | Inserisci Codice Persona
 | Pellizzi  	  | Kristopher Francesco | 847198 			 	 | 10522862 				|
+
 <a name="Client-Server_Interaction"></a>Client - Server interaction
 ---------------------------
 
