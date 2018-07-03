@@ -5,10 +5,9 @@ import com.google.gson.GsonBuilder;
 import javafx.scene.paint.Color;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Settings {
     private static Settings internalInstance;
@@ -41,6 +40,8 @@ public class Settings {
     private String defaultRmiApName;
     private boolean deploy;
 
+    private final Logger log = Logger.getLogger(Objects.toString(this));
+
     private Settings() {
     }
 
@@ -70,7 +71,7 @@ public class Settings {
             writer.println(gson.toJson(this));
             writer.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.log(Level.INFO, Arrays.toString(e.getStackTrace()));
         } finally {
             if (writer != null) writer.close();
         }

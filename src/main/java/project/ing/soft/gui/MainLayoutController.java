@@ -425,7 +425,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         synchronized (this) {
             btnPlaceDie.setDisable(true);
             btnPlayToolCard.setDisable(true);
-            btnEndTurn.setDisable(true);
+            //btnEndTurn.setDisable(true);
         }
         if(waitingForParameters != null && !waitingForParameters.isDone())
             waitingForParameters.cancel(true);

@@ -1,7 +1,6 @@
 package project.ing.soft.model;
 
 
-import com.sun.istack.internal.NotNull;
 import project.ing.soft.model.cards.objectives.privates.RearPrivateObjective;
 import project.ing.soft.view.IView;
 
