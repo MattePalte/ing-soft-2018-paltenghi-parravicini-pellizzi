@@ -198,7 +198,7 @@ public class SplashController {
     private void connectRMI(String nick){
         IAccessPoint accessPoint = null;
         try {
-            accessPoint = (IAccessPoint)Naming.lookup( Settings.instance().getRemoteRmiApName());
+            accessPoint = (IAccessPoint)Naming.lookup( Settings.instance().getRemoteRmiApName(getIP()));
 
             log.log(Level.INFO, INFO_1_ACCESS_POINT_RMI);
             IView realView = new RealView(stage, nick, this);
@@ -244,7 +244,7 @@ public class SplashController {
     private void reconnectRMI(String nick, String token){
         IAccessPoint accessPoint = null;
         try {
-            accessPoint = (IAccessPoint) Naming.lookup(Settings.instance().getRemoteRmiApName());
+            accessPoint = (IAccessPoint) Naming.lookup(Settings.instance().getRemoteRmiApName(getIP()));
 
             log.log(Level.INFO, INFO_1_ACCESS_POINT_RMI);
             IView realView = new RealView(stage, nick, this);

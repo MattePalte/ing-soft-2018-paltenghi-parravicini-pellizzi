@@ -22,7 +22,6 @@ import java.util.prefs.Preferences;
  */
 public class LaunchClientCli {
 
-
     /**
      * main method of the class. This methods asks the user's name and which type of connection he wants
      * to use and tries to connect him to the server.
@@ -141,14 +140,14 @@ public class LaunchClientCli {
 
                 //args[0] should be the ip address of the machine running the registry
                 try {
-                    accessPoint = (IAccessPoint) Naming.lookup(Settings.instance().getRemoteRmiApName());
+                    accessPoint = (IAccessPoint) Naming.lookup(Settings.instance().getRemoteRmiApName(getIP(out,scan)));
                 } catch (Exception ex){
                     ex.printStackTrace(out);
                 }
                 break;
             case "1":
                 try {
-                    accessPoint = new APProxySocket(Settings.instance().getHost(), Settings.instance().getPort());
+                    accessPoint = new APProxySocket(getIP(out,scan), Settings.instance().getPort());
                 }catch (Exception ex){
                     out.println("Error "+ex);
                     ex.printStackTrace(out);
@@ -162,7 +161,52 @@ public class LaunchClientCli {
         return accessPoint;
     }
 
+    /**
+     * Method to get the ip number from the console
+     * @return ip number in the right format as a String
+     */
+    private static String getIP(PrintStream out, Scanner scan){
+        String ipInserted = null;
+        String ipChosen = null;
+        do {
+            out.println("Enter the IP where the server is running (q if the server is on this machine)");
+            ipInserted = scan.next();
+            switch (ipInserted){
+                case "q":
+                    ipChosen = Settings.instance().getHost();
+                    break;
+                default:
+                    if (validIP(ipInserted)) {
+                        ipChosen = ipInserted;
+                    }
+                    break;
+            }
+        } while (ipChosen == null);
+        return ipChosen;
+    }
 
+    /**
+     * Method to check that the given IP is valid
+     * @param ip to check
+     * @return true -> is valid or false -> invalid IP
+     */
+    private static boolean validIP(String ip) {
+        try {
+            String[] parts = ip.split( "\\." );
+            if ( ip.isEmpty() || parts.length != 4 || ip.endsWith(".")) {
+                return false;
+            }
+            for ( String s : parts ) {
+                int i = Integer.parseInt( s );
+                if ( (i < 0) || (i > 255) ) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+    }
 
 
     /**

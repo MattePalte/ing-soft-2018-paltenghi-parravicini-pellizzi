@@ -182,6 +182,15 @@ public class Settings {
         sb.append(defaultRmiApName);
         return new String(sb);
     }
+    public String getRemoteRmiApName(String customIP) {
+        StringBuilder sb = new StringBuilder("rmi://");
+        sb.append(customIP);
+        sb.append(":");
+        sb.append(1099);
+        sb.append("/");
+        sb.append(defaultRmiApName);
+        return new String(sb);
+    }
     public String getRmiApName(){
         return defaultRmiApName;
     }
