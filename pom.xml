@@ -4,7 +4,7 @@
 
     <groupId>provaGr</groupId>
     <artifactId>ing-soft-2018-paltenghi-parravicini-pellizzi</artifactId>
-    <version>1.15</version>
+    <version>1.16</version>
 
     <build>
         <plugins>

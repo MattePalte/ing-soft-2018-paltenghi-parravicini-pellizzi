@@ -16,9 +16,9 @@ public class WindowPatternTest {
     public void CreationTest() throws Exception {
         File file = new File("src/main/resources/patterns.txt");
         Scanner input = new Scanner(file);
-
-
-        for(int i = 0; i < 12; i++) {
+        int nrOfCouple = input.nextInt();
+        input.nextLine();
+        for (int i = 0; i < nrOfCouple; i++) {
             WindowPatternCard window = WindowPatternCard.loadAPatternCardFromScanner(input);
             System.out.println(window.getFrontPattern());
             System.out.println(window.getRearPattern() );

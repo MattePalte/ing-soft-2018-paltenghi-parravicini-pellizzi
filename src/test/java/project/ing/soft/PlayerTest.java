@@ -35,6 +35,7 @@ public class PlayerTest {
         Scanner input = null;
         try {
             input = new Scanner(file);
+            input.nextLine(); // skip first line with nr of couples
             WindowPatternCard window = WindowPatternCard.loadAPatternCardFromScanner(input);
             Assert.assertEquals("Kaleidoscopic Dream", window.getFrontPattern().getTitle());
             testPlayer.setPatternCard(window);
