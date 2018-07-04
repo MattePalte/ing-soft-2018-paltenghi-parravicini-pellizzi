@@ -15,11 +15,11 @@ Index
 
 <a name="Info"></a>Group Info
 ----------
-| Cognome         | Nome            	 | Matricola        	 | Codice Persona  			|
-| :-------------: | :-------------: 	 | :--------------: 	 | :--------------:			|
-| Paltenghi 	  | Matteo 				 | Inserisci Matricola 	 | Inserisci Codice Persona |
-| Parravicini 	  | Daniele				 | Inserisci Matricola   | Inserisci Codice Persona
-| Pellizzi  	  | Kristopher Francesco | 847198 			 	 | 10522862 				|
+| Cognome         | Nome            	 | Matricola        	 | Codice Persona  	|
+| :-------------: | :-------------: 	 | :--------------: 	 | :--------------:	|
+| Paltenghi 	  | Matteo 		 | 847354 	 	 | 10523358 		|
+| Parravicini 	  | Daniele		 | 847911   		 | 10527346		|
+| Pellizzi  	  | Kristopher Francesco | 847198 		 | 10522862 		|
 
 <a name="Client-Server_Interaction"></a>Client - Server interaction
 ---------------------------
@@ -64,7 +64,7 @@ In addition to MVC pattern, already explained, we implemented:
 
 <a name="ToolCards_limitations"></a>ToolCards limitations
 ---------------------
-All the ToolCards implying the player to move one or more dice have been implemented by taking the dice chosen by the player from its board and, one by one, in the same order the player chose them, he is asked to place them again. This implementation allow us to permit players to swap 2 dice in their board. However, it does not allow players to move dice in cascade: let's pretend a player placed only 2 dice. If he plays a toolcard to move both of them, he can't choose a die, place it near the other one and move the second one. The dice are taken at the same time and then placed one by one. If taking the 2 dice chosen leaves the board clear (no dice are left on the board) then the player must place the first die on the edge of the board, just as if it were its first die in the game.
+All the ToolCards implying the player to move one or more dice have been implemented by taking the dice chosen by the player from its board and, one by one, in the same order the player chose them, he is asked to place them again. This implementation allow us to permit players to swap 2 dice in their board. However, it does not allow players to move dice in cascade: let's suppose a player placed only 2 dice. If he plays a toolcard to move both of them, he can't choose a die, place it near the other one and move the second one. The dice are taken at the same time and then placed one by one. If taking the 2 dice chosen leaves the board clear (no dice are left on the board) then the player must place the first die on the edge of the board, just as if it were its first die in the game.
 The toolcards affected by this limitation are:
 - Lathekin
 - Tap Wheel
