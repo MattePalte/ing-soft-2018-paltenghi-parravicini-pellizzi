@@ -27,10 +27,11 @@ public class WindowPatternCard implements Serializable {
         this.frontPattern   = frontPattern;
         this.rearPattern    = rearPattern;
 
-        if (!(this.frontPattern.getWidth() == this.rearPattern.getWidth() &&
+        // enable this check if you want to allow only pattern card with the same dimension on both sides
+        /*if (!(this.frontPattern.getWidth() == this.rearPattern.getWidth() &&
               this.frontPattern.getHeight() == this.rearPattern.getHeight())){
             throw new GameInvalidException("WindowPatternCard error: Pattern cards faces with incompatible dimensions");
-        }
+        }*/
     }
 
     public String getTitle(){
@@ -50,6 +51,15 @@ public class WindowPatternCard implements Serializable {
         return frontPattern + "\n" + rearPattern;
     }
 
+    /**
+     * Given a scanner it returns a pattern card created
+     * starting from the beginning of the scanner. It creates both the
+     * front and the rear
+     * @param aScanner of the file
+     * @return a pattern card
+     * @throws Colour.ColorNotFoundException if the encoding of a color is incorrect
+     * @throws GameInvalidException if game is not valid
+     */
     public static WindowPatternCard loadAPatternCardFromScanner(Scanner aScanner) throws Colour.ColorNotFoundException, GameInvalidException {
 
         WindowPattern f = WindowPattern.loadFromScanner(aScanner);
@@ -58,10 +68,18 @@ public class WindowPatternCard implements Serializable {
         return new WindowPatternCard(f.getTitle() + " - " + r.getTitle(),f, r );
     }
 
+    /**
+     * Given a filepath it returns a list of pattern cards created from the
+     * encoding in the txt file
+     * @param pathname txt file with the encoded pattern cards
+     * @return list of pattern cards objects
+     */
     public static List<WindowPatternCard> loadFromFile(String pathname) {
         ArrayList<WindowPatternCard> patterns = new ArrayList<>();
         try( Scanner input = new Scanner(WindowPatternCard.class.getResourceAsStream(pathname))) {
-            for (int i = 0; i < 12; i++) {
+            int nrOfCouple = input.nextInt();
+            input.nextLine();
+            for (int i = 0; i < nrOfCouple; i++) {
                 patterns.add(WindowPatternCard.loadAPatternCardFromScanner(input));
                 input.nextLine();
             }

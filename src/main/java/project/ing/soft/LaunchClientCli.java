@@ -182,6 +182,7 @@ public class LaunchClientCli {
                     break;
             }
         } while (ipChosen == null);
+        System.out.println("Trying to connect to... " + ipChosen);
         return ipChosen;
     }
 

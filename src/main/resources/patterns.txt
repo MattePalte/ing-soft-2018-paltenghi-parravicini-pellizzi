@@ -1,3 +1,4 @@
+12 <- Number of Couples to read
 Kaleidoscopic Dream
 4 4 5 0Y0B0W0W1W0G0W5W0W4W3W0W0R0W0G2W0W0W0B0Y
 Virtus

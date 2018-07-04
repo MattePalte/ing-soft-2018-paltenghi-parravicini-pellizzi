@@ -791,8 +791,10 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     private synchronized void initializeMatrixButtons(GridPane matrixPane, String prefixTag){
         StyleBooster.forPatternCard(matrixPane, 15);
         // set button of pattern
-        for (int row = 0; row < Settings.instance().getMatrixNrRow(); row++) {
-            for (int col = 0; col < Settings.instance().getMatrixNrCol(); col++) {
+        int nrCol = myPlayer.getPattern().getWidth();
+        int nrRow = myPlayer.getPattern().getHeight();
+        for (int row = 0; row < nrRow; row++) {
+            for (int col = 0; col < nrCol; col++) {
                 Button currentCell = (Button) matrixPane.lookup("#" + prefixTag + row + col);
                 int finalRow = row;
                 int finalCol = col;

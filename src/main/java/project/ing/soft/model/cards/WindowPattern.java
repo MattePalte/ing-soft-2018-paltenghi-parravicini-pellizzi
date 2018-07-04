@@ -14,6 +14,14 @@ public class WindowPattern implements Serializable {
     private final String title;
     private final int difficulty;
 
+    /**
+     * Create a pattern given the parameters of it
+     * @param width nr of col
+     * @param height nr of row
+     * @param constraintsMatrix matrix of constraints
+     * @param title title of the pattern
+     * @param difficulty of the pattern
+     */
     private WindowPattern(int width, int height, Constraint[][] constraintsMatrix, String title, int difficulty) {
         this.width = width;
         this.height = height;
@@ -39,6 +47,10 @@ public class WindowPattern implements Serializable {
         return height;
     }
 
+    /**
+     * It returns the matrix of constraints of the pattern
+     * @return matrix of constraints
+     */
     public Constraint[][] getConstraintsMatrix() {
         return constraintsMatrix;
     }
@@ -66,6 +78,19 @@ public class WindowPattern implements Serializable {
         return new String(aBuilder);
     }
 
+    /**
+     * Given a Scanner representing a file resource,
+     * it returns a pattern starting from the beginning of the file.
+     * It reads two lines searching for:
+     * - title
+     * - difficulty
+     * - nr of row of the pattern card
+     * - nr of col of the pattern card
+     * - and the encoding of the pattern card itself
+     * @param in scanner representing a file
+     * @return a window pattern
+     * @throws Colour.ColorNotFoundException if the encoding of a color is incorrect
+     */
     public static WindowPattern loadFromScanner(Scanner in) throws Colour.ColorNotFoundException {
         String constraintRepresentation;
         String title;

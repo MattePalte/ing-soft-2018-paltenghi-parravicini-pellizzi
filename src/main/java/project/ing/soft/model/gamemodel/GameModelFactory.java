@@ -12,7 +12,11 @@ import project.ing.soft.exceptions.GameInvalidException;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * Object to create new GameModel through a Factory design pattern
+ * Each private attribute is created only once then it is shared among different
+ * GameModels during their creation phase.
+ */
 public class GameModelFactory {
     private static ArrayList<PublicObjective>   publicObjCards;
     private static ArrayList<PrivateObjective>  privateObjCards;

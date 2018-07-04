@@ -44,8 +44,8 @@ class ElementCreator {
         gPane.setHgap(10);
         gPane.setAlignment(Pos.CENTER);
         // Create cells
-        for (int row = 0; row < Settings.instance().getMatrixNrRow(); row++) {
-            for (int col = 0; col < Settings.instance().getMatrixNrCol(); col++) {
+        for (int row = 0; row < pattern.getHeight(); row++) {
+            for (int col = 0; col < pattern.getWidth(); col++) {
                 Constraint constraint = pattern.getConstraintsMatrix()[row][col];
                 ImageView bg;
                 if (constraint != null && constraint.getImgPath() != "") {
@@ -107,8 +107,8 @@ class ElementCreator {
     static GridPane createPattern(WindowPattern pattern, Die[][] placedDie, int cellDimension){
         GridPane pane = createPattern(pattern, cellDimension);
         // Create cells
-        for (int row = 0; row < Settings.instance().getMatrixNrRow(); row++) {
-            for (int col = 0; col < Settings.instance().getMatrixNrCol(); col++) {
+        for (int row = 0; row < pattern.getHeight(); row++) {
+            for (int col = 0; col < pattern.getWidth(); col++) {
                 if (placedDie[row][col] == null) continue;
                 Die currentDie = placedDie[row][col];
                 Image image = new Image(currentDie.getImgPath());
@@ -141,8 +141,8 @@ class ElementCreator {
         gPane.setAlignment(Pos.CENTER);
         Constraint[][] constraints = pattern.getConstraintsMatrix();
         // Create cells
-        for (int row = 0; row < Settings.instance().getMatrixNrRow(); row++) {
-            for (int col = 0; col < Settings.instance().getMatrixNrCol(); col++) {
+        for (int row = 0; row < pattern.getHeight(); row++) {
+            for (int col = 0; col < pattern.getWidth(); col++) {
                 Constraint constraint = constraints[row][col];
                 Button currentCell = new Button();
                 currentCell.setId(prefixTag + row + col);

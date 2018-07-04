@@ -444,10 +444,18 @@ public class ClientViewCLI extends UnicastRemoteObject
         out.println(caption);
         int row ;
         int col ;
-        out.println("Row Index [0 - 3]");
-        row = waitForUserInput( 3);
-        out.println("Col Index [0 - 4]");
-        col = waitForUserInput( 4);
+        int maxRow = Settings.instance().getMatrixNrRow()-1;
+        int maxCol = Settings.instance().getMatrixNrCol()-1;
+        for (Player p : localCopyOfTheStatus.getPlayerList()) {
+            if (p.getName().equals(ownerNameOfTheView)) {
+                maxRow = p.getPattern().getHeight()-1;
+                maxCol = p.getPattern().getWidth()-1;
+            }
+        }
+        out.println("Row Index [0 - "+ maxRow +"]");
+        row = waitForUserInput( maxRow);
+        out.println("Col Index [0 - "+ maxCol +"]");
+        col = waitForUserInput( maxCol);
         return new Coordinate(row, col);
 
     }
