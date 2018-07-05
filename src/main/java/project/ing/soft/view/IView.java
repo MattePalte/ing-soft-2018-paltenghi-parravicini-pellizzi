@@ -12,7 +12,7 @@ import java.rmi.Remote;
 public interface IView extends Remote{
     /**
      * An entry point to communicate event to the client
-     * @param event to be trasmitted to the view
+     * @param event to be transmitted to the view
      * @throws IOException if a network error occurred
      */
     void update(Event event) throws IOException;

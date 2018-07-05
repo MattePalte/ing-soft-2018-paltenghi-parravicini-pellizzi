@@ -38,8 +38,9 @@ public class Settings {
     private String tokenProperty;
     private Level defaultLoggingLevel;
     private String defaultRmiApName;
-private boolean cliProgressbarEnabled;
-private boolean cliColoursRbg;
+    private boolean cliProgressbarEnabled;
+    private boolean cliColoursRbg;
+    private String locationOfWindowPatternFile;
 
     private final Logger log = Logger.getLogger(Objects.toString(this));
 
@@ -202,6 +203,10 @@ private boolean cliColoursRbg;
 
     public boolean isCliColoursRbg() {
         return cliColoursRbg;
+    }
+
+    public String getLocationOfWindowPatternFile() {
+        return locationOfWindowPatternFile;
     }
 
     //endregion

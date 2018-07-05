@@ -1,5 +1,6 @@
 package project.ing.soft.model.gamemodel;
 
+import project.ing.soft.Settings;
 import project.ing.soft.model.Colour;
 import project.ing.soft.model.Die;
 import project.ing.soft.model.cards.objectives.privates.*;
@@ -11,6 +12,8 @@ import project.ing.soft.exceptions.GameInvalidException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Object to create new GameModel through a Factory design pattern
@@ -84,7 +87,14 @@ public class GameModelFactory {
 
     public static List<WindowPatternCard> getWindowPatternCard() {
         if(windowPatternCard == null ){
-            windowPatternCard = new ArrayList<>(WindowPatternCard.loadFromFile("/patterns.txt"));
+
+            try {
+                windowPatternCard = new ArrayList<>(WindowPatternCard.loadFromFile(Settings.instance().getLocationOfWindowPatternFile()));
+            } catch (Exception ex){
+                Logger log = Logger.getAnonymousLogger();
+                log.log(Level.SEVERE, "Window pattern cards couldn't be initialized, the server can't continue", ex);
+                System.exit(1);
+            }
         }
         return windowPatternCard;
     }

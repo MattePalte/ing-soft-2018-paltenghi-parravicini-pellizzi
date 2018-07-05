@@ -3,7 +3,7 @@ package project.ing.soft.model.cards;
 import project.ing.soft.exceptions.GameInvalidException;
 import project.ing.soft.model.Colour;
 
-import java.io.Serializable;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,25 +74,27 @@ public class WindowPatternCard implements Serializable {
      * @param pathname txt file with the encoded pattern cards
      * @return list of pattern cards objects
      */
-    public static List<WindowPatternCard> loadFromFile(String pathname) {
+    public static List<WindowPatternCard> loadFromFile(String pathname) throws FileNotFoundException, Colour.ColorNotFoundException, GameInvalidException {
         ArrayList<WindowPatternCard> patterns = new ArrayList<>();
-        try( Scanner input = new Scanner(WindowPatternCard.class.getResourceAsStream(pathname))) {
+        InputStream aStream = WindowPatternCard.class.getResourceAsStream(pathname);
+        if(aStream == null) {
+            aStream = new FileInputStream(pathname.replace("%20", " "));
+        }
+
+        try (Scanner input = new Scanner(aStream)) {
             int nrOfCouple = input.nextInt();
             input.nextLine();
             for (int i = 0; i < nrOfCouple; i++) {
                 patterns.add(WindowPatternCard.loadAPatternCardFromScanner(input));
                 input.nextLine();
             }
-
-        } catch(Exception ex){
-            //"Error while loading window pattern cards from file"
-            patterns = new ArrayList<>();
         }
+
 
         return patterns;
     }
 
-    public static List<WindowPatternCard> loadFromFile(URL pathname) {
+    public static List<WindowPatternCard> loadFromFile(URL pathname) throws FileNotFoundException, Colour.ColorNotFoundException, GameInvalidException {
         return loadFromFile(pathname.getFile().replace("%20", " "));
     }
 
