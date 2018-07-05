@@ -23,6 +23,7 @@ Index
         - [Template](#Template)
     - [Connection and Reconnection](#Conn-Reconn)
 
+NOTE: The Jar file can be downloaded from the Release Tab of the project
 
 <a name="Info"></a>1. Group's Info
 ----------
