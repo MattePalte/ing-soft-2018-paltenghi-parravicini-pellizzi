@@ -35,7 +35,7 @@ public class APProxySocket implements IAccessPoint, ConnectionResponseHandler {
 
     private final Logger log;
 
-    public APProxySocket(String host, int port){
+    public APProxySocket(String host, int port) throws IOException {
         this.log  = Logger.getLogger(Objects.toString(this));
         this.log.setLevel(Settings.instance().getDefaultLoggingLevel());
 
@@ -46,7 +46,7 @@ public class APProxySocket implements IAccessPoint, ConnectionResponseHandler {
             ois = new ObjectInputStream(mySocket.getInputStream());
         } catch(IOException e){
             log.log(Level.SEVERE, "error while connecting", e);
-
+            throw e;
         }
     }
 

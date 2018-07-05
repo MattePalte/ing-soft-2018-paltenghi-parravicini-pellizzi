@@ -220,9 +220,10 @@ public class SplashController {
      */
     private void connectSocket(String nick){
         IAccessPoint accessPoint = null;
-        accessPoint = new APProxySocket(getIP(), getPort());
-        log.log(Level.INFO, INFO_1_ACCESS_POINT_SOCKET);
+
         try {
+            accessPoint = new APProxySocket(getIP(), getPort());
+            log.log(Level.INFO, INFO_1_ACCESS_POINT_SOCKET);
             IView realView = new RealView(stage, nick, this);
             log.log(Level.INFO, INFO_2_VIEW_CREATED);
             IController gameController = accessPoint.connect(nick, realView);
@@ -267,9 +268,10 @@ public class SplashController {
      */
     private void reconnectSocket(String nick, String token){
         IAccessPoint accessPoint = null;
-        accessPoint = new APProxySocket(getIP(), getPort());
-        log.log(Level.INFO, INFO_1_ACCESS_POINT_SOCKET);
+
         try {
+            accessPoint = new APProxySocket(getIP(), getPort());
+            log.log(Level.INFO, INFO_1_ACCESS_POINT_SOCKET);
             IView realView = new RealView(stage, nick, this);
             log.log(Level.INFO, INFO_2_VIEW_CREATED);
             IController gameController = accessPoint.reconnect(nick, token, realView);

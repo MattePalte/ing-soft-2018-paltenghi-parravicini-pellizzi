@@ -11,8 +11,10 @@ import project.ing.soft.cli.ClientViewCLI;
 import project.ing.soft.cli.Console;
 import project.ing.soft.view.IView;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.prefs.Preferences;
@@ -36,16 +38,20 @@ public class LaunchClientCli {
         // ask for user name
         Scanner scan = new Scanner(System.in);
         String name = getPlayerName(args, out, scan);
-        IAccessPoint accessPoint = getAccessPoint(args, out, scan);
-        if (accessPoint == null) {
-            return;
-        }
+        IAccessPoint accessPoint = null;
+        do {
+            try {
+                accessPoint = getAccessPoint(args, out, scan);
+            }catch (Exception ex){
+                out.println("Error:"+ex.getMessage());
+                ex.printStackTrace(out);
+            }
+        }while (accessPoint == null) ;
 
         IController controller = null;
         boolean nicknameAlreadyTaken = false;
         do {
             IView view = new ClientViewCLI(name);
-            out.println("View created successfully");
             // create the CLI view
             // launch it
             // and attach the chosen controller (Rmi or Socket) to it
@@ -129,7 +135,7 @@ public class LaunchClientCli {
      * @param scan the scanner used to get user input
      * @return a reference to an access point
      */
-    private static IAccessPoint getAccessPoint(String[] args, PrintStream out, Scanner scan) {
+    private static IAccessPoint getAccessPoint(String[] args, PrintStream out, Scanner scan) throws IOException, NotBoundException {
         // ask for RMI/Socket
         out.println("Which type of connection do you want to use to communicate with the server:");
         out.println("[0] RMI");
@@ -139,19 +145,11 @@ public class LaunchClientCli {
             case "0":
 
                 //args[0] should be the ip address of the machine running the registry
-                try {
                     accessPoint = (IAccessPoint) Naming.lookup(Settings.instance().getRemoteRmiApName(getIP(out,scan)));
-                } catch (Exception ex){
-                    ex.printStackTrace(out);
-                }
-                break;
+               break;
             case "1":
-                try {
                     accessPoint = new APProxySocket(getIP(out,scan), Settings.instance().getPort());
-                }catch (Exception ex){
-                    out.println("Error "+ex);
-                    ex.printStackTrace(out);
-                }
+
                 break;
             case "q":
 
@@ -171,18 +169,13 @@ public class LaunchClientCli {
         do {
             out.println("Enter the IP where the server is running (q if the server is on this machine)");
             ipInserted = scan.next();
-            switch (ipInserted){
-                case "q":
-                    ipChosen = Settings.instance().getHost();
-                    break;
-                default:
-                    if (validIP(ipInserted)) {
-                        ipChosen = ipInserted;
-                    }
-                    break;
+            if (ipInserted.equals("q")) {
+                ipChosen = Settings.instance().getHost();
+            }else if (validIP(ipInserted)) {
+                ipChosen = ipInserted;
             }
         } while (ipChosen == null);
-        System.out.println("Trying to connect to... " + ipChosen);
+        out.println("Trying to connect to... " + ipChosen);
         return ipChosen;
     }
 

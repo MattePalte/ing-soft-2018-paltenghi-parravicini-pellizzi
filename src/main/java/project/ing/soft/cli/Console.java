@@ -22,7 +22,7 @@ public class Console extends PrintStream {
 
     /**
      * Console
-     * @param defaultOut as back-up printStream if the attemp to print using
+     * @param defaultOut as back-up printStream if the attempt to print using
      *                   kernel32.dll endpoints fails
      */
     public Console(PrintStream defaultOut) {
@@ -30,9 +30,10 @@ public class Console extends PrintStream {
         String os = System.getProperty("os.name").toLowerCase();
         if (os.startsWith("win")) {
             instance = Native.loadLibrary("kernel32", Kernel32.class);
-
+            //in order to select UTF-8 page https://docs.microsoft.com/en-us/windows/desktop/intl/code-page-identifiers
             instance.SetConsoleCP(65001);
             handle = instance.GetStdHandle(-11);
+            //enable virtual terminal output processing
             instance.SetConsoleMode(handle, 7);
         }
     }
@@ -57,7 +58,7 @@ public class Console extends PrintStream {
     /**
      * main print method
      * @param message to be printed. It tries to print using Kernel32.dll
-     *                if an error is raised it uses the default printstream
+     *                if an error is raised it uses the default print stream
      *                passed as an argument to {@link Console}
      */
     @Override
@@ -85,7 +86,10 @@ public class Console extends PrintStream {
 
     }
 
-    //http://ascii-table.com/ansi-escape-sequences-vt-100.php
+    /**
+     * for reference on ansi escape sequence http://ascii-table.com/ansi-escape-sequences-vt-100.php
+     */
+
     public void clear(){
         println("\u001B[2J");
     }
