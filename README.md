@@ -38,6 +38,9 @@ Here below there are the coverage metrics of Intellij both of the package and th
 <div align="CENTER"><img src="https://github.com/MattePalte/ing-soft-2018-paltenghi-parravicini-pellizzi/blob/master/SCREEN/screenTestPackage.png?raw=true"/></div>
 <div align="CENTER"><img src="https://github.com/MattePalte/ing-soft-2018-paltenghi-parravicini-pellizzi/blob/master/SCREEN/screenTestModel.png?raw=true"/></div>
 Here the metrics of Sonarqube:
+<div align="CENTER"><img src="https://github.com/MattePalte/ing-soft-2018-paltenghi-parravicini-pellizzi/blob/master/SCREEN/screenSonarOverall.png?raw=true"/></div>
+<div align="CENTER"><img src="https://github.com/MattePalte/ing-soft-2018-paltenghi-parravicini-pellizzi/blob/master/SCREEN/screenCoverageSonarGraphic.png?raw=true"/></div>
+<div align="CENTER"><img src="https://github.com/MattePalte/ing-soft-2018-paltenghi-parravicini-pellizzi/blob/master/SCREEN/screenSonarCoverageDatails.png?raw=true"/></div>
 
 <a name="UML"></a>3. UML
 ---
