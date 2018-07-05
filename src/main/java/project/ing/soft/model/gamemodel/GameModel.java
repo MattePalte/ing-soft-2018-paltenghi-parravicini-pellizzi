@@ -297,7 +297,13 @@ public class GameModel implements IGameModel, Serializable {
         getPlayerList().forEach(p -> p.update(new ModelChangedEvent(new GameModel(this, p)), new PlayerDisconnectedEvent(playerToDisconnect)));
         if(getPlayerList().stream().filter(Player::isConnected).count() <= 1)
             endGame();
-        }
+        if(getCurrentPlayer().getName().equals(playerToDisconnect))
+            try{
+                endTurn(false);
+            } catch(GameInvalidException e){
+                logger.log(Level.SEVERE, "Game invalid exception occurred");
+            };
+    }
     //endregion
 
     @Override
