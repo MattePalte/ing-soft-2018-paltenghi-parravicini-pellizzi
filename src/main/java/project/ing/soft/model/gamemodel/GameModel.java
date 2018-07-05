@@ -72,24 +72,28 @@ public class GameModel implements IGameModel, Serializable {
         favours = new HashMap<>();
         //initialize toolCards cost
         toolCardCost = new HashMap<>();
+        //copy public objectives
+        publicObjectives = new ArrayList<>(availablePublicObjectives);
+        //copy private objective
+        ArrayList<PrivateObjective> privateObjectives = new ArrayList<>(availablePrivateObjectives);
+        //copy pattern cards
+        ArrayList<WindowPatternCard> windowPatterns = new ArrayList<>(availableWindowPatternCards);
+        //copy ToolCards
+        this.toolCards = new ArrayList<>(availableToolCards);
+
         // Shuffle everything
         Collections.shuffle(diceBag);
-        Collections.shuffle(availablePublicObjectives);
-        Collections.shuffle(availablePrivateObjectives);
-        Collections.shuffle(availableWindowPatternCards);
-        Collections.shuffle(availableToolCards);
+        Collections.shuffle(publicObjectives);
+        Collections.shuffle(privateObjectives);
+        Collections.shuffle(windowPatterns);
+        Collections.shuffle(toolCards);
 
         // extract in a random fashion 3 toolCard
-        this.toolCards = availableToolCards.stream().limit(3).collect(Collectors.toCollection(ArrayList::new));
+        this.toolCards = toolCards.stream().limit(3).collect(Collectors.toCollection(ArrayList::new));
         this.toolCards.forEach( (ToolCard t) -> toolCardCost.put(t.getTitle(), 1));
         // remove cards and leave only 3 publicObjective card for the game
-        this.publicObjectives = availablePublicObjectives.stream().limit(3).collect(Collectors.toCollection(ArrayList::new));
-        // leave privateObjective equals the number of players in the game
-        ArrayList<PrivateObjective> privateObjectives = availablePrivateObjectives.stream().
-                limit(currentGame.getNumberOfPlayers()).collect(Collectors.toCollection(ArrayList::new));
-        // leave windowPatterns equals the 2*number of players in the game
-        ArrayList<WindowPatternCard> windowPatterns   = availableWindowPatternCards.stream().
-                limit((long)currentGame.getNumberOfPlayers()*2).collect(Collectors.toCollection(ArrayList::new));
+        this.publicObjectives = publicObjectives.stream().limit(3).collect(Collectors.toCollection(ArrayList::new));
+
 
         this.currentRound = new Round(0,currentGame);
         logger.log(Level.INFO, "created turns");

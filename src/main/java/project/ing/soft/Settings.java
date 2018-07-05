@@ -38,7 +38,8 @@ public class Settings {
     private String tokenProperty;
     private Level defaultLoggingLevel;
     private String defaultRmiApName;
-    private boolean deploy;
+private boolean cliProgressbarEnabled;
+private boolean cliColoursRbg;
 
     private final Logger log = Logger.getLogger(Objects.toString(this));
 
@@ -195,7 +196,14 @@ public class Settings {
         return defaultRmiApName;
     }
 
-    public boolean isDeploy(){ return deploy;}
+    public boolean isCliProgressbarEnabled() {
+        return cliProgressbarEnabled;
+    }
+
+    public boolean isCliColoursRbg() {
+        return cliColoursRbg;
+    }
+
     //endregion
 
     public enum ObjectivesProperties{

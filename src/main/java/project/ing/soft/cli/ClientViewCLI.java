@@ -141,7 +141,9 @@ public class ClientViewCLI extends UnicastRemoteObject
         localCopyOfTheStatus = event.getaGameCopy();
 
         log.info("Model updated!");
-        if (localCopyOfTheStatus.getCurrentPlayer() != null && localCopyOfTheStatus.getCurrentPlayer().getName().equals(ownerNameOfTheView)) {
+        if (localCopyOfTheStatus.getCurrentPlayer() != null &&
+            !localCopyOfTheStatus.getCurrentPlayer().getName().equals(ownerNameOfTheView) &&
+            gameOnGoing) {
             out.println("It's the turn of " + localCopyOfTheStatus.getCurrentPlayer().getName() + ". Wait for yours.");
         }
 
@@ -197,7 +199,7 @@ public class ClientViewCLI extends UnicastRemoteObject
             if(progressBarTask != null)
                 progressBarTask.cancel();
             expectedEndTurn = event.getEndTurnTimeStamp();
-            if(Settings.instance().isDeploy()) {
+            if(Settings.instance().isCliProgressbarEnabled()) {
                 progressBarTask = new TimerTask() {
                     @Override
                     public void run() {
@@ -444,14 +446,10 @@ public class ClientViewCLI extends UnicastRemoteObject
         out.println(caption);
         int row ;
         int col ;
-        int maxRow = Settings.instance().getMatrixNrRow()-1;
-        int maxCol = Settings.instance().getMatrixNrCol()-1;
-        for (Player p : localCopyOfTheStatus.getPlayerList()) {
-            if (p.getName().equals(ownerNameOfTheView)) {
-                maxRow = p.getPattern().getHeight()-1;
-                maxCol = p.getPattern().getWidth()-1;
-            }
-        }
+
+        int maxRow = localCopyOfTheStatus.getGameInfo().getPlayerFromName(ownerNameOfTheView).getPattern().getHeight()-1;
+        int maxCol  = localCopyOfTheStatus.getGameInfo().getPlayerFromName(ownerNameOfTheView).getPattern().getHeight()-1;
+
         out.println("Row Index [0 - "+ maxRow +"]");
         row = waitForUserInput( maxRow);
         out.println("Col Index [0 - "+ maxCol +"]");

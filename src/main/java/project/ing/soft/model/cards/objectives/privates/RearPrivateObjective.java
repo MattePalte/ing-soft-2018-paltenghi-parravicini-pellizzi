@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 public class RearPrivateObjective extends PrivateObjective implements Serializable {
     public RearPrivateObjective() {
-        super("sagrada", "Rear of a card", "", 0,Colour.WHITE);
+        super("sagrada", "Rear of a card", "objectives/public/30%/objectives-12.png", 0,Colour.WHITE);
     }
 
     @Override
