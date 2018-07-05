@@ -408,11 +408,7 @@ public class ClientViewCLI extends UnicastRemoteObject
         out.println("Draft pool : "+ localCopyOfTheStatus.getDraftPool());
     }
 
-    public void run() {
-        out.println(ownerNameOfTheView + " started ");
-        out.println("Waiting for enough players to start the match...");
 
-    }
 //endregion
 
     //region user input
@@ -448,7 +444,7 @@ public class ClientViewCLI extends UnicastRemoteObject
         int col ;
 
         int maxRow = localCopyOfTheStatus.getGameInfo().getPlayerFromName(ownerNameOfTheView).getPattern().getHeight()-1;
-        int maxCol  = localCopyOfTheStatus.getGameInfo().getPlayerFromName(ownerNameOfTheView).getPattern().getHeight()-1;
+        int maxCol  = localCopyOfTheStatus.getGameInfo().getPlayerFromName(ownerNameOfTheView).getPattern().getWidth()-1;
 
         out.println("Row Index [0 - "+ maxRow +"]");
         row = waitForUserInput( maxRow);
@@ -507,13 +503,7 @@ public class ClientViewCLI extends UnicastRemoteObject
         return (Integer) chooseFrom( Arrays.asList(values) );
     }
 
-    /**
-     *
-     * @param message the message to be printed
-     * @return true if user choose "yes", false otherwise
-     * @throws InterruptedException if timeout expires while user is making his choice
-     * @throws UserInterruptActionException if user abort operation
-     */
+
     @Override
     public boolean getAnswer(String message) throws InterruptedException, UserInterruptActionException {
         out.println(message);

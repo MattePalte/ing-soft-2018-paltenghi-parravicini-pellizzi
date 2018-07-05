@@ -69,7 +69,7 @@ public class WindowPatternCard implements Serializable {
     }
 
     /**
-     * Given a filepath it returns a list of pattern cards created from the
+     * Given a file path it returns a list of pattern cards created from the
      * encoding in the txt file
      * @param pathname txt file with the encoded pattern cards
      * @return list of pattern cards objects
