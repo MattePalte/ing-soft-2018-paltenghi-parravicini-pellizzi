@@ -9,6 +9,7 @@ Index
     - [Multi game support](#Multi_game)
 5) [Limitations](#Limitations)
     - [ToolCards limitations](#ToolCards_limitations)
+    - [Console limitations](#Console_limitations)
 6) [Design Choices](#Design_choices)
     - [Client - Server interaction](#Client-Server_Interaction)
     - [Design Patterns used](#Design_Patterns)
@@ -138,6 +139,29 @@ The toolcards affected by this limitation are:
 	- Tap Wheel
 
 - The effect description of the ToolCard called "Running Pliers", says: "After your first turn, immediately draft a die. Skip your next turn this round". From this description, we intended that the player who plays this ToolCard, must take its turn twice in a row. So, when this ToolCard is played, its effect changes the turn sequence of the round and the player who played it can take its turn twice, choosing, for every turn, what to do. This means that even in its second turn, he can choose to place a die, to play a ToolCard, or to do nothing and simply pass its turn.
+
+<a name="Console_limitations"></a>
+### Console limitations
+- Our program, with particular reference to command line environment, relies on Unicode, Monospaced fonts and [ANSI escape sequence](http://www.termsys.demon.co.uk/vtansi.htm) to give a clear representation of game component.   
+A great effort was made in order to print and format accordingly special characters like '⚀','\u001B[' on Window's powershell.
+	##### UTF-8 and ANSI [OK] monospaced font [NOK]
+	While UTF-8 and ANSI support are managed by the application itself, mainly by Console class recalling Kernel32.dll functions, font has to do with the enviroment. 
+Searching online we got in touch with DejaVuSansMono (https://github.com/powerline/fonts, https://en.wikipedia.org/wiki/List_of_monospaced_typefaces) that seems to fit perfectly our needs.
+
+	This repository also carries [a version of DejaVuSansMono](https://github.com/MattePalte/ing-soft-2018-paltenghi-parravicini-pellizzi/tree/master/src/main/resources/font/DejaVuSansMono) that was used during the develpoment.
+	1. This can be installed double-clicking on it.
+	2. Adding an entry for DejaVuSansMono font on powershell https://www.johndcook.com/blog/2009/07/24/windows-console-fonts/
+	3. Selecting it under powershell enivronment.
+
+	Alternative B
+	1. installing the entire powerline font suite following these steps https://medium.com/@slmeng/how-to-install-powerline-fonts-in-windows-b2eedecace58
+	
+    In order to test correctness of the procedure we encourage to run [project.ing.soft.cli-Console](https://github.com/MattePalte/ing-soft-2018-paltenghi-parravicini-pellizzi/blob/master/src/main/java/project/ing/soft/cli/Console.java)#main to ensure everything is running smoothly.
+
+	Here is an example of usage of UTF-8 and ANSI:
+<div align=CENTER><img src="https://github.com/MattePalte/ing-soft-2018-paltenghi-parravicini-pellizzi/blob/master/UML/immagineFont.PNG?raw=true"/></div>
+
+- Since we needed to interrupt user's actions when its timer expires, we built a pre-emptive method to get input which makes use of a BufferedReader. This is useful because, thanks to a buffer, we can know when the user input is ready and we can read it only in that case, leaving the active thread free to listen and react to an interrupt. Due to that buffer, however, when the program is launched in some terminals (for example on Windows PowerShell), the user can't read its input until he press Return to confirm the input. We tested the program on both Windows and MacOS. While on Windows this problem exists, on MacOS terminal users can see their input while they are writing it.
 
 <a name="Design_choices"></a>6. Design Choices
 ---------------------------
