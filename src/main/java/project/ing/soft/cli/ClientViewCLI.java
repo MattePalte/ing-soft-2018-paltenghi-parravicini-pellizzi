@@ -4,6 +4,7 @@ import project.ing.soft.IExceptionalProcedure;
 import project.ing.soft.Settings;
 import project.ing.soft.model.*;
 import project.ing.soft.model.cards.Card;
+import project.ing.soft.model.cards.Constraint;
 import project.ing.soft.model.cards.toolcards.*;
 import project.ing.soft.exceptions.UserInterruptActionException;
 import project.ing.soft.model.gamemodel.IGameModel;
@@ -401,7 +402,7 @@ public class ClientViewCLI extends UnicastRemoteObject
         // Print only the situation of the current player, i.e. the owner of this view.
         for (Player p : localCopyOfTheStatus.getPlayerList()) {
             if (p.getName().equals(ownerNameOfTheView)) {
-                out.println(p);
+                out.println(stringifyAPlayer(p));
             }
         }
         out.println("Favours: "+localCopyOfTheStatus.getFavours().get(localCopyOfTheStatus.getCurrentPlayer().getName()));
@@ -416,8 +417,7 @@ public class ClientViewCLI extends UnicastRemoteObject
         out.println(Card.drawNear(localCopyOfTheStatus.getToolCards()));
 
         for (Player p : localCopyOfTheStatus.getPlayerList()) {
-            out.println(p);
-            out.println(p.getName()+" favours: "+localCopyOfTheStatus.getFavours().get(localCopyOfTheStatus.getCurrentPlayer().getName()));
+            out.println(stringifyAPlayer(p));
         }
         out.println("Draft pool : "+ localCopyOfTheStatus.getDraftPool());
     }
@@ -524,6 +524,47 @@ public class ClientViewCLI extends UnicastRemoteObject
         return ((String) chooseFrom(Arrays.asList("yes", "no"))).toLowerCase().startsWith("y");
     }
     //endregion
+
+
+    private String stringifyAPlayer(Player p) {
+        Integer fav = localCopyOfTheStatus.getFavours().get(p.getName());
+        fav = fav == null ? 0 : fav;
+        return "---------------------\n" +
+                p.getName() +
+                "'s situation ...\n" +
+                Card.drawNear(  "Private objective : \n" + (p.getPrivateObjective() == null ? "" : p.getPrivateObjective().toString()),
+                                        "Player game board: \n\n" + stringifyPlayerGameBoard(p) + "\nFavours:\n"+ new String(new char[fav]).replace("\0", "*"))+
+                "---------------------\n";
+    }
+
+    /**
+     *
+     * @return a string representation of player's pattern
+     */
+    private String stringifyPlayerGameBoard(Player p) {
+        StringBuilder aBuilder = new StringBuilder();
+        String tmp;
+        if(p.getPattern() == null){
+            aBuilder.append("Not already chosen a pattern card");
+        }else {
+            Constraint[][] constraintsMatrix = p.getPattern().getConstraintsMatrix();
+            Die[][] placedDice = p.getPlacedDice();
+            for (int r = 0; r < constraintsMatrix.length; r++) {
+                for (int c = 0; c < constraintsMatrix[0].length; c++) {
+                    //if die was placed
+                    if (placedDice[r][c] != null) {
+                        tmp = placedDice[r][c].toString();
+                    } else {
+                        //else take the constrain representation itself
+                        tmp = constraintsMatrix[r][c].toString();
+                    }
+                    aBuilder.append(constraintsMatrix[r][c].getColour().colourBackground(tmp));
+                }
+                aBuilder.append("\n");
+            }
+        }
+        return aBuilder.toString();
+    }
 
     @Override
     public boolean equals(Object o) {

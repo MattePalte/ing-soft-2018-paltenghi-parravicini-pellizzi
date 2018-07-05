@@ -126,7 +126,7 @@ public class GameController implements IController {
             if(theGame.getNumberOfPlayers() <= 1 && startTimeoutTask != null){
                 startTimeoutTask.cancel();
             }
-        }else {
+        } else {
             gameModel.disconnectPlayer(playerName);
             if(gameModel.getStatus() == IGameModel.GAME_MANAGER_STATUS.ENDED && publishingAp != null) {
                 publishingAp.remove(this);

@@ -413,8 +413,8 @@ public class GameModel implements IGameModel, Serializable {
 
         for (Player p : getPlayerList()){
             // check if some player exited the game during the chose pattern phase
-            // this code is used onlu when all the player except onw left the game
-            // during the choos pattern phase. In this cas in fact there is no pattern
+            // this code is used only when all the player except onw left the game
+            // during the choose pattern phase. In this cas in fact there is no pattern
             // for some players.
             if (p.getPattern() == null || !p.isConnected()) {
                 pointDescription.put(p.getName(), p.getName()+ " not online so get by default -5000");
