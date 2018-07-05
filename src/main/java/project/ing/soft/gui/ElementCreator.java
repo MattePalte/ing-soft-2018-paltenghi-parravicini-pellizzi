@@ -39,6 +39,7 @@ class ElementCreator {
     static GridPane createPattern(WindowPattern pattern, int cellDimension) {
         // Create Grid for matrix of this pattern
         GridPane gPane = new GridPane();
+        if (pattern == null) return gPane;
         gPane.setPadding(new Insets(7, 7, 7, 7));
         gPane.setVgap(10);
         gPane.setHgap(10);
@@ -106,6 +107,7 @@ class ElementCreator {
      */
     static GridPane createPattern(WindowPattern pattern, Die[][] placedDie, int cellDimension){
         GridPane pane = createPattern(pattern, cellDimension);
+        if (pattern == null) return pane;
         // Create cells
         for (int row = 0; row < pattern.getHeight(); row++) {
             for (int col = 0; col < pattern.getWidth(); col++) {
