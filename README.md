@@ -47,7 +47,81 @@ Here is a complete UML class diagram of the entire project:
 ---
 <a name="Personalized_Cards"></a>
 ### Dynamic pattern cards creation from file
+Information about window pattern cards can be gathered throught file. 
+Since a card has always a front and a back view, window patterns must be declared in pairs. A window pattern contains information about constraints the user has to respect during die placement, a name and a natural positive number, also called as difficulty, that resemble a number of favours a player should be given in a multiplayer game.
+The goal was to provide a naive mechanism that could endorse new window pattern cards.
 
+First line of the file should express the number of window pattern cards that can be read.
+
+We decided to use a simple encoding to represent a single pattern card
+```
+<name that can contain spaces>
+<number of favour> <width> <height> <costraint #1, ... ,constraint#width*height>
+
+```
+
+We chose to represent every constraint using a pair of characters which express respectively a value and a color restriction:
+1. The first must be a number, between 1 and 6; 
+2. the second identifies the colour {W=> WHITE, G=> Green, Y=>Yellow, R=> Red, V => Violet, B=>Blue} .
+E.g.
+1W => indicates that during ordinary die placement procedures only a die that has value '1' should be accepted; 
+0B => indicates that during ordinary die placement procedures only die that of colour BLUE should be accepted.
+
+Here is an example of the pattern encoding:
+<div align=CENTER><img src="https://github.com/MattePalte/ing-soft-2018-paltenghi-parravicini-pellizzi/blob/master/SCREEN/text%20pattern.PNG?raw=true"/> <img src="https://github.com/MattePalte/ing-soft-2018-paltenghi-parravicini-pellizzi/blob/master/SCREEN/pattern.PNG?raw=true"/></div>
+
+##### Default window pattern cards file content
+```
+12 <- Number of Couples to read
+Kaleidoscopic Dream
+4 4 5 0Y0B0W0W1W0G0W5W0W4W3W0W0R0W0G2W0W0W0B0Y
+Virtus
+5 4 5 4W0W2W5W0G0W0W6W0G2W0W3W0G4W0W5W0G1W0W0W
+Aurorae Magnificus
+5 4 5 5W0G0B0V2W0V0W0W0W0Y0Y0W6W0W0V1W0W0W0G4W
+Via Lux
+4 4 5 0Y0W6W0W0W0W1W5W0W2W3W0Y0R0V0W0W0W4W3W0R
+Bellesguard
+3 4 5 0B6W0W0W0Y0W3W0B0W0W0W5W6W2W0W0W4W0W1W0G
+Sun Catcher
+3 4 5 0W0B2W0W0Y0W4W0W0R0W0W0W5W0Y0W0G3W0W0W0V
+Firmitas
+5 4 5 0V6W0W0W3W5W0V3W0W0W0W2W0V1W0W0W1W5W0V4W
+Symphony Of Light
+6 4 5 2W0W5W0W1W0Y6W0V2W0R0W0B4W0G0W0W3W0W5W0W
+Aurora Sagradis
+4 4 5 0R0W0B0W0Y4W0V3W0G2W0W1W0W5W0W0W0W6W0W0W
+Industria
+5 4 5 1W0R3W0W6W5W4W0R2W0W0W0W5W0R1W0W0W0W3W0R
+Batllo
+5 4 5 0W0W6W0W0W0W5W0B4W0W3W0G0Y0V2W1W4W0R5W3W
+Shadow Thief
+5 4 5 6W0V0W0W5W5W0W0V0W0W0R6W0W0V0W0Y0R5W4W3W
+Fractal Drops
+3 4 5 0W4W0W0Y6W0R0W2W0W0W0W0W0R0V1W0B0Y0W0W0W
+Gravitas
+5 4 5 1W0W3W0B0W0W2W0B0W0W6W0B0W4W0W0B5W2W0W1W
+Chromatic Splendor
+4 4 5 0W0W0G0W0W2W0Y5W0B1W0W0R3W0V0W1W0W6W0W4W
+Lux Astram
+5 4 5 0W1W0G0V4W6W0V2W5W0G1W0G5W3W0V0W0W0W0W0W
+Firelight
+5 4 5 3W4W1W5W0W0W6W2W0W0Y0W0W0W0Y0R5W0W0Y0R6W
+Luz Celestial
+3 4 5 0W0W0R5W0W0V4W0W0G3W6W0W0W0B0W0W0Y2W0W0W
+Ripples Of Light
+5 4 5 0W0W0W0R5W0W0W0V4W0B0W0B3W0Y6W0Y2W0G1W0R
+Water Of Life
+6 4 5 6W0B0W0W1W0W5W0B0W0W4W0R2W0B0W0G6W0Y3W0V
+Comitas
+5 4 5 0Y0W2W0W6W0W4W0W5W0Y0W0W0W0Y5W1W2W0Y3W0W
+Lux Mundi
+6 4 5 0W0W1W0W0W1W0G3W0B2W0B5W4W6W0G0W0B5W0G0W
+Fulgor Del Cielo
+5 4 5 0W0B0R0W0W0W4W5W0W0B0B2W0W0R5W6W0R3W1W0W
+Sun's Glory
+6 4 5 1W0V0Y0W4W0V0Y0W0W6W0Y0W0W5W3W0W5W4W2W1W
+```
 <a name="Multi_game"></a>
 ### Multi game support
 When a player connects to the game, he will be connected to an already existing game waiting for players to start, if this exist, otherwise, a new game is created on the same server. While the games are on going, both of them are managed by the same server and other new games could be added meanwhile. To keep references to every game hosted, a Map exist, which saves both the reference of the GameController and its unique ID. When the game finishes, the game is removed from this Map, and players can connect again to a new game using the same nickname, since that does not exist anymore on the server. Since no registration and login are required to connect, when the game finishes, is possible for another person to join a game using a nickname used by one of the players who just finished, making it impossible to anyone else, also the person who just used it, to join using it. Let's make an example to make it clear: let's suppose a player Alice is playing in a game with the nickname MyNameIsTheBest and that, while the game is on going, Bob tries to connect to a game using the same nickname. In this case, Bob is notified that the nickname already exists on the server and that he must choose another name. But, if the match played by Alice finishes and Bob tries to connect once again using the nickname MyNameIsTheBest, his connection will be accepted and he will connect to a game using that name. This means that, if Alice tries to play again with the same nickname, her connection will be refused and she will be notified that the nickname she has chosen already exists on the server.
@@ -107,7 +181,7 @@ In addition to MVC pattern, already explained, we implemented:
 	There are no ToolCards requiring more than 2 interactions with the user, but, if needed, the sequence could be iterated on more phases, creating a specific implementation for every one of them. Here is a scheme of the pattern:
     <div align="CENTER"><img src="https://github.com/MattePalte/ing-soft-2018-paltenghi-parravicini-pellizzi/blob/master/UML/State.png?raw=true"/></div>
 - <a name="Singleton"></a>**Singleton** to create a Settings class: since the Settings class contains quite constant properties, a single instance of it is created the first time any class requires a property. If the object has already been created and other settings are needed, a reference to this unique instance is returned.
-- <a name="Factory"></a>**Factory** to create the instance of the GameModel: depending on the number of player that made up a game rules can change. Therefore we have created a class that decouple the decision of which particular game instantiate from the general management of the game. This decision will take place in its factory method where, based on some logic, it can create the appropiate kind of GameModel to instantiate. Furthermore every match needs common objects to be initialized, the factory take care of creating and initialize ToolCards, Public Objectives, Private Objectives, DiceBag and PatternCards that can be reused to the instance other GameModel.
+- <a name="Factory"></a>**Factory** to create the instance of the GameModel: depending on the number of player that made up a game, rules can change. Therefore we have created a class that decouple the decision of which particular game instantiate from the general management of the game. This decision will take place in its factory method where, based on some logic, it can create the appropiate kind of GameModel to instantiate. Furthermore, every match needs common objects to be initialized, so the factory method takes care of creating and initialize ToolCards, Public Objectives, Private Objectives, DiceBag and PatternCards that can be reused to create instances other GameModels.
 - <a name="Template"></a>**Template** to make ToolCards (only those with a single state) have a default behavior: a ToolCard abstract class exists, with a template method implemented. This calls other methods in a particular sequence and it's used to play the ToolCard itself. The sequence of actions performed in the template method is:
 	1. Verify if the player who asked to play the ToolCard has enough Favour Points to pay it
 	2. Check if the parameters inserted by the player to play the ToolCard are correct
