@@ -416,8 +416,8 @@ public class GameModel implements IGameModel, Serializable {
             // this code is used onlu when all the player except onw left the game
             // during the choos pattern phase. In this cas in fact there is no pattern
             // for some players.
-            if (p.getPattern() == null) {
-                pointDescription.put(p.getName(), p.getName()+ " exited during choose pattern phase");
+            if (p.getPattern() == null || !p.isConnected()) {
+                pointDescription.put(p.getName(), p.getName()+ " not online so get by default -5000");
                 rank.add(new Pair<>(p, -5000));
                 continue;
             }

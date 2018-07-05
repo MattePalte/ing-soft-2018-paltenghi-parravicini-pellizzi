@@ -410,7 +410,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         alert.setHeaderText(s);
         alert.show();
         synchronized (this) {
-            btnCancel.setDisable(true);
+            //btnCancel.setDisable(true);
             timeout.progressProperty().bind(new SimpleDoubleProperty(0));
             instructionTxt.setText("");
         }
@@ -768,7 +768,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
     public void btnEndTurnOnCLick() {
         endingOperation();
         synchronized (this) {
-            btnCancel.setDisable(true);
+            //btnCancel.setDisable(true);
             timeout.progressProperty().bind(new SimpleDoubleProperty(0));
             instructionTxt.setText("");
         }
