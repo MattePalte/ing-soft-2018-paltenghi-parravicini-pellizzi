@@ -365,7 +365,7 @@ public class Player implements Serializable{
             copyTest.checkPlaceDie(queue.get(i),end.get(i), checkColour, checkValue, checkPresence);
             copyTest.placedDice[end.get(i).getRow()][end.get(i).getCol()] = queue.get(i);
         }
-
+        copyTest.hasEverPlacedADie = true;
         this.saveMemento(copyTest);
     }
 
