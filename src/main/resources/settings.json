@@ -20,7 +20,7 @@
   "gameStartTimeoutEnabled": true,
   "turnTimeoutEnabled": true,
   "turnTimeout": 120000,
-  "gameStartTimeout": 3000,
+  "gameStartTimeout": 30000,
   "synchTime": 5000,
   "tokenProperty": "SagradaToken",
   "defaultLoggingLevel": {
@@ -30,7 +30,7 @@
   },
   "defaultRmiApName": "accessPoint",
   "cliProgressbarEnabled" : false,
-  "cliColoursRbg" : false,
+  "cliColoursRbg" : true,
   "locationOfWindowPatternFile" : "/patterns.txt",
   "properties": {
     "preferences.location" :"sagrada",
