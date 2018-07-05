@@ -444,7 +444,7 @@ public class ClientViewCLI extends UnicastRemoteObject
         int col ;
 
         int maxRow = localCopyOfTheStatus.getGameInfo().getPlayerFromName(ownerNameOfTheView).getPattern().getHeight()-1;
-        int maxCol  = localCopyOfTheStatus.getGameInfo().getPlayerFromName(ownerNameOfTheView).getPattern().getHeight()-1;
+        int maxCol  = localCopyOfTheStatus.getGameInfo().getPlayerFromName(ownerNameOfTheView).getPattern().getWidth()-1;
 
         out.println("Row Index [0 - "+ maxRow +"]");
         row = waitForUserInput( maxRow);
