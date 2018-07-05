@@ -3,10 +3,10 @@ Index
 1) [Group Info](#Info)
 2) [Coverage](#Coverage)
 3) [UML](#UML)
-    - [Global UML](#Global_UML)
-4) [FA](#FA)
-    - [Personalized Window Pattern Card](#Personalized_Cards)
-    - [Multi game upport](#Multi_game)
+    - [Global UML class diagram](#Global_UML)
+4) [Advanced Functionalities](#FA)
+    - [Dynamic pattern cards creation from file](#Personalized_Cards)
+    - [Multi game support](#Multi_game)
 5) [Limitations](#Limitations)
     - [ToolCards limitations](#ToolCards_limitations)
 6) [Design Choices](#Design_choices)
@@ -19,6 +19,8 @@ Index
         - [State Pattern](#State)
         - [Singleton](#Singleton)
         - [Factory](#Factory)
+        - [Template](#Template)
+    - [Connection and Reconnection](#Conn-Reconn)
 
 
 <a name="Info"></a>1. Group's Info
@@ -41,29 +43,33 @@ Here the metrics of Sonarqube:
 Here is a complete UML class diagram of the entire project:
 <div name="Global_UML" align="CENTER"><img src="https://github.com/MattePalte/ing-soft-2018-paltenghi-parravicini-pellizzi/blob/master/UML/final/GlobalUML.png?raw=true"/></div>
 
-<a name="FA"></a>4. Advanced functions
+<a name="FA"></a>4. Advanced functionalities
 ---
-<a name="Personalized_Cards"></a>- Personalized Window Pattern Card
----
+<a name="Personalized_Cards"></a>
+### Dynamic pattern cards creation from file
 
-<a name="Multi_game"></a>- Multi game upport
----
+<a name="Multi_game"></a>
+### Multi game support
+When a player connects to the game, he will be connected to an already existing game waiting for players to start, if this exist, otherwise, a new game is created on the same server. While the games are on going, both of them are managed by the same server and other new games could be added meanwhile. To keep references to every game hosted, a Map exist, which saves both the reference of the GameController and its unique ID. When the game finishes, the game is removed from this Map, and players can connect again to a new game using the same nickname, since that does not exist anymore on the server. Since no registration and login are required to connect, when the game finishes, is possible for another person to join a game using a nickname used by one of the players who just finished, making it impossible to anyone else, also the person who just used it, to join using it. Let's make an example to make it clear: let's suppose a player Alice is playing in a game with the nickname MyNameIsTheBest and that, while the game is on going, Bob tries to connect to a game using the same nickname. In this case, Bob is notified that the nickname already exists on the server and that he must choose another name. But, if the match played by Alice finishes and Bob tries to connect once again using the nickname MyNameIsTheBest, his connection will be accepted and he will connect to a game using that name. This means that, if Alice tries to play again with the same nickname, her connection will be refused and she will be notified that the nickname she has chosen already exists on the server.
+Player connection and usage of the game ID will be explained better lately in the section [*Connection and Reconnection*](#Conn-Reconn).
 
 <a name="Limitations"></a>5. Limitations 
 ---
 
-<a name="ToolCards_limitations"></a>ToolCards limitations
----------------------
-All the ToolCards implying the player to move one or more dice have been implemented by taking the dice chosen by the player from its board and, one by one, in the same order the player chose them, he is asked to place them again. This implementation allow us to permit players to swap 2 dice in their board. However, it does not allow players to move dice in cascade: let's suppose a player placed only 2 dice. If he plays a toolcard to move both of them, he can't choose a die, place it near the other one and move the second one. The dice are taken at the same time and then placed one by one. If taking the 2 dice chosen leaves the board clear (no dice are left on the board) then the player must place the first die on the edge of the board, just as if it were its first die in the game.
+<a name="ToolCards_limitations"></a>
+### ToolCards limitations
+- All the ToolCards implying the player to move one or more dice have been implemented by taking the dice chosen by the player from its board and, one by one, in the same order the player chose them, he is asked to place them again. This implementation allow us to permit players to swap 2 dice in their board. However, it does not allow players to move dice in cascade: let's suppose a player placed only 2 dice. If he plays a toolcard to move both of them, he can't choose a die, place it near the other one and move the second one. The dice are taken at the same time and then placed one by one. If taking the 2 dice chosen leaves the board clear (no dice are left on the board) then the player must place the first die on the edge of the board, just as if it were its first die in the game.
 The toolcards affected by this limitation are:
-- Lathekin
-- Tap Wheel
+	- Lathekin
+	- Tap Wheel
+
+- The effect description of the ToolCard called "Running Pliers", says: "After your first turn, immediately draft a die. Skip your next turn this round". From this description, we intended that the player who plays this ToolCard, must take its turn twice in a row. So, when this ToolCard is played, its effect changes the turn sequence of the round and the player who played it can take its turn twice, choosing, for every turn, what to do. This means that even in its second turn, he can choose to place a die, to play a ToolCard, or to do nothing and simply pass its turn.
 
 <a name="Design_choices"></a>6. Design Choices
 ---------------------------
 
-<a name="Client-Server_Interaction"></a>Client - Server interaction
----------------------------
+<a name="Client-Server_Interaction"></a>
+### Client - Server interaction
 
 To let client and server communicate each other, we implemented, as requested, a MVC pattern, with some differences from the plain one.
 
@@ -78,8 +84,8 @@ The second part of the controller is called PlayerController. Each player is ass
 Here is a graphical representation of client-server interaction:
 ![client-server interaction](https://github.com/MattePalte/ing-soft-2018-paltenghi-parravicini-pellizzi/blob/master/UML/Client-Server%20interaction.PNG?raw=true)
 
-<a name="Design_Patterns"></a>Design Pattern used
--------------------
+<a name="Design_Patterns"></a>
+### Design Pattern used
 In addition to MVC pattern, already explained, we implemented:
 - <a name="Command"></a>**Command Pattern** to implement ToolCards: there is a ToolCard interface, which contains all the methods needed to let players use them. Since every ToolCard applies a different effect, there is a specific implementeation for every single existing ToolCard in the game, but, since some ToolCards have quite similar effects, the operations to be executed above the GameModel are coded into the GameModel itself, and the ToolCards call them in the order they need. Here is a scheme of the pattern: 
 <div align=CENTER><img src="https://github.com/MattePalte/ing-soft-2018-paltenghi-parravicini-pellizzi/blob/master/UML/ToolCards.png?raw=true" width=400/></div>
@@ -102,4 +108,16 @@ In addition to MVC pattern, already explained, we implemented:
     <div align="CENTER"><img src="https://github.com/MattePalte/ing-soft-2018-paltenghi-parravicini-pellizzi/blob/master/UML/State.png?raw=true"/></div>
 - <a name="Singleton"></a>**Singleton** to create a Settings class: since the Settings class contains quite constant properties, a single instance of it is created the first time any class requires a property. If the object has already been created and other settings are needed, a reference to this unique instance is returned.
 - <a name="Factory"></a>**Factory** to create the instance of the GameModel: since every match needs the same objects to be initialized, we created a class containing a factory method which, taking the list of the players added in the match as a parameter, create and initialize the instance of the GameModel with all it needs, in particular ToolCards, Public Objectives, Private Objectives, DiceBag and PatternCards.
+- <a name="Template"></a>**Template** to make ToolCards (only those with a single state) have a default behavior: a ToolCard abstract class exists, with a template method implemented. This calls other methods in a particular sequence and it's used to play the ToolCard itself. The sequence of actions performed in the template method is:
+	1. Verify if the player who asked to play the ToolCard has enough Favour Points to pay it
+	2. Check if the parameters inserted by the player to play the ToolCard are correct
+	3. Apply ToolCard effect
+	4. If everything went well (no exception have been thrown) pay the ToolCard consuming player's Favour Points
+	5. Update player's local copy of the model
+ 
+	Every single state ToolCard extends this abstract class, overriding, eventually, the methods that have a different behavior according to the specific ToolCard. The template method is not changed, so the sequence of action executed will be the same for every ToolCard, but, since some methods have been override, the effect could be slightly different.
+    
+<a name="Conn-Reconn"></a>
+### Connection and Reconnection
+One of the functionalities to be implemented requires to manage players connection, disconnection and reconnection to the game. As requested, when a player asks to connect to a game, he will be added to the game which is waiting for players to start, if this exists. If there are no games waiting for players, a new game is created and the player will be added to this one. When a game is created and the first player connects to it, he is notified to wait until the match starts. To make the game start, at least two players must be connected to the game: when there are at least two players connected, a timer is set. If the game reaches the maximum number of players allowed, settable from a settings file, or the timer expires, the game starts, and no other players can be added to this one. If all the players except from one leave the game while it it starting, the timer will be stopped and it will be set again if another player connects to it. During the match, can happen that a player disconnect. In this case, all the other players in the game are notified of the disconnection and the game goes on skipping the disconnected players turn. If all the players disconnect from the game except from one, the match finishes and the last player remained is the winner. As requested, a player who disconnects from the game, has the chance to reconnect to the same game, with the same name, of course. To avoid any person reconnect to a game he didn't join with the name of another player, we implemented a token code computation, that is given and shown to the user when he first connects to the game. This token code is created server side, by appending to the game ID the name of the player and computing an MD5 hash string of the result. Since the game ID is available only on the server, other players can't compute it and, as a property of hash functions, every token code will be different for every player connected to the server, because every player nickname must be different from the ones already existing in a game hosted on the server, so only the player who was really playing the match can reconnect to the game he abandoned. When the player reconnects to the game, all other players in the same match are notified and the player who rejoined can play back again immediately at its first turn of the round.
 
