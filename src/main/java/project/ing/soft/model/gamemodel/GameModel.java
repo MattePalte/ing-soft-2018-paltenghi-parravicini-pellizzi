@@ -418,6 +418,7 @@ public class GameModel implements IGameModel, Serializable {
             // for some players.
             if (p.getPattern() == null || !p.isConnected()) {
                 pointDescription.put(p.getName(), p.getName()+ " not online so get by default -5000");
+                favours.put(p.getName(), 0);
                 rank.add(new Pair<>(p, -5000));
                 continue;
             }

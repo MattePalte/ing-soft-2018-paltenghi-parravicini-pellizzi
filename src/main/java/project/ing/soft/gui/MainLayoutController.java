@@ -645,6 +645,14 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
             Player p = listOfPlayer.get(index);
             // Create Text to show difficulty
             Text txtPlayerName = new Text(p.getName());
+            // Create Text to show difficulty
+            int favoursOfP = 0;
+            try {
+                favoursOfP = localCopyOfTheStatus.getFavours().get(p.getName());
+            } catch (NullPointerException e){
+                favoursOfP = 0;
+            }
+            Text txtPlayerFavour = new Text("Favours " + favoursOfP);
             // Create and style box
             VBox playerBox = new VBox();
             playerBox.setAlignment(Pos.CENTER);
@@ -652,8 +660,9 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
             // Create GridPane for pattern Card
             GridPane playerPattern = ElementCreator.createPattern(p.getPattern(), p.getPlacedDice(), Settings.instance().getCellDimension());
             // Add elements
-            playerBox.getChildren().add(0,txtPlayerName);
+            playerBox.getChildren().add(0,txtPlayerFavour);
             playerBox.getChildren().add(0,playerPattern);
+            playerBox.getChildren().add(0,txtPlayerName);
             // Add player to area of other player
             if (area.getChildren().size() > index) {
                 area.getChildren().set(index, playerBox);

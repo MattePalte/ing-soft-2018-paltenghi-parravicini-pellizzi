@@ -169,6 +169,7 @@ public class LaunchClientCli {
         do {
             out.println("Enter the IP where the server is running (q if the server is on this machine)");
             ipInserted = scan.next();
+            scan.nextLine();
             if (ipInserted.equals("q")) {
                 ipChosen = Settings.instance().getHost();
             }else if (validIP(ipInserted)) {
