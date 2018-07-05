@@ -369,6 +369,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
             timeLine.getKeyFrames().add(new KeyFrame(Duration.millis(initialValue), new KeyValue(time, 0)));
             timeLine.play();
         }
+        parameters.clear();
         enableActions();
     }
 
@@ -869,7 +870,7 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
         btnEndTurn.setDisable(false);
         btnPlayToolCard.setDisable(false);
         //btnCancel.setDisable(true);
-        focusOn(ID_BOX_ACTION, "Select an action ");
+        enableOnly(ID_BOX_ACTION, "Select an action ");
     }
     //endregion
 
