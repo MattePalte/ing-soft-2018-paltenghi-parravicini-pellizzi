@@ -109,6 +109,7 @@ public class ViewProxyOverRmi extends Thread implements IView {
                 } catch (NoSuchObjectException ex) {
                     logger.log(Level.SEVERE, "Error while removing controllerOverRmi from registry ", ex);
                 }
+                gameController.markAsDisconnected(associatedNickname);
                 controllerOverRmi = null;
             }
         }

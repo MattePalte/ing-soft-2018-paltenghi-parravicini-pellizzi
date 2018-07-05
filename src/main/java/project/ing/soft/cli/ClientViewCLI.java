@@ -329,6 +329,20 @@ public class ClientViewCLI extends UnicastRemoteObject
         out.restoreCursorPosition();
     }
 
+    private void stop(){
+        if(userThread != null)
+            userThread.cancel(true);
+        eventHandler.cancel(true);
+        threadPool.shutdown();
+        this.controller = null;
+
+        if(localCopyOfTheStatus.getStatus() != IGameModel.GAME_MANAGER_STATUS.ENDED)
+            out.println("To reconnect you can use this token: " + personalToken);
+        //the following line must remain. In other case no unreferenced() get called!
+        System.gc();
+        System.exit(0);
+    }
+
     //endregion
     @Override
     public void respondTo(MyTurnEndedEvent event){
@@ -510,20 +524,6 @@ public class ClientViewCLI extends UnicastRemoteObject
         return ((String) chooseFrom(Arrays.asList("yes", "no"))).toLowerCase().startsWith("y");
     }
     //endregion
-
-    private void stop(){
-        if(userThread != null)
-            userThread.cancel(true);
-        eventHandler.cancel(true);
-        threadPool.shutdown();
-        this.controller = null;
-
-        if(localCopyOfTheStatus.getStatus() != IGameModel.GAME_MANAGER_STATUS.ENDED)
-            out.println("To reconnect you can use this token: " + personalToken);
-        //the following line must remain. In other case no unreferenced() get called!
-        System.gc();
-        System.exit(0);
-    }
 
     @Override
     public boolean equals(Object o) {

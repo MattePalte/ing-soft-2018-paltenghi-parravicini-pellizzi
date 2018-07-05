@@ -39,7 +39,7 @@ public class APointSocket implements Callable<Boolean>, ConnectionRequestHandler
     private ViewProxyOverSocket viewProxy;
 
     /**
-     * When a TCP connection it's established this object it's created in order tohandle user
+     * When a TCP connection it's established this object it's created in order to handle user
      * connection request.
      * @param clientSocket that give access to I/O capabilities
      * @param accessPointReal that is the {@link IAccessPoint} to be decorated
@@ -61,9 +61,11 @@ public class APointSocket implements Callable<Boolean>, ConnectionRequestHandler
                 ConnectionRequest request = (ConnectionRequest) ois.readObject();
                 request.accept(this);
             } catch(NickNameAlreadyTakenException e){
+                //notify error to the view
                 oos.writeObject(new NickNameAlreadyTakenResponse(e));
                 nicknameAlreadyTaken = true;
             } catch (Exception e) {
+                //notify error to the view
                 oos.writeObject(new ConnectionRefusedResponse(e));
                 clientSocket.close();
                 viewProxy.interrupt();
@@ -116,7 +118,7 @@ public class APointSocket implements Callable<Boolean>, ConnectionRequestHandler
 
     /**
      *This class actually does not need to extend {@link IAccessPoint} to expose
-     * its capabilities in socket context. This has been done in order to get an homogenous
+     * its capabilities in socket context. This has been done in order to get an homogeneous
      * view of the connection method between Socket and Rmi.
      */
     @Override

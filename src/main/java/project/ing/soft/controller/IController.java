@@ -29,9 +29,9 @@ public interface IController extends Remote{
     void placeDie(String nickname, Die aDie, int rowIndex, int colIndex)    throws Exception;
 
     /**
-     * Method called to play a toolcard.
-     * @param nickname of the player who asked to play a toolcard
-     * @param aToolCard Toolcard that the player asked to play
+     * Method called to play a ToolCard.
+     * @param nickname of the player who asked to play a ToolCard
+     * @param aToolCard ToolCard that the player asked to play
      * @throws Exception if anything went wrong while trying to use the asked toolcard or if
      * timeout expires
      */

@@ -17,9 +17,9 @@ import java.util.logging.Logger;
 
 /**
  * This class is intended to be a server representation of the user,and
- * as an entrypoint that allow user to interact with the server.
+ * as an entry point that allow user to interact with the server.
  * Its main concern is take into action user's requests as he was the associated player
- * An istance of this classe is usually obtained by invoking{@link APointSocket#connect(String, IView)}
+ * An instance of this class is usually obtained by invoking{@link APointSocket#connect(String, IView)}
  * or {@link APointSocket#reconnect(String, String, IView)}
  */
 public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler {
@@ -41,10 +41,10 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
      * to the game and the information associated with socket connection.
      * Since the {@link APProxySocket} has already used the socket to ensure that the remote player is the legitimate
      * owner of {@param nickname} identifier, It has to open the socket and deal with oos/ois
-     * @param aSocket that is related to ObjectOutput/IntputStream parameters
+     * @param aSocket that is related to ObjectOutput/InputStream parameters
      * @param oos that can be used to write data through the socket
      * @param ois that can be used to read data through the socket
-     * @param nickname that can univokely associate the remote player in the game.
+     * @param nickname that can uniquely associate the remote player in the game.
      * @throws IOException if an error occurred with OOS.
      */
     ViewProxyOverSocket(Socket aSocket, ObjectOutputStream oos, ObjectInputStream ois, String nickname) throws IOException {
@@ -62,20 +62,20 @@ public class ViewProxyOverSocket extends Thread implements IView,IRequestHandler
 
     /**
      * This is the main part of the class. The thread waits for user request and handle it.
-     * Every object received from {@link #fromClient} is a subclass of Abstractrequest which
-     * embbed every necessary information to carry out the operation indentified by the
+     * Every object received from {@link #fromClient} is a subclass of AbstractRequest which
+     * embed every necessary information to carry out the operation identified by the
      * particular type of AbstractRequest itself.
      * Every request in this way is associated to a corresponding action and then to a response that
      * has to be returned to the client. This is accomplished by {@link #visit(AbstractRequest)}
      *
      *
      * The view does not only enable information flow from client to server,
-     * it is also responsible to trasmit information back to the client supplied to {@link #update(Event)}.
+     * it is also responsible to transmit information back to the client supplied to {@link #update(Event)}.
      *
      * When the view is created the OOS,OIS could be occupied by the {@link APointSocket}.
      * Because of that any message that is sent to {@link #update(Event)} has to be buffered and sent
      * when {@link Thread#start()} is actually invoked.
-     * Any error during trasmission resemble a disconnection event that has to be notified.
+     * Any error during transmission resemble a disconnection event that has to be notified.
      */
     @Override
     public void run() {
