@@ -46,7 +46,13 @@ Here the metrics of Sonarqube:
 ---
 Here is a complete UML class diagram of the entire project:
 <div name="Global_UML" align="CENTER"><img src="https://github.com/MattePalte/ing-soft-2018-paltenghi-parravicini-pellizzi/blob/master/UML/final/GlobalUML.png?raw=true"/></div>
-<a href=""https://github.com/MattePalte/ing-soft-2018-paltenghi-parravicini-pellizzi/blob/master/UML/final/GlobalUML.png?raw=true"
+Specific UML diagrams can be accessed throught these link to the wiki:
+
+ - <a href="https://github.com/MattePalte/ing-soft-2018-paltenghi-parravicini-pellizzi/wiki/UML-ClassDiagram-Socket-Communication">UML Socket Communication</a>
+ - <a href="https://github.com/MattePalte/ing-soft-2018-paltenghi-parravicini-pellizzi/wiki/UML-ClassDiagram--Access-Point">UML Access Point</a>
+ - <a href="https://github.com/MattePalte/ing-soft-2018-paltenghi-parravicini-pellizzi/wiki/UML-ClassDiagram-CLI">UML Cli</a>
+ - <a href="https://github.com/MattePalte/ing-soft-2018-paltenghi-parravicini-pellizzi/wiki/UML-ClassDiagram-GUI">UML Gui</a>
+
 <a name="FA"></a>4. Advanced functionalities
 ---
 <a name="Personalized_Cards"></a>
