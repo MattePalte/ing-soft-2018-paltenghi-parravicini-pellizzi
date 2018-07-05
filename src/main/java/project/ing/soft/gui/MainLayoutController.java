@@ -765,6 +765,8 @@ public class MainLayoutController extends UnicastRemoteObject implements IEventH
      */
     public void btnCancelOnCLick() {
         endingOperation();
+        if (!localCopyOfTheStatus.getCurrentPlayer().getName().equals(ownerNameOfTheView))
+            return;
         enableActions();
         synchronized (this) {
             instructionTxt.setText("");
