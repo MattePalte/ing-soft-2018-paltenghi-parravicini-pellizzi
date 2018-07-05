@@ -445,8 +445,8 @@ public class GameModel implements IGameModel, Serializable {
         }
 
         rank = rank.stream().sorted(Comparator
-                .comparingInt((ToIntFunction<Pair<Player, Integer>>) Pair::getValue)
-                .thenComparingInt( p-> p.getKey().countPrivateObjectivesPoints() )
+                .comparingInt((ToIntFunction<Pair<Player, Integer>>) Pair::getValue).reversed()
+                .thenComparingInt( p-> p.getKey().countPrivateObjectivesPoints() ).reversed()
                 .thenComparingInt( p-> favours.get(p.getKey().getName())).reversed()
                 .thenComparingInt( p -> currentGame.getPlayers().indexOf(p.getKey()))
         ).collect(LinkedList::new, LinkedList::add,LinkedList::addAll );
