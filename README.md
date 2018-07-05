@@ -166,7 +166,7 @@ Searching online we got in touch with DejaVuSansMono (https://github.com/powerli
 
 - Since we needed to interrupt user's actions when its timer expires, we built a pre-emptive method to get input which makes use of a BufferedReader. This is useful because, thanks to a buffer, we can know when the user input is ready and we can read it only in that case, leaving the active thread free to listen and react to an interrupt. 
 
-Due to that buffer, however, when the program is launched in some terminals (for example on Windows PowerShell), the user can't read its input until he press Return to confirm the input. We tested the program on both Windows and MacOS. While on Windows this problem exists, on MacOS terminal users can see their input while they are writing it.
+	Due to that buffer, however, when the program is launched in some terminals (for example on Windows PowerShell), the user can't read its input until he press Return to confirm the input. We tested the program on both Windows and MacOS. While on Windows this problem exists, on MacOS terminal users can see their input while they are writing it.
 
 <a name="Design_choices"></a>6. Design Choices
 ---------------------------
