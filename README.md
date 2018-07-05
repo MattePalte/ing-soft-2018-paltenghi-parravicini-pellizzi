@@ -46,7 +46,7 @@ Here the metrics of Sonarqube:
 ---
 Here is a complete UML class diagram of the entire project:
 <div name="Global_UML" align="CENTER"><img src="https://github.com/MattePalte/ing-soft-2018-paltenghi-parravicini-pellizzi/blob/master/UML/final/GlobalUML.png?raw=true"/></div>
-
+<a href=""https://github.com/MattePalte/ing-soft-2018-paltenghi-parravicini-pellizzi/blob/master/UML/final/GlobalUML.png?raw=true"
 <a name="FA"></a>4. Advanced functionalities
 ---
 <a name="Personalized_Cards"></a>
